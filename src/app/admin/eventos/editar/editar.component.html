@@ -1,3 +1,36 @@
+<!-- Indicador de carga -->
+<div class="cargando" *ngIf="cargando">
+  <mat-icon class="icono-cargando" fontIcon="autorenew" [ngClass]="'spin'"></mat-icon>
+  <span>Cargando...</span>
+</div>
+
+<!-- Selección de evento si no hay uno activo -->
+<section *ngIf="!eventoId && !cargando">
+  <h2 class="titulo-edicion">Selecciona un evento para editar</h2>
+
+  <div *ngIf="eventosDelAutor.length === 0" class="sin-eventos">
+    <mat-icon>info</mat-icon>
+    <span>No se encontraron eventos para editar.</span>
+  </div>
+
+  <div class="lista-eventos" *ngIf="eventosDelAutor.length > 0">
+    <mat-card class="tarjeta-evento" *ngFor="let evento of eventosDelAutor">
+      <img mat-card-image [src]="evento.imagenEvento" alt="Imagen evento" />
+      <mat-card-content>
+        <h3>{{ evento.nombre }}</h3>
+        <p>{{ evento.fecha | date }}</p>
+        <p>{{ evento.lugar }}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-stroked-button color="primary" (click)="seleccionarEvento(evento.id)">
+          <mat-icon>edit</mat-icon> Editar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</section>
+
+<!-- Formulario de edición -->
 <section class="contenedor-editar-evento" *ngIf="form">
   <h1 class="titulo-edicion">Editar Evento</h1>
 
@@ -44,12 +77,12 @@
     </mat-form-field>
 
     <div class="botones-accion">
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || cargando">
         <mat-icon>save</mat-icon> Guardar Cambios
       </button>
 
-      <button mat-stroked-button color="accent" type="button" (click)="volver()">
-        <mat-icon>arrow_back</mat-icon> Volver
+      <button mat-stroked-button color="accent" type="button" (click)="cancelarEdicion()">
+        <mat-icon>arrow_back</mat-icon> Cancelar
       </button>
     </div>
   </form>

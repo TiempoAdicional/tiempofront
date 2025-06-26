@@ -1,41 +1,69 @@
-<div class="admin-dashboard">
-  <!-- Header con nombre de editor -->
+<div class="admin-dashboard" *ngIf="!isLoading; else cargando">
+  <!-- Header del administrador -->
   <div class="admin-header">
-    <img src="assets/user.png" alt="User" class="admin-user-icon" />
-    <span class="admin-username">{{ nombreEditor }}</span>
+    <img src="assets/user.png" alt="Icono usuario" class="admin-user-icon" />
+    <span class="admin-username">Bienvenido, {{ nombreEditor }}</span>
+
+    <button mat-icon-button matTooltip="Cerrar sesión" (click)="cerrarSesion()" class="logout-button">
+      <mat-icon>logout</mat-icon>
+    </button>
   </div>
 
-  <h1>👨‍💼 Panel de Administración</h1>
+  <h1 class="titulo-panel">👨‍💼 Panel de Administración</h1>
 
+  <!-- Sección principal -->
   <div class="dashboard-grid">
-    <!-- Noticias con submenú -->
+    <!-- Noticias -->
     <div class="admin-card expandable" (click)="toggleNoticias()">
-      📰 Noticias
+      <mat-icon class="icono-seccion">article</mat-icon> Noticias
       <span class="arrow" [class.rotated]="noticiasExpandido">▼</span>
     </div>
-    <div class="submenu" *ngIf="noticiasExpandido">
-      <button (click)="navegar('/admin/noticias/crear')">➕ Crear</button>
-      <button (click)="navegar('/admin/noticias/editar')">✏️ Editar</button>
-      <button (click)="navegar('/admin/noticias/listar')">📄 Listar</button>
+
+    <div class="submenu animate-fade" *ngIf="noticiasExpandido">
+      <button mat-raised-button color="primary" (click)="navegar('/admin/noticias/crear')">
+        <mat-icon>add_circle</mat-icon> Crear
+      </button>
+      <button mat-raised-button color="accent" (click)="navegar('/admin/noticias/editar')">
+        <mat-icon>edit</mat-icon> Editar
+      </button>
+      <button mat-raised-button color="warn" (click)="navegar('/admin/noticias/listar')">
+        <mat-icon>list</mat-icon> Listar
+      </button>
     </div>
 
-    <!-- Eventos y Partidos agrupados -->
+    <!-- Eventos y Partidos -->
     <div class="admin-card expandable" (click)="toggleEventos()">
-      📅 Eventos & Partidos
+      <mat-icon class="icono-seccion">event</mat-icon> Eventos & Partidos
       <span class="arrow" [class.rotated]="eventosExpandido">▼</span>
     </div>
-    <div class="submenu" *ngIf="eventosExpandido">
-      <button (click)="navegar('/admin/eventos/crear')">➕ Crear Evento</button>
-      <button (click)="navegar('/admin/eventos/editar')">✏️ Editar Evento</button>
-      <button (click)="navegar('/admin/eventos/listar')">📄 Listar Eventos</button>
-      <hr />
-      <button (click)="navegar('/admin/partidos')">⚽ Ver Partidos</button>
+
+    <div class="submenu animate-fade" *ngIf="eventosExpandido">
+      <button mat-raised-button color="primary" (click)="navegar('/admin/eventos/crear')">
+        <mat-icon>add</mat-icon> Crear Evento
+      </button>
+      <button mat-raised-button color="accent" (click)="navegar('/admin/eventos/editar')">
+        <mat-icon>edit</mat-icon> Editar Evento
+      </button>
+      <button mat-raised-button color="warn" (click)="navegar('/admin/eventos/listar')">
+        <mat-icon>list_alt</mat-icon> Listar Eventos
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-raised-button color="secondary" (click)="navegar('/admin/partidos')">
+        <mat-icon>sports_soccer</mat-icon> Ver Partidos
+      </button>
     </div>
 
     <!-- Editor de secciones -->
-    <a routerLink="/admin/secciones" class="admin-card">🧩 Editor de Secciones</a>
+    <a routerLink="/admin/secciones" class="admin-card seccion-link" matRipple>
+      <mat-icon class="icono-seccion">view_quilt</mat-icon> Editor de Secciones
+    </a>
   </div>
 </div>
 
-
-
+<!-- Spinner de carga -->
+<ng-template #cargando>
+  <div class="cargando-container">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p>Cargando panel...</p>
+  </div>
+</ng-template>

@@ -52,6 +52,11 @@ export const routes: Routes = [
       {
         path: 'eventos/editar/:id',
         loadComponent: () => import('./admin/eventos/editar/editar.component').then(m => m.EditarComponent)
+      },
+      {
+
+        path: 'eventos/editar',
+        loadComponent: () => import('./admin/eventos/editar/editar.component').then(m => m.EditarComponent)
       }
     ]
   },

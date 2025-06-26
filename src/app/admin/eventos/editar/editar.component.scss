@@ -84,6 +84,79 @@
   }
 }
 
+.cargando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem auto;
+  font-weight: bold;
+  color: var(--verde-lima);
+  font-size: 1.2rem;
+
+  .icono-cargando {
+    font-size: 2rem;
+  }
+
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+}
+
+.lista-eventos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.tarjeta-evento {
+  background-color: var(--gris-card);
+  color: var(--blanco-suave);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px var(--verde-lima);
+  }
+
+  mat-card-content h3 {
+    font-size: 1.3rem;
+    margin: 0.5rem 0;
+    font-weight: bold;
+  }
+
+  mat-card-image {
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+    height: 180px;
+    object-fit: cover;
+  }
+
+  mat-card-actions {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 1rem;
+  }
+}
+
+.sin-eventos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--blanco-suave);
+  font-weight: bold;
+  padding: 2rem;
+  text-align: center;
+
+  mat-icon {
+    color: var(--verde-lima);
+  }
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
   .contenedor-editar-evento {
@@ -97,9 +170,13 @@
   .formulario-editar {
     gap: 1rem;
   }
+
+  .lista-eventos {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* Animación */
+/* Animaciones */
 @keyframes fadeIn {
   0% {
     opacity: 0;
@@ -109,5 +186,15 @@
   100% {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }

@@ -37,15 +37,37 @@ export class EditarComponent implements OnInit {
   imagenPreview: string = '';
   cargando = false;
 
-  ngOnInit(): void {
-    this.eventoId = Number(this.route.snapshot.paramMap.get('id'));
-    if (isNaN(this.eventoId)) {
-      this.snackBar.open('ID inválido', 'Cerrar', { duration: 3000 });
-      this.router.navigate(['/admin']);
-      return;
-    }
+  eventosDelAutor: Evento[] = [];
+  modoSeleccion = true;
 
-    this.cargarEvento();
+  ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.eventoId = Number(idParam);
+      this.modoSeleccion = false;
+      this.cargarEvento();
+    } else {
+      this.cargarEventosDelAutor();
+    }
+  }
+
+  cargarEventosDelAutor(): void {
+    this.cargando = true;
+    const autorId = Number(localStorage.getItem('userId'));
+    this.eventoService.listarPorCreador(autorId).subscribe({
+      next: (eventos) => {
+        this.eventosDelAutor = eventos;
+        this.cargando = false;
+      },
+      error: () => {
+        this.snackBar.open('Error al cargar los eventos del autor', 'Cerrar', { duration: 3000 });
+        this.router.navigate(['/admin']);
+      }
+    });
+  }
+
+  seleccionarEvento(id?: number): void {
+    this.router.navigate(['/admin/eventos/editar', id]);
   }
 
   cargarEvento(): void {
@@ -60,7 +82,6 @@ export class EditarComponent implements OnInit {
           imagenEvento: [evento.imagenEvento ?? '', Validators.required],
           videoUrl: [evento.videoUrl ?? '']
         });
-
         this.imagenPreview = evento.imagenEvento ?? '';
         this.cargando = false;
       },
@@ -104,17 +125,37 @@ export class EditarComponent implements OnInit {
   volver(): void {
     this.router.navigate(['/admin']);
   }
-  onFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
-    const file = input.files[0];
-    this.form.patchValue({ imagenEvento: file });
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.imagenPreview = reader.result as string;
-    };
-    reader.readAsDataURL(file);
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.form.patchValue({ imagenEvento: file });
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagenPreview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
+  cancelarEdicion(): void {
+  // Limpiar el formulario si está inicializado
+  if (this.form) {
+    this.form.reset();
+  }
+
+  // Volver al modo de selección de eventos
+  this.modoSeleccion = true;
+
+  // Limpiar valores auxiliares
+  this.eventoId = 0;
+  this.imagenPreview = '';
+
+  // Navegar de nuevo a la lista de eventos del autor
+  this.router.navigate(['/admin/eventos/editar']);
 }
+
+
+
 }
