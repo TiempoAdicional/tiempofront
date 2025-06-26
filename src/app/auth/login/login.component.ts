@@ -3,17 +3,22 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
-
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule,MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule,MatProgressSpinnerModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
   loginForm: FormGroup;
   mostrarContrasena = false;
+  cargando = false;
 
   constructor(
     private fb: FormBuilder,
@@ -34,27 +39,30 @@ export class LoginComponent {
     this.mostrarContrasena = !this.mostrarContrasena;
   }
 
- onSubmit(): void {
-  if (this.loginForm.valid) {
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (res) => {
-        this.authService.guardarToken(res.token);
-        this.authService.guardarUsuario(res.nombre, res.rol, res.id);
-        console.log("✅ Login exitoso:", res.nombre, res.rol);
+  onSubmit(): void {
+    if (this.loginForm.valid) {
+      this.cargando = true; // Activar spinner
 
-        // Redirección por rol
-        if (res.rol === 'ADMIN') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/']);
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (res) => {
+          this.authService.guardarToken(res.token);
+          this.authService.guardarUsuario(res.nombre, res.rol, res.id);
+          this.cargando = false;
+
+          if (res.rol === 'ADMIN') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/']);
+          }
+        },
+        error: (err) => {
+          this.cargando = false;
+          console.error('❌ Error al iniciar sesión:', err);
+          alert('❌ Credenciales incorrectas o error del servidor.');
         }
-      },
-      error: (err) => {
-        console.error('❌ Error al iniciar sesión:', err);
-        alert('❌ Credenciales incorrectas o error del servidor.');
-      }
-    });
+      });
+    }
   }
 }
 
-}
+

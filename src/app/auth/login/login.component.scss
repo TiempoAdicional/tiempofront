@@ -1,158 +1,219 @@
-@use 'sass:math';
 .login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  background: var(--gris-fondo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--gris-fondo);
   padding: 2rem;
-  animation: fadeInUp 1s ease-in-out;
+  position: relative;
+  font-family: 'League Spartan', sans-serif;
 }
 
 .form-card {
-  background: rgba(38, 43, 50, 0.75); // fondo semitransparente
-  backdrop-filter: blur(15px);
+  background: var(--gris-card);
+  padding: 2rem 2.5rem;
   border-radius: var(--radius-xl);
-  padding: 2.5rem 2rem;
   width: 100%;
-  max-width: 380px; // 📏 más estrecho y elegante
+  max-width: 420px;
   box-shadow: var(--shadow-soft);
-  animation: fadeInUp 1s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  animation: fadeInCard 0.6s ease;
   transition: var(--transition-fast);
-  overflow: hidden;
+  color: var(--blanco-suave);
 }
 
 .title {
-  font-family: 'Anton', sans-serif;
-  font-size: 2.2rem;
+  font-size: 2rem;
   color: var(--verde-lima);
+  font-weight: bold;
   text-align: center;
   margin-bottom: 2rem;
+  text-shadow:
+    0 0 2px var(--verde-lima),
+    0 0 4px var(--verde-lima),
+    0 0 6px var(--verde-selva);
+  letter-spacing: 0.5px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1.2rem;
-
-  label {
-    font-size: 0.95rem;
-    color: var(--blanco);
-    margin-bottom: 0.3rem;
-  }
-
-  .input-icon {
-  position: relative;
+.full-width {
   width: 100%;
-  max-width: 511px; 
-  
+  margin-bottom: 1.5rem;
 
-  i.fa-user,
-  i.fa-lock {
-    position: absolute;
-    top: 50%;
-    left: 12px;
-    transform: translateY(-50%);
+  mat-form-field {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
     color: var(--blanco);
-    font-size: 1rem;
-    pointer-events: none;
-  }
-
-  input {
-    padding: 0.6rem 2.5rem 0.6rem 2.5rem;
-    width: 100%;
-    border-radius: 0.5rem;
+    transition: all 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--blanco);
-    transition: var(--transition-fast);
-    font-size: 0.95rem; // ✅ más legible que 0.6rem
-
-    &:focus {
-      outline: none;
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--verde-lima);
-      box-shadow: 0 0 4px var(--verde-lima);
-    }
-  }
-// Ojo mostrar/ocultar
-.fa-eye,
-  .fa-eye-slash {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    transform: translateY(-50%);
-    color: var(--blanco);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: color 0.2s;
 
     &:hover {
+      background-color: rgba(255, 255, 255, 0.12);
+      border-color: var(--verde-lima);
+    }
+
+    &.mat-focused {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--verde-lima);
+      box-shadow: 0 0 8px rgba(0, 255, 127, 0.3);
+    }
+
+    input {
+      color: var(--blanco) !important;
+      font-weight: 500;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 400;
+      }
+
+      &:focus {
+        color: var(--blanco) !important;
+      }
+    }
+
+    .mat-icon {
       color: var(--verde-lima);
+    }
+
+    // Estilos para labels de Angular Material
+    .mat-form-field-label {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    &.mat-focused .mat-form-field-label {
+      color: var(--verde-lima) !important;
+    }
+
+    // Underline styles para Material
+    .mat-form-field-underline {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &.mat-focused .mat-form-field-underline .mat-form-field-ripple {
+      background-color: var(--verde-lima);
     }
   }
 }
-    
+
+/* Placeholder más claro */
+input::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-weight: 400;
 }
 
+/* Inputs con texto visible */
+input {
+  color: var(--blanco) !important;
+  font-weight: 500;
+}
+
+/* Iconos visibles al 100% */
+.mat-icon {
+  color: var(--verde-lima);
+  opacity: 1;
+}
 
 .btn-login {
   width: 100%;
-  padding: 0.75rem;
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--gris-card);
+  padding: 0.8rem;
+  font-weight: bold;
+  color: var(--negro);
   background-color: var(--verde-lima);
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  box-shadow: 0 0 10px rgba(180, 255, 21, 0.3);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 10px var(--verde-lima);
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
 
   &:hover {
     background-color: var(--verde-selva);
+    box-shadow: 0 0 16px var(--verde-lima), 0 0 32px var(--verde-lima);
     color: var(--blanco);
-    transform: scale(1.03);
-    box-shadow: 0 0 16px var(--verde-selva);
   }
 
-  margin-top: 1rem;
+  mat-icon {
+    margin-right: 0.5rem;
+  }
+}
+
+/* Botón deshabilitado más visible */
+button[disabled] {
+  opacity: 0.4;
+  background-color: var(--gris-card);
+  color: var(--blanco-suave);
 }
 
 .register-text {
-  margin-top: 1.5rem;
   text-align: center;
-  color: var(--blanco);
-  font-size: 0.85rem;
+  font-size: 1rem;
+  margin-top: 1.5rem;
+  color: var(--blanco-suave);
 
-  a {
+  .link-animado {
     color: var(--verde-lima);
+    font-weight: bold;
+    cursor: pointer;
     text-decoration: none;
-    margin-left: 0.25rem;
-    font-weight: 600;
-    transition: color 0.3s;
+    position: relative;
+    transition: color var(--transition-fast);
 
     &:hover {
-      color: var(--verde-selva);
+      color: var(--accent-color);
+      text-shadow: 0 0 10px var(--verde-lima);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background-color: var(--verde-lima);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition-fast);
+    }
+
+    &:hover::after {
+      transform: scaleX(1);
     }
   }
 }
-// Animación
-@keyframes fadeInUp {
-  0% {
+
+/* Spinner overlay */
+.overlay-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(27, 31, 36, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  border-radius: var(--radius-xl);
+}
+
+/* Animación de entrada */
+@keyframes fadeInCard {
+  from {
     opacity: 0;
-    transform: translateY(50px);
+    transform: translateY(15px);
   }
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-// 📱 Móviles pequeños (hasta 576px)
-@media (max-width: 576px) {
+/* RESPONSIVE: */
+/* Celular pequeño */
+@media (max-width: var(--breakpoint-mobile)) {
   .form-card {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem;
+    max-width: 95%;
   }
 
   .title {
@@ -160,27 +221,23 @@
   }
 }
 
-// 📲 Tablets (hasta 768px)
-@media (max-width: 768px) {
+/* Móvil grande */
+@media (min-width: var(--breakpoint-mobile)) and (max-width: var(--breakpoint-tablet)) {
   .form-card {
-    padding: 2rem 1.5rem;
-  }
-
-  .title {
-    font-size: 2rem;
+    max-width: 90%;
   }
 }
 
-// 💻 Portátiles medianos (hasta 1024px)
-@media (max-width: 1024px) {
+/* Tablet */
+@media (min-width: var(--breakpoint-tablet)) and (max-width: var(--breakpoint-desktop)) {
   .form-card {
-    max-width: 500px;
+    max-width: 75%;
   }
 }
 
-// 🖥 Escritorios grandes (1440px+)
-@media (min-width: 1440px) {
+/* Escritorio */
+@media (min-width: var(--breakpoint-desktop)) {
   .form-card {
-    max-width: 600px;
+    max-width: 420px;
   }
 }

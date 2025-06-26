@@ -1,31 +1,43 @@
 <div class="login-container">
-    <form class="form-card" (ngSubmit)="onSubmit()" [formGroup]="loginForm">
-        <h2 class="title">Iniciar sesión</h2>
+  <form class="form-card mat-elevation-z6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <h2 class="title">Iniciar sesión</h2>
 
-        <div class="form-group">
-            <label for="correo">Correo</label>
-            <div class="input-icon">
-                <i class="fas fa-user"></i>
-                <input type="email" id="correo" formControlName="correo" placeholder="Ingresa tu correo" />
-            </div>
-        </div>
+    <!-- Email -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Correo electrónico</mat-label>
+      <input matInput type="email" placeholder="ejemplo@correo.com" formControlName="correo" />
+      <mat-icon matSuffix>mail</mat-icon>
+    </mat-form-field>
 
-        <div class="form-group">
-            <label for="contrasena">Contraseña</label>
-            <div class="input-icon">
-                <i class="fas fa-lock"></i>
-                <input [type]="mostrarContrasena ? 'text' : 'password'" id="contrasena" formControlName="contrasena"
-                    placeholder="Ingresa tu contraseña" />
-                <i class="fas" [ngClass]="mostrarContrasena ? 'fa-eye-slash' : 'fa-eye'" (click)="toggleMostrar()"
-                    title="Mostrar/ocultar contraseña"></i>
-            </div>
-        </div>
+    <!-- Contraseña -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Contraseña</mat-label>
+      <input
+        matInput
+        [type]="mostrarContrasena ? 'text' : 'password'"
+        formControlName="contrasena"
+        placeholder="Ingresa tu contraseña"
+      />
+      <button mat-icon-button matSuffix type="button" (click)="toggleMostrar()" aria-label="Toggle password visibility">
+        <mat-icon>{{ mostrarContrasena ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+    </mat-form-field>
 
-        <button type="submit" class="btn-login" [disabled]="loginForm.invalid">Entrar</button>
+    <!-- Botón login -->
+    <button mat-raised-button color="primary" class="btn-login" [disabled]="loginForm.invalid || cargando">
+      <mat-icon>login</mat-icon>
+      Entrar
+    </button>
 
-        <p class="register-text">
-            ¿No tienes cuenta?
-            <a (click)="irARegistro()" role="button">Regístrate aquí</a>
-        </p>
-    </form>
+    <!-- Registro -->
+    <p class="register-text">
+      ¿No tienes cuenta?
+      <a (click)="irARegistro()" class="link-animado">Regístrate aquí</a>
+    </p>
+  </form>
+
+  <!-- Loading Spinner -->
+  <div class="overlay-spinner" *ngIf="cargando">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
 </div>
