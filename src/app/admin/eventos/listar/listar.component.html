@@ -1,0 +1,63 @@
+<section class="contenedor-eventos">
+  <h1 class="titulo-seccion">
+    <mat-icon color="accent">event</mat-icon>
+    Gestión de Eventos
+  </h1>
+
+  <div class="barra-superior">
+    <span class="contador-eventos">
+      <mat-icon>list</mat-icon>
+      Total: {{ eventos.length }}
+    </span>
+    <button mat-raised-button color="primary" [routerLink]="['/admin/eventos/crear']">
+      <mat-icon>add</mat-icon>
+      Nuevo Evento
+    </button>
+  </div>
+
+  <div *ngIf="cargando" class="mensaje-carga">
+    <mat-icon class="spin">hourglass_top</mat-icon>
+    Cargando eventos...
+  </div>
+
+  <div *ngIf="!cargando && eventos.length === 0" class="mensaje-vacio">
+    <mat-icon>info</mat-icon>
+    No hay eventos registrados.
+  </div>
+
+  <div class="grid-eventos">
+    <article class="tarjeta-evento" *ngFor="let evento of eventos" aria-label="Tarjeta de evento">
+      <img
+        class="imagen-evento"
+        [src]="evento.imagenEvento"
+        alt="Imagen del evento {{ evento.nombre }}"
+      />
+
+      <div class="contenido-evento">
+        <h2 class="titulo-evento">
+          <mat-icon color="accent">celebration</mat-icon>
+          {{ evento.nombre }}
+        </h2>
+        <p class="descripcion-evento">{{ evento.descripcion }}</p>
+        <p class="detalle-evento">
+          <mat-icon inline>calendar_today</mat-icon>
+          <strong>Fecha:</strong> {{ evento.fecha | date: 'fullDate' }}<br />
+          <mat-icon inline>place</mat-icon>
+          <strong>Lugar:</strong> {{ evento.lugar }}
+        </p>
+
+        <div class="acciones-evento">
+          <button
+            mat-stroked-button
+            color="warn"
+            matTooltip="Eliminar este evento"
+            (click)="eliminarEvento(evento.id!)"
+          >
+            <mat-icon>delete</mat-icon>
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

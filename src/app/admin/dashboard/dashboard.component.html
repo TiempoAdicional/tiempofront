@@ -1,0 +1,41 @@
+<div class="admin-dashboard">
+  <!-- Header con nombre de editor -->
+  <div class="admin-header">
+    <img src="assets/user.png" alt="User" class="admin-user-icon" />
+    <span class="admin-username">{{ nombreEditor }}</span>
+  </div>
+
+  <h1>👨‍💼 Panel de Administración</h1>
+
+  <div class="dashboard-grid">
+    <!-- Noticias con submenú -->
+    <div class="admin-card expandable" (click)="toggleNoticias()">
+      📰 Noticias
+      <span class="arrow" [class.rotated]="noticiasExpandido">▼</span>
+    </div>
+    <div class="submenu" *ngIf="noticiasExpandido">
+      <button (click)="navegar('/admin/noticias/crear')">➕ Crear</button>
+      <button (click)="navegar('/admin/noticias/editar')">✏️ Editar</button>
+      <button (click)="navegar('/admin/noticias/listar')">📄 Listar</button>
+    </div>
+
+    <!-- Eventos y Partidos agrupados -->
+    <div class="admin-card expandable" (click)="toggleEventos()">
+      📅 Eventos & Partidos
+      <span class="arrow" [class.rotated]="eventosExpandido">▼</span>
+    </div>
+    <div class="submenu" *ngIf="eventosExpandido">
+      <button (click)="navegar('/admin/eventos/crear')">➕ Crear Evento</button>
+      <button (click)="navegar('/admin/eventos/editar')">✏️ Editar Evento</button>
+      <button (click)="navegar('/admin/eventos/listar')">📄 Listar Eventos</button>
+      <hr />
+      <button (click)="navegar('/admin/partidos')">⚽ Ver Partidos</button>
+    </div>
+
+    <!-- Editor de secciones -->
+    <a routerLink="/admin/secciones" class="admin-card">🧩 Editor de Secciones</a>
+  </div>
+</div>
+
+
+

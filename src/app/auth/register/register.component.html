@@ -1,0 +1,66 @@
+<div class="login-container">
+  <div class="form-card">
+    <h2 class="title">Crear cuenta</h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <div class="input-icon">
+          <i class="fas fa-user"></i>
+          <input
+            type="text"
+            id="nombre"
+            placeholder="Tu nombre"
+            formControlName="nombre"
+          />
+        </div>
+      </div>
+
+      <!-- Correo -->
+      <div class="form-group">
+        <label for="correo">Correo</label>
+        <div class="input-icon">
+          <i class="fas fa-envelope"></i>
+          <input
+            type="email"
+            id="correo"
+            placeholder="Ingresa tu correo"
+            formControlName="correo"
+          />
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="form-group">
+        <label for="contrasena">Contraseña</label>
+        <div class="input-icon">
+          <i class="fas fa-lock"></i>
+          <input
+            [type]="mostrarContrasena ? 'text' : 'password'"
+            id="contrasena"
+            placeholder="Crea una contraseña"
+            formControlName="contrasena"
+          />
+          <i
+            class="fas"
+            [ngClass]="mostrarContrasena ? 'fa-eye-slash' : 'fa-eye'"
+            (click)="toggleMostrar()"
+            title="Mostrar u ocultar contraseña"
+          ></i>
+        </div>
+      </div>
+
+      <!-- Botón -->
+      <button class="btn-login" type="submit" [disabled]="registerForm.invalid">
+        Registrarse
+      </button>
+    </form>
+
+    <!-- Enlace a login -->
+    <p class="register-text">
+            ¿ya tienes cuenta?
+            <a (click)="irARegistro()" role="button">Inicia sesión aqui</a>
+        </p>
+  </div>
+</div>

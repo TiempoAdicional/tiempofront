@@ -1,0 +1,62 @@
+<section class="contenedor-crear-evento">
+  <mat-card class="card-crear-evento">
+
+    <!-- 🔙 Botón de regreso -->
+    <div class="contenedor-boton-volver">
+      <button mat-stroked-button color="accent" class="btn-volver" (click)="volverAlDashboard()">
+        <mat-icon>arrow_back</mat-icon> Volver al Dashboard
+      </button>
+    </div>
+
+    <h1 class="titulo-creacion">📝 Crear Evento Deportivo</h1>
+
+    <form [formGroup]="eventoForm" (ngSubmit)="onSubmit()" class="formulario-crear">
+
+      <mat-form-field appearance="outline" class="campo-formulario">
+        <mat-label>Nombre del evento</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej. Final Liga" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo-formulario">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput formControlName="descripcion" rows="3" placeholder="Escribe una descripción..."></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo-formulario">
+        <mat-label>Fecha del evento</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="fecha" placeholder="Selecciona una fecha" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo-formulario">
+        <mat-label>Lugar</mat-label>
+        <input matInput formControlName="lugar" placeholder="Ej. Estadio Nacional" />
+      </mat-form-field>
+
+      <div class="campo-formulario">
+        <label class="label-archivo">📷 Cargar imagen del evento</label>
+        <input type="file" (change)="onFileSelected($event)" accept="image/*" />
+      </div>
+
+      <div *ngIf="imagenUrl" class="imagen-preview-contenedor">
+        <p class="texto-preview">Vista previa:</p>
+        <img [src]="imagenUrl" alt="Vista previa" class="imagen-preview" />
+      </div>
+
+      <mat-form-field appearance="outline" class="campo-formulario">
+        <mat-label>URL del Video (opcional)</mat-label>
+        <input matInput formControlName="videoUrl" placeholder="https://..." />
+      </mat-form-field>
+
+      <div class="botones-accion">
+        <button mat-raised-button color="primary" type="submit" [disabled]="guardando || eventoForm.invalid">
+          <mat-icon>save</mat-icon> Guardar Evento
+        </button>
+        <button mat-raised-button color="accent" type="button" (click)="limpiarFormulario()">
+          <mat-icon>restart_alt</mat-icon> Limpiar
+        </button>
+      </div>
+    </form>
+  </mat-card>
+</section>

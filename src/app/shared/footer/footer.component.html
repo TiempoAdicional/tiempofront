@@ -1,0 +1,76 @@
+<footer class="footer" #footerElement>
+    <div class="footer-container">
+        <!-- Redes Sociales Section -->
+        <div class="footer-section company-section" [class.animate-in]="isVisible">
+            <div class="footer-logo">
+                <span class="logo-text">Tiempo Adicional</span>
+            </div>
+            <p class="company-description">
+                Conectamos el deporte con la pasión de los aficionados a través de noticias, eventos y más.
+            </p>
+            <div class="social-links">
+                <a href="https://www.instagram.com/tiempoadicional" target="_blank">
+                    <img src="assets/instagram.png" alt="Instagram" class="icon-social" />
+                </a>
+                <a href="https://wa.me/573001234567" target="_blank">
+                    <img src="assets/whatsapp.png" alt="WhatsApp" class="icon-social" />
+                </a>
+                <a href="https://www.tiktok.com/@tiempoadicional" target="_blank">
+                    <img src="assets/tik-tok.png" alt="TikTok" class="icon-social" />
+                </a>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="footer-section contact-section" [class.animate-in]="isVisible">
+            <div class="section-header" (click)="toggleSection('contact')">
+                <h3 class="section-title">Contacto</h3>
+                <span class="toggle-arrow" [class.rotated]="activeSection === 'contact'">▼</span>
+            </div>
+            <div class="section-content" [class.expanded]="activeSection === 'contact'">
+                <div class="contact-info">
+                    <div class="contact-item" (click)="onContactClick('email')">
+                        <span class="contact-icon">📧</span>
+                        <span class="contact-text">info&copy;tiempoadicional.com</span>
+                    </div>
+                    <div class="contact-item" (click)="onContactClick('phone')">
+                        <span class="contact-icon">📞</span>
+                        <span class="contact-text">+57 300 123 4567</span>
+                    </div>
+                    <div class="contact-item" (click)="onContactClick('address')">
+                        <span class="contact-icon">📍</span>
+                        <span class="contact-text">Calle Fútbol 10, Bogotá, Colombia</span>
+                    </div>
+                    <div class="contact-item" (click)="onContactClick('hours')">
+                        <span class="contact-icon">🕒</span>
+                        <span class="contact-text">Lunes a Viernes: 9:00 - 18:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom" [class.animate-in]="isVisible">
+            <div class="footer-bottom-content">
+                <div class="copyright">
+                    <p>&copy; 2025 Tiempo Adicional. Todos los derechos reservados.</p>
+                </div>
+                <div class="footer-bottom-links">
+                    <a href="#" class="bottom-link" (click)="onBottomLinkClick('privacy', $event)">Política de
+                        Privacidad</a>
+                    <a href="#" class="bottom-link" (click)="onBottomLinkClick('terms', $event)">Términos de
+                        Servicio</a>
+                    <a href="#" class="bottom-link" (click)="onBottomLinkClick('cookies', $event)">Política de
+                        Cookies</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" [class.visible]="showBackToTop" (click)="scrollToTop()" title="Volver arriba">
+        ↑
+    </button>
+</footer>

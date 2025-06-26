@@ -1,0 +1,55 @@
+<div class="detalle-noticia-container" *ngIf="!cargando && detalle">
+  <!-- ENCABEZADO DE NOTICIA -->
+  <div class="noticia-encabezado">
+    <h1 class="titulo">{{ detalle.noticia.titulo }}</h1>
+    <p class="resumen">{{ detalle.noticia.resumen }}</p>
+
+    <div class="meta">
+      <span>
+        ✍️ {{ detalle.noticia.autorNombre }}
+      </span>
+      <span>
+        🗓️ {{ detalle.noticia.fechaPublicacion | date: 'longDate' }}
+      </span>
+      <span>
+        👁️ {{ detalle.noticia.visitas }} visitas
+      </span>
+    </div>
+
+    <img
+      *ngIf="detalle.noticia.imagenDestacada"
+      [src]="detalle.noticia.imagenDestacada"
+      alt="Imagen destacada"
+      class="imagen-destacada"
+    />
+  </div>
+
+  <!-- CONTENIDO HTML -->
+  <div class="contenido-html" [innerHTML]="contenidoHtml"></div>
+
+  <!-- COMENTARIOS -->
+  <div class="comentarios-section" *ngIf="detalle.comentarios.length > 0">
+    <h2>📣 Comentarios de la hinchada</h2>
+
+    <div *ngFor="let comentario of detalle.comentarios" class="comentario-burbuja">
+      <div class="avatar">
+        <img
+          [src]="'https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + comentario.slice(0, 3)"
+          alt="avatar fan"
+        />
+      </div>
+      <div class="contenido">
+        <p class="mensaje">⚽ {{ comentario }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIN COMENTARIOS -->
+  <div class="sin-comentarios" *ngIf="detalle.comentarios.length === 0">
+    <p>😶 Aún no hay comentarios para esta noticia.</p>
+  </div>
+</div>
+
+<!-- ESTADO DE CARGA Y ERRORES -->
+<div class="estado" *ngIf="cargando">Cargando noticia...</div>
+<div class="estado error" *ngIf="error">{{ error }}</div>

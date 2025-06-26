@@ -1,0 +1,68 @@
+<div class="contenedor-listado">
+  <h2>🗂️ Mis Noticias Publicadas</h2>
+  <div class="acciones-internas">
+      <div class="grupo-botones">
+      <button class="btn-regresar" routerLink="/admin">
+        🔙 Volver al Dashboard
+      </button>
+      </div>
+    </div>
+  <!-- 🔍 Filtro de búsqueda -->
+  <div class="barra-busqueda">
+    <input
+      type="text"
+      [(ngModel)]="filtro"
+      (input)="filtrar()"
+      placeholder="Buscar por título..."
+    />
+  </div>
+
+  <!-- ⏳ Cargando -->
+  <div *ngIf="cargando" class="estado cargando">Cargando noticias...</div>
+
+  <!-- ❌ Error -->
+  <div *ngIf="error" class="estado error">{{ error }}</div>
+
+  <!-- 📭 Sin resultados -->
+  <div *ngIf="!cargando && noticiasFiltradas.length === 0" class="estado vacio">
+    No tienes noticias creadas o no hay coincidencias.
+  </div>
+
+  <!-- 📃 Listado -->
+  <div class="grid-noticias">
+    <div class="tarjeta-noticia" *ngFor="let noticia of noticiasFiltradas">
+      <div class="imagen-miniatura" *ngIf="noticia.imagenDestacada">
+        <img [src]="noticia.imagenDestacada" alt="Imagen destacada" />
+      </div>
+
+      <div class="contenido">
+        <h3>
+          {{ noticia.titulo }}
+          <span *ngIf="noticia.destacada" class="estrella">⭐</span>
+        </h3>
+        <p class="resumen">{{ noticia.resumen }}</p>
+        <p class="meta">
+          🗓️ {{ noticia.fechaPublicacion | date:'mediumDate' }} |
+          👁️ {{ noticia.visitas }} visitas
+        </p>
+
+        <div class="acciones">
+          <button (click)="verDetalle(noticia.id)">👁️ Ver</button>
+          <button (click)="editarNoticia(noticia.id)">✏️ Editar</button>
+          <button (click)="confirmarEliminacion(noticia)">🗑️ Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🧾 Modal de confirmación -->
+  <div class="modal-confirmacion" *ngIf="mostrarConfirmacion">
+    <div class="ventana">
+      <p>¿Estás seguro de eliminar <strong>{{ noticiaSeleccionada?.titulo }}</strong>?</p>
+      <div class="botones">
+        <button (click)="eliminarNoticiaConfirmada()">✅ Sí, eliminar</button>
+        <button (click)="cancelarEliminacion()">❌ Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>

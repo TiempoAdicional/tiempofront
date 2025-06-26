@@ -1,0 +1,178 @@
+// ===============================
+// 🎨 FORMULARIO DE EVENTO DEPORTIVO
+// ===============================
+.contenedor-crear-evento {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--gris-fondo), var(--gris-card));
+  animation: fadeIn 0.6s ease-in;
+}
+
+.card-crear-evento {
+  background-color: var(--gris-card);
+  color: var(--blanco);
+  padding: 2.5rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  width: 100%;
+  max-width: 720px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: slideUp 0.5s ease-in;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.titulo-creacion {
+  font-family: 'Anton', sans-serif;
+  font-size: 2.4rem;
+  color: var(--accent-color);
+  text-align: center;
+  margin-bottom: 2rem;
+  text-shadow: 1px 1px 0 var(--gris-carbon);
+}
+
+.formulario-crear {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.campo-formulario {
+  width: 100%;
+
+  mat-form-field {
+    width: 100%;
+    background-color: var(--gris-fondo);
+    border-radius: var(--radius-lg);
+  }
+}
+
+.label-archivo {
+  font-weight: bold;
+  color: var(--verde-lima);
+  margin-bottom: 0.5rem;
+  display: block;
+  font-size: 0.95rem;
+}
+
+input[type="file"] {
+  background-color: var(--gris-fondo);
+  border-radius: var(--radius-lg);
+  padding: 0.6rem;
+  color: var(--blanco);
+  border: 1px solid var(--accent-color);
+  transition: border 0.3s ease;
+
+  &:hover {
+    border-color: var(--verde-selva);
+  }
+}
+
+.imagen-preview-contenedor {
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+
+  .texto-preview {
+    margin-bottom: 0.5rem;
+    color: var(--blanco);
+    font-weight: bold;
+  }
+
+  .imagen-preview {
+    max-width: 100%;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    border: 2px solid var(--verde-selva);
+    margin-top: 0.5rem;
+  }
+}
+
+.botones-accion {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  gap: 1rem;
+
+  button {
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--radius-lg);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+.contenedor-boton-volver {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1.5rem;
+
+  .btn-volver {
+    font-weight: bold;
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: var(--accent-color);
+      color: var(--negro);
+    }
+  }
+}
+
+// ===============================
+// 📱 MEDIA QUERIES
+// ===============================
+@media (max-width: 768px) {
+  .card-crear-evento {
+    padding: 1.5rem;
+  }
+
+  .titulo-creacion {
+    font-size: 2rem;
+  }
+
+  .botones-accion {
+    flex-direction: column;
+    button {
+      width: 100%;
+    }
+  }
+
+  .contenedor-boton-volver {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .titulo-creacion {
+    font-size: 1.7rem;
+  }
+}
+
+// ===============================
+// ✨ ANIMACIONES
+// ===============================
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

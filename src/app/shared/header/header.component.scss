@@ -1,0 +1,441 @@
+@use 'sass:math';
+/* =====================
+   🎨 Estilos del HEADER
+   ===================== */
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--gris-card);
+    backdrop-filter: blur(10px);
+    z-index: 999;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.header-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0.5rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+
+  .logo-img {
+    width: 52px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: scale(1.07);
+      box-shadow: 0 0 10px var(--verde-lima), 0 0 20px var(--verde-selva);
+    }
+  }
+
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, var(--verde-selva), var(--verde-lima));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    transition: opacity 0.3s ease;
+  }
+}
+
+/* === Desktop Nav === */
+.desktop-nav {
+    display: flex;
+    align-items: center;
+}
+
+.nav-list {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    color: var(--blanco);
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    background-color: rgba(180, 255, 21, 0.08);
+    color: var(--verde-lima);
+}
+
+.nav-arrow {
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+}
+
+.nav-arrow.rotated {
+    transform: rotate(180deg);
+    color: var(--verde-selva);
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background: var(--gris-card);
+    border-radius: 12px;
+    padding: 0.5rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+.dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--blanco);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(180, 255, 21, 0.1);
+    color: var(--verde-lima);
+    transform: translateX(5px);
+}
+
+.dropdown-icon {
+    font-size: 1rem;
+    width: 1.5rem;
+    text-align: center;
+}
+
+/* === Botón menú mobile === */
+.mobile-menu-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.hamburger-line {
+    width: 24px;
+    height: 3px;
+    background-color: var(--blanco);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-btn.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(4px, 4px);
+}
+
+.mobile-menu-btn.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-btn.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(4px, -4px);
+}
+
+/* === Mobile Nav === */
+.mobile-nav {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: var(--gris-card);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    z-index: 998;
+}
+
+.mobile-nav.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-nav-content {
+    padding: 1rem;
+}
+
+.mobile-nav-item {
+    margin-bottom: 1rem;
+}
+
+.mobile-nav-link {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    color: var(--blanco);
+    background: none;
+    border: none;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mobile-nav-link:hover {
+    color: var(--verde-lima);
+}
+
+.mobile-arrow {
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+}
+
+.mobile-arrow.rotated {
+    transform: rotate(180deg);
+    color: var(--verde-selva);
+}
+
+.mobile-dropdown {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.mobile-dropdown.active {
+    max-height: 300px;
+}
+
+.mobile-dropdown-item {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: var(--blanco);
+    font-size: 0.9rem;
+    border-radius: 8px;
+    margin: 4px 0;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.mobile-dropdown-item:hover {
+    background-color: rgba(180, 255, 21, 0.1);
+    color: var(--verde-lima);
+    transform: translateX(6px);
+}
+
+/* === Overlay === */
+.mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 997;
+}
+
+.mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+/* Estilo para el nombre de usuario e ícono */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: var(--blanco);
+  font-size: 14px;
+  padding: 10px 14px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.user-info:hover {
+  background-color: rgba(180, 255, 21, 0.15);
+  transform: scale(1.02);
+}
+
+.user-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--verde-lima);
+  box-shadow: 0 0 4px rgba(180, 255, 21, 0.5);
+  transition: transform 0.3s ease;
+}
+
+.user-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Menú desplegable para cuenta */
+.user-dropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background: var(--gris-card);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  min-width: 150px;
+  z-index: 999;
+}
+
+.user-info:hover .user-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.user-dropdown a {
+  display: block;
+  padding: 10px 16px;
+  color: var(--blanco);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.user-dropdown a:hover {
+  background-color: rgba(180, 255, 21, 0.08);
+  color: var(--verde-lima);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .user-info {
+    justify-content: center;
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .user-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .user-dropdown {
+    right: 50%;
+    transform: translateX(50%) translateY(-10px);
+  }
+
+  .user-info:hover .user-dropdown {
+    transform: translateX(50%) translateY(0);
+  }
+}
+
+
+
+/* === Responsive === */
+@media (max-width: 768px) {
+    .desktop-nav {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+   .logo-section {
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .logo-img {
+    width: 90px; // más grande en móvil
+    box-shadow: 0 0 15px var(--verde-lima), 0 0 25px var(--verde-selva);
+    animation: fadeInUpLogo 0.8s ease-out;
+  }
+
+  .logo-text {
+    display: none;
+  }
+
+}
+
+@media (min-width: 769px) {
+
+    .mobile-nav,
+    .mobile-overlay {
+        display: none !important;
+    }
+}
+
+/* === Focus para accesibilidad === */
+.nav-link:focus,
+.mobile-nav-link:focus,
+.mobile-dropdown-item:focus {
+    outline: 2px solid var(--verde-lima);
+    outline-offset: 2px;
+}
+
+@keyframes fadeInUpLogo {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

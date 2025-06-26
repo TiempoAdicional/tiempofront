@@ -1,0 +1,61 @@
+/* You can add global styles to this file, and also import other style files */
+// ===============================
+// 🎨 PALETA DE COLORES TIEMPO ADICIONAL
+// ===============================
+:root {
+    --verde-bosque: #045204;
+    --verde-selva: #1a8000;
+    --verde-lima: #b4ff15;
+    --gris-fondo: #1b1f24; // nuevo fondo más suave que el negro puro
+    --gris-card: #262b32;
+    --purpura-profundo: #3b0452;
+    --purpura-real: #3e0ea4;
+
+    --blanco-suave: #fffdf3;
+    --blanco: #ffffff;
+    --negro: #000000;
+    --gris-carbon: #303030;
+    --ta-verde-oscuro: #003e29;
+  --ta-verde-oliva-claro: #81b29a;
+
+    --primary-color: var(--verde-selva);
+    --secondary-color: var(--purpura-real);
+    --text-color: var(--gris-carbon);
+    --bg-color: var(--blanco-suave);
+    --accent-color: var(--verde-lima);
+
+
+
+    // ===============================
+    // 📱 BREAKPOINTS
+    // ===============================
+    --breakpoint-mobile: 576px;
+    --breakpoint-tablet: 768px;
+    --breakpoint-desktop: 1200px;
+
+    // ===============================
+    // ✨ UTILIDADES
+    // ===============================
+    --radius-xl: 2rem;
+    --radius-lg: 1rem;
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --transition-fast: 0.2s ease-in-out;
+
+}
+
+// ===============================
+// 🔤 TIPOGRAFÍAS
+// ===============================
+
+// Asegúrate de haber agregado los links en `index.html`:
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=League+Spartan:wght@400;700&display=swap');
+
+body {
+    font-family: 'League Spartan', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

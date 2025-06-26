@@ -1,0 +1,179 @@
+<header class="header">
+    <div class="header-container">
+        <!-- Logo -->
+        <div class="logo-section" (click)="onLogoClick()">
+            <img src="assets/logo-tiempo.png" alt="Logo Tiempo Adicional" class="logo-img" />
+            <span class="logo-text">Tiempo Adicional</span>
+        </div>
+
+
+        <!-- Desktop Navigation -->
+        <nav class="desktop-nav">
+            <ul class="nav-list">
+
+                <!-- Secciones públicas siempre visibles -->
+                <li class="nav-item" (mouseenter)="onHoverNav('noticias')" (mouseleave)="onLeaveNav()">
+                    <a href="#" class="nav-link" (click)="onNavClick('noticias', $event)">
+                        Noticias <span class="nav-arrow" [class.rotated]="activeDropdown === 'noticias'">▼</span>
+                    </a>
+                    <div class="dropdown" [class.active]="activeDropdown === 'noticias'">
+                        <div class="dropdown-content">
+                            <a href="#" class="dropdown-item" (click)="onSubNavClick('noticias-recientes', $event)">📰
+                                Recientes</a>
+                            <a href="#" class="dropdown-item" (click)="onSubNavClick('destacadas', $event)">⭐
+                                Destacadas</a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item" (mouseenter)="onHoverNav('eventos')" (mouseleave)="onLeaveNav()">
+                    <a href="#" class="nav-link" (click)="onNavClick('eventos', $event)">
+                        Eventos <span class="nav-arrow" [class.rotated]="activeDropdown === 'eventos'">▼</span>
+                    </a>
+                    <div class="dropdown" [class.active]="activeDropdown === 'eventos'">
+                        <div class="dropdown-content">
+                            <a href="#" class="dropdown-item" (click)="onSubNavClick('proximos-eventos', $event)">📅
+                                Próximos</a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item" (mouseenter)="onHoverNav('nosotros')" (mouseleave)="onLeaveNav()">
+                    <a href="#" class="nav-link" (click)="onNavClick('nosotros', $event)">
+                        Sobre Nosotros <span class="nav-arrow" [class.rotated]="activeDropdown === 'nosotros'">▼</span>
+                    </a>
+                    <div class="dropdown" [class.active]="activeDropdown === 'nosotros'">
+                        <div class="dropdown-content">
+                            <a href="#" class="dropdown-item" (click)="onSubNavClick('nuestra-historia', $event)">📖
+                                Historia</a>
+                            <a href="#" class="dropdown-item" (click)="onSubNavClick('equipo', $event)">👥 Equipo</a>
+                            <a href="#" class="dropdown-item" (click)="onSubNavClick('contacto', $event)">📞
+                                Contacto</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Si NO está autenticado, muestra "Cuenta" -->
+                <ng-container *ngIf="!estaAutenticado">
+                    <li class="nav-item" (mouseenter)="onHoverNav('auth')" (mouseleave)="onLeaveNav()">
+                        <a href="#" class="nav-link" (click)="onNavClick('auth', $event)">
+                            Cuenta
+                            <span class="nav-arrow" [class.rotated]="activeDropdown === 'auth'">▼</span>
+                        </a>
+                        <div class="dropdown" [class.active]="activeDropdown === 'auth'">
+                            <div class="dropdown-content">
+                                <a href="#" class="dropdown-item" (click)="navigateTo('login', $event)">🔐 Iniciar
+                                    Sesión</a>
+                                <a href="#" class="dropdown-item" (click)="navigateTo('register', $event)">📝
+                                    Registrarse</a>
+                            </div>
+                        </div>
+                    </li>
+                </ng-container>
+
+                <!-- Si SÍ está autenticado, muestra el nombre del usuario y "Cerrar sesión" -->
+                <ng-container *ngIf="estaAutenticado">
+                    <li class="nav-item" (mouseenter)="onHoverNav('usuario')" (mouseleave)="onLeaveNav()">
+                        <a href="#" class="nav-link user-info" (click)="onNavClick('usuario', $event)">
+                            <img src="assets/user.png" alt="User" class="user-icon" />
+                            {{ nombreUsuario }}
+                            <span class="nav-arrow" [class.rotated]="activeDropdown === 'usuario'">▼</span>
+                        </a>
+                        <div class="dropdown" [class.active]="activeDropdown === 'usuario'">
+                            <div class="dropdown-content">
+                                <a href="#" class="dropdown-item" (click)="logout()">🚪 Cerrar Sesión</a>
+                            </div>
+                        </div>
+                    </li>
+                </ng-container>
+
+            </ul>
+        </nav>
+
+
+
+
+        <!-- Botón menú móvil -->
+        <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+    </div>
+
+    <!-- Menú móvil -->
+    <div class="mobile-nav" [class.active]="mobileMenuOpen">
+        <div class="mobile-nav-content">
+            <!-- Noticias -->
+            <div class="mobile-nav-item">
+                <button class="mobile-nav-link" (click)="toggleMobileSection('noticias')">
+                    Noticias <span class="mobile-arrow" [class.rotated]="activeMobileSection === 'noticias'">▼</span>
+                </button>
+                <div class="mobile-dropdown" [class.active]="activeMobileSection === 'noticias'">
+                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('noticias-recientes', $event)">📰
+                        Recientes</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('destacadas', $event)">⭐
+                        Destacadas</a>
+                </div>
+            </div>
+
+            <!-- Eventos -->
+            <div class="mobile-nav-item">
+                <button class="mobile-nav-link" (click)="toggleMobileSection('eventos')">
+                    Eventos <span class="mobile-arrow" [class.rotated]="activeMobileSection === 'eventos'">▼</span>
+                </button>
+                <div class="mobile-dropdown" [class.active]="activeMobileSection === 'eventos'">
+                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('proximos-eventos', $event)">📅
+                        Próximos</a>
+                </div>
+            </div>
+
+            <!-- Sobre Nosotros -->
+            <div class="mobile-nav-item">
+                <button class="mobile-nav-link" (click)="toggleMobileSection('nosotros')">
+                    Sobre Nosotros <span class="mobile-arrow"
+                        [class.rotated]="activeMobileSection === 'nosotros'">▼</span>
+                </button>
+                <div class="mobile-dropdown" [class.active]="activeMobileSection === 'nosotros'">
+                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('nuestra-historia', $event)">📖
+                        Historia</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('equipo', $event)">👥 Equipo</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('contacto', $event)">📞 Contacto</a>
+                </div>
+            </div>
+
+            <!-- Cuenta (solo si NO está autenticado) -->
+            <ng-container *ngIf="!estaAutenticado">
+                <div class="mobile-nav-item">
+                    <button class="mobile-nav-link" (click)="toggleMobileSection('auth')">
+                        Cuenta
+                        <span class="mobile-arrow" [class.rotated]="activeMobileSection === 'auth'">▼</span>
+                    </button>
+                    <div class="mobile-dropdown" [class.active]="activeMobileSection === 'auth'">
+                        <a href="#" class="mobile-dropdown-item" (click)="navigateTo('login', $event)">🔐 Iniciar
+                            Sesión</a>
+                        <a href="#" class="mobile-dropdown-item" (click)="navigateTo('register', $event)">📝
+                            Registrarse</a>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Usuario (solo si SÍ está autenticado) -->
+            <ng-container *ngIf="estaAutenticado">
+                <div class="mobile-nav-item">
+                    <button class="mobile-nav-link" (click)="toggleMobileSection('usuario')">
+                        <img src="assets/user.png" alt="User" class="user-icon" />
+                        {{ nombreUsuario }}
+                        <span class="mobile-arrow" [class.rotated]="activeMobileSection === 'usuario'">▼</span>
+                    </button>
+                    <div class="mobile-dropdown" [class.active]="activeMobileSection === 'usuario'">
+                        <a href="#" class="mobile-dropdown-item" (click)="logout()">🚪 Cerrar Sesión</a>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="mobile-overlay" [class.active]="mobileMenuOpen" (click)="closeMobileMenu()"></div>
+</header>

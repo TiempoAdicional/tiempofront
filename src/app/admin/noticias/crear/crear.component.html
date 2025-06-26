@@ -1,0 +1,82 @@
+
+
+<div class="crear-noticia">
+   <div class="acciones-internas">
+      <div class="grupo-botones">
+        <button class="btn-vista-previa" *ngIf="!mostrarVistaPrevia" (click)="mostrarVistaPrevia = true">
+        👁️ Abrir Vista Previa
+      </button>
+
+      <button class="btn-regresar" routerLink="/admin">
+        🔙 Volver al Dashboard
+      </button>
+      </div>
+    </div>
+  <div class="crear-card">
+    <h2 class="crear-titulo">📝 Crear Nueva Noticia</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <!-- TÍTULO -->
+      <div class="form-group">
+        <label for="titulo">Título</label>
+        <input id="titulo" type="text" class="form-control" formControlName="titulo"
+          placeholder="Ingresa el título de la noticia" />
+      </div>
+
+      <!-- RESUMEN -->
+      <div class="form-group">
+        <label for="resumen">Resumen</label>
+        <textarea id="resumen" class="form-control" formControlName="resumen"
+          placeholder="Resumen breve de la noticia" rows="3"></textarea>
+      </div>
+
+      <!-- CONTENIDO CON TINYMCE -->
+      <div class="form-group">
+        <label for="contenidoHtml">Contenido Detallado</label>
+        <editor
+          id="contenidoHtml"
+          [apiKey]="tinyApiKey"
+          [init]="editorConfig"
+          formControlName="contenidoHtml"
+          [ngModel]="contenidoHtml"
+          (ngModelChange)="contenidoHtml = $event"
+        ></editor>
+      </div>
+
+      <!-- ES PÚBLICA -->
+      <div class="form-group">
+        <label>
+          <input type="checkbox" formControlName="esPublica" />
+          ¿Hacer pública?
+        </label>
+      </div>
+
+      <!-- IMAGEN DESTACADA -->
+      <div class="form-group">
+        <label for="imagen">Imagen destacada</label>
+        <input id="imagen" type="file" class="form-control-file" (change)="onArchivoSeleccionado($event)" />
+      </div>
+
+      <!-- VISTA PREVIA DE LA IMAGEN -->
+      <div class="form-group" *ngIf="imagenDestacadaPreview">
+        <p>Vista previa de la imagen:</p>
+        <img [src]="imagenDestacadaPreview" alt="Vista previa" class="imagen-preview" />
+      </div>
+
+      <!-- BOTÓN -->
+      <button type="submit" [disabled]="form.invalid" class="btn-publicar">
+        📤 Publicar Noticia
+      </button>
+    </form>
+  </div>
+</div>
+
+<app-vista-previa-noticia
+  *ngIf="mostrarVistaPrevia"
+  [titulo]="form.get('titulo')?.value"
+  [resumen]="form.get('resumen')?.value"
+  [contenidoHtml]="contenidoHtml"
+  [imagenDestacadaUrl]="imagenDestacadaPreview"
+  [mostrarImagen]="!!imagenDestacadaPreview"
+  (cerrar)="mostrarVistaPrevia = false"
+></app-vista-previa-noticia>

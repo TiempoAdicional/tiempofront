@@ -1,0 +1,32 @@
+<div class="vista-previa-container" [class.expandida]="expandida" [attr.data-dispositivo]="modoDispositivo" *ngIf="mostrar">
+  <div class="vista-previa-header">
+    <span class="titulo">👀 Vista Previa</span>
+    <div class="acciones">
+      <button *ngFor="let tipo of dispositivos"
+        [ngClass]="{ activo: modoDispositivo === tipo }"
+        (click)="modoDispositivo = tipo"
+        [title]="tipo.charAt(0).toUpperCase() + tipo.slice(1)">
+  <ng-container [ngSwitch]="tipo">
+    <span *ngSwitchCase="'movil'">📱</span>
+    <span *ngSwitchCase="'tablet'">📲</span>
+    <span *ngSwitchCase="'portatil'">💻</span>
+    <span *ngSwitchCase="'escritorio'">🖥️</span>
+  </ng-container>
+</button>
+
+      <button (click)="toggleExpandir()">🔁 {{ expandida ? 'Contraer' : 'Expandir' }}</button>
+      <button (click)="toggleVista()">❌ Cerrar</button>
+    </div>
+  </div>
+
+  <div class="vista-previa-cuerpo">
+    <div class="vista-hero" *ngIf="mostrarImagen && imagenDestacadaUrl">
+      <img [src]="imagenDestacadaUrl" alt="Imagen destacada" />
+      <div class="overlay">
+        <h2 class="vista-titulo">{{ titulo }}</h2>
+      </div>
+    </div>
+    <p class="vista-resumen">{{ resumen }}</p>
+    <div class="vista-contenido" [innerHTML]="obtenerContenidoSeguro()"></div>
+  </div>
+</div>

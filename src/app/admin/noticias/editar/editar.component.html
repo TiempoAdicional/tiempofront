@@ -1,0 +1,109 @@
+
+
+<div class="editar-noticia">
+<div class="acciones-internas">
+      <div class="grupo-botones">
+        <button class="btn-vista-previa" *ngIf="!mostrarVistaPrevia" (click)="mostrarVistaPrevia = true">
+        👁️ Abrir Vista Previa
+      </button>
+
+      <button class="btn-regresar" routerLink="/admin">
+        🔙 Volver al Dashboard
+      </button>
+      </div>
+    </div>
+  <h2>📝 Editar Noticia</h2>
+  <!-- 🔍 Barra de búsqueda -->
+  <div class="busqueda-section">
+    <input
+      type="text"
+      [(ngModel)]="filtro"
+      (input)="filtrarNoticias()"
+      placeholder="Buscar por título..."
+      class="barra-busqueda"
+    />
+  </div>
+
+  <!-- 📜 Lista de noticias propias -->
+  <ul class="lista-noticias">
+    <li
+      *ngFor="let noticia of noticiasFiltradas"
+      [class.seleccionada]="noticia.id === noticiaSeleccionadaId"
+      (click)="seleccionarNoticia(noticia)"
+    >
+      {{ noticia.titulo }}
+    </li>
+  </ul>
+
+  <!-- 🧾 Formulario de edición -->
+  <form
+    id="formulario-edicion"
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    *ngIf="noticiaSeleccionadaId !== null"
+    class="formulario-edicion"
+  >
+    <label for="titulo">Título:</label>
+    <input
+      id="titulo"
+      type="text"
+      formControlName="titulo"
+      placeholder="Ingresa el nuevo título"
+    />
+
+    <label for="resumen">Resumen:</label>
+    <textarea
+      id="resumen"
+      formControlName="resumen"
+      placeholder="Resumen breve"
+      rows="3"
+    ></textarea>
+
+    <label for="contenidoHtml">Contenido Detallado:</label>
+     <editor
+      id="contenidoHtml"
+      [apiKey]="tinyApiKey"
+      [init]="editorConfig"
+      formControlName="contenidoHtml"
+      [ngModel]="contenidoHtml"
+      (ngModelChange)="contenidoHtml = $event"
+    ></editor>
+
+    <div class="publica-checkbox">
+      <label>
+        <input type="checkbox" formControlName="esPublica" />
+        ¿Hacer pública?
+      </label>
+    </div>
+
+    <!-- 🖼️ Imagen destacada actual -->
+    <div class="preview-imagen" *ngIf="imagenDestacadaUrl && !imagenDestacadaPreview">
+      <p>Imagen destacada actual:</p>
+      <img [src]="imagenDestacadaUrl" alt="Imagen destacada" width="200" />
+    </div>
+
+    <!-- 🖼️ Imagen nueva seleccionada -->
+    <div class="preview-imagen" *ngIf="imagenDestacadaPreview">
+      <p>Previsualización de nueva imagen:</p>
+      <img [src]="imagenDestacadaPreview" alt="Nueva imagen destacada" width="200" />
+    </div>
+
+    <label for="imagen">Nueva imagen destacada (opcional):</label>
+    <input type="file" (change)="onArchivoSeleccionado($event)" />
+
+    <button type="submit" [disabled]="form.invalid || cargando">
+      💾 Guardar Cambios
+    </button>
+  </form>
+</div>
+
+<!-- 👀 Vista previa en vivo -->
+<app-vista-previa-noticia
+  *ngIf="mostrarVistaPrevia"
+  [titulo]="form.get('titulo')?.value"
+  [resumen]="form.get('resumen')?.value"
+  [contenidoHtml]="contenidoHtml"
+  [imagenDestacadaUrl]="imagenDestacadaPreview"
+  [mostrarImagen]="!!imagenDestacadaPreview"
+  (cerrar)="mostrarVistaPrevia = false"
+></app-vista-previa-noticia>

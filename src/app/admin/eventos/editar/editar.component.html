@@ -1,0 +1,56 @@
+<section class="contenedor-editar-evento" *ngIf="form">
+  <h1 class="titulo-edicion">Editar Evento</h1>
+
+  <form [formGroup]="form" (ngSubmit)="actualizarEvento()" class="formulario-editar">
+    <mat-form-field appearance="fill" class="campo-formulario">
+      <mat-label>Nombre del evento</mat-label>
+      <input matInput formControlName="nombre" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="campo-formulario">
+      <mat-label>Descripción</mat-label>
+      <textarea matInput formControlName="descripcion" required rows="4"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="campo-formulario">
+      <mat-label>Fecha</mat-label>
+      <input matInput formControlName="fecha" type="date" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="campo-formulario">
+      <mat-label>Lugar</mat-label>
+      <input matInput formControlName="lugar" required />
+    </mat-form-field>
+
+    <div class="campo-formulario">
+      <label for="imagenEvento" class="etiqueta-subida">Imagen del evento</label>
+      <input
+        type="file"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+        class="input-archivo"
+        id="imagenEvento"
+      />
+    </div>
+
+    <div class="imagen-preview-contenedor" *ngIf="imagenPreview">
+      <p class="texto-preview">Vista previa:</p>
+      <img [src]="imagenPreview" alt="Vista previa" class="imagen-preview" />
+    </div>
+
+    <mat-form-field appearance="fill" class="campo-formulario">
+      <mat-label>URL de video (opcional)</mat-label>
+      <input matInput formControlName="videoUrl" />
+    </mat-form-field>
+
+    <div class="botones-accion">
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+        <mat-icon>save</mat-icon> Guardar Cambios
+      </button>
+
+      <button mat-stroked-button color="accent" type="button" (click)="volver()">
+        <mat-icon>arrow_back</mat-icon> Volver
+      </button>
+    </div>
+  </form>
+</section>
