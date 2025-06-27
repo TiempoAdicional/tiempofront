@@ -1,66 +1,50 @@
 <div class="login-container">
-  <div class="form-card">
+  <form class="form-card mat-elevation-z6" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
     <h2 class="title">Crear cuenta</h2>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <!-- Nombre -->
-      <div class="form-group">
-        <label for="nombre">Nombre</label>
-        <div class="input-icon">
-          <i class="fas fa-user"></i>
-          <input
-            type="text"
-            id="nombre"
-            placeholder="Tu nombre"
-            formControlName="nombre"
-          />
-        </div>
-      </div>
+    <!-- Nombre -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre completo</mat-label>
+      <input matInput type="text" placeholder="Tu nombre" formControlName="nombre" />
+      <mat-icon matSuffix>person</mat-icon>
+    </mat-form-field>
 
-      <!-- Correo -->
-      <div class="form-group">
-        <label for="correo">Correo</label>
-        <div class="input-icon">
-          <i class="fas fa-envelope"></i>
-          <input
-            type="email"
-            id="correo"
-            placeholder="Ingresa tu correo"
-            formControlName="correo"
-          />
-        </div>
-      </div>
+    <!-- Correo -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Correo electrónico</mat-label>
+      <input matInput type="email" placeholder="ejemplo@correo.com" formControlName="correo" />
+      <mat-icon matSuffix>mail</mat-icon>
+    </mat-form-field>
 
-      <!-- Contraseña -->
-      <div class="form-group">
-        <label for="contrasena">Contraseña</label>
-        <div class="input-icon">
-          <i class="fas fa-lock"></i>
-          <input
-            [type]="mostrarContrasena ? 'text' : 'password'"
-            id="contrasena"
-            placeholder="Crea una contraseña"
-            formControlName="contrasena"
-          />
-          <i
-            class="fas"
-            [ngClass]="mostrarContrasena ? 'fa-eye-slash' : 'fa-eye'"
-            (click)="toggleMostrar()"
-            title="Mostrar u ocultar contraseña"
-          ></i>
-        </div>
-      </div>
-
-      <!-- Botón -->
-      <button class="btn-login" type="submit" [disabled]="registerForm.invalid">
-        Registrarse
+    <!-- Contraseña -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Contraseña</mat-label>
+      <input
+        matInput
+        [type]="mostrarContrasena ? 'text' : 'password'"
+        placeholder="Crea una contraseña"
+        formControlName="contrasena"
+      />
+      <button mat-icon-button matSuffix type="button" (click)="toggleMostrar()" aria-label="Toggle password visibility">
+        <mat-icon>{{ mostrarContrasena ? 'visibility_off' : 'visibility' }}</mat-icon>
       </button>
-    </form>
+    </mat-form-field>
+
+    <!-- Botón de registro -->
+    <button mat-raised-button color="primary" class="btn-login" [disabled]="registerForm.invalid || isLoading">
+      <mat-icon>how_to_reg</mat-icon>
+      Registrarse
+    </button>
 
     <!-- Enlace a login -->
     <p class="register-text">
-            ¿ya tienes cuenta?
-            <a (click)="irARegistro()" role="button">Inicia sesión aqui</a>
-        </p>
+      ¿Ya tienes cuenta?
+      <a (click)="irAInicioSesion()" class="link-animado">Inicia sesión aquí</a>
+    </p>
+  </form>
+
+  <!-- Loading Spinner -->
+  <div class="overlay-spinner" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
   </div>
 </div>

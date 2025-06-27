@@ -24,16 +24,11 @@
 }
 
 .title {
-  font-size: 2rem;
+  font-family: 'Anton', sans-serif;
+  font-size: 2.2rem;
   color: var(--verde-lima);
-  font-weight: bold;
   text-align: center;
   margin-bottom: 2rem;
-  text-shadow:
-    0 0 2px var(--verde-lima),
-    0 0 4px var(--verde-lima),
-    0 0 6px var(--verde-selva);
-  letter-spacing: 0.5px;
 }
 
 .full-width {
