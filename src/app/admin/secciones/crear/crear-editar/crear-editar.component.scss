@@ -1,0 +1,146 @@
+// Colores del branding Tiempo Adicional
+$color-principal: #a4b117; // verde oliva
+$color-secundario: #1f1f1f; // fondo oscuro para contraste suave
+$color-claro: #f5f5f5;
+$color-texto: #ffffff;
+$color-borde: #cccccc;
+
+.contenedor-formulario {
+  max-width: 100%;
+  margin: auto;
+  padding: 2rem;
+  background: $color-secundario;
+  color: $color-texto;
+  border-radius: 1rem;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s ease-in-out;
+
+  h2,
+  h3 {
+    color: $color-principal;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .campo {
+    width: 100%;
+    margin-bottom: 1.5rem;
+
+    mat-form-field {
+      width: 100%;
+      color: $color-texto;
+
+      .mat-form-field-wrapper {
+        color: $color-texto;
+      }
+
+      .mat-form-field-outline {
+        color: $color-borde;
+      }
+    }
+  }
+
+  button {
+    width: 100%;
+    font-weight: bold;
+    background-color: $color-principal;
+
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+
+    &:hover {
+      background-color: darken($color-principal, 10%);
+      transform: scale(1.02);
+      transition: all 0.2s ease-in-out;
+    }
+  }
+
+  .separador {
+    margin: 2rem 0 1rem;
+    background-color: $color-principal;
+  }
+
+  .texto-vacio {
+    font-style: italic;
+    color: #ccc;
+    text-align: center;
+  }
+
+  .preview-seccion {
+    display: flex;
+    align-items: center;
+    background: lighten($color-secundario, 5%);
+    border: 1px solid $color-principal;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeInSlide 0.5s forwards;
+
+    .icono-preview {
+      font-size: 36px;
+      margin-right: 1rem;
+      color: $color-principal;
+    }
+
+    .contenido-preview {
+      display: flex;
+      flex-direction: column;
+
+      strong {
+        font-size: 1.1rem;
+      }
+
+      .tipo-preview {
+        font-size: 0.9rem;
+        color: #ddd;
+      }
+    }
+  }
+}
+
+// Animación suave
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Diseño responsive
+@media (max-width: 599px) {
+  // 📱 Teléfono
+  .contenedor-formulario {
+    padding: 1rem;
+
+    h2 {
+      font-size: 1.4rem;
+    }
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  // 📱 Tablet vertical
+  .contenedor-formulario {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1279px) {
+  // 💻 Portátil
+  .contenedor-formulario {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 1280px) {
+  // 🖥️ Escritorio grande
+  .contenedor-formulario {
+    max-width: 900px;
+  }
+}

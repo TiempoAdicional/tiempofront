@@ -29,38 +29,63 @@ export const routes: Routes = [
           import('./admin/noticias/editar/editar.component').then(m => m.EditarComponent)
       },
       {
+        path: 'noticias/editar/:id',
+        loadComponent: () => import('./admin/noticias/editar/editar.component').then(m => m.EditarComponent)
+      },
+      {
         path: 'noticias/listar',
         loadComponent: () =>
           import('./admin/noticias/listar/listar.component').then(m => m.ListarComponent)
       },
       {
-        path: 'noticias/editar/:id',
-        loadComponent: () => import('./admin/noticias/editar/editar.component').then(m => m.EditarComponent)
-      },
-      {
         path: 'noticias/detalle/:id',
-        loadComponent: () => import('./admin/noticias/detalle/detalle.component').then(m => m.DetalleComponent)
+        loadComponent: () =>
+          import('./admin/noticias/detalle/detalle.component').then(m => m.DetalleComponent)
       },
+
+      // EVENTOS
       {
         path: 'eventos/crear',
-        loadComponent: () => import('./admin/eventos/crear/crear.component').then(m => m.CrearEventoComponent)
+        loadComponent: () =>
+          import('./admin/eventos/crear/crear.component').then(m => m.CrearEventoComponent)
       },
       {
         path: 'eventos/listar',
-        loadComponent: () => import('./admin/eventos/listar/listar.component').then(m => m.ListarComponent)
+        loadComponent: () =>
+          import('./admin/eventos/listar/listar.component').then(m => m.ListarComponent)
       },
+      {
+        path: 'eventos/editar',
+        loadComponent: () =>
+          import('./admin/eventos/editar/editar.component').then(m => m.EditarComponent)
+      },
+
       {
         path: 'eventos/editar/:id',
-        loadComponent: () => import('./admin/eventos/editar/editar.component').then(m => m.EditarComponent)
+        loadComponent: () =>
+          import('./admin/eventos/editar/editar.component').then(m => m.EditarComponent)
+      },
+
+      // PARTIDOS (dentro de eventos)
+      {
+        path: 'eventos/partidos',
+        loadComponent: () =>
+          import('./admin/eventos/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
+      },
+      // SECCIONES
+      {
+        path: 'secciones/crear',
+        loadComponent: () =>
+          import('./admin/secciones/crear/crear-editar/crear-editar.component').then(m => m.CrearEditarComponent)
       },
       {
-
-        path: 'eventos/editar',
-        loadComponent: () => import('./admin/eventos/editar/editar.component').then(m => m.EditarComponent)
-      }
+        path: 'secciones/listar',
+        loadComponent: () =>
+          import('./admin/secciones/listar/listar/listar.component').then(m => m.ListarComponent)
+      },
     ]
   },
 
-  // 404 fallback
+  // fallback
   { path: '**', redirectTo: 'login' }
 ];

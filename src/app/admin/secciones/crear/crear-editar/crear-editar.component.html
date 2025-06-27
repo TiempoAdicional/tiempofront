@@ -1,0 +1,43 @@
+<div class="contenedor-formulario">
+  <h2>Crear nueva sección</h2>
+
+  <mat-form-field appearance="outline" class="campo">
+    <mat-label>Título de la sección</mat-label>
+    <input matInput [(ngModel)]="seccion.titulo" placeholder="Ej: Noticias Recientes">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="campo">
+    <mat-label>Tipo de contenido</mat-label>
+    <mat-select [(ngModel)]="seccion.tipo">
+      <mat-option *ngFor="let tipo of tipos" [value]="tipo.value">
+        {{ tipo.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="campo">
+    <mat-label>Orden de aparición</mat-label>
+    <input matInput type="number" [(ngModel)]="seccion.orden" min="1">
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="crearSeccion()">
+    <mat-icon>add</mat-icon> Agregar Sección
+  </button>
+
+  <mat-divider class="separador"></mat-divider>
+
+  <h3>Vista previa de secciones</h3>
+  <div *ngIf="seccionesPreview.length === 0">
+    <p class="texto-vacio">Aún no hay secciones creadas.</p>
+  </div>
+
+  <div class="preview-seccion" *ngFor="let sec of seccionesPreview">
+    <mat-icon class="icono-preview">
+      {{ sec.tipo === 'NOTICIAS' ? 'article' : sec.tipo === 'EVENTOS' ? 'event' : 'sports_soccer' }}
+    </mat-icon>
+    <div class="contenido-preview">
+      <strong>{{ sec.titulo }}</strong>
+      <span class="tipo-preview">{{ sec.tipo }} • Orden: {{ sec.orden }}</span>
+    </div>
+  </div>
+</div>

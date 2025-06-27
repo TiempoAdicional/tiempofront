@@ -48,15 +48,26 @@
         <mat-icon>list_alt</mat-icon> Listar Eventos
       </button>
       <mat-divider></mat-divider>
-      <button mat-raised-button color="secondary" (click)="navegar('/admin/partidos')">
+      <button mat-raised-button color="secondary" (click)="navegar('/admin/eventos/partidos')">
         <mat-icon>sports_soccer</mat-icon> Ver Partidos
       </button>
     </div>
 
-    <!-- Editor de secciones -->
-    <a routerLink="/admin/secciones" class="admin-card seccion-link" matRipple>
-      <mat-icon class="icono-seccion">view_quilt</mat-icon> Editor de Secciones
-    </a>
+    <!-- Editor de Secciones -->
+    <div class="admin-card expandable" (click)="toggleSecciones()">
+      <mat-icon class="icono-seccion">view_quilt</mat-icon> Secciones
+      <span class="arrow" [class.rotated]="seccionesExpandido">▼</span>
+    </div>
+
+    <div class="submenu animate-fade" *ngIf="seccionesExpandido">
+      <button mat-raised-button color="primary" (click)="navegar('/admin/secciones/crear')">
+        <mat-icon>add</mat-icon> Crear Sección
+      </button>
+      <button mat-raised-button color="accent" (click)="navegar('/admin/secciones/listar')">
+        <mat-icon>list</mat-icon> Listar Secciones
+      </button>
+    </div>
+
   </div>
 </div>
 

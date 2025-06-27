@@ -1,1 +1,59 @@
-<p>partidos-hoy works!</p>
+<div class="partidos-container" *ngIf="!cargando; else loading">
+  <div class="header">
+    <h2 class="titulo">📅 Partidos de Hoy</h2>
+    <div class="search-container">
+      <mat-form-field class="buscador" appearance="outline">
+        <mat-label>Buscar equipo</mat-label>
+        <input
+          matInput
+          placeholder="Ej. Real Madrid"
+          [(ngModel)]="nombre"
+          (keyup)="buscarPorNombre()"
+        />
+        <button mat-icon-button *ngIf="nombre" matSuffix (click)="nombre=''; buscarPorNombre()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="partidos-grid">
+    <mat-card
+      class="partido-card"
+      *ngFor="let partido of partidos"
+      [ngClass]="{ 'ganador-local': esGanador(partido, 'local'), 'ganador-visitante': esGanador(partido, 'visitante') }"
+    >
+      <div class="partido-info">
+        <div class="liga">{{ partido.liga }}</div>
+        <div class="fecha">
+          <mat-icon>calendar_today</mat-icon>
+          {{ partido.fecha | date: 'EEEE d MMMM' }}
+        </div>
+      </div>
+
+      <div class="equipos">
+        <div class="equipo local">
+          <span class="nombre">{{ partido.equipoLocal }}</span>
+          <span class="goles">{{ partido.golesLocal ?? '-' }}</span>
+        </div>
+        <div class="versus">vs</div>
+        <div class="equipo visitante">
+          <span class="nombre">{{ partido.equipoVisitante }}</span>
+          <span class="goles">{{ partido.golesVisitante ?? '-' }}</span>
+        </div>
+      </div>
+
+      <div class="estado" [ngClass]="{ activo: partido.estado === 'EN JUEGO' }">
+        <mat-icon *ngIf="partido.estado === 'EN JUEGO'">sports_soccer</mat-icon>
+        {{ partido.estado }}
+      </div>
+    </mat-card>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="spinner-overlay">
+    <mat-spinner diameter="60" strokeWidth="4"></mat-spinner>
+    <p>Cargando partidos...</p>
+  </div>
+</ng-template>

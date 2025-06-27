@@ -29,13 +29,15 @@ export class DashboardComponent implements OnInit {
   nombreEditor: string = '';
   noticiasExpandido: boolean = false;
   eventosExpandido: boolean = false;
+  seccionesExpandido: boolean = false;
+
   isLoading: boolean = true;
   error: string | null = null;
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     try {
@@ -63,6 +65,13 @@ export class DashboardComponent implements OnInit {
     this.eventosExpandido = !this.eventosExpandido;
     if (this.noticiasExpandido) this.noticiasExpandido = false;
   }
+
+
+  toggleSecciones():void {
+    this.seccionesExpandido = !this.seccionesExpandido;
+    if (this.seccionesExpandido) this.seccionesExpandido = false;
+  }
+
 
   navegar(ruta: string): void {
     this.router.navigate([ruta]);

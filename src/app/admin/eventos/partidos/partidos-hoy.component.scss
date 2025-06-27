@@ -1,0 +1,281 @@
+/* Paleta de colores */
+$color-fondo: #12161c;
+$color-card: #1d2129;
+$color-texto: #ffffff;
+$color-secundario: #a3abb2;
+$color-acento: #4caf50;
+$color-borde: #2c313a;
+
+/* Animaciones */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 10px $color-acento;
+  }
+  50% {
+    box-shadow: 0 0 20px lighten($color-acento, 10%);
+  }
+  100% {
+    box-shadow: 0 0 10px $color-acento;
+  }
+}
+
+/* Transiciones */
+@mixin transicion-suave {
+  transition: all 0.3s ease-in-out;
+}
+
+.partidos-container {
+  padding: 2rem;
+  color: $color-texto;
+  background-color: $color-fondo;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .header {
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .titulo {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-align: center;
+      color: $color-texto;
+      @include transicion-suave;
+    }
+
+    .buscador {
+  width: 100%;
+
+  mat-form-field {
+    width: 100%;
+    background-color: $color-card;
+    border-radius: 0.5rem;
+    color: $color-texto;
+
+    input {
+      color: $color-texto !important;
+      font-weight: 500;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
+      }
+
+      &:focus {
+        border-color: $color-acento;
+        box-shadow: 0 0 5px $color-acento;
+        color: $color-texto !important;
+      }
+    }
+
+    // Estilos para labels de Angular Material
+    .mat-form-field-label {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    &.mat-focused .mat-form-field-label {
+      color: $color-acento !important;
+    }
+
+    .mat-form-field-outline {
+      border-color: $color-borde;
+    }
+
+    &.mat-focused .mat-form-field-outline-thick {
+      border-color: $color-acento;
+    }
+
+    .mat-icon-button:hover {
+      color: $color-acento;
+    }
+
+    .mat-icon {
+      color: $color-acento;
+    }
+  }
+}
+  }
+
+  .partidos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .partido-card {
+    background-color: $color-card;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeInUp 0.5s ease-in-out;
+    @include transicion-suave;
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    &.ganador-local .local .goles,
+    &.ganador-visitante .visitante .goles {
+      color: $color-acento;
+      font-weight: bold;
+    }
+
+    .partido-info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: $color-secundario;
+
+      .liga {
+        font-style: italic;
+      }
+
+      .fecha {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+    }
+
+    .equipos {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      align-items: center;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+
+      .equipo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        @include transicion-suave;
+
+        .nombre {
+          font-weight: 600;
+          text-align: center;
+        }
+
+        .goles {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-top: 0.25rem;
+        }
+
+        &:hover {
+          color: lighten($color-acento, 10%);
+          transform: scale(1.05);
+        }
+      }
+
+      .versus {
+        font-size: 1rem;
+        font-weight: bold;
+        color: $color-secundario;
+      }
+    }
+
+    .estado {
+      text-align: center;
+      color: $color-secundario;
+      @include transicion-suave;
+
+      &.activo {
+        color: $color-acento;
+        font-weight: bold;
+        animation: glow 2s infinite ease-in-out;
+      }
+    }
+  }
+
+  .spinner-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+    color: $color-texto;
+    p {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+/* Responsive: Desktop >1024px ya cubierto arriba */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .partidos-container {
+    .partidos-grid {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .header {
+      .titulo {
+        font-size: 1.8rem;
+      }
+    }
+  }
+}
+
+/* Móvil Mediano */
+@media (max-width: 768px) {
+  .partidos-container {
+    padding: 1rem;
+
+    .header {
+      .titulo {
+        font-size: 1.5rem;
+      }
+    }
+
+    .partido-card {
+      padding: 1rem;
+    }
+  }
+}
+
+/* Móvil Pequeño */
+@media (max-width: 480px) {
+  .partidos-container {
+    .header {
+      .titulo {
+        font-size: 1.3rem;
+      }
+    }
+
+    .partidos-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .partido-card {
+      padding: 0.75rem;
+    }
+  }
+}
