@@ -1,12 +1,17 @@
 <section class="contenedor-crear-evento">
-  <mat-card class="card-crear-evento">
+  <!-- Botón de vuelta al dashboard -->
+  <div class="boton-vuelta-container">
+    <button mat-fab 
+            color="primary" 
+            class="boton-vuelta-dashboard"
+            (click)="volverAlDashboard()"
+            matTooltip="Volver al Dashboard"
+            aria-label="Volver al Dashboard">
+      <mat-icon>dashboard</mat-icon>
+    </button>
+  </div>
 
-    <!-- 🔙 Botón de regreso -->
-    <div class="contenedor-boton-volver">
-      <button mat-stroked-button color="accent" class="btn-volver" (click)="volverAlDashboard()">
-        <mat-icon>arrow_back</mat-icon> Volver al Dashboard
-      </button>
-    </div>
+  <mat-card class="card-crear-evento">
 
     <h1 class="titulo-creacion">📝 Crear Evento Deportivo</h1>
 

@@ -72,6 +72,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./admin/eventos/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
       },
+      {
+        path: 'eventos/gestionar-partidos',
+        loadComponent: () =>
+          import('./admin/eventos/gestionar-partidos/gestionar-partidos.component').then(m => m.GestionarPartidosComponent)
+      },
       // SECCIONES
       {
         path: 'secciones/crear',
@@ -82,6 +87,16 @@ export const routes: Routes = [
         path: 'secciones/listar',
         loadComponent: () =>
           import('./admin/secciones/listar/listar/listar.component').then(m => m.ListarComponent)
+      },
+      {
+        path: 'secciones/editar/:id',
+        loadComponent: () =>
+          import('./admin/secciones/crear/crear-editar/crear-editar.component').then(m => m.CrearEditarComponent)
+      },
+      {
+        path: 'secciones/vista-previa',
+        loadComponent: () =>
+          import('./admin/secciones/vista-previa/vista-previa.component').then(m => m.VistaPreviaComponent)
       },
     ]
   },

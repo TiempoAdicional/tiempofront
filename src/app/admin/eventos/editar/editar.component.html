@@ -1,29 +1,76 @@
+<!-- Botón de vuelta al dashboard -->
+<div class="boton-vuelta-container">
+  <button mat-fab 
+          color="primary" 
+          class="boton-vuelta-dashboard"
+          [routerLink]="['/admin']"
+          matTooltip="Volver al Dashboard"
+          aria-label="Volver al Dashboard">
+    <mat-icon>dashboard</mat-icon>
+  </button>
+</div>
+
 <!-- Indicador de carga -->
 <div class="cargando" *ngIf="cargando">
-  <mat-icon class="icono-cargando" fontIcon="autorenew" [ngClass]="'spin'"></mat-icon>
+  <mat-icon class="icono-cargando spin">autorenew</mat-icon>
   <span>Cargando...</span>
 </div>
 
-<!-- Selección de evento si no hay uno activo -->
-<section *ngIf="!eventoId && !cargando">
+<!-- Selección de evento -->
+<section class="seleccion-eventos" *ngIf="!eventoId && !cargando">
   <h2 class="titulo-edicion">Selecciona un evento para editar</h2>
+  <p class="subtitulo-seleccion">
+    Se muestran solo los eventos que has creado. Todos son editables.
+  </p>
 
-  <div *ngIf="eventosDelAutor.length === 0" class="sin-eventos">
-    <mat-icon>info</mat-icon>
-    <span>No se encontraron eventos para editar.</span>
+  <div *ngIf="eventos.length === 0" class="sin-eventos">
+    <mat-icon>event_busy</mat-icon>
+    <span>No tienes eventos creados aún.</span>
   </div>
 
-  <div class="lista-eventos" *ngIf="eventosDelAutor.length > 0">
-    <mat-card class="tarjeta-evento" *ngFor="let evento of eventosDelAutor">
-      <img mat-card-image [src]="evento.imagenEvento" alt="Imagen evento" />
-      <mat-card-content>
-        <h3>{{ evento.nombre }}</h3>
-        <p>{{ evento.fecha | date }}</p>
-        <p>{{ evento.lugar }}</p>
+  <div class="lista-eventos" *ngIf="eventos.length > 0">
+    <mat-card class="tarjeta-evento evento-editable" *ngFor="let evento of eventos">
+      
+      <div class="imagen-container">
+        <img mat-card-image [src]="evento.imagenEvento || 'assets/default-event.jpg'" 
+             alt="Imagen del evento {{ evento.nombre }}" 
+             class="imagen-evento" />
+        <div class="overlay-estado">
+          <div class="badge-estado editable">
+            <mat-icon>edit</mat-icon>
+          </div>
+        </div>
+      </div>
+      
+      <mat-card-content class="contenido-evento">
+        <h3 class="titulo-evento">{{ evento.nombre }}</h3>
+        <div class="detalles-evento">
+          <div class="detalle">
+            <mat-icon>event</mat-icon>
+            <span>{{ evento.fecha | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="detalle">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ evento.lugar }}</span>
+          </div>
+        </div>
+        <p class="descripcion-evento">{{ evento.descripcion }}</p>
+        
+        <div class="estado-permiso">
+          <span class="badge-permiso editable">
+            <mat-icon>check_circle</mat-icon>
+            Puedes editar
+          </span>
+        </div>
       </mat-card-content>
-      <mat-card-actions>
-        <button mat-stroked-button color="primary" (click)="seleccionarEvento(evento.id)">
-          <mat-icon>edit</mat-icon> Editar
+      
+      <mat-card-actions class="acciones-evento">
+        <button mat-raised-button 
+                color="primary"
+                (click)="seleccionarEvento(evento.id)"
+                class="boton-accion">
+          <mat-icon>edit</mat-icon> 
+          Editar evento
         </button>
       </mat-card-actions>
     </mat-card>
@@ -35,55 +82,73 @@
   <h1 class="titulo-edicion">Editar Evento</h1>
 
   <form [formGroup]="form" (ngSubmit)="actualizarEvento()" class="formulario-editar">
+
     <mat-form-field appearance="fill" class="campo-formulario">
       <mat-label>Nombre del evento</mat-label>
       <input matInput formControlName="nombre" required />
+      <mat-icon matSuffix>event</mat-icon>
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="campo-formulario">
       <mat-label>Descripción</mat-label>
-      <textarea matInput formControlName="descripcion" required rows="4"></textarea>
+      <textarea matInput formControlName="descripcion" rows="4" required></textarea>
+      <mat-icon matSuffix>description</mat-icon>
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="campo-formulario">
-      <mat-label>Fecha</mat-label>
-      <input matInput formControlName="fecha" type="date" required />
+      <mat-label>Fecha del evento</mat-label>
+      <input matInput type="date" formControlName="fecha" required />
+      <mat-icon matSuffix>calendar_today</mat-icon>
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="campo-formulario">
       <mat-label>Lugar</mat-label>
       <input matInput formControlName="lugar" required />
+      <mat-icon matSuffix>location_on</mat-icon>
     </mat-form-field>
 
-    <div class="campo-formulario">
-      <label for="imagenEvento" class="etiqueta-subida">Imagen del evento</label>
-      <input
-        type="file"
-        accept="image/*"
-        (change)="onFileSelected($event)"
-        class="input-archivo"
-        id="imagenEvento"
-      />
+    <div class="campo-formulario archivo">
+      <label for="imagen" class="etiqueta-subida">
+        <mat-icon>image</mat-icon>
+        Imagen del evento
+      </label>
+      <input type="file" 
+             id="imagen" 
+             accept="image/*" 
+             (change)="onFileSelected($event)" 
+             class="input-archivo" />
     </div>
 
     <div class="imagen-preview-contenedor" *ngIf="imagenPreview">
       <p class="texto-preview">Vista previa:</p>
-      <img [src]="imagenPreview" alt="Vista previa" class="imagen-preview" />
+      <img [src]="imagenPreview" alt="Vista previa de imagen" class="imagen-preview" />
     </div>
 
     <mat-form-field appearance="fill" class="campo-formulario">
       <mat-label>URL de video (opcional)</mat-label>
       <input matInput formControlName="videoUrl" />
+      <mat-icon matSuffix>videocam</mat-icon>
     </mat-form-field>
 
     <div class="botones-accion">
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || cargando">
-        <mat-icon>save</mat-icon> Guardar Cambios
+      <button mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="form.invalid || cargando"
+              class="boton-guardar">
+        <mat-icon>save</mat-icon> 
+        Guardar Cambios
       </button>
 
-      <button mat-stroked-button color="accent" type="button" (click)="cancelarEdicion()">
-        <mat-icon>arrow_back</mat-icon> Cancelar
+      <button mat-stroked-button 
+              color="warn" 
+              type="button" 
+              (click)="cancelarEdicion()"
+              class="boton-cancelar">
+        <mat-icon>cancel</mat-icon> 
+        Cancelar
       </button>
     </div>
+
   </form>
 </section>

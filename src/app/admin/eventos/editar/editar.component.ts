@@ -4,10 +4,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { EventoService, Evento } from '../evento.service';
+import { AuthService } from '../../../auth/services/auth.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-editar',
@@ -20,16 +22,18 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
     MatInputModule,
     MatCardModule,
-    MatIconModule
+    MatIconModule,
+    MatTooltipModule
   ],
   templateUrl: './editar.component.html',
-  styleUrl: './editar.component.scss'
+  styleUrls: ['./editar.component.scss']
 })
 export class EditarComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private eventoService = inject(EventoService);
+  private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
 
   form!: FormGroup;
@@ -37,55 +41,102 @@ export class EditarComponent implements OnInit {
   imagenPreview: string = '';
   cargando = false;
 
-  eventosDelAutor: Evento[] = [];
-  modoSeleccion = true;
+  eventos: Evento[] = [];
+  autorIdActual: number = 0;
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
+
     if (idParam) {
       this.eventoId = Number(idParam);
-      this.modoSeleccion = false;
-      this.cargarEvento();
+      this.verificarPermisosYCargarEvento();
     } else {
-      this.cargarEventosDelAutor();
+      this.cargarTodosLosEventos();
     }
   }
 
-  cargarEventosDelAutor(): void {
-    this.cargando = true;
-    const autorId = Number(localStorage.getItem('userId'));
-    this.eventoService.listarPorCreador(autorId).subscribe({
-      next: (eventos) => {
-        this.eventosDelAutor = eventos;
-        this.cargando = false;
+  verificarPermisosYCargarEvento(): void {
+    this.eventoService.obtenerPorId(this.eventoId).subscribe({
+      next: (evento) => {
+        const autorIdActual = this.authService.obtenerIdUsuario();
+        
+        // Verificar si el evento pertenece al usuario actual consultando la lista de sus eventos
+        this.eventoService.listarPorCreador(autorIdActual || 0).subscribe({
+          next: (eventosDelUsuario) => {
+            const eventoPertenece = eventosDelUsuario.some(e => e.id === this.eventoId);
+            
+            if (!eventoPertenece) {
+              this.snackBar.open('No tienes permiso para editar este evento', 'Cerrar', { duration: 5000 });
+              this.router.navigate(['/admin']);
+              return;
+            }
+
+            this.cargarEvento();
+          },
+          error: (error) => {
+            this.snackBar.open('Error al verificar permisos', 'Cerrar', { duration: 3000 });
+            this.router.navigate(['/admin']);
+          }
+        });
       },
-      error: () => {
-        this.snackBar.open('Error al cargar los eventos del autor', 'Cerrar', { duration: 3000 });
+      error: (error) => {
+        this.snackBar.open('Evento no encontrado', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/admin']);
       }
     });
   }
 
+  cargarTodosLosEventos(): void {
+    this.cargando = true;
+    this.autorIdActual = this.authService.obtenerIdUsuario() || 0;
+
+    // Usar listarPorCreador en lugar de listarTodos para obtener solo eventos del usuario actual
+    this.eventoService.listarPorCreador(this.autorIdActual).subscribe({
+      next: (eventos) => {
+        this.eventos = eventos;
+        this.cargando = false;
+        if (eventos.length === 0) {
+          this.snackBar.open('No tienes eventos creados', 'Cerrar', { duration: 3000 });
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar eventos del usuario:', error);
+        this.snackBar.open('Error al cargar tus eventos', 'Cerrar', { duration: 3000 });
+        this.cargando = false;
+      }
+    });
+  }
+
   seleccionarEvento(id?: number): void {
-    this.router.navigate(['/admin/eventos/editar', id]);
+    if (id != null) {
+      // Como todos los eventos mostrados son del usuario actual, puede editarlos
+      this.router.navigate(['/admin/eventos/editar', id]);
+    }
   }
 
   cargarEvento(): void {
     this.cargando = true;
     this.eventoService.obtenerPorId(this.eventoId).subscribe({
       next: (evento) => {
+        if (!evento) {
+          this.snackBar.open('Evento no encontrado', 'Cerrar', { duration: 3000 });
+          this.router.navigate(['/admin']);
+          return;
+        }
+
         this.form = this.fb.group({
           nombre: [evento.nombre ?? '', Validators.required],
           descripcion: [evento.descripcion ?? '', Validators.required],
           fecha: [evento.fecha ?? '', Validators.required],
           lugar: [evento.lugar ?? '', Validators.required],
-          imagenEvento: [evento.imagenEvento ?? '', Validators.required],
+          imagen: [evento.imagenEvento ?? '', Validators.required],
           videoUrl: [evento.videoUrl ?? '']
         });
+
         this.imagenPreview = evento.imagenEvento ?? '';
         this.cargando = false;
       },
-      error: () => {
+      error: (error) => {
         this.snackBar.open('Error al cargar el evento', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/admin']);
       }
@@ -93,7 +144,7 @@ export class EditarComponent implements OnInit {
   }
 
   actualizarEvento(): void {
-    if (this.form.invalid) {
+    if (!this.form || this.form.invalid) {
       this.snackBar.open('Por favor completa todos los campos obligatorios', 'Cerrar', { duration: 3000 });
       return;
     }
@@ -103,7 +154,7 @@ export class EditarComponent implements OnInit {
     formData.append('descripcion', this.form.get('descripcion')?.value || '');
     formData.append('fecha', this.form.get('fecha')?.value || '');
     formData.append('lugar', this.form.get('lugar')?.value || '');
-    formData.append('imagenEvento', this.form.get('imagenEvento')?.value || '');
+    formData.append('imagen', this.form.get('imagen')?.value || '');
     formData.append('videoUrl', this.form.get('videoUrl')?.value || '');
 
     this.eventoService.actualizar(this.eventoId, formData).subscribe({
@@ -111,26 +162,17 @@ export class EditarComponent implements OnInit {
         this.snackBar.open('Evento actualizado correctamente', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/admin']);
       },
-      error: () => {
+      error: (error) => {
         this.snackBar.open('Error al actualizar el evento', 'Cerrar', { duration: 3000 });
       }
     });
-  }
-
-  actualizarPreview(): void {
-    const nuevaUrl = this.form.get('imagenEvento')?.value;
-    this.imagenPreview = nuevaUrl || '';
-  }
-
-  volver(): void {
-    this.router.navigate(['/admin']);
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      this.form.patchValue({ imagenEvento: file });
+      this.form.patchValue({ imagen: file });
 
       const reader = new FileReader();
       reader.onload = () => {
@@ -139,23 +181,19 @@ export class EditarComponent implements OnInit {
       reader.readAsDataURL(file);
     }
   }
+
   cancelarEdicion(): void {
-  // Limpiar el formulario si está inicializado
-  if (this.form) {
-    this.form.reset();
+    if (this.form) {
+      this.form.reset();
+    }
+
+    this.eventoId = 0;
+    this.imagenPreview = '';
+    this.router.navigate(['/admin/eventos/editar']);
   }
 
-  // Volver al modo de selección de eventos
-  this.modoSeleccion = true;
-
-  // Limpiar valores auxiliares
-  this.eventoId = 0;
-  this.imagenPreview = '';
-
-  // Navegar de nuevo a la lista de eventos del autor
-  this.router.navigate(['/admin/eventos/editar']);
-}
-
-
-
+  esEventoEditable(evento: any): boolean {
+    // Como usamos listarPorCreador(), todos los eventos son del usuario actual
+    return true;
+  }
 }

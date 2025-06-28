@@ -11,7 +11,8 @@ export interface Evento {
   lugar: string;
   imagenEvento?: string;
   videoUrl?: string;
-  creadorNombre?: string;
+  creador_id?: number;
+  seccion_id?: number; // ID de la sección asignada
 }
 
 @Injectable({
@@ -42,10 +43,10 @@ export class EventoService {
     return this.http.post<Evento>(`${this.apiUrl}/crear`, formData);
   }
 
-  // ✅ PUT - Actualizar evento con FormData
-  actualizar(id: number, formData: FormData): Observable<Evento> {
-    return this.http.put<Evento>(`${this.apiUrl}/actualizar/${id}`, formData);
-  }
+  actualizar(id: number, formData: FormData) {
+  return this.http.put<Evento>(`${this.apiUrl}/actualizar/${id}`, formData);
+}
+
 
   // ✅ DELETE - Eliminar evento por ID
   eliminar(id: number): Observable<string> {

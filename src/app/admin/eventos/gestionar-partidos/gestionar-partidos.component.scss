@@ -1,0 +1,448 @@
+// === ESTILOS GENERALES ===
+.contenedor-gestionar-partidos {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+// === BOTÓN DE VUELTA ===
+.boton-vuelta-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  
+  .boton-vuelta-dashboard {
+    background: linear-gradient(45deg, #3f51b5, #9c27b0);
+    color: white;
+    box-shadow: 0 8px 25px rgba(63, 81, 181, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: float 3s ease-in-out infinite;
+
+    &:hover {
+      transform: scale(1.1) translateY(-2px);
+      box-shadow: 0 12px 35px rgba(63, 81, 181, 0.4);
+    }
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+// === HEADER PRINCIPAL ===
+.header-principal {
+  margin-bottom: 25px;
+  
+  .card-header {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    
+    .titulo-principal {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 2rem;
+      font-weight: 600;
+      
+      mat-icon {
+        font-size: 2.5rem;
+        width: 40px;
+        height: 40px;
+      }
+    }
+  }
+}
+
+// === PANEL DE BÚSQUEDA ===
+.panel-busqueda {
+  margin-bottom: 25px;
+  
+  .card-busqueda {
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #333;
+    }
+    
+    .form-busqueda {
+      .busqueda-campos {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+      }
+      
+      .busqueda-acciones {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        
+        button {
+          min-width: 120px;
+        }
+      }
+    }
+  }
+}
+
+// === TABS CONTAINER ===
+.tabs-container {
+  ::ng-deep .mat-mdc-tab-group {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    
+    .mat-mdc-tab-header {
+      background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+      
+      .mat-mdc-tab {
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        
+        &.mdc-tab--active {
+          color: white;
+        }
+      }
+      
+      .mat-ink-bar {
+        background-color: white;
+        height: 3px;
+      }
+    }
+  }
+}
+
+// === TAB CONTENT ===
+.tab-content {
+  padding: 25px;
+  min-height: 500px;
+  
+  .tab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+    
+    .tab-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      
+      mat-icon {
+        font-size: 2rem;
+        width: 32px;
+        height: 32px;
+      }
+      
+      h3 {
+        margin: 0 0 5px;
+        color: #333;
+        font-size: 1.4rem;
+      }
+      
+      p {
+        margin: 0;
+        color: #666;
+        font-size: 0.95rem;
+      }
+    }
+    
+    .tab-acciones {
+      display: flex;
+      gap: 10px;
+    }
+  }
+}
+
+// === LOADING CONTAINER ===
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  
+  mat-spinner {
+    margin-bottom: 20px;
+  }
+  
+  p {
+    color: #666;
+    font-size: 1.1rem;
+  }
+}
+
+// === TABLA PARTIDOS ===
+.tabla-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  
+  .tabla-partidos {
+    width: 100%;
+    
+    mat-header-cell {
+      background: #f8f9fa;
+      color: #333;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 16px 12px;
+    }
+    
+    mat-cell {
+      padding: 16px 12px;
+      border-bottom: 1px solid #e9ecef;
+      
+      .celda-fecha {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        
+        mat-icon {
+          color: #666;
+          font-size: 1.2rem;
+          width: 18px;
+          height: 18px;
+        }
+      }
+      
+      .celda-equipos {
+        strong {
+          color: #333;
+          font-size: 0.95rem;
+        }
+      }
+      
+      .resultado {
+        font-weight: bold;
+        color: #2d3436;
+        font-size: 1.1rem;
+      }
+      
+      .acciones-celda {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+    }
+    
+    mat-row {
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background-color: #f8f9fa;
+      }
+    }
+  }
+}
+
+// === ESTADO VACÍO ===
+.estado-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  
+  mat-icon {
+    font-size: 4rem;
+    width: 64px;
+    height: 64px;
+    color: #bdc3c7;
+    margin-bottom: 20px;
+  }
+  
+  h3 {
+    margin: 0 0 10px;
+    color: #333;
+    font-size: 1.5rem;
+  }
+  
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 1.1rem;
+    max-width: 400px;
+  }
+}
+
+// === CREAR PARTIDO ===
+.crear-partido-container {
+  max-width: 800px;
+  margin: 0 auto;
+  
+  .card-crear {
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #333;
+    }
+    
+    .form-crear {
+      .campos-principales {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      .campos-secundarios {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      .campos-opcionales {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      .campo-completo {
+        width: 100%;
+      }
+      
+      .acciones-form {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        
+        button {
+          min-width: 150px;
+        }
+      }
+    }
+  }
+}
+
+// === CHIPS PERSONALIZADOS ===
+::ng-deep .mat-mdc-chip {
+  &.mat-accent {
+    background-color: #00b894;
+    color: white;
+  }
+  
+  &.mat-primary {
+    background-color: #0984e3;
+    color: white;
+  }
+  
+  &.mat-warn {
+    background-color: #fdcb6e;
+    color: #2d3436;
+  }
+}
+
+// === SNACKBAR CUSTOM ===
+::ng-deep .snackbar-success {
+  background-color: #00b894 !important;
+  color: white !important;
+}
+
+::ng-deep .snackbar-error {
+  background-color: #d63031 !important;
+  color: white !important;
+}
+
+::ng-deep .snackbar-warning {
+  background-color: #fdcb6e !important;
+  color: #2d3436 !important;
+}
+
+// === RESPONSIVE ===
+@media (max-width: 768px) {
+  .contenedor-gestionar-partidos {
+    padding: 15px;
+  }
+  
+  .boton-vuelta-container {
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .header-principal .card-header .titulo-principal {
+    font-size: 1.5rem;
+    
+    mat-icon {
+      font-size: 2rem;
+      width: 32px;
+      height: 32px;
+    }
+  }
+  
+  .tab-content {
+    padding: 15px;
+    
+    .tab-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+      
+      .tab-acciones {
+        width: 100%;
+        
+        button {
+          flex: 1;
+        }
+      }
+    }
+  }
+  
+  .tabla-container {
+    overflow-x: auto;
+    
+    .tabla-partidos {
+      min-width: 800px;
+    }
+  }
+  
+  .crear-partido-container {
+    .form-crear .acciones-form {
+      flex-direction: column;
+      
+      button {
+        width: 100%;
+      }
+    }
+  }
+}

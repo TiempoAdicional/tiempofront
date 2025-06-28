@@ -1,0 +1,185 @@
+<!-- Botón de vuelta al dashboard -->
+<div class="boton-vuelta-container">
+  <button mat-fab 
+          color="primary" 
+          class="boton-vuelta-dashboard"
+          [routerLink]="['/admin']"
+          matTooltip="Volver al Panel de Administración"
+          aria-label="Volver al Panel">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</div>
+
+<section class="contenedor-vista-previa">
+  
+  <!-- Header de la Vista Previa -->
+  <div class="header-vista-previa">
+    <mat-card class="card-header">
+      <mat-card-header>
+        <mat-card-title class="titulo-principal">
+          <mat-icon color="accent">preview</mat-icon>
+          Vista Previa del Periódico
+        </mat-card-title>
+        <mat-card-subtitle>
+          Visualiza cómo se verá tu periódico digital con todas las secciones y contenido
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-actions class="acciones-header">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="recargarVista()"
+                [disabled]="cargando">
+          <mat-icon>refresh</mat-icon>
+          Actualizar Vista
+        </button>
+        <button mat-stroked-button 
+                [routerLink]="['/admin/secciones']">
+          <mat-icon>settings</mat-icon>
+          Gestionar Secciones
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="cargando" class="loading-container">
+    <mat-card class="card-loading">
+      <mat-card-content class="contenido-loading">
+        <mat-spinner></mat-spinner>
+        <p>Cargando vista previa del periódico...</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !cargando" class="error-container">
+    <mat-card class="card-error">
+      <mat-card-content class="contenido-error">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <h3>Error al cargar la vista previa</h3>
+        <p>{{ error }}</p>
+        <button mat-raised-button color="primary" (click)="recargarVista()">
+          <mat-icon>refresh</mat-icon>
+          Reintentar
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Vista Previa Exitosa -->
+  <div *ngIf="vistaPreviaData && !cargando && !error" class="periódico-container">
+    
+    <!-- Info general -->
+    <div class="info-general">
+      <mat-card class="card-info">
+        <mat-card-content>
+          <div class="estadisticas">
+            <div class="stat-item">
+              <mat-icon>view_module</mat-icon>
+              <span class="stat-numero">{{ vistaPreviaData.secciones.length }}</span>
+              <span class="stat-label">Secciones</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>article</mat-icon>
+              <span class="stat-numero">{{ getTotalContenido() }}</span>
+              <span class="stat-label">Total de Contenido</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Secciones del Periódico -->
+    <div class="secciones-container">
+      <div *ngFor="let seccionData of vistaPreviaData.secciones; trackBy: trackBySeccionId" 
+           class="seccion-item">
+        
+        <mat-card class="card-seccion">
+          <!-- Header de la Sección -->
+          <mat-card-header class="header-seccion">
+            <mat-card-title class="titulo-seccion">
+              <mat-icon [color]="getColorTipoSeccion(seccionData.seccion.tipo)">
+                {{ getIconoTipoSeccion(seccionData.seccion.tipo) }}
+              </mat-icon>
+              {{ seccionData.seccion.titulo }}
+              <mat-chip 
+                [color]="getColorTipoSeccion(seccionData.seccion.tipo)"
+                class="chip-tipo">
+                {{ seccionData.seccion.tipo }}
+              </mat-chip>
+            </mat-card-title>
+            <mat-card-subtitle *ngIf="seccionData.seccion.descripcion">
+              {{ seccionData.seccion.descripcion }}
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-divider></mat-divider>
+
+          <!-- Contenido de la Sección -->
+          <mat-card-content class="contenido-seccion">
+            
+            <!-- Si hay contenido -->
+            <div *ngIf="seccionData.contenido.length > 0; else sinContenido" 
+                 class="items-container">
+              
+              <div *ngFor="let item of seccionData.contenido; trackBy: trackByContenidoId" 
+                   class="item-contenido">
+                
+                <div class="item-header">
+                  <mat-icon [color]="getColorTipoContenido(item.tipo)">
+                    {{ getIconoTipoContenido(item.tipo) }}
+                  </mat-icon>
+                  <h4 class="item-titulo">{{ item.titulo }}</h4>
+                  <span class="item-fecha">{{ formatearFecha(item.fecha) }}</span>
+                </div>
+                
+                <p *ngIf="item.descripcion" class="item-descripcion">
+                  {{ item.descripcion }}
+                </p>
+                
+                <div *ngIf="item.imagen" class="item-imagen">
+                  <img [src]="item.imagen" [alt]="item.titulo" loading="lazy">
+                </div>
+              </div>
+            </div>
+
+            <!-- Template para sección sin contenido -->
+            <ng-template #sinContenido>
+              <div class="sin-contenido">
+                <mat-icon color="disabled">inbox</mat-icon>
+                <p>Esta sección no tiene contenido aún</p>
+                <button mat-stroked-button 
+                        [routerLink]="getCrearLink(seccionData.seccion.tipo)"
+                        class="boton-crear">
+                  <mat-icon>add</mat-icon>
+                  Crear {{ getTipoContenidoNombre(seccionData.seccion.tipo) }}
+                </button>
+              </div>
+            </ng-template>
+            
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Estado vacío -->
+    <div *ngIf="vistaPreviaData.secciones.length === 0" class="estado-vacio">
+      <mat-card class="card-vacio">
+        <mat-card-content class="contenido-vacio">
+          <mat-icon color="disabled">newspaper</mat-icon>
+          <h3>No hay secciones configuradas</h3>
+          <p>Crea algunas secciones para organizar tu periódico digital</p>
+          <button mat-raised-button 
+                  color="primary" 
+                  [routerLink]="['/admin/secciones/crear']">
+            <mat-icon>add</mat-icon>
+            Crear Primera Sección
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </div>
+
+</section>

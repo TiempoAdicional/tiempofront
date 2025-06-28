@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { EventoService } from '../evento.service';
 import { AuthService } from '../../../auth/services/auth.service';
+import { AsignacionSeccionService } from '../../secciones/services/asignacion-seccion.service';
 
 // 📦 Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,6 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-crear-evento',
@@ -34,7 +36,8 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatTooltipModule
   ]
 })
 export class CrearEventoComponent {
@@ -48,7 +51,8 @@ export class CrearEventoComponent {
     private eventoService: EventoService,
     private authService: AuthService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private asignacionSeccionService: AsignacionSeccionService
   ) {
     this.eventoForm = this.fb.group({
       nombre: ['', Validators.required],
@@ -80,7 +84,7 @@ export class CrearEventoComponent {
     }
   }
 
-  // ✅ Envío del formulario como FormData
+  // ✅ Envío del formulario como FormData con asignación automática de sección
   onSubmit(): void {
     if (this.eventoForm.invalid || this.guardando) return;
 
@@ -93,11 +97,66 @@ export class CrearEventoComponent {
       return;
     }
 
+    // Obtener la sección de eventos automáticamente
+    this.asignacionSeccionService.obtenerSeccionEventos().subscribe({
+      next: (seccionId) => {
+        const formData = new FormData();
+        formData.append('nombre', this.eventoForm.value.nombre);
+        formData.append('descripcion', this.eventoForm.value.descripcion);
+
+        // 🔧 Formato yyyy-MM-dd
+        const fechaISO = new Date(this.eventoForm.value.fecha).toISOString().split('T')[0];
+        formData.append('fecha', fechaISO);
+
+        formData.append('lugar', this.eventoForm.value.lugar);
+        formData.append('creadorId', creadorId.toString());
+
+        // Asignar sección automáticamente si existe
+        if (seccionId) {
+          formData.append('seccionId', seccionId.toString());
+        }
+
+        if (this.eventoForm.value.videoUrl) {
+          formData.append('videoUrl', this.eventoForm.value.videoUrl);
+        }
+
+        if (this.imagenSeleccionada) {
+          formData.append('imagen', this.imagenSeleccionada);
+        }
+
+        this.eventoService.crear(formData).subscribe({
+          next: () => {
+            this.mostrarToast(
+              seccionId 
+                ? '✅ Evento creado correctamente y asignado a sección de Eventos' 
+                : '✅ Evento creado correctamente (sin sección asignada)'
+            );
+            this.eventoForm.reset();
+            this.imagenUrl = null;
+            this.imagenSeleccionada = null;
+          },
+          error: err => {
+            console.error(err);
+            this.mostrarToast('❌ Error al crear evento');
+          },
+          complete: () => this.guardando = false
+        });
+      },
+      error: (err) => {
+        console.error('Error al obtener sección de eventos:', err);
+        this.mostrarToast('⚠️ Error al asignar sección, pero se intentará crear el evento');
+        // Continuar sin sección asignada
+        this.crearEventoSinSeccion(creadorId);
+      }
+    });
+  }
+
+  // Método auxiliar para crear evento sin sección
+  private crearEventoSinSeccion(creadorId: number): void {
     const formData = new FormData();
     formData.append('nombre', this.eventoForm.value.nombre);
     formData.append('descripcion', this.eventoForm.value.descripcion);
 
-    // 🔧 Formato yyyy-MM-dd
     const fechaISO = new Date(this.eventoForm.value.fecha).toISOString().split('T')[0];
     formData.append('fecha', fechaISO);
 

@@ -1,1 +1,135 @@
-<p>listar works!</p>
+<p><!-- Botón de vuelta al dashboard -->
+<div class="boton-vuelta-container">
+  <button mat-fab 
+          color="primary" 
+          class="boton-vuelta-dashboard"
+          [routerLink]="['/admin']"
+          matTooltip="Volver al Dashboard"
+          aria-label="Volver al Dashboard">
+    <mat-icon>dashboard</mat-icon>
+  </button>
+</div>
+
+<section class="contenedor-secciones">
+  <div class="header-secciones">
+    <h1 class="titulo-principal">
+      <mat-icon color="accent">view_module</mat-icon>
+      Gestión de Secciones del Periódico
+    </h1>
+    <p class="subtitulo">
+      Organiza y personaliza las secciones de tu periódico deportivo. Arrastra para reordenar.
+    </p>
+    
+    <div class="acciones-header">
+      <button mat-raised-button 
+              color="primary" 
+              [routerLink]="['/admin/secciones/crear']"
+              class="boton-crear">
+        <mat-icon>add</mat-icon>
+        Nueva Sección
+      </button>
+      
+      <button mat-stroked-button 
+              color="accent" 
+              [routerLink]="['/admin/secciones/vista-previa']"
+              class="boton-vista-previa">
+        <mat-icon>preview</mat-icon>
+        Vista Previa del Periódico
+      </button>
+    </div>
+  </div>
+
+  <!-- Indicador de carga -->
+  <div class="cargando" *ngIf="cargando">
+    <mat-spinner diameter="50"></mat-spinner>
+    <span>Cargando secciones...</span>
+  </div>
+
+  <!-- Lista de secciones -->
+  <div class="lista-secciones" 
+       cdkDropList 
+       (cdkDropListDropped)="onDrop($event)"
+       *ngIf="!cargando">
+    
+    <div *ngIf="secciones.length === 0" class="sin-secciones">
+      <mat-icon>view_module</mat-icon>
+      <span>No hay secciones creadas aún.</span>
+      <button mat-raised-button 
+              color="primary" 
+              [routerLink]="['/admin/secciones/crear']">
+        <mat-icon>add</mat-icon>
+        Crear Primera Sección
+      </button>
+    </div>
+
+    <mat-card class="tarjeta-seccion" 
+              *ngFor="let seccion of secciones; trackBy: trackBySeccionId"
+              cdkDrag
+              [class.seccion-inactiva]="!seccion.activa">
+      
+      <!-- Handle para drag & drop -->
+      <div class="drag-handle" cdkDragHandle>
+        <mat-icon>drag_indicator</mat-icon>
+      </div>
+
+      <mat-card-header class="header-seccion">
+        <div class="info-seccion">
+          <mat-card-title class="titulo-seccion">
+            <mat-icon [color]="getTipoColor(seccion.tipo)">
+              {{ getTipoIcon(seccion.tipo) }}
+            </mat-icon>
+            {{ seccion.titulo }}
+          </mat-card-title>
+          
+          <mat-card-subtitle class="detalles-seccion">
+            <span class="tipo-badge" [class]="'tipo-' + seccion.tipo.toLowerCase()">
+              {{ seccion.tipo }}
+            </span>
+            <span class="orden-badge">
+              Orden: {{ seccion.orden }}
+            </span>
+          </mat-card-subtitle>
+        </div>
+        
+        <div class="estado-seccion">
+          <mat-slide-toggle 
+            [checked]="seccion.activa"
+            (change)="cambiarEstadoSeccion(seccion)"
+            color="accent"
+            matTooltip="{{ seccion.activa ? 'Desactivar' : 'Activar' }} sección">
+          </mat-slide-toggle>
+          <span class="etiqueta-estado">
+            {{ seccion.activa ? 'Activa' : 'Inactiva' }}
+          </span>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content class="contenido-seccion">
+        <p *ngIf="seccion.descripcion" class="descripcion-seccion">
+          {{ seccion.descripcion }}
+        </p>
+        <p *ngIf="!seccion.descripcion" class="sin-descripcion">
+          Sin descripción
+        </p>
+      </mat-card-content>
+
+      <mat-card-actions class="acciones-seccion">
+        <button mat-button 
+                color="primary" 
+                [routerLink]="['/admin/secciones/editar', seccion.id]"
+                matTooltip="Editar sección">
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+        
+        <button mat-button 
+                color="warn" 
+                (click)="eliminarSeccion(seccion)"
+                matTooltip="Eliminar sección">
+          <mat-icon>delete</mat-icon>
+          Eliminar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</section>

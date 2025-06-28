@@ -1,0 +1,609 @@
+<!-- Botón de vuelta al dashboard -->
+<div class="boton-vuelta-container">
+  <button mat-fab 
+          color="primary" 
+          class="boton-vuelta-dashboard"
+          [routerLink]="['/admin']"
+          matTooltip="Volver al Panel de Administración"
+          aria-label="Volver al Panel">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</div>
+
+<section class="contenedor-gestionar-partidos">
+  
+  <!-- Header Principal -->
+  <div class="header-principal">
+    <mat-card class="card-header">
+      <mat-card-header>
+        <mat-card-title class="titulo-principal">
+          <mat-icon color="accent">sports_soccer</mat-icon>
+          Gestión Avanzada de Partidos
+        </mat-card-title>
+        <mat-card-subtitle>
+          Consulta partidos en tiempo real, guarda los importantes y crea eventos personalizados
+        </mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+  </div>
+
+  <!-- Panel de Búsqueda -->
+  <div class="panel-busqueda">
+    <mat-card class="card-busqueda">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>search</mat-icon>
+          Búsqueda de Partidos
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <form [formGroup]="busquedaForm" (ngSubmit)="buscarPartidos()" class="form-busqueda">
+          
+          <div class="busqueda-campos">
+            <!-- Fecha -->
+            <mat-form-field appearance="outline" class="campo-fecha">
+              <mat-label>Fecha del partido</mat-label>
+              <input matInput 
+                     [matDatepicker]="picker" 
+                     formControlName="fecha"
+                     placeholder="Selecciona una fecha">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <!-- Equipo -->
+            <mat-form-field appearance="outline" class="campo-equipo">
+              <mat-label>Nombre del equipo</mat-label>
+              <input matInput 
+                     formControlName="equipo" 
+                     placeholder="Ej: Real Madrid, Barcelona">
+              <mat-icon matSuffix>sports</mat-icon>
+            </mat-form-field>
+
+            <!-- Tipo de fuente -->
+            <mat-form-field appearance="outline" class="campo-fuente">
+              <mat-label>Fuente de datos</mat-label>
+              <mat-select formControlName="tipoFuente">
+                <mat-option value="api">
+                  <mat-icon>cloud</mat-icon>
+                  API Externa (Tiempo Real)
+                </mat-option>
+                <mat-option value="local">
+                  <mat-icon>storage</mat-icon>
+                  Base de Datos Local
+                </mat-option>
+                <mat-option value="combinado">
+                  <mat-icon>merge_type</mat-icon>
+                  Vista Combinada
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="busqueda-acciones">
+            <button mat-raised-button 
+                    color="primary" 
+                    type="submit"
+                    [disabled]="cargandoApi || cargandoLocales || cargandoCombinados">
+              <mat-icon>search</mat-icon>
+              Buscar
+            </button>
+
+            <button mat-stroked-button 
+                    type="button" 
+                    (click)="limpiarBusqueda()">
+              <mat-icon>clear</mat-icon>
+              Limpiar
+            </button>
+
+            <button mat-stroked-button 
+                    type="button" 
+                    (click)="cargarPartidosCombinados()"
+                    matTooltip="Ver todos los partidos de ambas fuentes">
+              <mat-icon>visibility</mat-icon>
+              Vista Combinada
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Tabs de Contenido -->
+  <div class="tabs-container">
+    <mat-tab-group [(selectedIndex)]="tabSeleccionado" animationDuration="300ms">
+      
+      <!-- Tab: API Externa -->
+      <mat-tab label="API Externa (Tiempo Real)">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            
+            <div class="tab-header">
+              <div class="tab-info">
+                <mat-icon color="accent">cloud</mat-icon>
+                <div>
+                  <h3>Partidos desde API Externa</h3>
+                  <p>Datos en tiempo real desde servicios externos de fútbol</p>
+                </div>
+              </div>
+              
+              <div class="tab-acciones">
+                <button mat-raised-button 
+                        color="primary" 
+                        (click)="cargarPartidosHoy()"
+                        [disabled]="cargandoApi">
+                  <mat-icon>refresh</mat-icon>
+                  Actualizar
+                </button>
+              </div>
+            </div>
+
+            <!-- Loading API -->
+            <div *ngIf="cargandoApi" class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Consultando API externa...</p>
+            </div>
+
+            <!-- Tabla API -->
+            <div *ngIf="!cargandoApi && partidosApi.length > 0" class="tabla-container">
+              <mat-table [dataSource]="partidosApi" class="tabla-partidos">
+                
+                <ng-container matColumnDef="fecha">
+                  <mat-header-cell *matHeaderCellDef>Fecha y Hora</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <div class="celda-fecha">
+                      <mat-icon>schedule</mat-icon>
+                      {{ formatearFecha(partido.fecha) }}
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="equipos">
+                  <mat-header-cell *matHeaderCellDef>Enfrentamiento</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <div class="celda-equipos">
+                      <strong>{{ formatearEquipos(partido) }}</strong>
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="estado">
+                  <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <mat-chip [color]="obtenerColorEstado(partido.estado)">
+                      {{ partido.estado }}
+                    </mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="resultado">
+                  <mat-header-cell *matHeaderCellDef>Resultado</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <span class="resultado">{{ formatearResultado(partido) }}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="competencia">
+                  <mat-header-cell *matHeaderCellDef>Competencia</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <span>{{ partido.competencia || partido.liga || 'No especificada' }}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="origen">
+                  <mat-header-cell *matHeaderCellDef>Origen</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <mat-icon matTooltip="Desde API Externa">cloud</mat-icon>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="acciones">
+                  <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <button mat-raised-button 
+                            color="accent" 
+                            size="small"
+                            (click)="guardarPartidoDeApi(partido)"
+                            [disabled]="guardandoPartido"
+                            matTooltip="Guardar en base de datos local">
+                      <mat-icon>save</mat-icon>
+                      Guardar
+                    </button>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="columnasTabla"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: columnasTabla;"></mat-row>
+              </mat-table>
+            </div>
+
+            <!-- Estado vacío API -->
+            <div *ngIf="!cargandoApi && partidosApi.length === 0" class="estado-vacio">
+              <mat-icon>cloud_off</mat-icon>
+              <h3>No hay partidos disponibles</h3>
+              <p>No se encontraron partidos en la API externa para los criterios seleccionados</p>
+            </div>
+
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Tab: Base de Datos Local -->
+      <mat-tab label="Partidos Guardados">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            
+            <div class="tab-header">
+              <div class="tab-info">
+                <mat-icon color="primary">storage</mat-icon>
+                <div>
+                  <h3>Partidos en Base de Datos Local</h3>
+                  <p>Partidos guardados y eventos personalizados</p>
+                </div>
+              </div>
+              
+              <div class="tab-acciones">
+                <button mat-raised-button 
+                        color="primary" 
+                        (click)="cargarPartidosLocales()"
+                        [disabled]="cargandoLocales">
+                  <mat-icon>refresh</mat-icon>
+                  Actualizar
+                </button>
+              </div>
+            </div>
+
+            <!-- Loading Local -->
+            <div *ngIf="cargandoLocales" class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Cargando partidos locales...</p>
+            </div>
+
+            <!-- Tabla Local -->
+            <div *ngIf="!cargandoLocales && partidosLocales.length > 0" class="tabla-container">
+              <mat-table [dataSource]="partidosLocales" class="tabla-partidos">
+                
+                <ng-container matColumnDef="fecha">
+                  <mat-header-cell *matHeaderCellDef>Fecha y Hora</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <div class="celda-fecha">
+                      <mat-icon>schedule</mat-icon>
+                      {{ formatearFecha(partido.fecha) }}
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="equipos">
+                  <mat-header-cell *matHeaderCellDef>Enfrentamiento</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <div class="celda-equipos">
+                      <strong>{{ formatearEquipos(partido) }}</strong>
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="estado">
+                  <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <mat-chip [color]="obtenerColorEstado(partido.estado)">
+                      {{ partido.estado }}
+                    </mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="resultado">
+                  <mat-header-cell *matHeaderCellDef>Resultado</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <span class="resultado">{{ formatearResultado(partido) }}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="competencia">
+                  <mat-header-cell *matHeaderCellDef>Competencia</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <span>{{ partido.competencia || partido.liga || 'No especificada' }}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="origen">
+                  <mat-header-cell *matHeaderCellDef>Origen</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <mat-icon [matTooltip]="partido.esDeApi ? 'Guardado desde API' : 'Creado localmente'">
+                      {{ obtenerIconoOrigen(partido.esDeApi || false) }}
+                    </mat-icon>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="acciones">
+                  <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <div class="acciones-celda">
+                      <button mat-icon-button 
+                              color="warn"
+                              (click)="eliminarPartidoLocal(partido)"
+                              matTooltip="Eliminar partido">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="columnasTabla"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: columnasTabla;"></mat-row>
+              </mat-table>
+            </div>
+
+            <!-- Estado vacío Local -->
+            <div *ngIf="!cargandoLocales && partidosLocales.length === 0" class="estado-vacio">
+              <mat-icon>inbox</mat-icon>
+              <h3>No hay partidos guardados</h3>
+              <p>Aún no has guardado ningún partido en la base de datos local</p>
+            </div>
+
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Tab: Vista Combinada -->
+      <mat-tab label="Vista Combinada">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            
+            <div class="tab-header">
+              <div class="tab-info">
+                <mat-icon color="warn">merge_type</mat-icon>
+                <div>
+                  <h3>Vista Combinada</h3>
+                  <p>Todos los partidos de ambas fuentes (API + Base de Datos)</p>
+                </div>
+              </div>
+              
+              <div class="tab-acciones">
+                <button mat-raised-button 
+                        color="primary" 
+                        (click)="cargarPartidosCombinados()"
+                        [disabled]="cargandoCombinados">
+                  <mat-icon>refresh</mat-icon>
+                  Actualizar
+                </button>
+              </div>
+            </div>
+
+            <!-- Loading Combinado -->
+            <div *ngIf="cargandoCombinados" class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Cargando vista combinada...</p>
+            </div>
+
+            <!-- Tabla Combinada -->
+            <div *ngIf="!cargandoCombinados && partidosCombinados.length > 0" class="tabla-container">
+              <mat-table [dataSource]="partidosCombinados" class="tabla-partidos">
+                
+                <ng-container matColumnDef="fecha">
+                  <mat-header-cell *matHeaderCellDef>Fecha y Hora</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <div class="celda-fecha">
+                      <mat-icon>schedule</mat-icon>
+                      {{ formatearFecha(partido.fecha) }}
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="equipos">
+                  <mat-header-cell *matHeaderCellDef>Enfrentamiento</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <div class="celda-equipos">
+                      <strong>{{ formatearEquipos(partido) }}</strong>
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="estado">
+                  <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <mat-chip [color]="obtenerColorEstado(partido.estado)">
+                      {{ partido.estado }}
+                    </mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="resultado">
+                  <mat-header-cell *matHeaderCellDef>Resultado</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <span class="resultado">{{ formatearResultado(partido) }}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="competencia">
+                  <mat-header-cell *matHeaderCellDef>Competencia</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <span>{{ partido.competencia || partido.liga || 'No especificada' }}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="origen">
+                  <mat-header-cell *matHeaderCellDef>Origen</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <mat-icon [matTooltip]="partido.esDeApi ? 'Desde API Externa' : 'Base de Datos Local'">
+                      {{ obtenerIconoOrigen(partido.esDeApi || false) }}
+                    </mat-icon>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="acciones">
+                  <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+                  <mat-cell *matCellDef="let partido">
+                    <div class="acciones-celda">
+                      <button *ngIf="partido.esDeApi && !partido.id" 
+                              mat-raised-button 
+                              color="accent" 
+                              size="small"
+                              (click)="guardarPartidoDeApi(partido)"
+                              [disabled]="guardandoPartido">
+                        <mat-icon>save</mat-icon>
+                        Guardar
+                      </button>
+                      
+                      <button *ngIf="partido.id" 
+                              mat-icon-button 
+                              color="warn"
+                              (click)="eliminarPartidoLocal(partido)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="columnasTabla"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: columnasTabla;"></mat-row>
+              </mat-table>
+            </div>
+
+            <!-- Estado vacío Combinado -->
+            <div *ngIf="!cargandoCombinados && partidosCombinados.length === 0" class="estado-vacio">
+              <mat-icon>search_off</mat-icon>
+              <h3>No hay partidos disponibles</h3>
+              <p>No se encontraron partidos en ninguna de las fuentes</p>
+            </div>
+
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Tab: Crear Partido -->
+      <mat-tab label="Crear Partido">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            
+            <div class="crear-partido-container">
+              <mat-card class="card-crear">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon color="primary">add_circle</mat-icon>
+                    Crear Partido Personalizado
+                  </mat-card-title>
+                  <mat-card-subtitle>
+                    Crea un evento deportivo personalizado para tu periódico
+                  </mat-card-subtitle>
+                </mat-card-header>
+
+                <mat-card-content>
+                  <form [formGroup]="crearPartidoForm" (ngSubmit)="crearPartidoLocal()" class="form-crear">
+                    
+                    <div class="campos-principales">
+                      <!-- Equipo Local -->
+                      <mat-form-field appearance="outline" class="campo-completo">
+                        <mat-label>Equipo Local</mat-label>
+                        <input matInput 
+                               formControlName="equipoLocal" 
+                               placeholder="Nombre del equipo local">
+                        <mat-icon matSuffix>home</mat-icon>
+                        <mat-error *ngIf="equipoLocal?.hasError('required')">
+                          El equipo local es obligatorio
+                        </mat-error>
+                      </mat-form-field>
+
+                      <!-- Equipo Visitante -->
+                      <mat-form-field appearance="outline" class="campo-completo">
+                        <mat-label>Equipo Visitante</mat-label>
+                        <input matInput 
+                               formControlName="equipoVisitante" 
+                               placeholder="Nombre del equipo visitante">
+                        <mat-icon matSuffix>flight_takeoff</mat-icon>
+                        <mat-error *ngIf="equipoVisitante?.hasError('required')">
+                          El equipo visitante es obligatorio
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+
+                    <div class="campos-secundarios">
+                      <!-- Fecha -->
+                      <mat-form-field appearance="outline" class="campo-fecha">
+                        <mat-label>Fecha y Hora del Partido</mat-label>
+                        <input matInput 
+                               type="datetime-local"
+                               formControlName="fecha">
+                        <mat-icon matSuffix>schedule</mat-icon>
+                        <mat-error *ngIf="fechaPartido?.hasError('required')">
+                          La fecha es obligatoria
+                        </mat-error>
+                      </mat-form-field>
+
+                      <!-- Competencia -->
+                      <mat-form-field appearance="outline" class="campo-competencia">
+                        <mat-label>Competencia/Liga</mat-label>
+                        <input matInput 
+                               formControlName="competencia" 
+                               placeholder="Ej: Liga Colombiana">
+                        <mat-icon matSuffix>emoji_events</mat-icon>
+                        <mat-error *ngIf="competencia?.hasError('required')">
+                          La competencia es obligatoria
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+
+                    <div class="campos-opcionales">
+                      <!-- Estado -->
+                      <mat-form-field appearance="outline" class="campo-estado">
+                        <mat-label>Estado del Partido</mat-label>
+                        <mat-select formControlName="estado">
+                          <mat-option value="SCHEDULED">Programado</mat-option>
+                          <mat-option value="LIVE">En Vivo</mat-option>
+                          <mat-option value="FINISHED">Finalizado</mat-option>
+                          <mat-option value="POSTPONED">Pospuesto</mat-option>
+                          <mat-option value="CANCELLED">Cancelado</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <!-- Goles Local -->
+                      <mat-form-field appearance="outline" class="campo-goles">
+                        <mat-label>Goles Equipo Local</mat-label>
+                        <input matInput 
+                               type="number" 
+                               formControlName="golesLocal" 
+                               min="0">
+                        <mat-icon matSuffix>sports_soccer</mat-icon>
+                      </mat-form-field>
+
+                      <!-- Goles Visitante -->
+                      <mat-form-field appearance="outline" class="campo-goles">
+                        <mat-label>Goles Equipo Visitante</mat-label>
+                        <input matInput 
+                               type="number" 
+                               formControlName="golesVisitante" 
+                               min="0">
+                        <mat-icon matSuffix>sports_soccer</mat-icon>
+                      </mat-form-field>
+                    </div>
+
+                    <div class="acciones-form">
+                      <button mat-raised-button 
+                              color="primary" 
+                              type="submit"
+                              [disabled]="crearPartidoForm.invalid || creandoPartido">
+                        <mat-icon>add</mat-icon>
+                        {{ creandoPartido ? 'Creando...' : 'Crear Partido' }}
+                      </button>
+
+                      <button mat-stroked-button 
+                              type="button" 
+                              (click)="crearPartidoForm.reset()">
+                        <mat-icon>clear</mat-icon>
+                        Limpiar
+                      </button>
+                    </div>
+
+                  </form>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+          </div>
+        </ng-template>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+
+</section>

@@ -1,4 +1,16 @@
 <section class="contenedor-eventos">
+  <!-- Botón de vuelta al dashboard -->
+  <div class="boton-vuelta-container">
+    <button mat-fab 
+            color="primary" 
+            class="boton-vuelta-dashboard"
+            [routerLink]="['/admin']"
+            matTooltip="Volver al Dashboard"
+            aria-label="Volver al Dashboard">
+      <mat-icon>dashboard</mat-icon>
+    </button>
+  </div>
+
   <h1 class="titulo-seccion">
     <mat-icon color="accent">event</mat-icon>
     Gestión de Eventos

@@ -24,6 +24,7 @@ export interface Noticia {
   autorId: number;
   autorNombre: string;
   fechaPublicacion: string;
+  seccion_id?: number; // ID de la sección asignada
 }
 
 export interface NoticiaDetalleDTO {

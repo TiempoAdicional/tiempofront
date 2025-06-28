@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { PartidoService, Partido } from '../partido.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -13,11 +16,14 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     MatCardModule,
     MatIconModule,
     MatProgressSpinnerModule,
     MatInputModule,
     MatFormFieldModule,
+    MatButtonModule,
+    MatTooltipModule,
     FormsModule
   ],
   templateUrl: './partidos-hoy.component.html',

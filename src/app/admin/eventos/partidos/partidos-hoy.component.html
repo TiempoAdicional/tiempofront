@@ -1,3 +1,15 @@
+<!-- Botón de vuelta al dashboard -->
+<div class="boton-vuelta-container">
+  <button mat-fab 
+          color="primary" 
+          class="boton-vuelta-dashboard"
+          [routerLink]="['/admin']"
+          matTooltip="Volver al Dashboard"
+          aria-label="Volver al Dashboard">
+    <mat-icon>dashboard</mat-icon>
+  </button>
+</div>
+
 <div class="partidos-container" *ngIf="!cargando; else loading">
   <div class="header">
     <h2 class="titulo">📅 Partidos de Hoy</h2>

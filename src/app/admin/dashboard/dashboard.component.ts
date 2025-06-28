@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
+import { InicializacionService } from '../../core/services/inicializacion.service';
 
 // Angular Material
 import { MatIconModule } from '@angular/material/icon';
@@ -36,7 +37,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private inicializacionService: InicializacionService
   ) { }
 
   ngOnInit(): void {
@@ -47,6 +49,10 @@ export class DashboardComponent implements OnInit {
       } else {
         this.nombreEditor = 'Administrador';
       }
+
+      // Inicializar el sistema de secciones al cargar el dashboard
+      this.inicializacionService.inicializarSistemaSecciones();
+      
     } catch (err) {
       this.error = 'Error al obtener el nombre del editor.';
     } finally {
@@ -59,17 +65,19 @@ export class DashboardComponent implements OnInit {
   toggleNoticias(): void {
     this.noticiasExpandido = !this.noticiasExpandido;
     if (this.eventosExpandido) this.eventosExpandido = false;
+    if (this.seccionesExpandido) this.seccionesExpandido = false;
   }
 
   toggleEventos(): void {
     this.eventosExpandido = !this.eventosExpandido;
     if (this.noticiasExpandido) this.noticiasExpandido = false;
+    if (this.seccionesExpandido) this.seccionesExpandido = false;
   }
 
-
-  toggleSecciones():void {
+  toggleSecciones(): void {
     this.seccionesExpandido = !this.seccionesExpandido;
-    if (this.seccionesExpandido) this.seccionesExpandido = false;
+    if (this.noticiasExpandido) this.noticiasExpandido = false;
+    if (this.eventosExpandido) this.eventosExpandido = false;
   }
 
 

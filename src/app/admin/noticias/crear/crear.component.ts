@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NoticiaService } from '../noticia.service';
 import { Router,RouterModule } from '@angular/router'; //
 import { AuthService } from '../../../auth/services/auth.service';
+import { AsignacionSeccionService } from '../../secciones/services/asignacion-seccion.service';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { VistaPreviaNoticiaComponent } from '../../../shared/vista/vista-previa-noticia.component';
 import { environment } from '../../../../environment/environment';
@@ -100,6 +101,7 @@ export class CrearNoticiaComponent {
   private fb = inject(FormBuilder);
   private noticiaService = inject(NoticiaService);
   private authService = inject(AuthService);
+  private asignacionSeccionService = inject(AsignacionSeccionService);
   public tinyApiKey = environment.tinyApiKey;
    private router = inject(Router); 
 
@@ -138,33 +140,82 @@ export class CrearNoticiaComponent {
     const autorId = this.authService.obtenerIdUsuario();
 
     if (this.form.valid && autorId !== null) {
-      const formValue = this.form.value;
-      const formData = new FormData();
+      // Obtener la sección de noticias automáticamente
+      this.asignacionSeccionService.obtenerSeccionNoticias().subscribe({
+        next: (seccionId) => {
+          const formValue = this.form.value;
+          const formData = new FormData();
 
-      formData.append('titulo', formValue.titulo);
-      formData.append('resumen', formValue.resumen);
-      formData.append('contenidoHtml', formValue.contenidoHtml);
-      formData.append('esPublica', String(formValue.esPublica));
-      formData.append('autorId', autorId.toString());
+          formData.append('titulo', formValue.titulo);
+          formData.append('resumen', formValue.resumen);
+          formData.append('contenidoHtml', formValue.contenidoHtml);
+          formData.append('esPublica', String(formValue.esPublica));
+          formData.append('autorId', autorId.toString());
 
-      if (this.imagenDestacada) {
-        formData.append('imagen', this.imagenDestacada);
-      }
+          // Asignar sección automáticamente si existe
+          if (seccionId) {
+            formData.append('seccionId', seccionId.toString());
+          }
 
-      this.noticiaService.crearNoticia(formData, autorId!).subscribe({
-        next: () => {
-          alert('✅ Noticia creada correctamente.');
-          this.form.reset();
-          this.imagenDestacada = null;
-          this.imagenDestacadaPreview = null;
+          if (this.imagenDestacada) {
+            formData.append('imagen', this.imagenDestacada);
+          }
+
+          this.noticiaService.crearNoticia(formData, autorId!).subscribe({
+            next: () => {
+              const mensaje = seccionId 
+                ? '✅ Noticia creada correctamente y asignada a sección de Noticias'
+                : '✅ Noticia creada correctamente (sin sección asignada)';
+              alert(mensaje);
+              this.form.reset();
+              this.imagenDestacada = null;
+              this.imagenDestacadaPreview = null;
+              this.contenidoHtml = '';
+            },
+            error: (err) => {
+              console.error('❌ Error al crear noticia:', err);
+              alert('❌ Error al crear la noticia.');
+            }
+          });
         },
         error: (err) => {
-          console.error('❌ Error al crear noticia:', err);
-          alert('❌ Error al crear la noticia.');
+          console.error('Error al obtener sección de noticias:', err);
+          // Continuar sin sección asignada
+          this.crearNoticiaSinSeccion(autorId);
         }
       });
     } else {
       alert('❗Formulario inválido o autor no autenticado.');
     }
+  }
+
+  // Método auxiliar para crear noticia sin sección
+  private crearNoticiaSinSeccion(autorId: number): void {
+    const formValue = this.form.value;
+    const formData = new FormData();
+
+    formData.append('titulo', formValue.titulo);
+    formData.append('resumen', formValue.resumen);
+    formData.append('contenidoHtml', formValue.contenidoHtml);
+    formData.append('esPublica', String(formValue.esPublica));
+    formData.append('autorId', autorId.toString());
+
+    if (this.imagenDestacada) {
+      formData.append('imagen', this.imagenDestacada);
+    }
+
+    this.noticiaService.crearNoticia(formData, autorId!).subscribe({
+      next: () => {
+        alert('✅ Noticia creada correctamente.');
+        this.form.reset();
+        this.imagenDestacada = null;
+        this.imagenDestacadaPreview = null;
+        this.contenidoHtml = '';
+      },
+      error: (err) => {
+        console.error('❌ Error al crear noticia:', err);
+        alert('❌ Error al crear la noticia.');
+      }
+    });
   }
 }
