@@ -43,6 +43,45 @@
         ></editor>
       </div>
 
+      <!-- SECCIÓN -->
+      <div class="form-group">
+        <label for="seccionId">Sección *</label>
+        <select id="seccionId" class="form-control" formControlName="seccionId">
+          <option value="">Seleccione una sección</option>
+          <option *ngFor="let seccion of secciones" [value]="seccion.id">
+            {{seccion.titulo}}
+          </option>
+        </select>
+        <small class="error-text" *ngIf="form.get('seccionId')?.invalid && form.get('seccionId')?.touched">
+          La sección es requerida para clasificar la noticia
+        </small>
+      </div>
+
+      <!-- DESTACADA -->
+      <div class="form-group">
+        <label>
+          <input type="checkbox" formControlName="destacada" />
+          ¿Marcar como destacada?
+        </label>
+      </div>
+
+      <!-- TAGS -->
+      <div class="form-group">
+        <label for="tags">Tags (Opcional)</label>
+        <input 
+          id="tags" 
+          type="text" 
+          class="form-control" 
+          placeholder="Agregar tags separados por comas"
+          (keyup.enter)="agregarTagDesdeInput($event)"
+        />
+        <div class="tags-container" *ngIf="tags.length > 0">
+          <span class="tag" *ngFor="let tag of tags">
+            {{tag}} <button type="button" (click)="eliminarTag(tag)">×</button>
+          </span>
+        </div>
+      </div>
+
       <!-- ES PÚBLICA -->
       <div class="form-group">
         <label>

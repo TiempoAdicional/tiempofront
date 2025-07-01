@@ -1,109 +1,429 @@
-
-
-<div class="editar-noticia">
-<div class="acciones-internas">
-      <div class="grupo-botones">
-        <button class="btn-vista-previa" *ngIf="!mostrarVistaPrevia" (click)="mostrarVistaPrevia = true">
-        👁️ Abrir Vista Previa
+<!-- HEADER CON NAVEGACIÓN MEJORADA -->
+<mat-toolbar color="primary" class="editar-header">
+  <mat-toolbar-row>
+    <button mat-icon-button (click)="volverAlDashboard()" matTooltip="Volver al Dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    
+    <span class="header-title">
+      <mat-icon>edit</mat-icon>
+      Editar Noticias
+    </span>
+    
+    <span class="spacer"></span>
+    
+    <!-- ACCIONES RÁPIDAS -->
+    <div class="header-actions">
+      <button mat-icon-button 
+              [disabled]="!noticiaSeleccionada" 
+              (click)="duplicarNoticia()" 
+              matTooltip="Duplicar noticia">
+        <mat-icon>content_copy</mat-icon>
       </button>
-
-      <button class="btn-regresar" routerLink="/admin">
-        🔙 Volver al Dashboard
+      
+      <button mat-icon-button 
+              [disabled]="!noticiaSeleccionada" 
+              (click)="abrirVistaPreviaEnNuevaVentana()" 
+              matTooltip="Vista previa en nueva ventana">
+        <mat-icon>open_in_new</mat-icon>
       </button>
-      </div>
+      
+      <button mat-icon-button 
+              [disabled]="!noticiaSeleccionada" 
+              (click)="toggleVistaPrevia()" 
+              matTooltip="Toggle vista previa">
+        <mat-icon>{{ mostrarVistaPrevia ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
     </div>
-  <h2>📝 Editar Noticia</h2>
-  <!-- 🔍 Barra de búsqueda -->
-  <div class="busqueda-section">
-    <input
-      type="text"
-      [(ngModel)]="filtro"
-      (input)="filtrarNoticias()"
-      placeholder="Buscar por título..."
-      class="barra-busqueda"
-    />
+  </mat-toolbar-row>
+  
+  <!-- BARRA DE PROGRESO DE AUTOGUARDADO -->
+  <mat-progress-bar 
+    *ngIf="saving" 
+    mode="indeterminate">
+  </mat-progress-bar>
+</mat-toolbar>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="editar-container">
+  
+  <!-- SIDEBAR CON LISTA DE NOTICIAS -->
+  <mat-card class="sidebar-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>article</mat-icon>
+        Mis Noticias
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ estadisticas.total }} noticias | {{ estadisticas.publicadas }} públicas
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <!-- ESTADÍSTICAS RÁPIDAS -->
+      <div class="stats-chips">
+        <mat-chip-set>
+          <mat-chip [class.active]="filtroEstado === ''">
+            <mat-icon>dashboard</mat-icon>
+            Todas ({{ estadisticas.total }})
+          </mat-chip>
+          <mat-chip [class.active]="filtroEstado === 'publicas'" (click)="filtroEstado = 'publicas'; aplicarFiltros()">
+            <mat-icon>public</mat-icon>
+            Públicas ({{ estadisticas.publicadas }})
+          </mat-chip>
+          <mat-chip [class.active]="filtroEstado === 'borradores'" (click)="filtroEstado = 'borradores'; aplicarFiltros()">
+            <mat-icon>draft</mat-icon>
+            Borradores ({{ estadisticas.borradores }})
+          </mat-chip>
+          <mat-chip [class.active]="filtroEstado === 'destacadas'" (click)="filtroEstado = 'destacadas'; aplicarFiltros()">
+            <mat-icon>star</mat-icon>
+            Destacadas ({{ estadisticas.destacadas }})
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- FILTROS DE BÚSQUEDA -->
+      <div class="filtros-section">
+        <mat-form-field appearance="outline" class="filtro-busqueda">
+          <mat-label>Buscar noticias</mat-label>
+          <input matInput 
+                 [(ngModel)]="filtroTexto" 
+                 (input)="aplicarFiltros()" 
+                 placeholder="Título o resumen...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <button mat-icon-button 
+                (click)="filtroTexto = ''; filtroEstado = ''; aplicarFiltros()" 
+                matTooltip="Limpiar filtros">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+
+      <!-- LISTA DE NOTICIAS -->
+      <div class="noticias-lista" *ngIf="!cargando">
+        <mat-selection-list [multiple]="false">
+          <mat-list-option 
+            *ngFor="let noticia of noticiasFiltradas" 
+            [selected]="noticiaSeleccionada?.id === noticia.id"
+            (click)="seleccionarNoticia(noticia)"
+            class="noticia-item">
+            
+            <div matListItemTitle>{{ noticia.titulo }}</div>
+            <div matListItemLine>
+              <span class="resumen-preview">{{ noticia.resumen | slice:0:80 }}...</span>
+            </div>
+            <div matListItemLine class="noticia-meta">
+              <mat-chip-set>
+                <mat-chip [class]="noticia.esPublica ? 'chip-publica' : 'chip-borrador'">
+                  <mat-icon>{{ noticia.esPublica ? 'public' : 'draft' }}</mat-icon>
+                  {{ noticia.esPublica ? 'Pública' : 'Borrador' }}
+                </mat-chip>
+                <mat-chip *ngIf="noticia.destacada" class="chip-destacada">
+                  <mat-icon>star</mat-icon>
+                  Destacada
+                </mat-chip>
+              </mat-chip-set>
+              <span class="fecha">{{ noticia.fechaPublicacion | date:'short' }}</span>
+            </div>
+          </mat-list-option>
+        </mat-selection-list>
+      </div>
+      
+      <!-- ESTADO DE CARGA -->
+      <div *ngIf="cargando" class="loading-section">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Cargando noticias...</p>
+      </div>
+      
+      <!-- SIN NOTICIAS -->
+      <div *ngIf="!cargando && noticiasFiltradas.length === 0" class="empty-state">
+        <mat-icon>article</mat-icon>
+        <p>No se encontraron noticias</p>
+        <button mat-raised-button color="primary" routerLink="/admin/noticias/crear">
+          <mat-icon>add</mat-icon>
+          Crear Nueva Noticia
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ÁREA DE EDICIÓN PRINCIPAL -->
+  <div class="editor-area" *ngIf="noticiaSeleccionada">
+    <mat-card class="editor-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>edit_note</mat-icon>
+          Editando: {{ noticiaSeleccionada.titulo }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          <span *ngIf="ultimoGuardado">
+            Último guardado: {{ ultimoGuardado | date:'medium' }}
+          </span>
+          <span *ngIf="hasUnsavedChanges && !saving" class="cambios-pendientes">
+            <mat-icon>warning</mat-icon>
+            Cambios sin guardar
+          </span>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- PESTAÑAS DE EDICIÓN -->
+        <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="editor-tabs">
+          
+          <!-- PESTAÑA DE INFORMACIÓN BÁSICA -->
+          <mat-tab label="Información">
+            <ng-template matTabContent>
+              <form [formGroup]="informacionForm" class="info-form">
+                <!-- TÍTULO -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Título de la noticia</mat-label>
+                  <input matInput formControlName="titulo" placeholder="Ingresa un título llamativo...">
+                  <mat-icon matSuffix>title</mat-icon>
+                  <mat-hint>Mín. 5 caracteres, máx. 200</mat-hint>
+                  <mat-error *ngIf="informacionForm.get('titulo')?.hasError('required')">
+                    El título es obligatorio
+                  </mat-error>
+                  <mat-error *ngIf="informacionForm.get('titulo')?.hasError('minlength')">
+                    El título debe tener al menos 10 caracteres
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- RESUMEN -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Resumen</mat-label>
+                  <textarea matInput 
+                            formControlName="resumen" 
+                            rows="4" 
+                            placeholder="Escribe un resumen atractivo..."></textarea>
+                  <mat-icon matSuffix>subject</mat-icon>
+                  <mat-hint>Mín. 20 caracteres, máx. 500</mat-hint>
+                  <mat-error *ngIf="informacionForm.get('resumen')?.hasError('required')">
+                    El resumen es obligatorio
+                  </mat-error>
+                </mat-form-field>
+
+                <!-- IMAGEN DESTACADA -->
+                <div class="imagen-section">
+                  <h3>
+                    <mat-icon>image</mat-icon>
+                    Imagen Destacada
+                  </h3>
+                  
+                  <div class="imagen-preview" *ngIf="imagenDestacadaPreview">
+                    <img [src]="imagenDestacadaPreview" alt="Imagen destacada" class="preview-img">
+                    <button mat-icon-button 
+                            class="remove-image" 
+                            (click)="imagenDestacadaPreview = null; imagenDestacada = null">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                  
+                  <div class="imagen-upload">
+                    <input type="file" 
+                           #fileInput 
+                           (change)="onArchivoSeleccionado($event)" 
+                           accept="image/*" 
+                           hidden>
+                    <button mat-raised-button 
+                            color="accent" 
+                            (click)="fileInput.click()">
+                      <mat-icon>upload</mat-icon>
+                      {{ imagenDestacadaPreview ? 'Cambiar' : 'Subir' }} Imagen
+                    </button>
+                    <p class="upload-hint">JPG, PNG o WebP. Máximo 5MB.</p>
+                  </div>
+                </div>
+              </form>
+            </ng-template>
+          </mat-tab>
+
+          <!-- PESTAÑA DE CONTENIDO -->
+          <mat-tab label="Contenido">
+            <ng-template matTabContent>
+              <div class="contenido-form">
+                <h3>
+                  <mat-icon>article</mat-icon>
+                  Contenido de la Noticia
+                </h3>
+                
+                <!-- EDITOR TINYMCE -->
+                <div class="editor-container">
+                  <editor
+                    [apiKey]="tinyApiKey"
+                    [init]="editorConfig"
+                    [ngModel]="contenidoHtml"
+                    (ngModelChange)="contenidoHtml = $event"
+                    class="content-editor">
+                  </editor>
+                </div>
+
+                <!-- TAGS -->
+                <div class="tags-section">
+                  <h4>
+                    <mat-icon>label</mat-icon>
+                    Tags
+                  </h4>
+                  
+                  <div class="tags-input">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Agregar tag</mat-label>
+                      <input matInput 
+                             [(ngModel)]="tagInput" 
+                             (keyup.enter)="agregarTag()" 
+                             placeholder="Escribe y presiona Enter">
+                      <button matSuffix mat-icon-button (click)="agregarTag()">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="tags-list">
+                    <mat-chip-set>
+                      <mat-chip *ngFor="let tag of tags" [removable]="true" (removed)="eliminarTag(tag)">
+                        {{ tag }}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </mat-tab>
+
+          <!-- PESTAÑA DE CONFIGURACIÓN -->
+          <mat-tab label="Configuración">
+            <ng-template matTabContent>
+              <form [formGroup]="configuracionForm" class="config-form">
+                <h3>
+                  <mat-icon>settings</mat-icon>
+                  Configuración de Publicación
+                </h3>
+
+                <!-- OPCIONES DE PUBLICACIÓN -->
+                <div class="opciones-publicacion">
+                  <mat-checkbox formControlName="esPublica" class="opcion-checkbox">
+                    <mat-icon>public</mat-icon>
+                    Hacer pública esta noticia
+                  </mat-checkbox>
+                  
+                  <mat-checkbox formControlName="destacada" class="opcion-checkbox">
+                    <mat-icon>star</mat-icon>
+                    Marcar como destacada
+                  </mat-checkbox>
+                  
+                  <mat-checkbox formControlName="permitirComentarios" class="opcion-checkbox">
+                    <mat-icon>comment</mat-icon>
+                    Permitir comentarios
+                  </mat-checkbox>
+                </div>
+
+                <!-- SECCIÓN -->
+                <div class="seccion-field">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>
+                      <mat-icon>folder</mat-icon>
+                      Sección
+                    </mat-label>
+                    <mat-select formControlName="seccionId" placeholder="Seleccione una sección">
+                      <mat-option value="">Sin sección</mat-option>
+                      <mat-option *ngFor="let seccion of secciones" [value]="seccion.id">
+                        {{seccion.titulo}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="configuracionForm.get('seccionId')?.hasError('required')">
+                      La sección es requerida para clasificar la noticia
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- INFORMACIÓN ADICIONAL -->
+                <div class="info-adicional">
+                  <mat-card class="info-card">
+                    <mat-card-content>
+                      <div class="info-item">
+                        <mat-icon>person</mat-icon>
+                        <span>Autor: {{ noticiaSeleccionada.autorNombre }}</span>
+                      </div>
+                      <div class="info-item">
+                        <mat-icon>schedule</mat-icon>
+                        <span>Creada: {{ noticiaSeleccionada.fechaPublicacion | date:'medium' }}</span>
+                      </div>
+                      <div class="info-item">
+                        <mat-icon>visibility</mat-icon>
+                        <span>Visitas: {{ noticiaSeleccionada.visitas || 0 }}</span>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </form>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+
+        <!-- ACCIONES DEL FORMULARIO -->
+        <div class="form-actions">
+          <button mat-raised-button 
+                  color="primary" 
+                  (click)="guardarCambios()" 
+                  [disabled]="informacionForm.invalid || loading">
+            <mat-icon>save</mat-icon>
+            {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+          
+          <button mat-stroked-button 
+                  color="warn" 
+                  (click)="cargarDatosEnFormulario()"
+                  [disabled]="!hasUnsavedChanges">
+            <mat-icon>undo</mat-icon>
+            Deshacer Cambios
+          </button>
+          
+          <button mat-stroked-button 
+                  (click)="duplicarNoticia()">
+            <mat-icon>content_copy</mat-icon>
+            Duplicar
+          </button>
+          
+          <span class="spacer"></span>
+          
+          <button mat-raised-button 
+                  color="accent" 
+                  (click)="toggleVistaPrevia()">
+            <mat-icon>{{ mostrarVistaPrevia ? 'visibility_off' : 'visibility' }}</mat-icon>
+            {{ mostrarVistaPrevia ? 'Ocultar' : 'Mostrar' }} Vista Previa
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <!-- 📜 Lista de noticias propias -->
-  <ul class="lista-noticias">
-    <li
-      *ngFor="let noticia of noticiasFiltradas"
-      [class.seleccionada]="noticia.id === noticiaSeleccionadaId"
-      (click)="seleccionarNoticia(noticia)"
-    >
-      {{ noticia.titulo }}
-    </li>
-  </ul>
-
-  <!-- 🧾 Formulario de edición -->
-  <form
-    id="formulario-edicion"
-    [formGroup]="form"
-    (ngSubmit)="onSubmit()"
-    *ngIf="noticiaSeleccionadaId !== null"
-    class="formulario-edicion"
-  >
-    <label for="titulo">Título:</label>
-    <input
-      id="titulo"
-      type="text"
-      formControlName="titulo"
-      placeholder="Ingresa el nuevo título"
-    />
-
-    <label for="resumen">Resumen:</label>
-    <textarea
-      id="resumen"
-      formControlName="resumen"
-      placeholder="Resumen breve"
-      rows="3"
-    ></textarea>
-
-    <label for="contenidoHtml">Contenido Detallado:</label>
-     <editor
-      id="contenidoHtml"
-      [apiKey]="tinyApiKey"
-      [init]="editorConfig"
-      formControlName="contenidoHtml"
-      [ngModel]="contenidoHtml"
-      (ngModelChange)="contenidoHtml = $event"
-    ></editor>
-
-    <div class="publica-checkbox">
-      <label>
-        <input type="checkbox" formControlName="esPublica" />
-        ¿Hacer pública?
-      </label>
-    </div>
-
-    <!-- 🖼️ Imagen destacada actual -->
-    <div class="preview-imagen" *ngIf="imagenDestacadaUrl && !imagenDestacadaPreview">
-      <p>Imagen destacada actual:</p>
-      <img [src]="imagenDestacadaUrl" alt="Imagen destacada" width="200" />
-    </div>
-
-    <!-- 🖼️ Imagen nueva seleccionada -->
-    <div class="preview-imagen" *ngIf="imagenDestacadaPreview">
-      <p>Previsualización de nueva imagen:</p>
-      <img [src]="imagenDestacadaPreview" alt="Nueva imagen destacada" width="200" />
-    </div>
-
-    <label for="imagen">Nueva imagen destacada (opcional):</label>
-    <input type="file" (change)="onArchivoSeleccionado($event)" />
-
-    <button type="submit" [disabled]="form.invalid || cargando">
-      💾 Guardar Cambios
-    </button>
-  </form>
+  <!-- MENSAJE DE SELECCIÓN -->
+  <div class="seleccion-mensaje" *ngIf="!noticiaSeleccionada && !cargando">
+    <mat-card class="mensaje-card">
+      <mat-card-content>
+        <mat-icon>touch_app</mat-icon>
+        <h3>Selecciona una noticia para editar</h3>
+        <p>Elige una noticia de la lista de la izquierda para comenzar a editarla.</p>
+        <button mat-raised-button color="primary" routerLink="/admin/noticias/crear">
+          <mat-icon>add</mat-icon>
+          Crear Nueva Noticia
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>
 
-<!-- 👀 Vista previa en vivo -->
+<!-- VISTA PREVIA FLOTANTE -->
 <app-vista-previa-noticia
-  *ngIf="mostrarVistaPrevia"
-  [titulo]="form.get('titulo')?.value"
-  [resumen]="form.get('resumen')?.value"
+  *ngIf="mostrarVistaPrevia && noticiaSeleccionada"
+  [titulo]="informacionForm.get('titulo')?.value"
+  [resumen]="informacionForm.get('resumen')?.value"
   [contenidoHtml]="contenidoHtml"
   [imagenDestacadaUrl]="imagenDestacadaPreview"
   [mostrarImagen]="!!imagenDestacadaPreview"
   (cerrar)="mostrarVistaPrevia = false"
-></app-vista-previa-noticia>
+  class="vista-previa-flotante">
+</app-vista-previa-noticia>

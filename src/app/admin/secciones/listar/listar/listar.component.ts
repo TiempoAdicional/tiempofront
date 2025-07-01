@@ -9,7 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray } from '@angular/cdk/drag-drop';
-import { SeccionesService, SeccionResponse } from '../../services/secciones.service';
+import { SeccionesService, SeccionResponse } from '../../../../core/services/secciones.service';
 
 @Component({
   selector: 'app-listar-secciones',

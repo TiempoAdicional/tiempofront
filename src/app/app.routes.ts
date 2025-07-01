@@ -24,13 +24,8 @@ export const routes: Routes = [
           import('./admin/noticias/crear/crear.component').then(m => m.CrearNoticiaComponent)
       },
       {
-        path: 'noticias/editar',
-        loadComponent: () =>
-          import('./admin/noticias/editar/editar.component').then(m => m.EditarComponent)
-      },
-      {
         path: 'noticias/editar/:id',
-        loadComponent: () => import('./admin/noticias/editar/editar.component').then(m => m.EditarComponent)
+        loadComponent: () => import('./admin/noticias/editar/editar.component').then(m => m.EditarNoticiaComponent)
       },
       {
         path: 'noticias/listar',

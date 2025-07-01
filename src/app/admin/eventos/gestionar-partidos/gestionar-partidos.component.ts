@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { PartidoService, Partido } from '../partido.service';
-import { AsignacionSeccionService } from '../../secciones/services/asignacion-seccion.service';
+import { PartidosService, Partido } from '../../../core/services/partidos.service';
+import { AsignacionSeccionService } from '../../../core/services/asignacion-seccion.service';
 
 // Angular Material
 import { MatCardModule } from '@angular/material/card';
@@ -74,7 +74,7 @@ export class GestionarPartidosComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private partidoService: PartidoService,
+    private partidosService: PartidosService,
     private asignacionSeccionService: AsignacionSeccionService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
@@ -109,7 +109,7 @@ export class GestionarPartidosComponent implements OnInit {
 
   cargarPartidosHoy(): void {
     this.cargandoApi = true;
-    this.partidoService.obtenerPartidosHoyApi().subscribe({
+    this.partidosService.obtenerPartidosHoyApi().subscribe({
       next: (partidos) => {
         this.partidosApi = partidos;
         this.cargandoApi = false;
@@ -124,7 +124,7 @@ export class GestionarPartidosComponent implements OnInit {
 
   cargarPartidosLocales(): void {
     this.cargandoLocales = true;
-    this.partidoService.listarPartidosLocales().subscribe({
+    this.partidosService.listarPartidosLocales().subscribe({
       next: (partidos) => {
         this.partidosLocales = partidos;
         this.cargandoLocales = false;
@@ -139,7 +139,7 @@ export class GestionarPartidosComponent implements OnInit {
 
   cargarPartidosCombinados(): void {
     this.cargandoCombinados = true;
-    this.partidoService.obtenerPartidosCombinados().subscribe({
+    this.partidosService.obtenerPartidosCombinados().subscribe({
       next: (partidos) => {
         this.partidosCombinados = partidos;
         this.cargandoCombinados = false;
@@ -172,7 +172,7 @@ export class GestionarPartidosComponent implements OnInit {
     switch (tipoFuente) {
       case 'api':
         this.cargandoApi = true;
-        this.partidoService.buscarPorFechaApi(fechaISO).subscribe({
+        this.partidosService.buscarPorFechaApi(fechaISO).subscribe({
           next: (partidos) => {
             this.partidosApi = partidos;
             this.cargandoApi = false;
@@ -184,7 +184,7 @@ export class GestionarPartidosComponent implements OnInit {
 
       case 'combinado':
         this.cargandoCombinados = true;
-        this.partidoService.buscarPorFechaCombinado(fechaISO).subscribe({
+        this.partidosService.buscarPorFechaCombinado(fechaISO).subscribe({
           next: (partidos) => {
             this.partidosCombinados = partidos;
             this.cargandoCombinados = false;
@@ -200,7 +200,7 @@ export class GestionarPartidosComponent implements OnInit {
     switch (tipoFuente) {
       case 'api':
         this.cargandoApi = true;
-        this.partidoService.buscarPorEquipoApi(equipo).subscribe({
+        this.partidosService.buscarPorEquipoApi(equipo).subscribe({
           next: (partidos) => {
             this.partidosApi = partidos;
             this.cargandoApi = false;
@@ -212,7 +212,7 @@ export class GestionarPartidosComponent implements OnInit {
 
       case 'local':
         this.cargandoLocales = true;
-        this.partidoService.buscarPartidosLocalesPorEquipo(equipo).subscribe({
+        this.partidosService.buscarPartidosLocalesPorEquipo(equipo).subscribe({
           next: (partidos) => {
             this.partidosLocales = partidos;
             this.cargandoLocales = false;
@@ -231,7 +231,7 @@ export class GestionarPartidosComponent implements OnInit {
     
     this.asignacionSeccionService.obtenerSeccionPartidos().subscribe({
       next: (seccionId) => {
-        this.partidoService.guardarPartidoDeApi(partido, seccionId || undefined).subscribe({
+        this.partidosService.guardarPartidoDeApi(partido, seccionId || undefined).subscribe({
           next: (partidoGuardado) => {
             this.mostrarNotificacion('✅ Partido guardado en base de datos local', 'success');
             this.cargarPartidosLocales(); // Recargar la lista local
@@ -246,7 +246,7 @@ export class GestionarPartidosComponent implements OnInit {
       error: (error) => {
         console.error('Error al obtener sección de partidos:', error);
         // Guardar sin sección asignada
-        this.partidoService.guardarPartidoDeApi(partido).subscribe({
+        this.partidosService.guardarPartidoDeApi(partido).subscribe({
           next: () => {
             this.mostrarNotificacion('✅ Partido guardado (sin sección asignada)', 'success');
             this.cargarPartidosLocales();
@@ -281,7 +281,7 @@ export class GestionarPartidosComponent implements OnInit {
 
     this.asignacionSeccionService.obtenerSeccionPartidos().subscribe({
       next: (seccionId) => {
-        this.partidoService.crearPartidoLocal(formData, seccionId || undefined).subscribe({
+        this.partidosService.crearPartidoLocal(formData, seccionId || undefined).subscribe({
           next: (partidoCreado) => {
             this.mostrarNotificacion('✅ Partido creado correctamente', 'success');
             this.crearPartidoForm.reset();
@@ -296,7 +296,7 @@ export class GestionarPartidosComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al obtener sección:', error);
-        this.partidoService.crearPartidoLocal(formData).subscribe({
+        this.partidosService.crearPartidoLocal(formData).subscribe({
           next: () => {
             this.mostrarNotificacion('✅ Partido creado (sin sección)', 'success');
             this.crearPartidoForm.reset();
@@ -315,7 +315,7 @@ export class GestionarPartidosComponent implements OnInit {
     const confirmacion = confirm(`¿Estás seguro de eliminar el partido ${partido.equipoLocal} vs ${partido.equipoVisitante}?`);
     if (!confirmacion) return;
 
-    this.partidoService.eliminarPartidoLocal(partido.id).subscribe({
+    this.partidosService.eliminarPartidoLocal(partido.id).subscribe({
       next: () => {
         this.mostrarNotificacion('✅ Partido eliminado correctamente', 'success');
         this.cargarPartidosLocales();

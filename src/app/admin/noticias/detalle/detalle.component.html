@@ -1,55 +1,407 @@
-<div class="detalle-noticia-container" *ngIf="!cargando && detalle">
-  <!-- ENCABEZADO DE NOTICIA -->
-  <div class="noticia-encabezado">
-    <h1 class="titulo">{{ detalle.noticia.titulo }}</h1>
-    <p class="resumen">{{ detalle.noticia.resumen }}</p>
-
-    <div class="meta">
-      <span>
-        ✍️ {{ detalle.noticia.autorNombre }}
-      </span>
-      <span>
-        🗓️ {{ detalle.noticia.fechaPublicacion | date: 'longDate' }}
-      </span>
-      <span>
-        👁️ {{ detalle.noticia.visitas }} visitas
-      </span>
+<!-- HEADER CON NAVEGACIÓN MEJORADA -->
+<mat-toolbar color="primary" class="detalle-header">
+  <mat-toolbar-row>
+    <button mat-icon-button (click)="volverAlDashboard()" matTooltip="Volver al Dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    
+    <span class="header-title">
+      <mat-icon>article</mat-icon>
+      Detalle de Noticia
+    </span>
+    
+    <span class="spacer"></span>
+    
+    <!-- ACCIONES DEL AUTOR -->
+    <div class="header-actions" *ngIf="esAutorDeLaNoticia && detalle">
+      <button mat-icon-button 
+              (click)="editarNoticia()" 
+              matTooltip="Editar noticia">
+        <mat-icon>edit</mat-icon>
+      </button>
+      
+      <button mat-icon-button 
+              [matMenuTriggerFor]="accionesMenu" 
+              matTooltip="Más acciones">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      
+      <mat-menu #accionesMenu="matMenu">
+        <button mat-menu-item (click)="duplicarNoticia()">
+          <mat-icon>content_copy</mat-icon>
+          Duplicar
+        </button>
+        <button mat-menu-item (click)="cambiarEstadoPublicacion()">
+          <mat-icon>{{ detalle.noticia.esPublica ? 'unpublished' : 'publish' }}</mat-icon>
+          {{ detalle.noticia.esPublica ? 'Despublicar' : 'Publicar' }}
+        </button>
+        <button mat-menu-item (click)="exportarNoticia()">
+          <mat-icon>download</mat-icon>
+          Exportar PDF
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="volverAListado()">
+          <mat-icon>list</mat-icon>
+          Volver al Listado
+        </button>
+      </mat-menu>
     </div>
+    
+    <!-- ACCIONES GENERALES -->
+    <div class="header-actions" *ngIf="detalle">
+      <button mat-icon-button 
+              (click)="abrirVistaPrevia()" 
+              matTooltip="Vista previa">
+        <mat-icon>open_in_new</mat-icon>
+      </button>
+      
+      <button mat-icon-button 
+              (click)="compartirNoticia()" 
+              matTooltip="Compartir">
+        <mat-icon>share</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>
 
-    <img
-      *ngIf="detalle.noticia.imagenDestacada"
-      [src]="detalle.noticia.imagenDestacada"
-      alt="Imagen destacada"
-      class="imagen-destacada"
-    />
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="detalle-container" *ngIf="!cargando && detalle">
+  
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="contenido-principal">
+    
+    <!-- HEADER DE LA NOTICIA -->
+    <mat-card class="noticia-header-card">
+      <mat-card-header>
+        <div class="noticia-meta">
+          <mat-chip-set>
+            <mat-chip [color]="obtenerColorEstado()" [highlighted]="true">
+              <mat-icon>{{ detalle.noticia.esPublica ? 'public' : 'draft' }}</mat-icon>
+              {{ obtenerTextoEstado() }}
+            </mat-chip>
+            <mat-chip *ngIf="detalle.noticia.destacada" color="accent" highlighted>
+              <mat-icon>star</mat-icon>
+              Destacada
+            </mat-chip>
+          </mat-chip-set>
+          
+          <div class="info-publicacion">
+            <span class="autor">
+              <mat-icon>person</mat-icon>
+              {{ detalle.noticia.autorNombre }}
+            </span>
+            <span class="fecha">
+              <mat-icon>schedule</mat-icon>
+              {{ fechaFormateada }}
+            </span>
+            <span class="lectura">
+              <mat-icon>timer</mat-icon>
+              {{ tiempoLectura }} min lectura
+            </span>
+          </div>
+        </div>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <h1 class="titulo-noticia">{{ detalle.noticia.titulo }}</h1>
+        <p class="resumen-noticia">{{ detalle.noticia.resumen }}</p>
+        
+        <!-- IMAGEN DESTACADA -->
+        <div class="imagen-destacada" *ngIf="detalle.noticia.imagenDestacada">
+          <img [src]="detalle.noticia.imagenDestacada" 
+               [alt]="detalle.noticia.titulo" 
+               class="imagen-principal">
+        </div>
+        
+        <!-- TAGS -->
+        <div class="tags-section" *ngIf="tieneTags">
+          <mat-chip-set>
+            <mat-chip *ngFor="let tag of tags" class="tag-chip">
+              <mat-icon>label</mat-icon>
+              {{ tag }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- PESTAÑAS DE CONTENIDO -->
+    <mat-card class="contenido-tabs-card">
+      <mat-tab-group [(selectedIndex)]="activeTab" class="contenido-tabs">
+        
+        <!-- PESTAÑA DE CONTENIDO -->
+        <mat-tab label="Contenido">
+          <ng-template matTabContent>
+            <div class="contenido-noticia">
+              <div [innerHTML]="contenidoHtml" class="html-content"></div>
+            </div>
+          </ng-template>
+        </mat-tab>
+
+        <!-- PESTAÑA DE COMENTARIOS -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <span>Comentarios</span>
+            <mat-chip-listbox class="tab-badge">
+              <mat-chip>{{ detalle.comentarios.length }}</mat-chip>
+            </mat-chip-listbox>
+          </ng-template>
+          <ng-template matTabContent>
+            <div class="comentarios-section">
+              <div class="comentarios-header">
+                <h3>
+                  <mat-icon>comment</mat-icon>
+                  Comentarios de la Hinchada ({{ detalle.comentarios.length }})
+                </h3>
+              </div>
+              
+              <div class="comentarios-lista" *ngIf="detalle.comentarios.length > 0">
+                <mat-list>
+                  <mat-list-item *ngFor="let comentario of detalle.comentarios" class="comentario-item">
+                    <div matListItemIcon class="avatar-container">
+                      <img [src]="'https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + comentario.autor.slice(0, 3)" 
+                           alt="Avatar fan" 
+                           class="comentario-avatar">
+                    </div>
+                    <div matListItemTitle class="comentario-contenido">
+                      <p class="comentario-texto">{{ comentario.mensaje }}</p>
+                      <div class="comentario-meta">
+                        <mat-icon>sports_soccer</mat-icon>
+                        <span>{{ comentario.autor }}</span>
+                        <span class="fecha">{{ comentario.fecha | date:'short' }}</span>
+                      </div>
+                    </div>
+                  </mat-list-item>
+                </mat-list>
+              </div>
+              
+              <div class="sin-comentarios" *ngIf="detalle.comentarios.length === 0">
+                <mat-icon>comment_bank</mat-icon>
+                <p>Aún no hay comentarios para esta noticia.</p>
+                <p class="sub-text">¡Sé el primero en comentar cuando se publique!</p>
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+
+        <!-- PESTAÑA DE ESTADÍSTICAS -->
+        <mat-tab label="Estadísticas" *ngIf="esAutorDeLaNoticia">
+          <ng-template matTabContent>
+            <div class="estadisticas-section">
+              <h3>
+                <mat-icon>analytics</mat-icon>
+                Métricas de Rendimiento
+              </h3>
+              
+              <div class="metricas-grid">
+                <mat-card class="metrica-card">
+                  <mat-card-content>
+                    <div class="metrica-header">
+                      <mat-icon>visibility</mat-icon>
+                      <span>Visitas</span>
+                    </div>
+                    <div class="metrica-valor">{{ metricas.visitas }}</div>
+                    <div class="metrica-descripcion">Vistas totales</div>
+                  </mat-card-content>
+                </mat-card>
+                
+                <mat-card class="metrica-card">
+                  <mat-card-content>
+                    <div class="metrica-header">
+                      <mat-icon>timer</mat-icon>
+                      <span>Tiempo en Página</span>
+                    </div>
+                    <div class="metrica-valor">{{ metricas.tiempoPromedioPagina }}</div>
+                    <div class="metrica-descripcion">Tiempo promedio</div>
+                  </mat-card-content>
+                </mat-card>
+                
+                <mat-card class="metrica-card">
+                  <mat-card-content>
+                    <div class="metrica-header">
+                      <mat-icon>comment</mat-icon>
+                      <span>Interacciones</span>
+                    </div>
+                    <div class="metrica-valor">{{ metricas.comentarios }}</div>
+                    <div class="metrica-descripcion">Comentarios recibidos</div>
+                  </mat-card-content>
+                </mat-card>
+                
+                <mat-card class="metrica-card">
+                  <mat-card-content>
+                    <div class="metrica-header">
+                      <mat-icon>share</mat-icon>
+                      <span>Compartidas</span>
+                    </div>
+                    <div class="metrica-valor">{{ metricas.compartidos }}</div>
+                    <div class="metrica-descripcion">Veces compartida</div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+              
+              <!-- GRÁFICO SIMULADO -->
+              <mat-card class="grafico-card">
+                <mat-card-header>
+                  <mat-card-title>Visitas en el Tiempo</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="grafico-placeholder">
+                    <mat-icon>trending_up</mat-icon>
+                    <p>Gráfico de visitas disponible en la versión pro</p>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
   </div>
 
-  <!-- CONTENIDO HTML -->
-  <div class="contenido-html" [innerHTML]="contenidoHtml"></div>
+  <!-- SIDEBAR DERECHO -->
+  <div class="sidebar-derecho">
+    
+    <!-- ACCIONES RÁPIDAS -->
+    <mat-card class="acciones-card" *ngIf="esAutorDeLaNoticia">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>settings</mat-icon>
+          Acciones
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="acciones-lista">
+          <button mat-raised-button 
+                  color="primary" 
+                  (click)="editarNoticia()" 
+                  class="accion-btn">
+            <mat-icon>edit</mat-icon>
+            Editar Noticia
+          </button>
+          
+          <button mat-stroked-button 
+                  (click)="duplicarNoticia()" 
+                  class="accion-btn">
+            <mat-icon>content_copy</mat-icon>
+            Duplicar
+          </button>
+          
+          <button mat-stroked-button 
+                  [color]="detalle.noticia.esPublica ? 'warn' : 'accent'"
+                  (click)="cambiarEstadoPublicacion()" 
+                  class="accion-btn">
+            <mat-icon>{{ detalle.noticia.esPublica ? 'unpublished' : 'publish' }}</mat-icon>
+            {{ detalle.noticia.esPublica ? 'Despublicar' : 'Publicar' }}
+          </button>
+          
+          <mat-divider></mat-divider>
+          
+          <button mat-stroked-button 
+                  (click)="exportarNoticia()" 
+                  class="accion-btn">
+            <mat-icon>download</mat-icon>
+            Exportar PDF
+          </button>
+          
+          <button mat-stroked-button 
+                  (click)="compartirNoticia()" 
+                  class="accion-btn">
+            <mat-icon>share</mat-icon>
+            Compartir
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-  <!-- COMENTARIOS -->
-  <div class="comentarios-section" *ngIf="detalle.comentarios.length > 0">
-    <h2>📣 Comentarios de la hinchada</h2>
+    <!-- INFORMACIÓN TÉCNICA -->
+    <mat-card class="info-tecnica-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>info</mat-icon>
+          Información
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-item">
+          <mat-icon>fingerprint</mat-icon>
+          <span>ID: {{ detalle.noticia.id }}</span>
+        </div>
+        <div class="info-item">
+          <mat-icon>schedule</mat-icon>
+          <span>Creada: {{ detalle.noticia.fechaPublicacion | date:'short' }}</span>
+        </div>
+        <div class="info-item">
+          <mat-icon>update</mat-icon>
+          <span>Modificada: {{ detalle.noticia.fechaActualizacion | date:'short' }}</span>
+        </div>
+        <div class="info-item">
+          <mat-icon>visibility</mat-icon>
+          <span>{{ detalle.noticia.visitas || 0 }} visitas</span>
+        </div>
+        <div class="info-item">
+          <mat-icon>comment</mat-icon>
+          <span>{{ detalle.comentarios.length }} comentarios</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-    <div *ngFor="let comentario of detalle.comentarios" class="comentario-burbuja">
-      <div class="avatar">
-        <img
-          [src]="'https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + comentario.slice(0, 3)"
-          alt="avatar fan"
-        />
-      </div>
-      <div class="contenido">
-        <p class="mensaje">⚽ {{ comentario }}</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- SIN COMENTARIOS -->
-  <div class="sin-comentarios" *ngIf="detalle.comentarios.length === 0">
-    <p>😶 Aún no hay comentarios para esta noticia.</p>
+    <!-- NOTICIAS RELACIONADAS -->
+    <mat-card class="relacionadas-card" *ngIf="noticiasRelacionadas.length > 0">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>article</mat-icon>
+          Noticias Relacionadas
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item *ngFor="let noticia of noticiasRelacionadas" 
+                         (click)="irANoticia(noticia.id)"
+                         class="noticia-relacionada">
+            <div matListItemTitle>{{ noticia.titulo }}</div>
+            <div matListItemLine>{{ noticia.resumen | slice:0:60 }}...</div>
+            <div matListItemMeta>
+              <mat-icon>arrow_forward</mat-icon>
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>
 
-<!-- ESTADO DE CARGA Y ERRORES -->
-<div class="estado" *ngIf="cargando">Cargando noticia...</div>
-<div class="estado error" *ngIf="error">{{ error }}</div>
+<!-- ESTADO DE CARGA -->
+<div class="loading-container" *ngIf="cargando">
+  <mat-card class="loading-card">
+    <mat-card-content>
+      <div class="loading-content">
+        <mat-spinner diameter="60"></mat-spinner>
+        <h3>Cargando noticia...</h3>
+        <p>Por favor espera mientras cargamos el contenido</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- ESTADO DE ERROR -->
+<div class="error-container" *ngIf="error && !cargando">
+  <mat-card class="error-card">
+    <mat-card-content>
+      <div class="error-content">
+        <mat-icon>error</mat-icon>
+        <h3>Error al cargar la noticia</h3>
+        <p>{{ error }}</p>
+        <div class="error-actions">
+          <button mat-raised-button color="primary" (click)="volverAlDashboard()">
+            <mat-icon>arrow_back</mat-icon>
+            Volver al Dashboard
+          </button>
+          <button mat-stroked-button (click)="recargarPagina()">
+            <mat-icon>refresh</mat-icon>
+            Intentar de nuevo
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

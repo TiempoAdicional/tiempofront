@@ -1,68 +1,366 @@
-<div class="contenedor-listado">
-  <h2>🗂️ Mis Noticias Publicadas</h2>
-  <div class="acciones-internas">
-      <div class="grupo-botones">
-      <button class="btn-regresar" routerLink="/admin">
-        🔙 Volver al Dashboard
-      </button>
-      </div>
-    </div>
-  <!-- 🔍 Filtro de búsqueda -->
-  <div class="barra-busqueda">
-    <input
-      type="text"
-      [(ngModel)]="filtro"
-      (input)="filtrar()"
-      placeholder="Buscar por título..."
-    />
+<div class="listar-noticias-container">
+  <!-- Header con botón de volver -->
+  <mat-toolbar class="header-toolbar" color="primary">
+    <button mat-icon-button (click)="volverAlDashboard()" matTooltip="Volver al Dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="header-title">
+      <mat-icon>article</mat-icon>
+      Administrar Noticias
+    </span>
+    
+    <span class="spacer"></span>
+    
+    <button mat-raised-button color="accent" (click)="crearNuevaNoticia()">
+      <mat-icon>add</mat-icon>
+      Nueva Noticia
+    </button>
+  </mat-toolbar>
+
+  <!-- Cards de estadísticas -->
+  <div class="stats-cards" *ngIf="!cargando">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon total">article</mat-icon>
+          <div class="stat-info">
+            <div class="stat-number">{{ totalNoticias }}</div>
+            <div class="stat-label">Total Noticias</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon published">visibility</mat-icon>
+          <div class="stat-info">
+            <div class="stat-number">{{ noticiasPublicas }}</div>
+            <div class="stat-label">Publicadas</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon draft">edit_note</mat-icon>
+          <div class="stat-info">
+            <div class="stat-number">{{ noticiasBorradores }}</div>
+            <div class="stat-label">Borradores</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon views">trending_up</mat-icon>
+          <div class="stat-info">
+            <div class="stat-number">{{ visitasTotales }}</div>
+            <div class="stat-label">Visitas Totales</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <!-- ⏳ Cargando -->
-  <div *ngIf="cargando" class="estado cargando">Cargando noticias...</div>
+  <!-- Filtros y búsqueda -->
+  <mat-card class="filters-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>filter_list</mat-icon>
+        Filtros y Búsqueda
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="filters-container">
+        <!-- Búsqueda rápida -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Búsqueda rápida</mat-label>
+          <input matInput 
+                 [(ngModel)]="busquedaRapida" 
+                 (input)="aplicarFiltros()"
+                 placeholder="Buscar por título, resumen o autor...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
 
-  <!-- ❌ Error -->
-  <div *ngIf="error" class="estado error">{{ error }}</div>
+        <!-- Filtros avanzados -->
+        <form [formGroup]="filtrosForm" class="advanced-filters">
+          <mat-form-field appearance="outline">
+            <mat-label>Estado</mat-label>
+            <mat-select formControlName="esPublica">
+              <mat-option value="">Todos</mat-option>
+              <mat-option [value]="true">Publicadas</mat-option>
+              <mat-option [value]="false">Borradores</mat-option>
+            </mat-select>
+          </mat-form-field>
 
-  <!-- 📭 Sin resultados -->
-  <div *ngIf="!cargando && noticiasFiltradas.length === 0" class="estado vacio">
-    No tienes noticias creadas o no hay coincidencias.
-  </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Destacadas</mat-label>
+            <mat-select formControlName="destacada">
+              <mat-option value="">Todas</mat-option>
+              <mat-option [value]="true">Destacadas</mat-option>
+              <mat-option [value]="false">No destacadas</mat-option>
+            </mat-select>
+          </mat-form-field>
 
-  <!-- 📃 Listado -->
-  <div class="grid-noticias">
-    <div class="tarjeta-noticia" *ngFor="let noticia of noticiasFiltradas">
-      <div class="imagen-miniatura" *ngIf="noticia.imagenDestacada">
-        <img [src]="noticia.imagenDestacada" alt="Imagen destacada" />
-      </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha desde</mat-label>
+            <input matInput [matDatepicker]="fechaDesde" formControlName="fechaDesde">
+            <mat-datepicker-toggle matSuffix [for]="fechaDesde"></mat-datepicker-toggle>
+            <mat-datepicker #fechaDesde></mat-datepicker>
+          </mat-form-field>
 
-      <div class="contenido">
-        <h3>
-          {{ noticia.titulo }}
-          <span *ngIf="noticia.destacada" class="estrella">⭐</span>
-        </h3>
-        <p class="resumen">{{ noticia.resumen }}</p>
-        <p class="meta">
-          🗓️ {{ noticia.fechaPublicacion | date:'mediumDate' }} |
-          👁️ {{ noticia.visitas }} visitas
-        </p>
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha hasta</mat-label>
+            <input matInput [matDatepicker]="fechaHasta" formControlName="fechaHasta">
+            <mat-datepicker-toggle matSuffix [for]="fechaHasta"></mat-datepicker-toggle>
+            <mat-datepicker #fechaHasta></mat-datepicker>
+          </mat-form-field>
+        </form>
 
-        <div class="acciones">
-          <button (click)="verDetalle(noticia.id)">👁️ Ver</button>
-          <button (click)="editarNoticia(noticia.id)">✏️ Editar</button>
-          <button (click)="confirmarEliminacion(noticia)">🗑️ Eliminar</button>
+        <!-- Acciones de filtros -->
+        <div class="filter-actions">
+          <button mat-stroked-button (click)="limpiarFiltros()">
+            <mat-icon>clear</mat-icon>
+            Limpiar Filtros
+          </button>
         </div>
       </div>
-    </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Acciones masivas -->
+  <mat-card class="actions-card" *ngIf="noticiasSeleccionadas.length > 0">
+    <mat-card-content>
+      <div class="bulk-actions">
+        <span class="selection-info">
+          <mat-icon>info</mat-icon>
+          {{ noticiasSeleccionadas.length }} noticia(s) seleccionada(s)
+        </span>
+        
+        <div class="action-buttons">
+          <button mat-stroked-button color="warn" (click)="eliminarSeleccionadas()">
+            <mat-icon>delete</mat-icon>
+            Eliminar Seleccionadas
+          </button>
+          
+          <button mat-stroked-button [matMenuTriggerFor]="exportMenu">
+            <mat-icon>download</mat-icon>
+            Exportar
+          </button>
+          
+          <mat-menu #exportMenu="matMenu">
+            <button mat-menu-item (click)="exportar('csv')">
+              <mat-icon>description</mat-icon>
+              Exportar CSV
+            </button>
+            <button mat-menu-item (click)="exportar('excel')">
+              <mat-icon>table_chart</mat-icon>
+              Exportar Excel
+            </button>
+            <button mat-menu-item (click)="exportar('pdf')">
+              <mat-icon>picture_as_pdf</mat-icon>
+              Exportar PDF
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tabla de noticias -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-container">
+        <mat-table [dataSource]="dataSource" matSort class="noticias-table">
+          <!-- Columna de selección -->
+          <ng-container matColumnDef="seleccionar">
+            <mat-header-cell *matHeaderCellDef>
+              <mat-checkbox 
+                [checked]="todasSeleccionadas()"
+                [indeterminate]="noticiasSeleccionadas.length > 0 && !todasSeleccionadas()"
+                (change)="toggleSeleccionTodo()">
+              </mat-checkbox>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let noticia">
+              <mat-checkbox 
+                [checked]="estaSeleccionada(noticia)"
+                (change)="toggleSeleccion(noticia)">
+              </mat-checkbox>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Columna de imagen -->
+          <ng-container matColumnDef="imagen">
+            <mat-header-cell *matHeaderCellDef>Imagen</mat-header-cell>
+            <mat-cell *matCellDef="let noticia">
+              <div class="noticia-imagen">
+                <img [src]="noticia.imagenDestacada || 'assets/no-image.png'" 
+                     [alt]="noticia.titulo"
+                     class="thumbnail">
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Columna de título -->
+          <ng-container matColumnDef="titulo">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Título</mat-header-cell>
+            <mat-cell *matCellDef="let noticia">
+              <div class="noticia-info">
+                <div class="titulo" [matTooltip]="noticia.titulo">
+                  {{ noticia.titulo }}
+                </div>
+                <div class="resumen" [matTooltip]="noticia.resumen">
+                  {{ noticia.resumen | slice:0:100 }}{{ noticia.resumen.length > 100 ? '...' : '' }}
+                </div>
+                <div class="badges">
+                  <mat-chip *ngIf="noticia.destacada" color="accent" selected>
+                    <mat-icon matChipAvatar>star</mat-icon>
+                    Destacada
+                  </mat-chip>
+                </div>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Columna de estado -->
+          <ng-container matColumnDef="estado">
+            <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+            <mat-cell *matCellDef="let noticia">
+              <div class="estado-container">
+                <mat-chip [color]="noticia.esPublica ? 'primary' : 'warn'" selected>
+                  <mat-icon matChipAvatar>
+                    {{ noticia.esPublica ? 'visibility' : 'visibility_off' }}
+                  </mat-icon>
+                  {{ noticia.esPublica ? 'Publicada' : 'Borrador' }}
+                </mat-chip>
+                
+                <button mat-icon-button 
+                        [matTooltip]="noticia.esPublica ? 'Despublicar' : 'Publicar'"
+                        (click)="togglePublicacion(noticia)">
+                  <mat-icon>{{ noticia.esPublica ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Columna de visitas -->
+          <ng-container matColumnDef="visitas">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Visitas</mat-header-cell>
+            <mat-cell *matCellDef="let noticia">
+              <div class="visitas-container">
+                <mat-icon class="visitas-icon">visibility</mat-icon>
+                <span class="visitas-count">{{ noticia.visitas }}</span>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Columna de fecha -->
+          <ng-container matColumnDef="fecha">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</mat-header-cell>
+            <mat-cell *matCellDef="let noticia">
+              <div class="fecha-container">
+                <div class="fecha-publicacion">
+                  {{ noticia.fechaPublicacion | date:'dd/MM/yyyy' }}
+                </div>
+                <div class="autor">
+                  por {{ noticia.autorNombre }}
+                </div>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Columna de acciones -->
+          <ng-container matColumnDef="acciones">
+            <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+            <mat-cell *matCellDef="let noticia">
+              <div class="acciones-container">
+                <button mat-icon-button 
+                        color="primary" 
+                        (click)="verDetalle(noticia.id)"
+                        matTooltip="Ver detalle">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                
+                <button mat-icon-button 
+                        color="accent" 
+                        (click)="editarNoticia(noticia.id)"
+                        matTooltip="Editar">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                
+                <button mat-icon-button 
+                        [matMenuTriggerFor]="accionesMenu"
+                        matTooltip="Más acciones">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                
+                <mat-menu #accionesMenu="matMenu">
+                  <button mat-menu-item (click)="duplicarNoticia(noticia)">
+                    <mat-icon>content_copy</mat-icon>
+                    Duplicar
+                  </button>
+                  <button mat-menu-item (click)="toggleDestacada(noticia)">
+                    <mat-icon>{{ noticia.destacada ? 'star_border' : 'star' }}</mat-icon>
+                    {{ noticia.destacada ? 'Quitar destacado' : 'Marcar destacada' }}
+                  </button>
+                  <mat-divider></mat-divider>
+                  <button mat-menu-item (click)="eliminarSeleccionadas()" class="delete-action">
+                    <mat-icon>delete</mat-icon>
+                    Eliminar
+                  </button>
+                </mat-menu>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+
+        <!-- Paginador -->
+        <mat-paginator 
+          [pageSizeOptions]="[5, 10, 20, 50]"
+          [pageSize]="10"
+          [showFirstLastButtons]="true"
+          [length]="dataSource.filteredData.length">
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Estado de carga -->
+  <div class="loading-container" *ngIf="cargando">
+    <mat-card class="loading-card">
+      <mat-card-content>
+        <div class="loading-content">
+          <mat-spinner diameter="60"></mat-spinner>
+          <p class="loading-text">Cargando noticias...</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <!-- 🧾 Modal de confirmación -->
-  <div class="modal-confirmacion" *ngIf="mostrarConfirmacion">
-    <div class="ventana">
-      <p>¿Estás seguro de eliminar <strong>{{ noticiaSeleccionada?.titulo }}</strong>?</p>
-      <div class="botones">
-        <button (click)="eliminarNoticiaConfirmada()">✅ Sí, eliminar</button>
-        <button (click)="cancelarEliminacion()">❌ Cancelar</button>
-      </div>
-    </div>
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="!cargando && dataSource.data.length === 0">
+    <mat-card class="empty-card">
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">article</mat-icon>
+          <h3>No tienes noticias aún</h3>
+          <p>Comienza creando tu primera noticia</p>
+          <button mat-raised-button color="primary" (click)="crearNuevaNoticia()">
+            <mat-icon>add</mat-icon>
+            Crear Primera Noticia
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

@@ -3,13 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { EventoService, Evento } from '../evento.service';
+import { EventosService, Evento } from '../../../core/services/eventos.service';
 import { AuthService } from '../../../auth/services/auth.service';
+import { SeccionesService, SeccionResponse } from '../../../core/services/secciones.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-editar',
@@ -23,7 +26,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatInputModule,
     MatCardModule,
     MatIconModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSelectModule,
+    MatFormFieldModule
   ],
   templateUrl: './editar.component.html',
   styleUrls: ['./editar.component.scss']
@@ -32,14 +37,17 @@ export class EditarComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private eventoService = inject(EventoService);
+  private eventosService = inject(EventosService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
+  private seccionesService = inject(SeccionesService);
 
   form!: FormGroup;
   eventoId!: number;
   imagenPreview: string = '';
   cargando = false;
+  secciones: SeccionResponse[] = [];
+  cargandoSecciones = false;
 
   eventos: Evento[] = [];
   autorIdActual: number = 0;
@@ -56,12 +64,12 @@ export class EditarComponent implements OnInit {
   }
 
   verificarPermisosYCargarEvento(): void {
-    this.eventoService.obtenerPorId(this.eventoId).subscribe({
+    this.eventosService.obtenerPorId(this.eventoId).subscribe({
       next: (evento) => {
         const autorIdActual = this.authService.obtenerIdUsuario();
         
         // Verificar si el evento pertenece al usuario actual consultando la lista de sus eventos
-        this.eventoService.listarPorCreador(autorIdActual || 0).subscribe({
+        this.eventosService.listarPorCreador(autorIdActual || 0).subscribe({
           next: (eventosDelUsuario) => {
             const eventoPertenece = eventosDelUsuario.some(e => e.id === this.eventoId);
             
@@ -91,7 +99,7 @@ export class EditarComponent implements OnInit {
     this.autorIdActual = this.authService.obtenerIdUsuario() || 0;
 
     // Usar listarPorCreador en lugar de listarTodos para obtener solo eventos del usuario actual
-    this.eventoService.listarPorCreador(this.autorIdActual).subscribe({
+    this.eventosService.listarPorCreador(this.autorIdActual).subscribe({
       next: (eventos) => {
         this.eventos = eventos;
         this.cargando = false;
@@ -116,7 +124,7 @@ export class EditarComponent implements OnInit {
 
   cargarEvento(): void {
     this.cargando = true;
-    this.eventoService.obtenerPorId(this.eventoId).subscribe({
+    this.eventosService.obtenerPorId(this.eventoId).subscribe({
       next: (evento) => {
         if (!evento) {
           this.snackBar.open('Evento no encontrado', 'Cerrar', { duration: 3000 });
@@ -130,15 +138,40 @@ export class EditarComponent implements OnInit {
           fecha: [evento.fecha ?? '', Validators.required],
           lugar: [evento.lugar ?? '', Validators.required],
           imagen: [evento.imagenEvento ?? '', Validators.required],
-          videoUrl: [evento.videoUrl ?? '']
+          videoUrl: [evento.videoUrl ?? ''],
+          seccionId: [evento.seccion_id ?? ''] // Nuevo campo para sección
         });
 
         this.imagenPreview = evento.imagenEvento ?? '';
         this.cargando = false;
+        
+        // Cargar secciones después de cargar el evento
+        this.cargarSecciones();
       },
       error: (error) => {
         this.snackBar.open('Error al cargar el evento', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/admin']);
+      }
+    });
+  }
+
+  /**
+   * Carga la lista de secciones disponibles
+   */
+  cargarSecciones(): void {
+    this.cargandoSecciones = true;
+    this.seccionesService.listar().subscribe({
+      next: (secciones: SeccionResponse[]) => {
+        // Filtrar solo secciones de eventos que estén activas
+        this.secciones = secciones.filter((s: SeccionResponse) => 
+          s.tipo === 'EVENTOS' && s.activa
+        );
+        this.cargandoSecciones = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar secciones:', error);
+        this.snackBar.open('Error al cargar las secciones', 'Cerrar', { duration: 3000 });
+        this.cargandoSecciones = false;
       }
     });
   }
@@ -156,8 +189,13 @@ export class EditarComponent implements OnInit {
     formData.append('lugar', this.form.get('lugar')?.value || '');
     formData.append('imagen', this.form.get('imagen')?.value || '');
     formData.append('videoUrl', this.form.get('videoUrl')?.value || '');
+    
+    // Agregar sección si se seleccionó
+    if (this.form.get('seccionId')?.value) {
+      formData.append('seccionId', this.form.get('seccionId')?.value.toString());
+    }
 
-    this.eventoService.actualizar(this.eventoId, formData).subscribe({
+    this.eventosService.actualizar(this.eventoId, formData).subscribe({
       next: () => {
         this.snackBar.open('Evento actualizado correctamente', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/admin']);

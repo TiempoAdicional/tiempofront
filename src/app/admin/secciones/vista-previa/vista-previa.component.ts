@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { SeccionesService, VistaPreviaPeriodicoResponse, SeccionConContenidoResponse } from '../services/secciones.service';
+import { SeccionesService, VistaPreviaPeriodicoResponse, SeccionConContenidoResponse } from '../../../core/services/secciones.service';
 
 // Angular Material
 import { MatCardModule } from '@angular/material/card';
@@ -46,11 +46,11 @@ export class VistaPreviaComponent implements OnInit {
     this.error = null;
 
     this.seccionesService.obtenerVistaPreviaPeriodicoCompleto().subscribe({
-      next: (data) => {
+      next: (data: VistaPreviaPeriodicoResponse) => {
         this.vistaPreviaData = data;
         this.cargando = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al cargar vista previa:', err);
         this.error = 'Error al cargar la vista previa del periódico';
         this.cargando = false;
@@ -91,7 +91,7 @@ export class VistaPreviaComponent implements OnInit {
   // Métodos auxiliares para el template
   getTotalContenido(): number {
     if (!this.vistaPreviaData) return 0;
-    return this.vistaPreviaData.secciones.reduce((total, seccion) => 
+    return this.vistaPreviaData.secciones.reduce((total: number, seccion: SeccionConContenidoResponse) => 
       total + seccion.contenido.length, 0
     );
   }

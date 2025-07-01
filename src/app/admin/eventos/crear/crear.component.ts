@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { EventoService } from '../evento.service';
+import { EventosService, Evento } from '../../../core/services/eventos.service';
 import { AuthService } from '../../../auth/services/auth.service';
-import { AsignacionSeccionService } from '../../secciones/services/asignacion-seccion.service';
+import { AsignacionSeccionService } from '../../../core/services/asignacion-seccion.service';
+import { SeccionesService, SeccionResponse } from '../../../core/services/secciones.service';
 
 // 📦 Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,6 +18,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-crear-evento',
@@ -37,29 +39,59 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatSnackBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSelectModule
   ]
 })
-export class CrearEventoComponent {
+export class CrearEventoComponent implements OnInit {
   eventoForm: FormGroup;
   imagenUrl: string | null = null;
   imagenSeleccionada: File | null = null;
   guardando = false;
+  secciones: SeccionResponse[] = [];
+  cargandoSecciones = false;
 
   constructor(
     private fb: FormBuilder,
-    private eventoService: EventoService,
+    private eventosService: EventosService,
     private authService: AuthService,
     private router: Router,
     private snackBar: MatSnackBar,
-    private asignacionSeccionService: AsignacionSeccionService
+    private asignacionSeccionService: AsignacionSeccionService,
+    private seccionesService: SeccionesService
   ) {
     this.eventoForm = this.fb.group({
       nombre: ['', Validators.required],
       descripcion: ['', Validators.required],
       fecha: ['', Validators.required],
       lugar: ['', Validators.required],
-      videoUrl: ['']
+      videoUrl: [''],
+      seccionId: [''] // Nuevo campo para sección
+    });
+  }
+
+  ngOnInit(): void {
+    this.cargarSecciones();
+  }
+
+  /**
+   * Carga la lista de secciones disponibles
+   */
+  cargarSecciones(): void {
+    this.cargandoSecciones = true;
+    this.seccionesService.listar().subscribe({
+      next: (secciones: SeccionResponse[]) => {
+        // Filtrar solo secciones de eventos que estén activas
+        this.secciones = secciones.filter((s: SeccionResponse) => 
+          s.tipo === 'EVENTOS' && s.activa
+        );
+        this.cargandoSecciones = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar secciones:', error);
+        this.mostrarToast('Error al cargar las secciones');
+        this.cargandoSecciones = false;
+      }
     });
   }
 
@@ -84,7 +116,7 @@ export class CrearEventoComponent {
     }
   }
 
-  // ✅ Envío del formulario como FormData con asignación automática de sección
+  // ✅ Envío del formulario como FormData
   onSubmit(): void {
     if (this.eventoForm.invalid || this.guardando) return;
 
@@ -97,71 +129,21 @@ export class CrearEventoComponent {
       return;
     }
 
-    // Obtener la sección de eventos automáticamente
-    this.asignacionSeccionService.obtenerSeccionEventos().subscribe({
-      next: (seccionId) => {
-        const formData = new FormData();
-        formData.append('nombre', this.eventoForm.value.nombre);
-        formData.append('descripcion', this.eventoForm.value.descripcion);
-
-        // 🔧 Formato yyyy-MM-dd
-        const fechaISO = new Date(this.eventoForm.value.fecha).toISOString().split('T')[0];
-        formData.append('fecha', fechaISO);
-
-        formData.append('lugar', this.eventoForm.value.lugar);
-        formData.append('creadorId', creadorId.toString());
-
-        // Asignar sección automáticamente si existe
-        if (seccionId) {
-          formData.append('seccionId', seccionId.toString());
-        }
-
-        if (this.eventoForm.value.videoUrl) {
-          formData.append('videoUrl', this.eventoForm.value.videoUrl);
-        }
-
-        if (this.imagenSeleccionada) {
-          formData.append('imagen', this.imagenSeleccionada);
-        }
-
-        this.eventoService.crear(formData).subscribe({
-          next: () => {
-            this.mostrarToast(
-              seccionId 
-                ? '✅ Evento creado correctamente y asignado a sección de Eventos' 
-                : '✅ Evento creado correctamente (sin sección asignada)'
-            );
-            this.eventoForm.reset();
-            this.imagenUrl = null;
-            this.imagenSeleccionada = null;
-          },
-          error: err => {
-            console.error(err);
-            this.mostrarToast('❌ Error al crear evento');
-          },
-          complete: () => this.guardando = false
-        });
-      },
-      error: (err) => {
-        console.error('Error al obtener sección de eventos:', err);
-        this.mostrarToast('⚠️ Error al asignar sección, pero se intentará crear el evento');
-        // Continuar sin sección asignada
-        this.crearEventoSinSeccion(creadorId);
-      }
-    });
-  }
-
-  // Método auxiliar para crear evento sin sección
-  private crearEventoSinSeccion(creadorId: number): void {
     const formData = new FormData();
     formData.append('nombre', this.eventoForm.value.nombre);
     formData.append('descripcion', this.eventoForm.value.descripcion);
 
+    // 🔧 Formato yyyy-MM-dd
     const fechaISO = new Date(this.eventoForm.value.fecha).toISOString().split('T')[0];
     formData.append('fecha', fechaISO);
 
     formData.append('lugar', this.eventoForm.value.lugar);
     formData.append('creadorId', creadorId.toString());
+
+    // Asignar sección si se seleccionó una
+    if (this.eventoForm.value.seccionId) {
+      formData.append('seccionId', this.eventoForm.value.seccionId.toString());
+    }
 
     if (this.eventoForm.value.videoUrl) {
       formData.append('videoUrl', this.eventoForm.value.videoUrl);
@@ -171,18 +153,19 @@ export class CrearEventoComponent {
       formData.append('imagen', this.imagenSeleccionada);
     }
 
-    this.eventoService.crear(formData).subscribe({
+    this.eventosService.crear(formData).subscribe({
       next: () => {
         this.mostrarToast('✅ Evento creado correctamente');
         this.eventoForm.reset();
         this.imagenUrl = null;
         this.imagenSeleccionada = null;
+        this.guardando = false;
       },
       error: err => {
         console.error(err);
         this.mostrarToast('❌ Error al crear evento');
-      },
-      complete: () => this.guardando = false
+        this.guardando = false;
+      }
     });
   }
 

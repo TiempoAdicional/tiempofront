@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { SeccionesService, SeccionRequest, SeccionResponse } from '../../services/secciones.service';
+import { SeccionesService, SeccionRequest, SeccionResponse } from '../../../../core/services/secciones.service';
 
 @Component({
   selector: 'app-crear-editar-seccion',
@@ -60,7 +60,8 @@ export class CrearEditarComponent implements OnInit {
       descripcion: ['', [Validators.maxLength(200)]],
       tipo: ['NOTICIAS', Validators.required],
       orden: [1, [Validators.required, Validators.min(1)]],
-      activa: [true]
+      activa: [true],
+      visible: [true] // NUEVO CAMPO AGREGADO
     });
   }
 
@@ -86,7 +87,8 @@ export class CrearEditarComponent implements OnInit {
           descripcion: seccion.descripcion || '',
           tipo: seccion.tipo,
           orden: seccion.orden,
-          activa: seccion.activa
+          activa: seccion.activa,
+          visible: seccion.visible || true // NUEVO CAMPO AGREGADO
         });
         this.cargando = false;
       },
@@ -172,6 +174,7 @@ export class CrearEditarComponent implements OnInit {
   get tipo() { return this.form.get('tipo'); }
   get orden() { return this.form.get('orden'); }
   get activa() { return this.form.get('activa'); }
+  get visible() { return this.form.get('visible'); } // NUEVO GETTER AGREGADO
 
   getTituloComponente(): string {
     return this.isEditMode ? 'Editar Sección' : 'Crear Nueva Sección';

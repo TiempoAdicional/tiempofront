@@ -39,6 +39,21 @@
         <input matInput formControlName="lugar" placeholder="Ej. Estadio Nacional" />
       </mat-form-field>
 
+      <!-- SECCIÓN -->
+      <mat-form-field appearance="outline" class="campo-formulario">
+        <mat-label>
+          <mat-icon>folder</mat-icon>
+          Sección
+        </mat-label>
+        <mat-select formControlName="seccionId" placeholder="Seleccione una sección">
+          <mat-option value="">Sin sección</mat-option>
+          <mat-option *ngFor="let seccion of secciones" [value]="seccion.id">
+            {{seccion.titulo}}
+          </mat-option>
+        </mat-select>
+        <mat-hint>Opcional: Asigne el evento a una sección específica</mat-hint>
+      </mat-form-field>
+
       <div class="campo-formulario">
         <label class="label-archivo">📷 Cargar imagen del evento</label>
         <input type="file" (change)="onFileSelected($event)" accept="image/*" />

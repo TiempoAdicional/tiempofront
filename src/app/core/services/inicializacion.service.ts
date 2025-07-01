@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AsignacionSeccionService } from '../../admin/secciones/services/asignacion-seccion.service';
+import { AsignacionSeccionService } from './asignacion-seccion.service';
 
 @Injectable({
   providedIn: 'root'

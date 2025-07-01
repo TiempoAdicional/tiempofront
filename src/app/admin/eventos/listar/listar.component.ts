@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EventoService, Evento } from '../evento.service';
+import { EventosService, Evento } from '../../../core/services/eventos.service';
 import { AuthService } from '../../../auth/services/auth.service'; 
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,7 +27,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   ]
 })
 export class ListarComponent implements OnInit {
-  private eventoService = inject(EventoService);
+  private eventosService = inject(EventosService);
   private snackBar = inject(MatSnackBar);
   eventos: Evento[] = [];
   cargando = false;
@@ -38,7 +38,7 @@ export class ListarComponent implements OnInit {
 
   cargarEventos(): void {
     this.cargando = true;
-    this.eventoService.listarTodos().subscribe({
+    this.eventosService.listarTodos().subscribe({
       next: (data) => {
         this.eventos = data;
         this.cargando = false;
@@ -53,7 +53,7 @@ export class ListarComponent implements OnInit {
 
   eliminarEvento(id: number): void {
     if (confirm('¿Estás seguro de eliminar este evento?')) {
-      this.eventoService.eliminar(id).subscribe({
+      this.eventosService.eliminar(id).subscribe({
         next: () => {
           this.eventos = this.eventos.filter(e => e.id !== id);
           this.snackBar.open('Evento eliminado', 'Cerrar', { duration: 3000 });

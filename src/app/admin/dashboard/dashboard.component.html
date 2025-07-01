@@ -1,86 +1,236 @@
 <div class="admin-dashboard" *ngIf="!isLoading; else cargando">
   <!-- Header del administrador -->
-  <div class="admin-header">
-    <img src="assets/user.png" alt="Icono usuario" class="admin-user-icon" />
-    <span class="admin-username">Bienvenido, {{ nombreEditor }}</span>
+  <mat-toolbar class="admin-header" color="primary">
+    <mat-toolbar-row>
+      <span class="admin-title">
+        <mat-icon>admin_panel_settings</mat-icon>
+        Panel de Administración
+      </span>
+      
+      <span class="spacer"></span>
+      
+      <div class="user-info">
+        <mat-chip-set>
+          <mat-chip highlighted>
+            <mat-icon matChipAvatar>person</mat-icon>
+            {{ nombreEditor }}
+          </mat-chip>
+        </mat-chip-set>
+        
+        <button mat-icon-button 
+                matTooltip="Cerrar sesión" 
+                (click)="cerrarSesion()" 
+                class="logout-button">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
-    <button mat-icon-button matTooltip="Cerrar sesión" (click)="cerrarSesion()" class="logout-button">
-      <mat-icon>logout</mat-icon>
-    </button>
-  </div>
+  <!-- Contenido principal -->
+  <div class="dashboard-content">
+    <!-- Mensaje de error si no se pueden cargar estadísticas -->
+    <mat-card *ngIf="error" class="error-card">
+      <mat-card-content>
+        <div class="error-content">
+          <mat-icon class="error-icon">warning</mat-icon>
+          <p>{{ error }}</p>
+          <button mat-raised-button color="primary" (click)="refrescarEstadisticas()">
+            <mat-icon>refresh</mat-icon>
+            Reintentar
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-  <h1 class="titulo-panel">👨‍💼 Panel de Administración</h1>
+    <!-- Cards de estadísticas rápidas -->
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="stat-icon noticias-icon">article</mat-icon>
+          <mat-card-title>Noticias</mat-card-title>
+          <mat-card-subtitle>Total publicadas</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ totalNoticias }}</div>
+          <div class="stat-detail" *ngIf="noticiasRecientes > 0">
+            <mat-icon class="detail-icon">fiber_new</mat-icon>
+            {{ noticiasRecientes }} esta semana
+          </div>
+        </mat-card-content>
+      </mat-card>
 
-  <!-- Sección principal -->
-  <div class="dashboard-grid">
-    <!-- Noticias -->
-    <div class="admin-card expandable" (click)="toggleNoticias()">
-      <mat-icon class="icono-seccion">article</mat-icon> Noticias
-      <span class="arrow" [class.rotated]="noticiasExpandido">▼</span>
+      <mat-card class="stat-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="stat-icon eventos-icon">event</mat-icon>
+          <mat-card-title>Eventos</mat-card-title>
+          <mat-card-subtitle>Total programados</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ totalEventos }}</div>
+          <div class="stat-detail" *ngIf="eventosProximos > 0">
+            <mat-icon class="detail-icon">upcoming</mat-icon>
+            {{ eventosProximos }} próximos
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="stat-icon secciones-icon">view_quilt</mat-icon>
+          <mat-card-title>Secciones</mat-card-title>
+          <mat-card-subtitle>Configuradas</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ totalSecciones }}</div>
+          <div class="stat-detail">
+            <mat-icon class="detail-icon">done</mat-icon>
+            Activas
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Nueva card para Liga Colombiana -->
+      <mat-card class="stat-card liga-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="stat-icon liga-icon">sports_soccer</mat-icon>
+          <mat-card-title>Liga Colombiana</mat-card-title>
+          <mat-card-subtitle>{{ temporadaActual || 'Temporada Actual' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ totalEquipos }}</div>
+          <div class="stat-detail" *ngIf="equipoLider">
+            <mat-icon class="detail-icon">emoji_events</mat-icon>
+            Líder: {{ equipoLider }}
+          </div>
+          <div class="stat-detail" *ngIf="partidosHoy > 0">
+            <mat-icon class="detail-icon">today</mat-icon>
+            {{ partidosHoy }} partidos hoy
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
 
-    <div class="submenu animate-fade" *ngIf="noticiasExpandido">
-      <button mat-raised-button color="primary" (click)="navegar('/admin/noticias/crear')">
-        <mat-icon>add_circle</mat-icon> Crear
-      </button>
-      <button mat-raised-button color="accent" (click)="navegar('/admin/noticias/editar')">
-        <mat-icon>edit</mat-icon> Editar
-      </button>
-      <button mat-raised-button color="warn" (click)="navegar('/admin/noticias/listar')">
-        <mat-icon>list</mat-icon> Listar
-      </button>
-    </div>
+    <!-- Secciones de administración -->
+    <div class="admin-sections">
+      <!-- Noticias -->
+      <mat-expansion-panel class="admin-panel" [expanded]="noticiasExpandido">
+        <mat-expansion-panel-header (click)="toggleNoticias()">
+          <mat-panel-title>
+            <mat-icon class="panel-icon">article</mat-icon>
+            Gestión de Noticias
+          </mat-panel-title>
+          <mat-panel-description>
+            Crear, editar y administrar contenido
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        
+        <div class="panel-actions">
+          <button mat-raised-button color="primary" (click)="navegar('/admin/noticias/crear')">
+            <mat-icon>add_circle</mat-icon>
+            Crear Noticia
+          </button>
+          <button mat-stroked-button color="accent" (click)="navegar('/admin/noticias/listar')">
+            <mat-icon>edit</mat-icon>
+            Editar Noticias
+          </button>
+          <button mat-stroked-button color="warn" (click)="navegar('/admin/noticias/listar')">
+            <mat-icon>list</mat-icon>
+            Administrar
+          </button>
+        </div>
+      </mat-expansion-panel>
 
-    <!-- Eventos y Partidos -->
-    <div class="admin-card expandable" (click)="toggleEventos()">
-      <mat-icon class="icono-seccion">event</mat-icon> Eventos & Partidos
-      <span class="arrow" [class.rotated]="eventosExpandido">▼</span>
-    </div>
+      <!-- Eventos y Partidos -->
+      <mat-expansion-panel class="admin-panel" [expanded]="eventosExpandido">
+        <mat-expansion-panel-header (click)="toggleEventos()">
+          <mat-panel-title>
+            <mat-icon class="panel-icon">event</mat-icon>
+            Eventos & Partidos
+          </mat-panel-title>
+          <mat-panel-description>
+            Programar eventos y gestionar partidos
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        
+        <div class="panel-actions">
+          <div class="action-group">
+            <span class="group-label">Eventos</span>
+            <button mat-raised-button color="primary" (click)="navegar('/admin/eventos/crear')">
+              <mat-icon>add</mat-icon>
+              Crear
+            </button>
+            <button mat-stroked-button color="accent" (click)="navegar('/admin/eventos/editar')">
+              <mat-icon>edit</mat-icon>
+              Editar
+            </button>
+            <button mat-stroked-button color="warn" (click)="navegar('/admin/eventos/listar')">
+              <mat-icon>list_alt</mat-icon>
+              Listar
+            </button>
+          </div>
+          
+          <mat-divider></mat-divider>
+          
+          <div class="action-group">
+            <span class="group-label">Partidos</span>
+            <button mat-raised-button color="accent" (click)="navegar('/admin/eventos/partidos')">
+              <mat-icon>sports_soccer</mat-icon>
+              Ver Partidos
+            </button>
+            <button mat-stroked-button color="primary" (click)="navegar('/admin/eventos/gestionar-partidos')">
+              <mat-icon>manage_search</mat-icon>
+              Gestionar
+            </button>
+          </div>
+        </div>
+      </mat-expansion-panel>
 
-    <div class="submenu animate-fade" *ngIf="eventosExpandido">
-      <button mat-raised-button color="primary" (click)="navegar('/admin/eventos/crear')">
-        <mat-icon>add</mat-icon> Crear Evento
-      </button>
-      <button mat-raised-button color="accent" (click)="navegar('/admin/eventos/editar')">
-        <mat-icon>edit</mat-icon> Editar Evento
-      </button>
-      <button mat-raised-button color="warn" (click)="navegar('/admin/eventos/listar')">
-        <mat-icon>list_alt</mat-icon> Listar Eventos
-      </button>
-      <mat-divider></mat-divider>
-      <button mat-raised-button color="secondary" (click)="navegar('/admin/eventos/partidos')">
-        <mat-icon>sports_soccer</mat-icon> Ver Partidos
-      </button>
-      <button mat-raised-button color="accent" (click)="navegar('/admin/eventos/gestionar-partidos')">
-        <mat-icon>manage_search</mat-icon> Gestionar Partidos
-      </button>
+      <!-- Secciones del Periódico -->
+      <mat-expansion-panel class="admin-panel" [expanded]="seccionesExpandido">
+        <mat-expansion-panel-header (click)="toggleSecciones()">
+          <mat-panel-title>
+            <mat-icon class="panel-icon">view_quilt</mat-icon>
+            Secciones del Periódico
+          </mat-panel-title>
+          <mat-panel-description>
+            Configurar layout y vista previa
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        
+        <div class="panel-actions">
+          <button mat-raised-button color="primary" (click)="navegar('/admin/secciones/crear')">
+            <mat-icon>add</mat-icon>
+            Nueva Sección
+          </button>
+          <button mat-stroked-button color="accent" (click)="navegar('/admin/secciones/listar')">
+            <mat-icon>list</mat-icon>
+            Administrar
+          </button>
+          <button mat-fab 
+                  extended 
+                  color="accent" 
+                  (click)="navegar('/admin/secciones/vista-previa')"
+                  class="preview-button">
+            <mat-icon>preview</mat-icon>
+            Vista Previa del Periódico
+          </button>
+        </div>
+      </mat-expansion-panel>
     </div>
-
-    <!-- Editor de Secciones -->
-    <div class="admin-card expandable" (click)="toggleSecciones()">
-      <mat-icon class="icono-seccion">view_quilt</mat-icon> Secciones
-      <span class="arrow" [class.rotated]="seccionesExpandido">▼</span>
-    </div>
-
-    <div class="submenu animate-fade" *ngIf="seccionesExpandido">
-      <button mat-raised-button color="primary" (click)="navegar('/admin/secciones/crear')">
-        <mat-icon>add</mat-icon> Crear Sección
-      </button>
-      <button mat-raised-button color="accent" (click)="navegar('/admin/secciones/listar')">
-        <mat-icon>list</mat-icon> Listar Secciones
-      </button>
-      <button mat-raised-button color="warn" (click)="navegar('/admin/secciones/vista-previa')">
-        <mat-icon>preview</mat-icon> Vista Previa Periódico
-      </button>
-    </div>
-
   </div>
 </div>
 
-<!-- Spinner de carga -->
+<!-- Loading state -->
 <ng-template #cargando>
-  <div class="cargando-container">
-    <mat-spinner diameter="60"></mat-spinner>
-    <p>Cargando panel...</p>
+  <div class="loading-container">
+    <mat-card class="loading-card">
+      <mat-card-content>
+        <div class="loading-content">
+          <mat-spinner diameter="60"></mat-spinner>
+          <p class="loading-text">Cargando panel de administración...</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 </ng-template>

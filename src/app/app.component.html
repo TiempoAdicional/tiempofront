@@ -1,8 +1,10 @@
 
-<app-header></app-header>
+<!-- HEADER CONDICIONAL: Solo se muestra si no estamos en admin o si no somos admin -->
+<app-header *ngIf="mostrarHeader"></app-header>
 
-<main class="main-content">
+<main class="main-content" [class.admin-layout]="!mostrarHeader">
   <router-outlet></router-outlet>
 </main>
 
+<!-- FOOTER: Siempre visible -->
 <app-footer></app-footer>

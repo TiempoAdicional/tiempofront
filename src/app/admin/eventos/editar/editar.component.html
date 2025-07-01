@@ -107,6 +107,21 @@
       <mat-icon matSuffix>location_on</mat-icon>
     </mat-form-field>
 
+    <!-- SECCIÓN -->
+    <mat-form-field appearance="fill" class="campo-formulario">
+      <mat-label>
+        <mat-icon>folder</mat-icon>
+        Sección
+      </mat-label>
+      <mat-select formControlName="seccionId" placeholder="Seleccione una sección">
+        <mat-option value="">Sin sección</mat-option>
+        <mat-option *ngFor="let seccion of secciones" [value]="seccion.id">
+          {{seccion.titulo}}
+        </mat-option>
+      </mat-select>
+      <mat-hint>Opcional: Asigne el evento a una sección específica</mat-hint>
+    </mat-form-field>
+
     <div class="campo-formulario archivo">
       <label for="imagen" class="etiqueta-subida">
         <mat-icon>image</mat-icon>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, map, catchError, of } from 'rxjs';
-import { SeccionesService, SeccionResponse } from './secciones.service';
+import { SeccionesService, SeccionResponse } from '../../../core/services/secciones.service';
 
 @Injectable({
   providedIn: 'root'

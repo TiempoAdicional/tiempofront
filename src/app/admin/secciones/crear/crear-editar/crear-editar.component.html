@@ -108,6 +108,19 @@
         </p>
       </div>
 
+      <!-- Estado visible/oculta -->
+      <div class="campo-checkbox">
+        <mat-checkbox formControlName="visible" color="primary">
+          <span class="etiqueta-checkbox">
+            <mat-icon>{{ visible?.value ? 'public' : 'public_off' }}</mat-icon>
+            Sección visible
+          </span>
+        </mat-checkbox>
+        <p class="ayuda-checkbox">
+          Las secciones no visibles están ocultas para los usuarios
+        </p>
+      </div>
+
       <!-- Botones de acción -->
       <div class="botones-accion">
         <button mat-raised-button 
