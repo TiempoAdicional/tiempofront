@@ -50,9 +50,13 @@ export class AppComponent implements OnInit, OnDestroy {
   private actualizarVisibilidadHeader(): void {
     const rutaActual = this.router.url;
     const esRutaAdmin = rutaActual.startsWith('/admin');
+    const esRutaSuperAdmin = rutaActual.startsWith('/super-admin');
     const esUsuarioAdmin = this.authService.esAdmin();
+    const esUsuarioSuperAdmin = this.authService.esSuperAdmin();
 
-    // Ocultar header solo si estamos en rutas admin Y el usuario es admin
-    this.mostrarHeader = !(esRutaAdmin && esUsuarioAdmin);
+    // Ocultar header si:
+    // - Estamos en rutas admin Y el usuario es admin, O
+    // - Estamos en rutas super-admin Y el usuario es super admin
+    this.mostrarHeader = !((esRutaAdmin && esUsuarioAdmin) || (esRutaSuperAdmin && esUsuarioSuperAdmin));
   }
 }

@@ -1,0 +1,395 @@
+<!-- ===============================
+     🏠 DASHBOARD USUARIO TIPO ESPN
+     =============================== -->
+<div class="usuario-container">
+
+  <!-- ===============================
+       ⚠️ BANNER DE ESTADO BACKEND
+       =============================== -->
+  <div class="demo-banner" *ngIf="!estaAutenticado">
+    <mat-card class="demo-card">
+      <mat-card-content>
+        <div class="demo-content">
+          <mat-icon class="demo-icon">info</mat-icon>
+          <div class="demo-text">
+            <h4>� Dashboard de Usuario - Vista Pública</h4>
+            <p>Estás viendo la versión limitada. <strong>Regístrate gratis</strong> para acceder a todo el contenido deportivo sin restricciones.</p>
+          </div>
+          <button mat-raised-button color="primary" (click)="irARegistro()" class="demo-btn">
+            <mat-icon>person_add</mat-icon>
+            Registrarse Gratis
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
+  <!-- ===============================
+       🎨 HEADER DEL USUARIO
+       =============================== -->
+  <mat-toolbar class="usuario-header" color="primary" *ngIf="estaAutenticado">
+    <mat-toolbar-row>
+      <span class="usuario-title">
+        <mat-icon class="title-icon">sports</mat-icon>
+        Tiempo Adicional
+      </span>
+      
+      <span class="spacer"></span>
+      
+      <div class="user-info">
+        <mat-chip-set>
+          <mat-chip highlighted>
+            <mat-icon matChipAvatar>person</mat-icon>
+            {{ nombreUsuario }}
+          </mat-chip>
+        </mat-chip-set>
+        
+        <button mat-icon-button 
+                matTooltip="Cerrar sesión" 
+                (click)="cerrarSesion()" 
+                class="logout-button">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <!-- ===============================
+       📰 HERO SECTION - NOTICIA DESTACADA
+       =============================== -->
+  <section class="hero-section" *ngIf="noticiaDestacada">
+    <div class="hero-content">
+      <div class="hero-imagen">
+        <img [src]="noticiaDestacada.imagenUrl || '/assets/default-news.jpg'" 
+             [alt]="noticiaDestacada.titulo">
+        <div class="hero-overlay"></div>
+      </div>
+      
+      <div class="hero-info">
+        <mat-chip class="seccion-chip">⭐ {{ noticiaDestacada.seccion }}</mat-chip>
+        <h1 class="hero-titulo">{{ noticiaDestacada.titulo }}</h1>
+        <p class="hero-resumen">{{ noticiaDestacada.resumen }}</p>
+        
+        <div class="hero-meta">
+          <span class="fecha">{{ noticiaDestacada.fechaPublicacion | date:'dd MMM yyyy' }}</span>
+          <button mat-raised-button 
+                  color="accent" 
+                  (click)="verNoticia(noticiaDestacada)"
+                  class="leer-mas-btn">
+            <mat-icon>article</mat-icon>
+            Leer Completa
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===============================
+        GRID PRINCIPAL DE CONTENIDO
+       =============================== -->
+  <div class="contenido-grid">
+    
+    <!-- COLUMNA IZQUIERDA: NOTICIAS -->
+    <section id="noticias" class="noticias-section">
+      <div class="section-header">
+        <h2 class="section-titulo">
+          <mat-icon>article</mat-icon>
+          Últimas Noticias
+        </h2>
+        
+        <!-- Límite para no registrados -->
+        <div class="limite-badge" *ngIf="mostrarLimites">
+          <mat-chip color="warn">
+            <mat-icon matChipAvatar>visibility_off</mat-icon>
+            {{ noticiasRestantes }} más disponibles
+          </mat-chip>
+        </div>
+      </div>
+
+      <!-- Loading de noticias -->
+      <div class="loading-container" *ngIf="cargandoNoticias">
+        <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+        <p>Cargando noticias deportivas...</p>
+      </div>
+
+      <!-- Grid de noticias -->
+      <div class="noticias-grid" *ngIf="!cargandoNoticias">
+        <mat-card class="noticia-card" 
+                  *ngFor="let noticia of noticiasLimitadas"
+                  [class.bloqueada]="noticia.bloqueada"
+                  (click)="verNoticia(noticia)">
+          
+          <div class="card-image">
+            <img [src]="noticia.imagenUrl || '/assets/default-news.jpg'" 
+                 [alt]="noticia.titulo">
+            
+            <!-- Overlay para contenido bloqueado -->
+            <div class="block-overlay" *ngIf="noticia.bloqueada">
+              <mat-icon class="lock-icon">lock</mat-icon>
+              <span>Regístrate para ver más</span>
+            </div>
+          </div>
+          
+          <mat-card-header>
+            <mat-chip class="seccion-mini">{{ noticia.seccion }}</mat-chip>
+            <mat-card-title class="noticia-titulo">{{ noticia.titulo }}</mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <p class="noticia-resumen">{{ noticia.resumen }}</p>
+            <div class="noticia-meta">
+              <span class="fecha-mini">{{ noticia.fechaPublicacion | date:'dd/MM' }}</span>
+              <mat-icon class="read-icon">chevron_right</mat-icon>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Aviso de límite de noticias -->
+      <div class="limite-aviso" *ngIf="mostrarAvisoLimiteNoticias">
+        <mat-card class="aviso-card">
+          <mat-card-content>
+            <mat-icon class="aviso-icon">info</mat-icon>
+            <h4>¡Hay más noticias disponibles!</h4>
+            <p>Regístrate gratis para ver todas las noticias deportivas sin límites.</p>
+            <button mat-raised-button color="primary" (click)="irARegistro()">
+              <mat-icon>person_add</mat-icon>
+              Ver Más Noticias
+            </button>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- COLUMNA DERECHA: EVENTOS Y PARTIDOS -->
+    <aside id="eventos" class="eventos-sidebar">
+      
+      <!-- PRÓXIMOS EVENTOS -->
+      <section class="eventos-section">
+        <div class="section-header">
+          <h3 class="section-titulo">
+            <mat-icon>event</mat-icon>
+            Próximos Eventos
+          </h3>
+          
+          <!-- Límite para no registrados -->
+          <div class="limite-badge" *ngIf="mostrarLimites">
+            <mat-chip color="warn" class="mini-chip">
+              {{ eventosRestantes }} más
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Loading de eventos -->
+        <div class="loading-mini" *ngIf="cargandoEventos">
+          <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+        </div>
+
+        <!-- Lista de eventos -->
+        <div class="eventos-lista" *ngIf="!cargandoEventos">
+          <mat-card class="evento-card"
+                    *ngFor="let evento of eventosLimitados"
+                    [class.bloqueado]="evento.bloqueado"
+                    (click)="verEvento(evento)">
+            
+            <mat-card-content>
+              <div class="evento-fecha">
+                <span class="dia">{{ evento.fecha | date:'dd' }}</span>
+                <span class="mes">{{ evento.fecha | date:'MMM' }}</span>
+              </div>
+              
+              <div class="evento-info">
+                <h4 class="evento-titulo">{{ evento.titulo }}</h4>
+                <p class="evento-competicion">{{ evento.competicion }}</p>
+                <p class="evento-ubicacion">
+                  <mat-icon>location_on</mat-icon>
+                  {{ evento.ubicacion }}
+                </p>
+              </div>
+              
+              <!-- Icono de bloqueo -->
+              <mat-icon class="evento-lock" *ngIf="evento.bloqueado">lock</mat-icon>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Aviso de límite de eventos -->
+        <div class="limite-aviso" *ngIf="mostrarAvisoLimiteEventos">
+          <mat-card class="aviso-card">
+            <mat-card-content>
+              <mat-icon class="aviso-icon">event_available</mat-icon>
+              <h4>¡Hay más eventos disponibles!</h4>
+              <p>Regístrate gratis para ver todos los eventos deportivos.</p>
+              <button mat-raised-button color="accent" (click)="irARegistro()">
+                <mat-icon>person_add</mat-icon>
+                Ver Más Eventos
+              </button>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </section>
+
+      <!-- PARTIDOS DE FÚTBOL -->
+      <section class="partidos-section">
+        <div class="section-header">
+          <h3 class="section-titulo">
+            <mat-icon>sports_soccer</mat-icon>
+            Partidos de Fútbol
+            <span class="contador">({{ partidosLimitados.length }})</span>
+          </h3>
+        </div>
+
+        <!-- Loading de partidos -->
+        <div *ngIf="cargandoPartidos" class="loading-container">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <p>Cargando partidos...</p>
+        </div>
+
+        <!-- Lista de partidos reales -->
+        <div class="partidos-lista" *ngIf="!cargandoPartidos && partidosLimitados.length > 0">
+          <mat-card 
+            class="partido-card" 
+            [class.bloqueado]="partido.bloqueado"
+            *ngFor="let partido of partidosLimitados; let i = index"
+            (click)="verPartido(partido)">
+            
+            <mat-card-content>
+              <div class="partido-equipos">
+                <div class="equipo local">
+                  <span class="equipo-nombre">{{ partido.equipoLocal }}</span>
+                  <span class="equipo-score" *ngIf="partido.golesLocal !== null">
+                    {{ partido.golesLocal }}
+                  </span>
+                </div>
+                
+                <div class="vs-container">
+                  <span class="vs">VS</span>
+                  <div class="partido-fecha">
+                    {{ partido.fecha | date:'dd/MM HH:mm' }}
+                  </div>
+                </div>
+                
+                <div class="equipo visitante">
+                  <span class="equipo-nombre">{{ partido.equipoVisitante }}</span>
+                  <span class="equipo-score" *ngIf="partido.golesVisitante !== null">
+                    {{ partido.golesVisitante }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="partido-info">
+                <mat-chip class="liga-chip">{{ partido.liga }}</mat-chip>
+                <mat-chip 
+                  class="estado-chip" 
+                  [color]="partido.estado === 'En Vivo' ? 'accent' : 'primary'">
+                  {{ partido.estado }}
+                </mat-chip>
+              </div>
+
+              <!-- Overlay para usuarios no registrados -->
+              <div class="content-overlay" *ngIf="partido.bloqueado">
+                <mat-icon>lock</mat-icon>
+                <p>Regístrate para ver más detalles</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Mensaje si no hay partidos -->
+        <div *ngIf="!cargandoPartidos && partidosLimitados.length === 0" class="no-content">
+          <mat-icon>sports_soccer</mat-icon>
+          <p>No hay partidos disponibles en este momento</p>
+        </div>
+
+        <!-- Banner de registro para más partidos -->
+        <div class="registro-banner" *ngIf="!estaAutenticado && partidosLimitados.length > 0">
+          <mat-card class="banner-card">
+            <mat-card-content>
+              <mat-icon>sports_soccer</mat-icon>
+              <p>¿Quieres ver más partidos y estadísticas completas?</p>
+              <button mat-raised-button color="accent" (click)="irARegistro()">
+                Registrarse Gratis
+              </button>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- ===============================
+       📱 SECCIÓN MÓVIL ADAPTATIVA
+       =============================== -->
+  <section class="mobile-tabs" class="mobile-only">
+    <mat-tab-group backgroundColor="primary">
+      <mat-tab label="Noticias">
+        <div class="mobile-noticias">
+          <!-- Noticias adaptadas para móvil -->
+        </div>
+      </mat-tab>
+      
+      <mat-tab label="Eventos">
+        <div class="mobile-eventos">
+          <!-- Eventos adaptados para móvil -->
+        </div>
+      </mat-tab>
+      
+      <mat-tab label="Partidos">
+        <div class="mobile-partidos">
+          <!-- Loading de partidos -->
+          <div *ngIf="cargandoPartidos" class="loading-container">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            <p>Cargando partidos...</p>
+          </div>
+
+          <!-- Lista de partidos para móvil -->
+          <div class="partidos-mobile-lista" *ngIf="!cargandoPartidos && partidosLimitados.length > 0">
+            <mat-card 
+              class="partido-mobile-card" 
+              [class.bloqueado]="partido.bloqueado"
+              *ngFor="let partido of partidosLimitados; let i = index"
+              (click)="verPartido(partido)">
+              
+              <mat-card-content>
+                <div class="partido-mobile-header">
+                  <mat-chip class="liga-chip">{{ partido.liga }}</mat-chip>
+                  <span class="fecha-mobile">{{ partido.fecha | date:'dd/MM HH:mm' }}</span>
+                </div>
+                
+                <div class="equipos-mobile">
+                  <div class="equipo-mobile">
+                    <span class="nombre">{{ partido.equipoLocal }}</span>
+                    <span class="score" *ngIf="partido.golesLocal !== null">{{ partido.golesLocal }}</span>
+                  </div>
+                  <div class="vs-mobile">VS</div>
+                  <div class="equipo-mobile">
+                    <span class="nombre">{{ partido.equipoVisitante }}</span>
+                    <span class="score" *ngIf="partido.golesVisitante !== null">{{ partido.golesVisitante }}</span>
+                  </div>
+                </div>
+                
+                <div class="estado-mobile">
+                  <mat-chip [color]="partido.estado === 'En Vivo' ? 'accent' : 'primary'">
+                    {{ partido.estado }}
+                  </mat-chip>
+                </div>
+
+                <!-- Overlay para usuarios no registrados -->
+                <div class="content-overlay" *ngIf="partido.bloqueado">
+                  <mat-icon>lock</mat-icon>
+                  <p>Regístrate para ver más</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Mensaje si no hay partidos -->
+          <div *ngIf="!cargandoPartidos && partidosLimitados.length === 0" class="no-content-mobile">
+            <mat-icon>sports_soccer</mat-icon>
+            <p>No hay partidos disponibles</p>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</div>

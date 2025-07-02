@@ -18,10 +18,9 @@
                     </a>
                     <div class="dropdown" [class.active]="activeDropdown === 'noticias'">
                         <div class="dropdown-content">
-                            <a href="#" class="dropdown-item" (click)="onSubNavClick('noticias-recientes', $event)">📰
-                                Recientes</a>
-                            <a href="#" class="dropdown-item" (click)="onSubNavClick('destacadas', $event)">⭐
-                                Destacadas</a>
+                            <a href="#" class="dropdown-item" (click)="irANoticias()">📰 Ver Todas las Noticias</a>
+                            <a href="#" class="dropdown-item" (click)="onSubNavClick('noticias-recientes', $event)">� Recientes</a>
+                            <a href="#" class="dropdown-item" (click)="onSubNavClick('destacadas', $event)">⭐ Destacadas</a>
                         </div>
                     </div>
                 </li>
@@ -32,8 +31,10 @@
                     </a>
                     <div class="dropdown" [class.active]="activeDropdown === 'eventos'">
                         <div class="dropdown-content">
-                            <a href="#" class="dropdown-item" (click)="onSubNavClick('proximos-eventos', $event)">📅
-                                Próximos</a>
+                            <a href="#" class="dropdown-item" (click)="irAEventos()">🏆 Ver Todos los Eventos</a>
+                            <a href="#" class="dropdown-item" (click)="onSubNavClick('proximos-eventos', $event)">📅 Próximos</a>
+                            <a href="#" class="dropdown-item" (click)="irAPartidos()">⚽ Partidos</a>
+                            <a href="#" class="dropdown-item" (click)="irALigaColombiana()">🇨🇴 Liga Colombiana</a>
                         </div>
                     </div>
                 </li>
@@ -110,10 +111,9 @@
                     Noticias <span class="mobile-arrow" [class.rotated]="activeMobileSection === 'noticias'">▼</span>
                 </button>
                 <div class="mobile-dropdown" [class.active]="activeMobileSection === 'noticias'">
-                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('noticias-recientes', $event)">📰
-                        Recientes</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('destacadas', $event)">⭐
-                        Destacadas</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irANoticias()">📰 Ver Todas las Noticias</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('noticias-recientes', $event)">� Recientes</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('destacadas', $event)">⭐ Destacadas</a>
                 </div>
             </div>
 
@@ -123,8 +123,10 @@
                     Eventos <span class="mobile-arrow" [class.rotated]="activeMobileSection === 'eventos'">▼</span>
                 </button>
                 <div class="mobile-dropdown" [class.active]="activeMobileSection === 'eventos'">
-                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('proximos-eventos', $event)">📅
-                        Próximos</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irAEventos()">🏆 Ver Todos los Eventos</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('proximos-eventos', $event)">📅 Próximos</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irAPartidos()">⚽ Partidos</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irALigaColombiana()">🇨🇴 Liga Colombiana</a>
                 </div>
             </div>
 

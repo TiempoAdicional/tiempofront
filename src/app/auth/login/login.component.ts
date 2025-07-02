@@ -49,10 +49,13 @@ export class LoginComponent {
           this.authService.guardarUsuario(res.nombre, res.rol, res.id);
           this.cargando = false;
 
-          if (res.rol === 'ADMIN') {
+          // Redirigir según el rol del usuario
+          if (res.rol === 'SUPER_ADMIN') {
+            this.router.navigate(['/super-admin']);
+          } else if (res.rol === 'ADMIN') {
             this.router.navigate(['/admin']);
           } else {
-            this.router.navigate(['/']);
+            this.router.navigate(['/usuarios']); // Redirigir al dashboard del usuario
           }
         },
         error: (err) => {

@@ -5,14 +5,18 @@ import { AuthService } from '../../auth/services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AdminGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+export class SuperAdminGuard implements CanActivate {
+
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   canActivate(): boolean {
-    if (this.authService.estaAutenticado() && this.authService.esAdmin()) {
+    if (this.authService.estaAutenticado() && this.authService.esSuperAdmin()) {
       return true;
     }
-    
+
     // Redirigir a página de acceso no autorizado
     this.router.navigate(['/unauthorized']);
     return false;

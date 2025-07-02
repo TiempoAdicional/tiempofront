@@ -110,6 +110,18 @@ export class AuthService {
     return this.obtenerRol() === 'SUPER_ADMIN';
   }
 
+  esSuperAdmin(): boolean {
+    return this.obtenerRol() === 'SUPER_ADMIN';
+  }
+
+  obtenerNombreUsuario(): string {
+    return this.obtenerNombre();
+  }
+
+  logout(): void {
+    this.cerrarSesion();
+  }
+
   // === Headers para Interceptor (opcional) ===
   obtenerHeadersAutenticados(): { [header: string]: string } {
     const token = this.obtenerToken();

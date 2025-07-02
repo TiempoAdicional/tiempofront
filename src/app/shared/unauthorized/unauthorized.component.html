@@ -1,0 +1,31 @@
+<div class="unauthorized-container">
+  <mat-card class="unauthorized-card" elevation="8">
+    <mat-card-content>
+      <div class="unauthorized-content">
+        <div class="icon-section">
+          <mat-icon class="warning-icon">security</mat-icon>
+        </div>
+        
+        <div class="message-section">
+          <h1 class="title">Acceso No Autorizado</h1>
+          <p class="message">
+            No tienes permisos para acceder a esta página.
+          </p>
+          <p class="submessage">
+            Serás redirigido al login en <strong>{{ countdown }}</strong> segundos.
+          </p>
+        </div>
+
+        <div class="actions-section">
+          <button mat-raised-button 
+                  color="primary" 
+                  (click)="redirectToLogin()"
+                  class="login-button">
+            <mat-icon>login</mat-icon>
+            Ir al Login Ahora
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

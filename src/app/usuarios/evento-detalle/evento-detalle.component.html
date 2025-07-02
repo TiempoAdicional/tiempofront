@@ -1,0 +1,119 @@
+<div class="evento-detalle-container">
+  <!-- Loading -->
+  <div *ngIf="cargando" class="loading-container">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    <p>Cargando evento...</p>
+  </div>
+
+  <!-- Contenido del evento -->
+  <div *ngIf="!cargando && evento" class="evento-content">
+    <!-- Header con navegación -->
+    <div class="header-nav">
+      <button mat-raised-button color="primary" (click)="volverAlDashboard()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        Volver al Dashboard
+      </button>
+    </div>
+
+    <!-- Imagen del evento -->
+    <div class="imagen-evento" *ngIf="evento.imagenEvento">
+      <img [src]="evento.imagenEvento" [alt]="evento.nombre">
+    </div>
+
+    <!-- Información del evento -->
+    <mat-card class="evento-card">
+      <mat-card-header>
+        <mat-card-title>{{ evento.nombre }}</mat-card-title>
+        <mat-card-subtitle>
+          <div class="meta-info">
+            <div class="meta-item">
+              <mat-icon>event</mat-icon>
+              <span>{{ evento.fecha | date:'EEEE, dd MMMM yyyy' }}</span>
+            </div>
+            <div class="meta-item">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ evento.fecha | date:'HH:mm' }}</span>
+            </div>
+            <div class="meta-item">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ evento.lugar }}</span>
+            </div>
+          </div>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Descripción principal -->
+        <div class="descripcion" *ngIf="evento.descripcion">
+          <h3><mat-icon>description</mat-icon> Descripción del Evento</h3>
+          <p>{{ evento.descripcion }}</p>
+        </div>
+
+        <!-- Detalles adicionales -->
+        <div class="evento-detalles">
+          <div class="detalle-item">
+            <h4><mat-icon>sports_soccer</mat-icon> Tipo de Evento</h4>
+            <p>Evento Deportivo</p>
+          </div>
+          <div class="detalle-item">
+            <h4><mat-icon>stadium</mat-icon> Estadio</h4>
+            <p>{{ evento.lugar }}</p>
+          </div>
+          <div class="detalle-item">
+            <h4><mat-icon>confirmation_number</mat-icon> Estado</h4>
+            <p>Programado</p>
+          </div>
+          <div class="detalle-item">
+            <h4><mat-icon>calendar_today</mat-icon> Fecha</h4>
+            <p>{{ evento.fecha | date:'dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+
+        <!-- Video si existe -->
+        <div class="video-container" *ngIf="evento.videoUrl">
+          <h3><mat-icon>play_circle</mat-icon> Video del Evento</h3>
+          <div class="video-wrapper">
+            <iframe 
+              [src]="evento.videoUrl" 
+              width="100%" 
+              height="400" 
+              frameborder="0" 
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="info-adicional" *ngIf="evento.descripcion">
+          <h3><mat-icon>info</mat-icon> Detalles Adicionales</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <strong>Tipo:</strong> Evento deportivo
+            </div>
+            <div class="info-item">
+              <strong>Categoría:</strong> Fútbol
+            </div>
+            <div class="info-item">
+              <strong>Entrada:</strong> Información próximamente
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Error si no se encuentra el evento -->
+  <div *ngIf="!cargando && !evento" class="error-container">
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h2>Evento no encontrado</h2>
+        <p>El evento que buscas no existe o ha sido eliminado.</p>
+        <button mat-raised-button color="primary" (click)="volverAlDashboard()">
+          <mat-icon>home</mat-icon>
+          Volver al Dashboard
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

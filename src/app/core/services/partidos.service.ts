@@ -200,6 +200,32 @@ export class PartidosService {
       );
   }
 
+  // === MÉTODOS PARA CONTENIDO PÚBLICO ===
+  
+  /**
+   * Obtiene partidos públicos limitados sin requerir autenticación
+   * Usa el endpoint específico /public/partidos/limitados configurado en el backend
+   */
+  obtenerPartidosPublicos(limite: number = 6): Observable<Partido[]> {
+    const params = new HttpParams().set('limite', limite.toString());
+    
+    // Usar endpoint público específico según documentación del backend
+    const publicUrl = `${environment.apiBaseUrl}/public/partidos/limitados`;
+    
+    return this.http.get<Partido[]>(publicUrl, { params })
+      .pipe(
+        tap(partidos => {
+          console.log('⚽ Partidos públicos obtenidos desde /public/partidos/limitados:', partidos);
+          this.partidosSubject.next(partidos);
+        }),
+        catchError(error => {
+          console.error('❌ Error al obtener partidos públicos:', error);
+          // Si falla el endpoint específico, intentar con el endpoint general para compatibilidad
+          return this.obtenerPartidosHoy();
+        })
+      );
+  }
+
   // === ALIAS PARA COMPATIBILIDAD ===
 
   obtenerPartidosHoyApi(): Observable<Partido[]> {

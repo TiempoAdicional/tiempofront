@@ -1,0 +1,498 @@
+.unauthorized-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.unauthorized-card {
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.unauthorized-content {
+  padding: 40px 20px;
+}
+
+.icon-section {
+  margin-bottom: 30px;
+  
+  .warning-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    color: #f44336;
+    animation: pulse 2s infinite;
+  }
+}
+
+.message-section {
+  margin-bottom: 40px;
+  
+  .title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+  
+  .message {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  
+  .submessage {
+    font-size: 14px;
+    color: #999;
+    
+    strong {
+      color: #f44336;
+      font-weight: 600;
+    }
+  }
+}
+
+.actions-section {
+  .login-button {
+    font-size: 16px;
+    padding: 12px 32px;
+    border-radius: 8px;
+    min-width: 180px;
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ===================================
+   📱 MÓVILES PEQUEÑOS (320px - 480px)
+   =================================== */
+@media (max-width: 480px) {
+  .unauthorized-container {
+    padding: 15px;
+    min-height: 100vh;
+  }
+  
+  .unauthorized-card {
+    margin: 0;
+    min-height: auto;
+  }
+  
+  .unauthorized-content {
+    padding: 30px 15px;
+  }
+  
+  .icon-section {
+    margin-bottom: 20px;
+    
+    .warning-icon {
+      font-size: 50px;
+      width: 50px;
+      height: 50px;
+    }
+  }
+  
+  .message-section {
+    margin-bottom: 30px;
+    
+    .title {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    
+    .message {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    
+    .submessage {
+      font-size: 12px;
+    }
+  }
+  
+  .actions-section {
+    .login-button {
+      font-size: 14px;
+      padding: 10px 20px;
+      min-width: 150px;
+      width: 100%;
+      max-width: 200px;
+    }
+  }
+}
+
+/* ===================================
+   📱 MÓVILES MEDIANOS (481px - 768px)
+   =================================== */
+@media (min-width: 481px) and (max-width: 768px) {
+  .unauthorized-container {
+    padding: 20px;
+  }
+  
+  .unauthorized-card {
+    max-width: 450px;
+  }
+  
+  .unauthorized-content {
+    padding: 35px 20px;
+  }
+  
+  .icon-section {
+    margin-bottom: 25px;
+    
+    .warning-icon {
+      font-size: 65px;
+      width: 65px;
+      height: 65px;
+    }
+  }
+  
+  .message-section {
+    margin-bottom: 35px;
+    
+    .title {
+      font-size: 24px;
+      margin-bottom: 14px;
+    }
+    
+    .message {
+      font-size: 15px;
+      margin-bottom: 11px;
+    }
+    
+    .submessage {
+      font-size: 13px;
+    }
+  }
+  
+  .actions-section {
+    .login-button {
+      font-size: 15px;
+      padding: 11px 28px;
+      min-width: 170px;
+    }
+  }
+}
+
+/* ===================================
+   💻 TABLETS (769px - 1024px)
+   =================================== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .unauthorized-container {
+    padding: 25px;
+  }
+  
+  .unauthorized-card {
+    max-width: 480px;
+  }
+  
+  .unauthorized-content {
+    padding: 38px 25px;
+  }
+  
+  .icon-section {
+    margin-bottom: 28px;
+    
+    .warning-icon {
+      font-size: 75px;
+      width: 75px;
+      height: 75px;
+    }
+  }
+  
+  .message-section {
+    margin-bottom: 38px;
+    
+    .title {
+      font-size: 26px;
+      margin-bottom: 15px;
+    }
+    
+    .message {
+      font-size: 15.5px;
+      margin-bottom: 11.5px;
+    }
+    
+    .submessage {
+      font-size: 13.5px;
+    }
+  }
+  
+  .actions-section {
+    .login-button {
+      font-size: 15.5px;
+      padding: 11.5px 30px;
+      min-width: 175px;
+    }
+  }
+}
+
+/* ===================================
+   🖥️ DESKTOP PEQUEÑO (1025px - 1366px)
+   =================================== */
+@media (min-width: 1025px) and (max-width: 1366px) {
+  .unauthorized-container {
+    padding: 30px;
+  }
+  
+  .unauthorized-card {
+    max-width: 500px;
+  }
+  
+  .unauthorized-content {
+    padding: 40px 30px;
+  }
+  
+  .icon-section {
+    margin-bottom: 30px;
+    
+    .warning-icon {
+      font-size: 80px;
+      width: 80px;
+      height: 80px;
+    }
+  }
+  
+  .message-section {
+    margin-bottom: 40px;
+    
+    .title {
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+    
+    .message {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .submessage {
+      font-size: 14px;
+    }
+  }
+  
+  .actions-section {
+    .login-button {
+      font-size: 16px;
+      padding: 12px 32px;
+      min-width: 180px;
+    }
+  }
+}
+
+/* ===================================
+   🖥️ DESKTOP GRANDE (1367px - 1920px)
+   =================================== */
+@media (min-width: 1367px) and (max-width: 1920px) {
+  .unauthorized-container {
+    padding: 40px;
+  }
+  
+  .unauthorized-card {
+    max-width: 550px;
+  }
+  
+  .unauthorized-content {
+    padding: 45px 35px;
+  }
+  
+  .icon-section {
+    margin-bottom: 35px;
+    
+    .warning-icon {
+      font-size: 90px;
+      width: 90px;
+      height: 90px;
+    }
+  }
+  
+  .message-section {
+    margin-bottom: 45px;
+    
+    .title {
+      font-size: 32px;
+      margin-bottom: 18px;
+    }
+    
+    .message {
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+    
+    .submessage {
+      font-size: 16px;
+    }
+  }
+  
+  .actions-section {
+    .login-button {
+      font-size: 18px;
+      padding: 14px 36px;
+      min-width: 200px;
+    }
+  }
+}
+
+/* ===================================
+   🖥️ ULTRA WIDE (1921px+)
+   =================================== */
+@media (min-width: 1921px) {
+  .unauthorized-container {
+    padding: 50px;
+  }
+  
+  .unauthorized-card {
+    max-width: 600px;
+  }
+  
+  .unauthorized-content {
+    padding: 50px 40px;
+  }
+  
+  .icon-section {
+    margin-bottom: 40px;
+    
+    .warning-icon {
+      font-size: 100px;
+      width: 100px;
+      height: 100px;
+    }
+  }
+  
+  .message-section {
+    margin-bottom: 50px;
+    
+    .title {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+    
+    .message {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+    
+    .submessage {
+      font-size: 18px;
+    }
+  }
+  
+  .actions-section {
+    .login-button {
+      font-size: 20px;
+      padding: 16px 40px;
+      min-width: 220px;
+    }
+  }
+}
+
+/* ===================================
+   📐 ORIENTACIÓN LANDSCAPE MÓVILES
+   =================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .unauthorized-container {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+  
+  .unauthorized-content {
+    padding: 20px 15px;
+  }
+  
+  .icon-section {
+    margin-bottom: 15px;
+    
+    .warning-icon {
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+    }
+  }
+  
+  .message-section {
+    margin-bottom: 20px;
+    
+    .title {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    
+    .message {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    
+    .submessage {
+      font-size: 11px;
+    }
+  }
+  
+  .actions-section {
+    .login-button {
+      font-size: 13px;
+      padding: 8px 16px;
+      min-width: 120px;
+    }
+  }
+}
+
+/* ===================================
+   ♿ ACCESIBILIDAD Y PREFERENCIAS
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+  .warning-icon {
+    animation: none !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .unauthorized-container {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  }
+  
+  .unauthorized-card {
+    background: #1e1e1e;
+    color: #ffffff;
+  }
+  
+  .message-section {
+    .title {
+      color: #ffffff;
+    }
+    
+    .message {
+      color: #b0b0b0;
+    }
+    
+    .submessage {
+      color: #888888;
+      
+      strong {
+        color: #ff6b6b;
+      }
+    }
+  }
+}

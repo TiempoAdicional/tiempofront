@@ -1,0 +1,147 @@
+<div class="noticia-detalle-container">
+  <!-- Loading -->
+  <div *ngIf="cargando" class="loading-container">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    <p>Cargando noticia...</p>
+  </div>
+
+  <!-- Contenido de la noticia -->
+  <div *ngIf="!cargando && noticia" class="noticia-content">
+    <!-- Header con navegación -->
+    <div class="header-nav">
+      <button mat-raised-button color="primary" (click)="volverAlDashboard()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        Volver al Dashboard
+      </button>
+    </div>
+
+    <!-- Imagen destacada -->
+    <div class="imagen-destacada" *ngIf="noticia.imagenDestacada">
+      <img [src]="noticia.imagenDestacada" [alt]="noticia.titulo">
+    </div>
+
+    <!-- Información de la noticia -->
+    <mat-card class="noticia-card">
+      <mat-card-header>
+        <mat-chip class="seccion-chip">General</mat-chip>
+        <mat-chip *ngIf="noticia.destacada" class="destacada-chip">⭐ Destacada</mat-chip>
+        <mat-card-title>{{ noticia.titulo }}</mat-card-title>
+        <mat-card-subtitle>
+          <div class="meta-info">
+            <span class="autor">Por: {{ noticia.autorNombre }}</span>
+            <span class="fecha">{{ noticia.fechaPublicacion | date:'dd MMM yyyy, HH:mm' }}</span>
+            <span class="visitas">{{ noticia.visitas }} vistas</span>
+          </div>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Resumen -->
+        <div class="resumen" *ngIf="noticia.resumen">
+          <p><strong>{{ noticia.resumen }}</strong></p>
+          <mat-divider></mat-divider>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="contenido-html" [innerHTML]="noticia.contenidoHtml"></div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Sección de comentarios (solo para usuarios registrados) -->
+    <div class="comentarios-section" *ngIf="estaAutenticado">
+      <mat-card class="comentarios-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>comment</mat-icon>
+            Comentarios ({{ comentarios.length }})
+          </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Formulario para nuevo comentario -->
+          <div class="nuevo-comentario" *ngIf="estaAutenticado">
+            <mat-form-field appearance="outline" class="comment-field">
+              <mat-label>Escribe tu comentario...</mat-label>
+              <textarea 
+                matInput 
+                [(ngModel)]="nuevoComentario"
+                rows="3"
+                placeholder="Comparte tu opinión sobre esta noticia">
+              </textarea>
+            </mat-form-field>
+            <button 
+              mat-raised-button 
+              color="primary" 
+              (click)="enviarComentario()"
+              [disabled]="!nuevoComentario.trim()">
+              <mat-icon>send</mat-icon>
+              Comentar
+            </button>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <!-- Lista de comentarios -->
+          <div class="comentarios-lista">
+            <div *ngIf="comentarios.length === 0" class="no-comentarios">
+              <mat-icon>chat_bubble_outline</mat-icon>
+              <p>Sé el primero en comentar esta noticia</p>
+            </div>
+
+            <div 
+              *ngFor="let comentario of comentarios" 
+              class="comentario-item"
+              [class.pendiente]="!comentario.aprobado">
+              
+              <div class="comentario-header">
+                <div class="autor-info">
+                  <mat-icon class="avatar-icon">person</mat-icon>
+                  <span class="autor-nombre">{{ comentario.autor }}</span>
+                </div>
+                <span class="fecha-comentario">{{ comentario.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              
+              <div class="comentario-contenido">
+                <p>{{ comentario.mensaje }}</p>
+              </div>
+              
+              <div class="comentario-estado" *ngIf="!comentario.aprobado">
+                <mat-chip color="warn">Pendiente de moderación</mat-chip>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Banner para usuarios no registrados -->
+    <div class="registro-comentarios" *ngIf="!estaAutenticado">
+      <mat-card class="banner-card">
+        <mat-card-content>
+          <mat-icon>comment</mat-icon>
+          <h3>¿Quieres comentar esta noticia?</h3>
+          <p>Regístrate gratis para participar en la conversación deportiva</p>
+          <button mat-raised-button color="primary" (click)="irARegistro()">
+            <mat-icon>person_add</mat-icon>
+            Registrarse para Comentar
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Error si no se encuentra la noticia -->
+  <div *ngIf="!cargando && !noticia" class="error-container">
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h2>Noticia no encontrada</h2>
+        <p>La noticia que buscas no existe o ha sido eliminada.</p>
+        <button mat-raised-button color="primary" (click)="volverAlDashboard()">
+          <mat-icon>home</mat-icon>
+          Volver al Dashboard
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

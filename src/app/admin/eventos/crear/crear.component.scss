@@ -1,225 +1,394 @@
 // ===============================
-// 🎨 FORMULARIO DE EVENTO DEPORTIVO
+// 🎨 FORMULARIO DE EVENTO DEPORTIVO MODERNIZADO
 // ===============================
-.contenedor-crear-evento {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 2rem;
+
+.crear-evento-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--gris-fondo), var(--gris-card));
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem;
   animation: fadeIn 0.6s ease-in;
 }
 
-.card-crear-evento {
-  background-color: var(--gris-card);
-  color: var(--blanco);
-  padding: 2.5rem;
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
-  width: 100%;
-  max-width: 720px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: slideUp 0.5s ease-in;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-  }
-}
-
-.titulo-creacion {
-  font-family: 'Anton', sans-serif;
-  font-size: 2.4rem;
-  color: var(--accent-color);
-  text-align: center;
+// ===============================
+// 📋 HEADER SECTION
+// ===============================
+.header-section {
+  display: flex;
+  align-items: center;
   margin-bottom: 2rem;
-  text-shadow: 1px 1px 0 var(--gris-carbon);
-}
-
-.formulario-crear {
-  display: flex;
-  flex-direction: column;
   gap: 1.5rem;
-}
+  animation: slideDown 0.5s ease-out;
 
-.campo-formulario {
-  width: 100%;
-
-  mat-form-field {
-    width: 100%;
-    background-color: var(--gris-fondo);
-    border-radius: var(--radius-lg);
-  }
-}
-
-.label-archivo {
-  font-weight: bold;
-  color: var(--verde-lima);
-  margin-bottom: 0.5rem;
-  display: block;
-  font-size: 0.95rem;
-}
-
-input[type="file"] {
-  background-color: var(--gris-fondo);
-  border-radius: var(--radius-lg);
-  padding: 0.6rem;
-  color: var(--blanco);
-  border: 1px solid var(--accent-color);
-  transition: border 0.3s ease;
-
-  &:hover {
-    border-color: var(--verde-selva);
-  }
-}
-
-.imagen-preview-contenedor {
-  text-align: center;
-  animation: fadeIn 0.4s ease;
-
-  .texto-preview {
-    margin-bottom: 0.5rem;
-    color: var(--blanco);
-    font-weight: bold;
-  }
-
-  .imagen-preview {
-    max-width: 100%;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-soft);
-    border: 2px solid var(--verde-selva);
-    margin-top: 0.5rem;
-  }
-}
-
-.botones-accion {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-top: 1.5rem;
-  gap: 1rem;
-
-  button {
-    font-weight: bold;
-    font-size: 1rem;
-    padding: 0.8rem 1.5rem;
-    border-radius: var(--radius-lg);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+  .back-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
       transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    }
+  }
+
+  .header-content {
+    flex: 1;
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .title-icon {
+        font-size: 2.5rem;
+        color: #667eea;
+      }
+    }
+
+    .page-subtitle {
+      margin: 0.5rem 0 0 0;
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+  }
+
+  // ===============================
+  // 🎯 HEADER ACTIONS & EXAMPLE BUTTON
+  // ===============================
+  .header-actions {
+    .example-button {
+      border: 2px dashed rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.8);
+        color: white;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+      }
+
+      mat-icon {
+        margin-right: 0.5rem;
+      }
     }
   }
 }
 
-.contenedor-boton-volver {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 1.5rem;
+// ===============================
+// 📝 FORM CARD
+// ===============================
+.form-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: slideUp 0.6s ease-out;
 
-  .btn-volver {
-    font-weight: bold;
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-    text-transform: uppercase;
+  mat-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem 2rem;
+    margin-bottom: 0;
+
+    mat-card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+
+      mat-icon {
+        font-size: 1.5rem;
+      }
+    }
+
+    mat-card-subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 0.5rem;
+    }
+  }
+
+  mat-card-content {
+    padding: 2rem;
+  }
+}
+
+// ===============================
+// 🏗️ FORM SECTIONS
+// ===============================
+.form-section {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
+
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #343a40;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    mat-icon {
+      color: #667eea;
+      font-size: 1.4rem;
+    }
+  }
+}
+
+// ===============================
+// 📐 FORM GRID LAYOUT
+// ===============================
+.form-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.half-width {
+  grid-column: span 1;
+}
+
+// ===============================
+// 🎨 FORM FIELDS
+// ===============================
+mat-form-field {
+  width: 100%;
+
+  &.mat-form-field-appearance-outline {
+    .mat-form-field-outline {
+      border-radius: 8px;
+    }
+
+    .mat-form-field-outline-thick {
+      border-width: 2px;
+    }
+
+    &.mat-focused {
+      .mat-form-field-outline-thick {
+        border-color: #667eea;
+      }
+
+      .mat-form-field-label {
+        color: #667eea;
+      }
+    }
+  }
+
+  .mat-form-field-label {
+    font-weight: 500;
+  }
+
+  .mat-form-field-suffix mat-icon {
+    color: #6c757d;
+  }
+
+  .mat-hint {
+    font-size: 0.8rem;
+    color: #6c757d;
+  }
+
+  .mat-error {
+    font-size: 0.8rem;
+  }
+}
+
+// ===============================
+// 📁 FILE UPLOAD SECTION
+// ===============================
+.file-upload-section {
+  margin: 1.5rem 0;
+
+  .upload-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #343a40;
+    margin-bottom: 1rem;
+
+    mat-icon {
+      color: #667eea;
+    }
+  }
+
+  .file-upload-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    .upload-button {
+      border: 2px dashed #667eea;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(102, 126, 234, 0.2);
+        border-color: #764ba2;
+        transform: translateY(-2px);
+      }
+
+      mat-icon {
+        margin-right: 0.5rem;
+      }
+    }
+
+    .file-info {
+      color: #28a745;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      background: rgba(40, 167, 69, 0.1);
+      border-radius: 6px;
+      border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+  }
+}
+
+// ===============================
+// �️ IMAGE PREVIEW
+// ===============================
+.image-preview {
+  margin-top: 1.5rem;
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+
+  mat-label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    color: #343a40;
+  }
+
+  .preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 3px solid #e9ecef;
+  }
+}
+
+// ===============================
+// ⚡ ACTION BUTTONS
+// ===============================
+.form-actions {
+  padding: 1.5rem 2rem;
+  background: #f8f9fa;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  .action-button {
+    min-width: 150px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 8px;
+    text-transform: none;
     transition: all 0.3s ease;
 
-    &:hover {
-      background-color: var(--accent-color);
-      color: var(--negro);
+    &[color="primary"] {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      &:disabled {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+      }
     }
-  }
-}
 
-// ===============================
-// 🔙 BOTÓN DE VUELTA AL DASHBOARD
-// ===============================
-.boton-vuelta-container {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 1000;
-  animation: slideInRight 0.6s ease-out;
-}
+    &[color="accent"] {
+      border: 2px solid #17a2b8;
+      color: #17a2b8;
+      background: white;
 
-.boton-vuelta-dashboard {
-  background: linear-gradient(135deg, var(--verde-selva), var(--verde-bosque)) !important;
-  color: var(--blanco) !important;
-  box-shadow: 0 4px 12px rgba(26, 128, 0, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+      &:hover {
+        background: #17a2b8;
+        color: white;
+        transform: translateY(-2px);
+      }
+    }
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-  }
+    &[color="warn"] {
+      border: 2px solid #dc3545;
+      color: #dc3545;
+      background: white;
 
-  &:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(26, 128, 0, 0.4);
-    background: linear-gradient(135deg, var(--verde-lima), var(--verde-selva)) !important;
-
-    &::before {
-      left: 100%;
+      &:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+      }
     }
 
     mat-icon {
-      animation: bounce 0.6s ease-in-out;
+      margin-right: 0.5rem;
     }
   }
 
-  &:active {
-    transform: translateY(0) scale(1.02);
-  }
+  @media (max-width: 768px) {
+    flex-direction: column;
 
-  mat-icon {
-    font-size: 1.5rem;
-    transition: all 0.3s ease;
+    .action-button {
+      width: 100%;
+    }
   }
 }
 
 // ===============================
-// ✨ ANIMACIONES
+// ✨ ANIMATIONS
 // ===============================
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(100px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes bounce {
-  0%, 20%, 60%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-8px);
-  }
-  80% {
-    transform: translateY(-4px);
-  }
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -235,49 +404,80 @@ input[type="file"] {
 }
 
 // ===============================
-// 📱 MEDIA QUERIES
+// 📱 RESPONSIVE DESIGN
 // ===============================
 @media (max-width: 768px) {
-  .card-crear-evento {
-    padding: 1.5rem;
+  .crear-evento-container {
+    padding: 1rem;
   }
 
-  .titulo-creacion {
-    font-size: 2rem;
-  }
-
-  .botones-accion {
+  .header-section {
     flex-direction: column;
-    button {
-      width: 100%;
+    text-align: center;
+    gap: 1rem;
+
+    .header-content .page-title {
+      font-size: 2rem;
+      justify-content: center;
     }
   }
 
-  .contenedor-boton-volver {
-    justify-content: center;
-  }
-
-  .boton-vuelta-container {
-    bottom: 1rem;
-    right: 1rem;
-  }
-
-  .boton-vuelta-dashboard {
-    width: 48px !important;
-    height: 48px !important;
-    
-    mat-icon {
-      font-size: 1.2rem;
+  .form-card {
+    mat-card-content {
+      padding: 1.5rem;
     }
+  }
+
+  .form-section {
+    padding: 1rem;
   }
 }
 
 @media (max-width: 576px) {
-  .titulo-creacion {
-    font-size: 1.7rem;
+  .header-content .page-title {
+    font-size: 1.8rem;
+    
+    .title-icon {
+      font-size: 1.8rem;
+    }
+  }
+
+  .form-actions {
+    padding: 1rem;
   }
 }
 
 // ===============================
-// 🎨 FORMULARIO DE EVENTO DEPORTIVO
+// 🎯 MATERIAL UI CUSTOMIZATIONS
 // ===============================
+.mat-fab.mat-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.mat-raised-button.mat-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: #dee2e6;
+}
+
+.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  color: #667eea;
+}
+
+// ===============================
+// � DYNAMIC SECTIONS VISIBILITY
+// ===============================
+.form-section {
+  transition: all 0.3s ease;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+// Animación suave para secciones que aparecen dinámicamente
+.form-section.ng-enter {
+  animation: slideUp 0.4s ease-out;
+}

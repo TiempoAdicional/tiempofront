@@ -1,0 +1,406 @@
+// ===============================
+// 📰 NOTICIA DETALLE - ESTILOS
+// ===============================
+
+.noticia-detalle-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  background: #f8f9fa;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.loading-container {
+  text-align: center;
+  padding: 4rem 2rem;
+  
+  p {
+    margin-top: 1rem;
+    color: #666;
+    font-size: 1.1rem;
+  }
+}
+
+.header-nav {
+  margin-bottom: 2rem;
+  
+  .back-button {
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+.imagen-destacada {
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+
+  img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+
+    @media (max-width: 768px) {
+      height: 250px;
+    }
+  }
+}
+
+.noticia-card {
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: none;
+
+  .mat-card-header {
+    padding-bottom: 1rem;
+
+    .seccion-chip {
+      background: #e3f2fd;
+      color: #1976d2;
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+
+    .destacada-chip {
+      background: #fff3e0;
+      color: #f57c00;
+      font-weight: 600;
+    }
+  }
+
+  .meta-info {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-size: 0.95rem;
+    color: #666;
+    margin-top: 0.5rem;
+
+    @media (max-width: 768px) {
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+  }
+
+  .resumen {
+    margin-bottom: 1.5rem;
+    
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    mat-divider {
+      margin-top: 1rem;
+    }
+  }
+
+  .contenido-html {
+    margin-top: 1.5rem;
+    line-height: 1.8;
+    font-size: 1rem;
+    color: #333;
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #1976d2;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+
+    blockquote {
+      border-left: 4px solid #1976d2;
+      padding-left: 1rem;
+      margin: 1rem 0;
+      font-style: italic;
+      background: #f5f5f5;
+      padding: 1rem;
+      border-radius: 4px;
+    }
+  }
+}
+
+// ===============================
+// 💬 SECCIÓN DE COMENTARIOS
+// ===============================
+
+.comentarios-section {
+  margin-top: 2rem;
+
+  .comentarios-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: none;
+
+    .mat-card-header {
+      .mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #1976d2;
+        font-size: 1.3rem;
+      }
+    }
+  }
+
+  .nuevo-comentario {
+    margin-bottom: 2rem;
+
+    .comment-field {
+      width: 100%;
+      margin-bottom: 1rem;
+
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+    }
+
+    button {
+      border-radius: 25px;
+      padding: 0.5rem 1.5rem;
+      font-weight: 600;
+    }
+  }
+
+  .comentarios-lista {
+    margin-top: 1.5rem;
+
+    .no-comentarios {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+
+      mat-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+    }
+
+    .comentario-item {
+      border-left: 4px solid #e0e0e0;
+      padding: 1rem 0 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      background: #fafafa;
+      border-radius: 0 8px 8px 0;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-left-color: #1976d2;
+        background: #f5f5f5;
+      }
+
+      &.pendiente {
+        border-left-color: #ff9800;
+        background: #fff8e1;
+      }
+
+      .comentario-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+
+        .autor-info {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .avatar-icon {
+            color: #1976d2;
+          }
+
+          .autor-nombre {
+            font-weight: 600;
+            color: #333;
+          }
+        }
+
+        .fecha-comentario {
+          color: #666;
+          font-size: 0.85rem;
+        }
+      }
+
+      .comentario-contenido {
+        p {
+          margin: 0;
+          line-height: 1.6;
+          color: #333;
+        }
+      }
+
+      .comentario-estado {
+        margin-top: 0.5rem;
+
+        mat-chip {
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+// ===============================
+// 🎯 BANNER DE REGISTRO
+// ===============================
+
+.registro-comentarios {
+  margin-top: 2rem;
+
+  .banner-card {
+    background: linear-gradient(135deg, #1976d2, #42a5f5);
+    color: white;
+    border-radius: 16px;
+    text-align: center;
+
+    mat-card-content {
+      padding: 2rem;
+
+      mat-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+      }
+
+      h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.4rem;
+      }
+
+      p {
+        margin-bottom: 1.5rem;
+        opacity: 0.9;
+      }
+
+      button {
+        background: white;
+        color: #1976d2;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+
+        &:hover {
+          background: #f5f5f5;
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+}
+
+// ===============================
+// ⚠️ CONTENEDOR DE ERROR
+// ===============================
+
+.error-container {
+  text-align: center;
+  padding: 4rem 2rem;
+
+  .error-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    max-width: 500px;
+    margin: 0 auto;
+
+    mat-card-content {
+      padding: 2rem;
+
+      .error-icon {
+        font-size: 4rem;
+        color: #f44336;
+        margin-bottom: 1rem;
+      }
+
+      h2 {
+        color: #333;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        color: #666;
+        margin-bottom: 2rem;
+      }
+
+      button {
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// ===============================
+// 📱 RESPONSIVE ADJUSTMENTS
+// ===============================
+
+@media (max-width: 768px) {
+  .meta-info {
+    flex-direction: column;
+    gap: 0.5rem !important;
+    align-items: flex-start;
+  }
+
+  .comentario-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+
+  .nuevo-comentario button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .noticia-detalle-container {
+    padding: 0.5rem;
+  }
+
+  .header-nav .back-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .registro-comentarios .banner-card mat-card-content {
+    padding: 1.5rem;
+  }
+}

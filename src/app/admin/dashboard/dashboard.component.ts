@@ -18,7 +18,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { AuthService } from '../../auth/services/auth.service';
 import { NoticiasService } from '../../core/services/noticias.service';
 import { EventosService } from '../../core/services/eventos.service';
-import { DataService } from '../../core/services/data.service';
 import { EstadisticasService } from '../../core/services/estadisticas.service';
 
 interface EstadisticasDashboard {
@@ -131,7 +130,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private noticiasService: NoticiasService,
     private eventosService: EventosService,
-    private dataService: DataService,
     private estadisticasService: EstadisticasService
   ) {}
 
@@ -218,8 +216,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   cerrarSesion(): void {
     try {
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('token');
+      // Usar el método del AuthService para limpiar correctamente la sesión
+      this.authService.logout();
       this.router.navigate(['/auth/login']);
     } catch (error: any) {
       console.error('Error al cerrar sesión:', error);

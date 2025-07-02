@@ -56,7 +56,57 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onSubNavClick(item: string, event: Event): void {
     event.preventDefault();
-    console.log(`Sub navigation clicked: ${item}`);
+    this.activeDropdown = null;
+    this.closeMobileMenu();
+    
+    // Navegación específica para cada sección
+    switch (item) {
+      case 'noticias':
+      case 'todas-noticias':
+      case 'ultimas-noticias':
+        this.router.navigate(['/usuarios/dashboard'], { fragment: 'noticias' });
+        break;
+      case 'eventos':
+      case 'proximos-eventos':
+      case 'calendario':
+        this.router.navigate(['/usuarios/dashboard'], { fragment: 'eventos' });
+        break;
+      case 'partidos':
+      case 'resultados':
+      case 'fixtures':
+        this.router.navigate(['/usuarios/dashboard'], { fragment: 'partidos' });
+        break;
+      case 'liga-colombiana':
+      case 'torneo':
+        this.router.navigate(['/usuarios/dashboard'], { fragment: 'liga' });
+        break;
+      default:
+        console.log(`Sub navigation clicked: ${item}`);
+        break;
+    }
+  }
+
+  // Métodos específicos para navegación de usuarios
+  irANoticias(): void {
+    this.router.navigate(['/usuarios/dashboard'], { fragment: 'noticias' });
+    this.activeDropdown = null;
+    this.closeMobileMenu();
+  }
+
+  irAEventos(): void {
+    this.router.navigate(['/usuarios/dashboard'], { fragment: 'eventos' });
+    this.activeDropdown = null;
+    this.closeMobileMenu();
+  }
+
+  irAPartidos(): void {
+    this.router.navigate(['/usuarios/dashboard'], { fragment: 'partidos' });
+    this.activeDropdown = null;
+    this.closeMobileMenu();
+  }
+
+  irALigaColombiana(): void {
+    this.router.navigate(['/usuarios/dashboard'], { fragment: 'liga' });
     this.activeDropdown = null;
     this.closeMobileMenu();
   }

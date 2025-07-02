@@ -82,6 +82,46 @@ export class EventosService {
       );
   }
 
+  // === MÉTODOS PARA CONTENIDO PÚBLICO ===
+  
+  /**
+   * Obtiene eventos públicos limitados sin requerir autenticación
+   * Usa el endpoint específico /public/eventos/limitados configurado en el backend
+   */
+  listarEventosPublicos(limite: number = 8): Observable<Evento[]> {
+    const params = new HttpParams().set('limite', limite.toString());
+    
+    // Usar endpoint público específico según documentación del backend
+    const publicUrl = `${environment.apiBaseUrl}/public/eventos/limitados`;
+    
+    return this.http.get<Evento[]>(publicUrl, { params })
+      .pipe(
+        tap(eventos => {
+          console.log('📅 Eventos públicos obtenidos desde /public/eventos/limitados:', eventos);
+          this.eventosSubject.next(eventos);
+        }),
+        catchError(error => {
+          console.error('❌ Error al obtener eventos públicos:', error);
+          // Si falla el endpoint específico, intentar con el endpoint general para compatibilidad
+          return this.listarTodosSinAuth();
+        })
+      );
+  }
+
+  /**
+   * Intenta obtener eventos sin autenticación del endpoint general
+   */
+  private listarTodosSinAuth(): Observable<Evento[]> {
+    return this.http.get<Evento[]>(this.apiUrl)
+      .pipe(
+        tap(eventos => {
+          console.log('📅 Eventos sin auth obtenidos:', eventos);
+          this.eventosSubject.next(eventos);
+        }),
+        catchError(this.handleError<Evento[]>('listarTodosSinAuth', []))
+      );
+  }
+
   // === MÉTODOS AUXILIARES ===
 
   private actualizarCacheEvento(evento: Evento): void {

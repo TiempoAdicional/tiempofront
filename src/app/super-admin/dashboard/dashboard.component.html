@@ -1,0 +1,278 @@
+<div class="super-admin-container">
+  <!-- ===============================
+       🎨 HEADER DEL SUPER ADMIN
+       =============================== -->
+  <mat-toolbar class="super-admin-header" color="primary">
+    <mat-toolbar-row>
+      <span class="admin-title">
+        <mat-icon class="title-icon">security</mat-icon>
+        Super Administrador
+      </span>
+
+      <span class="spacer"></span>
+
+      <div class="user-info">
+        <mat-chip-set>
+          <mat-chip highlighted>
+            <mat-icon matChipAvatar>shield</mat-icon>
+            {{ nombreSuperAdmin }}
+          </mat-chip>
+        </mat-chip-set>
+
+        <button mat-icon-button matTooltip="Cerrar sesión" (click)="cerrarSesion()" class="logout-button">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <!-- ===============================
+       📊 ESTADÍSTICAS RÁPIDAS
+       =============================== -->
+  <div class="dashboard-content">
+    <div class="stats-section" *ngIf="estadisticas">
+      <h2 class="section-title">
+        <mat-icon>analytics</mat-icon>
+        Estadísticas del Sistema
+        <button mat-icon-button matTooltip="Refrescar" (click)="refrescarEstadisticas()"
+          [disabled]="cargandoEstadisticas">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </h2>
+
+      <div class="stats-grid">
+        <!-- Total de usuarios -->
+        <mat-card class="stat-card total-users">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ estadisticas.totalUsuarios }}</div>
+              <div class="stat-label">Total Usuarios</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Editores -->
+        <mat-card class="stat-card editors">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>edit</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ estadisticas.editores }}</div>
+              <div class="stat-label">Editores</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Administradores -->
+        <mat-card class="stat-card admins">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>admin_panel_settings</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ estadisticas.administradores }}</div>
+              <div class="stat-label">Administradores</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Super Admins -->
+        <mat-card class="stat-card super-admins">
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>security</mat-icon>
+            </div>
+            <div class="stat-info">
+              <div class="stat-number">{{ estadisticas.superAdmins }}</div>
+              <div class="stat-label">Super Admins</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Loading de estadísticas -->
+    <div *ngIf="cargandoEstadisticas" class="loading-section">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Cargando estadísticas...</p>
+    </div>
+
+    <!-- ===============================
+         🔍 BÚSQUEDA Y GESTIÓN DE USUARIOS
+         =============================== -->
+    <div class="management-section">
+      <mat-card class="search-card" elevation="3">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>search</mat-icon>
+            Gestión de Usuarios
+          </mat-card-title>
+          <mat-card-subtitle>
+            Busque usuarios por correo y gestione sus roles
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="searchForm" (ngSubmit)="buscarUsuario()" class="search-form">
+            <!-- Campo de búsqueda por correo -->
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Correo electrónico del usuario</mat-label>
+              <input matInput formControlName="correo" placeholder="usuario@ejemplo.com" type="email"
+                autocomplete="email">
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-hint>La búsqueda es automática mientras escribe</mat-hint>
+              <mat-error *ngIf="correoControl?.invalid && correoControl?.touched">
+                <span *ngIf="correoControl?.errors?.['required']">El correo es obligatorio</span>
+                <span *ngIf="correoControl?.errors?.['email']">Formato de correo inválido</span>
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Indicador de búsqueda -->
+            <div class="search-indicator" *ngIf="buscandoUsuario">
+              <mat-spinner diameter="24"></mat-spinner>
+              <span>Buscando...</span>
+            </div>
+
+            <!-- Botón de búsqueda manual -->
+            <button mat-raised-button color="primary" type="submit" [disabled]="searchForm.invalid || buscandoUsuario"
+              class="search-button">
+              <mat-icon>search</mat-icon>
+              Buscar Usuario
+            </button>
+          </form>
+
+          <!-- ===============================
+               👤 USUARIO ENCONTRADO
+               =============================== -->
+          <div class="user-result" *ngIf="usuarioEncontrado">
+            <mat-divider></mat-divider>
+
+            <div class="user-card">
+              <div class="user-info">
+                <div class="user-avatar">
+                  <mat-icon [style.color]="obtenerColorRol(usuarioEncontrado.rol)">
+                    {{ obtenerIconoRol(usuarioEncontrado.rol) }}
+                  </mat-icon>
+                </div>
+
+                <div class="user-details">
+                  <h3 class="user-name">{{ usuarioEncontrado.nombre }}</h3>
+                  <p class="user-email">{{ usuarioEncontrado.correo }}</p>
+
+                  <div class="user-meta">
+                    <mat-chip [style.background-color]="obtenerColorRol(usuarioEncontrado.rol)" [style.color]="'white'">
+                      <mat-icon matChipAvatar>{{ obtenerIconoRol(usuarioEncontrado.rol) }}</mat-icon>
+                      {{ obtenerLabelRol(usuarioEncontrado.rol) }}
+                    </mat-chip>
+
+                    <span class="user-id">ID: {{ usuarioEncontrado.id }}</span>
+                    <span class="user-date" *ngIf="usuarioEncontrado.fechaCreacion">
+                      Registro: {{ formatearFecha(usuarioEncontrado.fechaCreacion) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ===============================
+                   ⚙️ CAMBIO DE ROL
+                   =============================== -->
+              <div class="role-management">
+                <mat-form-field appearance="outline" class="role-select">
+                  <mat-label>Nuevo Rol</mat-label>
+                  <mat-select [value]="searchForm.get('nuevoRol')?.value" 
+                              (selectionChange)="searchForm.get('nuevoRol')?.setValue($event.value)">
+                    <mat-option *ngFor="let rol of rolesDisponiblesParaCambio" [value]="rol.value"
+                      [style.color]="rol.color">
+                      <div class="role-option">
+                        <mat-icon [style.color]="rol.color">{{ rol.icon }}</mat-icon>
+                        <div class="role-info">
+                          <span class="role-label">{{ rol.label }}</span>
+                          <small class="role-description">{{ rol.descripcion }}</small>
+                        </div>
+                      </div>
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint>Seleccione el nuevo rol para el usuario</mat-hint>
+                </mat-form-field>
+
+                <button mat-raised-button color="accent" [disabled]="!puedeRealizarCambio" (click)="cambiarRolUsuario()"
+                  class="change-role-button">
+                  <mat-icon *ngIf="!cambiandoRol">save</mat-icon>
+                  <mat-spinner *ngIf="cambiandoRol" diameter="20"></mat-spinner>
+                  <span *ngIf="!cambiandoRol">Cambiar Rol</span>
+                  <span *ngIf="cambiandoRol">Cambiando...</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===============================
+               📝 BÚSQUEDAS RECIENTES
+               =============================== -->
+          <div class="recent-searches" *ngIf="usuariosBusqueda.length > 0">
+            <mat-divider></mat-divider>
+
+            <h4 class="recent-title">
+              <mat-icon>history</mat-icon>
+              Búsquedas Recientes
+            </h4>
+
+            <div class="recent-users">
+              <button mat-stroked-button *ngFor="let usuario of usuariosBusqueda"
+                (click)="seleccionarUsuarioBusqueda(usuario)" class="recent-user-button">
+                <mat-icon [style.color]="obtenerColorRol(usuario.rol)">
+                  {{ obtenerIconoRol(usuario.rol) }}
+                </mat-icon>
+                <span class="recent-user-name">{{ usuario.nombre }}</span>
+                <small class="recent-user-email">{{ usuario.correo }}</small>
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions class="card-actions">
+          <button mat-outlined-button color="warn" (click)="limpiarBusqueda()"
+            [disabled]="buscandoUsuario || cambiandoRol">
+            <mat-icon>clear</mat-icon>
+            Limpiar
+          </button>
+
+          <span class="spacer"></span>
+
+          <small class="help-text">
+            <mat-icon>info</mat-icon>
+            Escriba un correo para buscar automáticamente
+          </small>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+
+    <!-- ===============================
+         ⚠️ MENSAJE DE ADVERTENCIA
+         =============================== -->
+    <mat-card class="warning-card" elevation="2">
+      <mat-card-content>
+        <div class="warning-content">
+          <mat-icon class="warning-icon">warning</mat-icon>
+          <div class="warning-text">
+            <h4>Advertencia de Seguridad</h4>
+            <p>
+              Como Super Administrador, tiene control total sobre el sistema.
+              Los cambios de rol son <strong>inmediatos</strong> y pueden afectar
+              el acceso de los usuarios al sistema.
+            </p>
+            <ul>
+              <li><strong>EDITOR:</strong> Solo puede crear y editar contenido</li>
+              <li><strong>ADMIN:</strong> Gestión completa del sistema de noticias</li>
+              <li><strong>SUPER_ADMIN:</strong> Control total incluyendo gestión de usuarios</li>
+            </ul>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

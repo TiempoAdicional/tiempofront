@@ -10,7 +10,8 @@ export const authGuard: CanActivateFn = () => {
   if (auth.estaAutenticado()) {
     return true;
   } else {
-    router.navigate(['/register']);
+    // Redirigir a página de acceso no autorizado
+    router.navigate(['/unauthorized']);
     return false;
   }
 };

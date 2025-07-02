@@ -402,7 +402,7 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
     console.log('🔄 Cargando noticia ID:', this.noticiaId);
     
     // 🔥 ACTUALIZADO: Usar método robusto para evitar errores SQL
-    this.noticiasService.obtenerPorIdRobusto(this.noticiaId)
+    this.noticiasService.obtenerPorId(this.noticiaId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (noticia) => {
@@ -939,13 +939,13 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
     this.noticiasService.cambiarEstadoPublicacion(this.noticia.id, nuevoEstado)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (noticia) => {
+        next: (noticia: Noticia) => {
           this.noticia = noticia;
           this.configuracionForm.patchValue({ esPublica: nuevoEstado });
           const mensaje = nuevoEstado ? 'Noticia publicada' : 'Noticia movida a borradores';
           this.mostrarExito(mensaje);
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error al cambiar estado:', error);
           this.mostrarError('Error al cambiar el estado de publicación');
         }

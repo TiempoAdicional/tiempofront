@@ -422,7 +422,7 @@ export class CrearNoticiaComponent implements OnInit, OnDestroy {
     };
 
     this.noticiasService.autoguardarModerno(autoguardadoRequest).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         console.log('✅ Autoguardado completado:', response);
         
         // Actualizar controles de autoguardado
@@ -433,7 +433,7 @@ export class CrearNoticiaComponent implements OnInit, OnDestroy {
         this.mostrarInfo('📄 Borrador guardado automáticamente');
         this.guardandoBorrador = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('❌ Error en autoguardado:', err);
         this.guardandoBorrador = false;
         // No mostrar error al usuario para autoguardado fallido
@@ -590,11 +590,11 @@ export class CrearNoticiaComponent implements OnInit, OnDestroy {
     };
 
     this.noticiasService.autoguardarModerno(autoguardadoRequest).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.mostrarExito('Borrador guardado automáticamente');
         this.guardandoBorrador = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al guardar borrador:', err);
         this.guardandoBorrador = false;
       }
@@ -677,7 +677,7 @@ export class CrearNoticiaComponent implements OnInit, OnDestroy {
 
     console.log('📤 Enviando noticia al backend:', { ...payload, imagen: payload.imagen ? 'FILE_SELECTED' : 'NO_IMAGE' });
 
-    this.noticiasService.crearNoticiaModerno(payload, autorId).subscribe({
+    this.noticiasService.crearNoticia(payload, autorId).subscribe({
       next: (response) => {
         console.log('✅ Noticia creada exitosamente:', response);
         this.mostrarExito('Noticia publicada exitosamente');
@@ -759,7 +759,7 @@ export class CrearNoticiaComponent implements OnInit, OnDestroy {
 
     console.log('📄 Guardando borrador:', { ...payload, imagen: payload.imagen ? 'FILE_SELECTED' : 'NO_IMAGE' });
 
-    this.noticiasService.crearNoticiaModerno(payload, autorId).subscribe({
+    this.noticiasService.crearNoticia(payload, autorId).subscribe({
       next: (response) => {
         console.log('✅ Borrador guardado exitosamente:', response);
         this.mostrarExito('Noticia guardada como borrador');

@@ -32,20 +32,20 @@ export class DataService {
   obtenerNoticias(limite?: number): Observable<Noticia[]> {
     return this.getCachedData('noticias', () => 
       limite 
-        ? this.noticiasService.obtenerRecientes(limite)
+        ? this.noticiasService.listarNoticiasPublicas(limite)
         : this.noticiasService.listarTodas().pipe(map(response => response.noticias))
     );
   }
 
   obtenerNoticiasPublicas(limite?: number): Observable<Noticia[]> {
-    return this.getCachedData(`noticias-publicas-${limite}`, () => 
-      this.noticiasService.obtenerPublicas(limite)
+    return this.getCachedData(`noticias-publicas-${limite || 10}`, () => 
+      this.noticiasService.listarNoticiasPublicas(limite || 10)
     );
   }
 
-  obtenerNoticiasDestacadas(limite?: number): Observable<Noticia[]> {
-    return this.getCachedData(`noticias-destacadas-${limite}`, () => 
-      this.noticiasService.obtenerDestacadas(limite)
+  obtenerNoticiasDestacadas(): Observable<Noticia[]> {
+    return this.getCachedData('noticias-destacadas', () => 
+      this.noticiasService.obtenerDestacadas()
     );
   }
 
@@ -96,7 +96,7 @@ export class DataService {
             totalNoticias: statsNoticias?.totalNoticias || 0,
             totalEventos: todosEventos?.length || 0,
             totalSecciones: secciones?.length || 0,
-            noticiasRecientes: statsNoticias?.noticiasRecientes || 0,
+            noticiasRecientes: statsNoticias?.ultimosDias || 0,
             eventosProximos: eventosProximos?.length || 0,
             fechaActualizacion: new Date()
           };
@@ -131,18 +131,23 @@ export class DataService {
     return this.obtenerEstadisticasCompletas();
   }
 
-  // === BÚSQUEDAS OPTIMIZADAS ===
+  // === BÚSQUEDAS SIMPLIFICADAS ===
 
-  buscarNoticias(termino: string): Observable<Noticia[]> {
-    return this.noticiasService.buscarPorTitulo(termino);
+  /**
+   * Busca noticias por término - delegado al componente para filtrado local
+   * El backend optimizado ya provee paginación y filtros robustos
+   */
+  obtenerTodasLasNoticias(): Observable<Noticia[]> {
+    return this.noticiasService.listarTodas().pipe(
+      map(response => response.noticias)
+    );
   }
 
-  buscarPorTags(tags: string[]): Observable<Noticia[]> {
-    return this.noticiasService.buscarPorTags(tags);
-  }
-
-  obtenerNoticiasPorSeccion(seccionId: number): Observable<Noticia[]> {
-    return this.noticiasService.obtenerPorSeccion(seccionId);
+  /**
+   * Obtiene noticias por autor específico
+   */
+  obtenerNoticiasPorAutor(autorId: number): Observable<Noticia[]> {
+    return this.noticiasService.obtenerPorAutor(autorId);
   }
 
   // === GESTIÓN DE CACHE ===

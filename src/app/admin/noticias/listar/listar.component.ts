@@ -138,8 +138,8 @@ export class ListarComponent implements OnInit, AfterViewInit {
     this.cargando = true;
     this.error = null;
 
-    // Intentar con el método robusto primero
-    this.noticiasService.listarPorAutorRobusto(autorId).subscribe({
+    // Usar el método actualizado
+    this.noticiasService.obtenerPorAutor(autorId).subscribe({
       next: (noticias) => {
         console.log('✅ Noticias cargadas exitosamente:', noticias.length);
         this.dataSource.data = noticias;
@@ -147,7 +147,7 @@ export class ListarComponent implements OnInit, AfterViewInit {
         this.cargando = false;
       },
       error: (err) => {
-        console.error('❌ Error al listar noticias con método robusto:', err);
+        console.error('❌ Error al listar noticias del autor:', err);
         
         // Fallback: intentar listar todas las noticias y filtrar por autor
         this.intentarFallbackListarTodas(autorId);
@@ -162,8 +162,8 @@ export class ListarComponent implements OnInit, AfterViewInit {
     this.noticiasService.obtenerEstadisticas().subscribe({
       next: (stats) => {
         this.totalNoticias = stats.totalNoticias;
-        this.noticiasPublicas = stats.noticiasPublicas;
-        this.visitasTotales = stats.visitasTotales;
+        this.noticiasPublicas = stats.publicadas || stats.noticiasPublicas || 0;
+        this.visitasTotales = stats.visitasTotales || 0;
       },
       error: (err) => console.error('Error al cargar estadísticas:', err)
     });
@@ -289,12 +289,12 @@ export class ListarComponent implements OnInit, AfterViewInit {
   togglePublicacion(noticia: Noticia): void {
     const nuevoEstado = !noticia.esPublica;
     this.noticiasService.cambiarEstadoPublicacion(noticia.id, nuevoEstado).subscribe({
-      next: (noticiaActualizada) => {
+      next: (noticiaActualizada: Noticia) => {
         noticia.esPublica = nuevoEstado;
         this.mostrarExito(`Noticia ${nuevoEstado ? 'publicada' : 'despublicada'} correctamente`);
         this.calcularEstadisticas(this.dataSource.data);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.mostrarError('Error al cambiar estado de publicación');
       }
     });
@@ -308,11 +308,11 @@ export class ListarComponent implements OnInit, AfterViewInit {
     const nuevoEstado = !noticia.destacada;
     
     this.noticiasService.cambiarDestacada(noticia.id, autorId, nuevoEstado).subscribe({
-      next: (noticiaActualizada) => {
+      next: (noticiaActualizada: Noticia) => {
         noticia.destacada = nuevoEstado;
         this.mostrarExito(`Noticia ${nuevoEstado ? 'marcada como destacada' : 'desmarcada'}`);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.mostrarError('Error al cambiar estado destacado');
       }
     });
@@ -492,8 +492,9 @@ export class ListarComponent implements OnInit, AfterViewInit {
   private intentarFallbackListarTodas(autorId: number): void {
     console.log('🔄 Intentando fallback: listar todas las noticias...');
     
-    this.noticiasService.listarTodasRobusto().subscribe({
-      next: (todasLasNoticias: Noticia[]) => {
+    this.noticiasService.listarTodas().subscribe({
+      next: (response) => {
+        const todasLasNoticias = response.noticias || response || [];
         // Filtrar solo las noticias del autor actual
         const noticiasFiltradas = todasLasNoticias.filter((n: Noticia) => n.autorId === autorId);
         console.log(`✅ Fallback exitoso: ${noticiasFiltradas.length} noticias del autor`);
