@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
 
 @Injectable({
@@ -12,32 +12,40 @@ export class UsuarioGuard implements CanActivate {
     private router: Router
   ) {}
 
-  canActivate(): boolean {
-    // Permitir acceso si el usuario está autenticado Y es USUARIO
-    // También permitir acceso público (sin autenticación) con restricciones
-    if (this.authService.estaAutenticado() && this.authService.esUsuario()) {
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    const isAuthenticated = this.authService.estaAutenticado();
+    const isUser = this.authService.esUsuario();
+    const isAdmin = this.authService.esAdmin();
+    const isSuperAdmin = this.authService.esSuperAdmin();
+
+    console.log('UsuarioGuard: Checking access', {
+      isAuthenticated,
+      isUser,
+      isAdmin,
+      isSuperAdmin,
+      url: state.url
+    });
+
+    // If user is authenticated and has USER role, allow access
+    if (isAuthenticated && isUser) {
       return true;
     }
-    
-    // Si no está autenticado, permitir acceso pero con restricciones
-    if (!this.authService.estaAutenticado()) {
-      return true; // Acceso público limitado
-    }
-    
-    // Si está autenticado pero no es USUARIO (es ADMIN o SUPER_ADMIN)
-    // Redirigir a su dashboard correspondiente
-    if (this.authService.esAdmin()) {
+
+    // If user is authenticated but has different role, redirect to appropriate dashboard
+    if (isAuthenticated && isAdmin) {
+      console.log('UsuarioGuard: Redirecting admin to admin dashboard');
       this.router.navigate(['/admin']);
       return false;
     }
     
-    if (this.authService.esSuperAdmin()) {
+    if (isAuthenticated && isSuperAdmin) {
+      console.log('UsuarioGuard: Redirecting super admin to super admin dashboard');
       this.router.navigate(['/super-admin']);
       return false;
     }
 
-    // Si no es ningún rol válido, mostrar página de no autorizado
-    this.router.navigate(['/unauthorized']);
-    return false;
+    // Allow access to authenticated users with valid roles and non-authenticated users
+    // (The component will handle displaying appropriate content for each case)
+    return true;
   }
 }

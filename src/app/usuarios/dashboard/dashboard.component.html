@@ -23,36 +23,6 @@
       </mat-card-content>
     </mat-card>
   </div>
-  
-  <!-- ===============================
-       🎨 HEADER DEL USUARIO
-       =============================== -->
-  <mat-toolbar class="usuario-header" color="primary" *ngIf="estaAutenticado">
-    <mat-toolbar-row>
-      <span class="usuario-title">
-        <mat-icon class="title-icon">sports</mat-icon>
-        Tiempo Adicional
-      </span>
-      
-      <span class="spacer"></span>
-      
-      <div class="user-info">
-        <mat-chip-set>
-          <mat-chip highlighted>
-            <mat-icon matChipAvatar>person</mat-icon>
-            {{ nombreUsuario }}
-          </mat-chip>
-        </mat-chip-set>
-        
-        <button mat-icon-button 
-                matTooltip="Cerrar sesión" 
-                (click)="cerrarSesion()" 
-                class="logout-button">
-          <mat-icon>logout</mat-icon>
-        </button>
-      </div>
-    </mat-toolbar-row>
-  </mat-toolbar>
 
   <!-- ===============================
        📰 HERO SECTION - NOTICIA DESTACADA
@@ -72,6 +42,10 @@
         
         <div class="hero-meta">
           <span class="fecha">{{ noticiaDestacada.fechaPublicacion | date:'dd MMM yyyy' }}</span>
+          <span class="autor-destacado" *ngIf="noticiaDestacada.autorNombre">
+            <mat-icon>person</mat-icon>
+            Por {{ noticiaDestacada.autorNombre }}
+          </span>
           <button mat-raised-button 
                   color="accent" 
                   (click)="verNoticia(noticiaDestacada)"
@@ -139,6 +113,7 @@
             <p class="noticia-resumen">{{ noticia.resumen }}</p>
             <div class="noticia-meta">
               <span class="fecha-mini">{{ noticia.fechaPublicacion | date:'dd/MM' }}</span>
+              <span class="autor-mini" *ngIf="noticia.autorNombre">Por {{ noticia.autorNombre }}</span>
               <mat-icon class="read-icon">chevron_right</mat-icon>
             </div>
           </mat-card-content>
@@ -204,6 +179,10 @@
                 <p class="evento-ubicacion">
                   <mat-icon>location_on</mat-icon>
                   {{ evento.ubicacion }}
+                </p>
+                <p class="evento-autor" *ngIf="evento.autorNombre">
+                  <mat-icon>person</mat-icon>
+                  Por {{ evento.autorNombre }}
                 </p>
               </div>
               

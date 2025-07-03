@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Servicios
 import { EventosService, Evento } from '../../core/services/eventos.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 @Component({
   selector: 'app-evento-detalle',
@@ -35,15 +36,18 @@ export class EventoDetalleComponent implements OnInit, OnDestroy {
   
   evento: Evento | null = null;
   cargando = true;
+  estaAutenticado = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private eventosService: EventosService,
+    private authService: AuthService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
+    this.estaAutenticado = this.authService.estaAutenticado();
     this.cargarEvento();
   }
 
@@ -59,17 +63,48 @@ export class EventoDetalleComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.eventosService.obtenerPorId(Number(id))
+    // Usar método según estado de autenticación
+    const observable = this.estaAutenticado 
+      ? this.eventosService.obtenerPorId(Number(id))
+      : this.eventosService.obtenerDetallePublico(Number(id));
+
+    observable
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (evento) => {
           this.evento = evento;
           this.cargando = false;
+          
+          // Si el evento requiere registro, mostrar mensaje
+          if (evento.requiereRegistro) {
+            this.snackBar.open(
+              'Regístrate para acceder a los detalles completos', 
+              'Registrarse',
+              { 
+                duration: 0, // No desaparece automáticamente
+                horizontalPosition: 'center',
+                verticalPosition: 'top'
+              }
+            ).onAction().subscribe(() => {
+              this.router.navigate(['/register']);
+            });
+          }
         },
         error: (error) => {
           console.error('Error al cargar evento:', error);
           this.cargando = false;
-          this.snackBar.open('Error al cargar el evento', 'Cerrar', { duration: 3000 });
+          
+          // Mensaje específico para usuarios no autenticados
+          const mensaje = !this.estaAutenticado 
+            ? 'Regístrate para acceder al contenido completo'
+            : 'Error al cargar el evento';
+            
+          this.snackBar.open(mensaje, 'Cerrar', { duration: 5000 });
+          
+          // Redirigir al dashboard si hay error
+          setTimeout(() => {
+            this.router.navigate(['/usuarios']);
+          }, 2000);
         }
       });
   }

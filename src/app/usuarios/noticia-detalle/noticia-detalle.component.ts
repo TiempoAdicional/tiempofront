@@ -16,8 +16,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Servicios
-import { NoticiasService, Noticia, Comentario } from '../../core/services/noticias.service';
+import { NoticiasService, Noticia } from '../../core/services/noticias.service';
+import { ComentariosService, ComentarioDTO } from '../../core/services/comentarios.service';
 import { AuthService } from '../../auth/services/auth.service';
+
+// Componentes
+import { ComentariosComponent } from '../../shared/comentarios/comentarios.component';
 
 @Component({
   selector: 'app-noticia-detalle',
@@ -34,7 +38,8 @@ import { AuthService } from '../../auth/services/auth.service';
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    ComentariosComponent
   ],
   templateUrl: './noticia-detalle.component.html',
   styleUrls: ['./noticia-detalle.component.scss']
@@ -43,7 +48,7 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   
   noticia: Noticia | null = null;
-  comentarios: Comentario[] = [];
+  comentarios: ComentarioDTO[] = [];
   cargando = true;
   estaAutenticado = false;
   nuevoComentario = '';
@@ -52,6 +57,7 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private noticiasService: NoticiasService,
+    private comentariosService: ComentariosService,
     private authService: AuthService,
     private snackBar: MatSnackBar
   ) {}
@@ -73,22 +79,81 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.noticiasService.verDetalleConComentarios(Number(id))
+    // Usar método según estado de autenticación
+    const observable = this.estaAutenticado 
+      ? this.noticiasService.verDetalleConComentarios(Number(id))
+      : this.noticiasService.obtenerDetallePublico(Number(id));
+
+    observable
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (detalle) => {
-          this.noticia = detalle.noticia;
-          if (this.estaAutenticado && detalle.comentarios) {
-            this.comentarios = detalle.comentarios;
+        next: (response) => {
+          console.log('📰 Respuesta del servicio:', response);
+          
+          // Handle different response formats
+          let noticia;
+          let comentarios = [];
+          
+          // Check if response has detalle.noticia structure (authenticated) or is direct noticia (public)
+          if (response && response.noticia) {
+            // Authenticated user response: { noticia: {...}, comentarios: [...] }
+            noticia = response.noticia;
+            comentarios = response.comentarios || [];
+          } else if (response && (response.id || response.titulo)) {
+            // Public user response: direct noticia object
+            noticia = response;
+            comentarios = [];
           } else {
-            this.cargarComentarios(); // Usa los comentarios simulados si no hay
+            console.error('❌ Error: formato de respuesta inválido:', response);
+            this.cargando = false;
+            this.snackBar.open('No se pudo cargar la noticia', 'Cerrar', { duration: 5000 });
+            setTimeout(() => {
+              this.router.navigate(['/usuarios']);
+            }, 2000);
+            return;
           }
+          
+          this.noticia = noticia;
+          
+          // Solo mostrar comentarios aprobados para usuarios no-admin
+          if (this.estaAutenticado && comentarios.length > 0) {
+            this.comentarios = comentarios.filter((c: any) => c.aprobado === true);
+          } else {
+            this.comentarios = []; // No mostrar comentarios para usuarios no autenticados
+          }
+          
           this.cargando = false;
+          
+          // Si la noticia requiere registro, mostrar mensaje
+          if (noticia && noticia.requiereRegistro) {
+            this.snackBar.open(
+              'Regístrate para acceder al contenido completo', 
+              'Registrarse',
+              { 
+                duration: 0, // No desaparece automáticamente
+                horizontalPosition: 'center',
+                verticalPosition: 'top'
+              }
+            ).onAction().subscribe(() => {
+              this.router.navigate(['/register']);
+            });
+          }
         },
         error: (error) => {
           console.error('Error al cargar noticia:', error);
           this.cargando = false;
-          this.snackBar.open('Error al cargar la noticia', 'Cerrar', { duration: 3000 });
+          
+          // Mensaje específico para usuarios no autenticados
+          const mensaje = !this.estaAutenticado 
+            ? 'Regístrate para acceder al contenido completo'
+            : 'Error al cargar la noticia';
+            
+          this.snackBar.open(mensaje, 'Cerrar', { duration: 5000 });
+          
+          // Redirigir al dashboard si hay error
+          setTimeout(() => {
+            this.router.navigate(['/usuarios']);
+          }, 2000);
         }
       });
   }
@@ -96,46 +161,43 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
   private cargarComentarios(): void {
     if (!this.noticia || !this.estaAutenticado) return;
 
-    // Simular comentarios para demostración (en el futuro vendrían del servicio)
-    this.comentarios = [
-      {
-        id: 1,
-        autor: 'Carlos Rodríguez',
-        mensaje: '¡Excelente análisis! Muy detallado.',
-        fecha: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // hace 2 horas
-        aprobado: true
-      },
-      {
-        id: 2,
-        autor: 'María González',
-        mensaje: 'Totalmente de acuerdo con el artículo.',
-        fecha: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // hace 4 horas
-        aprobado: true
-      }
-    ];
+    // Los comentarios ya se cargan con la noticia en cargarNoticia()
+    // Si necesitas recargarlos por separado, aquí llamarías al servicio
+    console.log('ℹ️ Los comentarios se cargan automáticamente con la noticia');
   }
 
   enviarComentario(): void {
     if (!this.nuevoComentario.trim() || !this.noticia) return;
 
-    // Crear el nuevo comentario
-    const comentario: Comentario = {
-      id: Date.now(), // ID temporal
+    const nuevoComentario = {
       autor: this.authService.obtenerNombreUsuario() || 'Usuario',
-      mensaje: this.nuevoComentario.trim(),
-      fecha: new Date().toISOString(),
-      aprobado: false // Los comentarios nuevos requieren moderación
+      mensaje: this.nuevoComentario.trim()
     };
 
-    // Agregar el comentario al inicio de la lista
-    this.comentarios.unshift(comentario);
-
-    // Aquí enviarías el comentario al servicio
-    // Por ahora simulamos el proceso
-    this.snackBar.open('Comentario enviado. Será revisado antes de publicarse.', 'Cerrar', { 
-      duration: 3000 
-    });
-    this.nuevoComentario = '';
+    // Usar el servicio real de comentarios
+    this.comentariosService.crearComentario(this.noticia.id, nuevoComentario)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.comentarios.unshift(response.data);
+            this.snackBar.open('Comentario enviado y pendiente de aprobación', 'Cerrar', { 
+              duration: 4000 
+            });
+            this.nuevoComentario = '';
+          } else {
+            this.snackBar.open(response.message || 'Error al enviar comentario', 'Cerrar', { 
+              duration: 3000 
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Error al enviar comentario:', error);
+          this.snackBar.open('Error al enviar comentario. Inténtalo de nuevo.', 'Cerrar', { 
+            duration: 5000 
+          });
+        }
+      });
   }
 
   volverAlDashboard(): void {
@@ -144,5 +206,22 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
 
   irARegistro(): void {
     this.router.navigate(['/auth/register']);
+  }
+
+  // 🔥 NUEVO: Métodos para el componente de comentarios
+  onComentarioCreado(comentario: ComentarioDTO): void {
+    this.comentarios.unshift(comentario);
+    console.log('✅ Comentario agregado a la lista:', comentario);
+  }
+
+  onComentarioAprobado(comentario: ComentarioDTO): void {
+    const index = this.comentarios.findIndex(c => c.id === comentario.id);
+    if (index !== -1) {
+      this.comentarios[index] = comentario;
+    }
+  }
+
+  onComentarioEliminado(comentarioId: number): void {
+    this.comentarios = this.comentarios.filter(c => c.id !== comentarioId);
   }
 }

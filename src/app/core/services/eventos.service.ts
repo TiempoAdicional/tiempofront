@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../environment/environment';
 
@@ -85,40 +85,74 @@ export class EventosService {
   // === MÉTODOS PARA CONTENIDO PÚBLICO ===
   
   /**
-   * Obtiene eventos públicos limitados sin requerir autenticación
-   * Usa el endpoint específico /public/eventos/limitados configurado en el backend
+   * Obtiene eventos públicos próximos sin requerir autenticación (endpoint público documentado)
    */
-  listarEventosPublicos(limite: number = 8): Observable<Evento[]> {
+  listarEventosPublicos(limite: number = 8): Observable<any> {
     const params = new HttpParams().set('limite', limite.toString());
     
-    // Usar endpoint público específico según documentación del backend
-    const publicUrl = `${environment.apiBaseUrl}/public/eventos/limitados`;
-    
-    return this.http.get<Evento[]>(publicUrl, { params })
+    return this.http.get<any>(`${this.apiUrl}/proximos`, { params })
       .pipe(
-        tap(eventos => {
-          console.log('📅 Eventos públicos obtenidos desde /public/eventos/limitados:', eventos);
-          this.eventosSubject.next(eventos);
+        tap(response => {
+          console.log('📅 Eventos próximos públicos obtenidos:', response);
+          // Handle different response formats
+          let eventos = [];
+          if (response && response.eventos) {
+            eventos = response.eventos;
+          } else if (Array.isArray(response)) {
+            eventos = response;
+          }
+          
+          if (eventos.length > 0) {
+            this.eventosSubject.next(eventos);
+          }
+          
+          return { eventos, total: eventos.length };
         }),
         catchError(error => {
           console.error('❌ Error al obtener eventos públicos:', error);
-          // Si falla el endpoint específico, intentar con el endpoint general para compatibilidad
-          return this.listarTodosSinAuth();
+          return this.handleError<any>('listarEventosPublicos', { eventos: [], total: 0 })(error);
         })
       );
   }
 
   /**
-   * Intenta obtener eventos sin autenticación del endpoint general
+   * Obtiene eventos públicos (alias del endpoint proximos - endpoint documentado)
    */
-  private listarTodosSinAuth(): Observable<Evento[]> {
-    return this.http.get<Evento[]>(this.apiUrl)
+  obtenerEventosPublicos(limite: number = 8): Observable<Evento[]> {
+    const params = new HttpParams().set('limite', limite.toString());
+    
+    return this.http.get<Evento[]>(`${this.apiUrl}/publicos`, { params })
       .pipe(
-        tap(eventos => {
-          console.log('📅 Eventos sin auth obtenidos:', eventos);
-          this.eventosSubject.next(eventos);
-        }),
-        catchError(this.handleError<Evento[]>('listarTodosSinAuth', []))
+        tap(eventos => console.log('📅 Eventos públicos obtenidos:', eventos)),
+        catchError(error => {
+          console.error('❌ Error al obtener eventos públicos:', error);
+          return this.handleError<Evento[]>('obtenerEventosPublicos', [])(error);
+        })
+      );
+  }
+
+  /**
+   * Obtiene el detalle de un evento público (para usuarios no autenticados)
+   * Si falla, devuelve información limitada en lugar de error
+   */
+  obtenerDetallePublico(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`)
+      .pipe(
+        tap(evento => console.log(`✅ Detalle público evento id=${id}:`, evento)),
+        catchError(error => {
+          console.warn(`⚠️ No se pudo obtener detalle público para evento id=${id}:`, error);
+          // En lugar de error, devolver información básica indicando que necesita registro
+          return of({
+            id: id,
+            nombre: 'Contenido Restringido',
+            descripcion: 'Regístrate para ver los detalles completos de este evento.',
+            fecha: new Date().toISOString(),
+            lugar: 'Ubicación disponible para usuarios registrados',
+            imagenEvento: '',
+            videoUrl: '',
+            requiereRegistro: true
+          });
+        })
       );
   }
 

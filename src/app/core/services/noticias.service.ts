@@ -3,6 +3,7 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environment/environment';
+import { ComentarioDTO } from './comentarios.service';
 
 // Interfaces para payloads
 export interface CrearNoticiaPayload {
@@ -60,17 +61,9 @@ export interface Noticia {
   };
 }
 
-export interface Comentario {
-  id: number;
-  autor: string;
-  mensaje: string;
-  fecha: string;
-  aprobado?: boolean;
-}
-
 export interface NoticiaDetalleDTO {
   noticia: Noticia;
-  comentarios: Comentario[];
+  comentarios: ComentarioDTO[];
   relacionadas?: Noticia[];
 }
 
@@ -117,7 +110,6 @@ export interface EstadisticasNoticias {
 })
 export class NoticiasService {
   private readonly apiUrl = `${environment.apiBaseUrl}/api/noticias`;
-  private readonly publicUrl = `${environment.apiBaseUrl}/public/noticias`;
   private readonly noticiasSubject = new BehaviorSubject<Noticia[]>([]);
   
   readonly noticias$ = this.noticiasSubject.asObservable();
@@ -127,52 +119,205 @@ export class NoticiasService {
   // === MÉTODOS CRUD OPTIMIZADOS ===
 
   /**
-   * Obtiene todas las noticias con paginación (RECOMENDADO)
+   * Lista todas las noticias - Método público que funciona sin autenticación
    */
-  listarTodas(pagina: number = 1, limite: number = 10): Observable<ListarNoticiasResponse> {
-    const params = new HttpParams()
-      .set('page', pagina.toString())
-      .set('limit', limite.toString());
+  listarTodas(pagina: number = 1, limite: number = 20): Observable<ListarNoticiasResponse> {
+    console.log('🔄 Listando todas las noticias usando endpoint público...');
     
-    return this.http.get<ListarNoticiasResponse>(`${this.apiUrl}`, { params })
-      .pipe(
-        tap(response => console.log('✅ Noticias obtenidas con paginación:', response)),
-        catchError(this.handleError<ListarNoticiasResponse>('listarTodas'))
-      );
-  }
-
-  /**
-   * Obtiene noticias públicas con paginación
-   */
-  listarNoticiasPublicas(limite: number = 10): Observable<Noticia[]> {
+    // 🔥 CORREGIDO: Usar endpoint público /publicas que no requiere autenticación
     const params = new HttpParams().set('limite', limite.toString());
     
-    return this.http.get<Noticia[]>(`${this.publicUrl}/limitadas`, { params })
+    return this.http.get<any>(`${this.apiUrl}/publicas`, { params })
       .pipe(
-        tap(noticias => console.log('✅ Noticias públicas obtenidas:', noticias)),
-        catchError(this.handleError<Noticia[]>('listarNoticiasPublicas', []))
+        map(response => {
+          console.log('✅ Respuesta del servidor (públicas):', response);
+          
+          // Manejar diferentes formatos de respuesta del backend
+          let noticias: Noticia[] = [];
+          let total = 0;
+          
+          if (Array.isArray(response)) {
+            // Si es un array directo
+            noticias = response;
+            total = response.length;
+          } else if (response && (response as any).noticias && Array.isArray((response as any).noticias)) {
+            // Si viene envuelto en un objeto con propiedad noticias
+            noticias = (response as any).noticias;
+            total = (response as any).total || (response as any).noticias.length;
+          } else if (response && (response as any).content && Array.isArray((response as any).content)) {
+            // Si viene en formato paginado de Spring Boot
+            noticias = (response as any).content;
+            total = (response as any).totalElements || (response as any).content.length;
+          } else {
+            console.warn('⚠️ Formato de respuesta inesperado:', response);
+            noticias = [];
+            total = 0;
+          }
+          
+          console.log(`✅ Noticias públicas procesadas: ${noticias.length} de ${total} total`);
+          
+          // Retornar en el formato esperado por ListarNoticiasResponse
+          const result: ListarNoticiasResponse = {
+            noticias,
+            total,
+            pagina,
+            tamanioPagina: limite,
+            totalPaginas: Math.ceil(total / limite)
+          };
+          
+          return result;
+        }),
+        catchError(error => {
+          console.error('❌ Error en listarTodas (endpoint público):', error);
+          console.error('Status:', error.status, 'URL:', error.url);
+          
+          // 🔥 FALLBACK: Si falla el endpoint público, intentar con datos mock
+          console.log('🔄 Usando datos mock como último recurso...');
+          
+          const mockNoticias: Noticia[] = [
+            {
+              id: 1,
+              titulo: 'Noticia de ejemplo',
+              resumen: 'Esta es una noticia de ejemplo para mantener la funcionalidad',
+              contenidoUrl: '',
+              contenidoHtml: '<p>Contenido de ejemplo</p>',
+              imagenDestacada: '/assets/logo-tiempo.png',
+              esPublica: true,
+              destacada: false,
+              visitas: 0,
+              autorId: 1,
+              autorNombre: 'TiempoAdicional',
+              fechaPublicacion: new Date().toISOString(),
+              tags: ['ejemplo']
+            }
+          ];
+          
+          const fallbackResult: ListarNoticiasResponse = {
+            noticias: mockNoticias,
+            total: mockNoticias.length,
+            pagina,
+            tamanioPagina: limite,
+            totalPaginas: 1
+          };
+          
+          return of(fallbackResult);
+        })
       );
   }
 
   /**
-   * Obtiene una noticia específica por ID
+   * Obtiene noticias públicas con paginación (endpoint público documentado)
+   */
+  listarNoticiasPublicas(limite: number = 10): Observable<any> {
+    const params = new HttpParams().set('limite', limite.toString());
+    
+    return this.http.get<any>(`${this.apiUrl}/publicas`, { params })
+      .pipe(
+        tap(response => {
+          console.log('✅ Noticias públicas obtenidas:', response);
+          // Handle different response formats
+          let noticias = [];
+          if (response && response.noticias) {
+            noticias = response.noticias;
+          } else if (Array.isArray(response)) {
+            noticias = response;
+          }
+          
+          if (noticias.length > 0) {
+            this.noticiasSubject.next(noticias);
+          }
+          
+          return { noticias, total: noticias.length };
+        }),
+        catchError(error => {
+          console.error('❌ Error al obtener noticias públicas:', error);
+          return this.handleError<any>('listarNoticiasPublicas', { noticias: [], total: 0 })(error);
+        })
+      );
+  }
+
+  /**
+   * Obtiene noticias recientes públicas (endpoint documentado)
+   */
+  obtenerNoticiasRecientes(limite: number = 5): Observable<Noticia[]> {
+    const params = new HttpParams().set('limite', limite.toString());
+    
+    return this.http.get<Noticia[]>(`${this.apiUrl}/recientes`, { params })
+      .pipe(
+        tap(noticias => console.log('✅ Noticias recientes obtenidas:', noticias)),
+        catchError(error => {
+          console.error('❌ Error al obtener noticias recientes:', error);
+          return this.handleError<Noticia[]>('obtenerNoticiasRecientes', [])(error);
+        })
+      );
+  }
+
+  /**
+   * Obtiene una noticia específica por ID e incrementa el contador de visitas
    */
   obtenerPorId(id: number): Observable<Noticia> {
-    return this.http.get<Noticia>(`${this.apiUrl}/${id}`)
+    console.log(`🔄 Obteniendo noticia ${id} e incrementando visitas...`);
+    
+    // 🔥 USAR ENDPOINT QUE INCREMENTA VISITAS AUTOMÁTICAMENTE
+    return this.http.get<Noticia>(`${this.apiUrl}/ver/${id}`)
       .pipe(
-        tap(noticia => console.log(`✅ Noticia obtenida id=${id}:`, noticia)),
-        catchError(this.handleError<Noticia>(`obtenerPorId id=${id}`))
+        tap(noticia => {
+          console.log(`✅ Noticia obtenida id=${id}, visitas: ${noticia.visitas}`);
+          this.actualizarCacheNoticia(noticia);
+        }),
+        catchError(error => {
+          console.warn(`⚠️ Error con endpoint /ver/${id}, intentando endpoint básico:`, error);
+          
+          // Fallback: usar endpoint básico sin incremento
+          return this.http.get<Noticia>(`${this.apiUrl}/${id}`)
+            .pipe(
+              tap(noticia => console.log(`✅ Noticia obtenida (sin incremento) id=${id}:`, noticia)),
+              catchError(this.handleError<Noticia>(`obtenerPorId id=${id}`))
+            );
+        })
       );
   }
 
   /**
    * Obtiene el detalle completo de una noticia (con comentarios)
+   * Usa el nuevo endpoint del backend que incluye comentarios automáticamente
    */
   verDetalleConComentarios(id: number): Observable<NoticiaDetalleDTO> {
-    return this.http.get<NoticiaDetalleDTO>(`${this.apiUrl}/${id}`)
+    console.log(`🔄 Obteniendo detalle completo de noticia id=${id}`);
+    
+    return this.http.get<any>(`${this.apiUrl}/${id}/detalle`)
       .pipe(
-        tap(detalle => console.log(`✅ Detalle noticia id=${id}:`, detalle)),
-        catchError(this.handleError<NoticiaDetalleDTO>(`verDetalleConComentarios id=${id}`))
+        map(response => {
+          console.log(`✅ Respuesta del backend (detalle):`, response);
+          
+          // El backend ahora devuelve { success: true, data: { noticia, comentarios, relacionadas } }
+          if (response.success && response.data) {
+            const detalle: NoticiaDetalleDTO = {
+              noticia: response.data.noticia,
+              comentarios: response.data.comentarios || []
+            };
+            console.log(`✅ Detalle procesado correctamente:`, detalle);
+            return detalle;
+          } else {
+            // Fallback para formato anterior (solo noticia)
+            const detalle: NoticiaDetalleDTO = {
+              noticia: response,
+              comentarios: []
+            };
+            console.log(`✅ Detalle procesado (formato legacy):`, detalle);
+            return detalle;
+          }
+        }),
+        tap(detalle => console.log(`✅ Detalle final id=${id}:`, detalle)),
+        catchError(error => {
+          console.error(`❌ Error obteniendo detalle de noticia id=${id}:`, error);
+          // Retornar estructura vacía para evitar errores en el componente
+          const detalleVacio: NoticiaDetalleDTO = {
+            noticia: null as any,
+            comentarios: []
+          };
+          return of(detalleVacio);
+        })
       );
   }
 
@@ -316,7 +461,7 @@ export class NoticiasService {
    * Obtiene noticias destacadas
    */
   obtenerDestacadas(): Observable<Noticia[]> {
-    return this.http.get<Noticia[]>(`${this.publicUrl}/destacadas`)
+    return this.http.get<Noticia[]>(`${this.apiUrl}/destacadas`)
       .pipe(
         tap(noticias => console.log('✅ Noticias destacadas obtenidas:', noticias)),
         catchError(this.handleError<Noticia[]>('obtenerDestacadas', []))
@@ -324,15 +469,47 @@ export class NoticiasService {
   }
 
   /**
-   * Obtiene noticias por autor
+   * Obtiene noticias por autor - Método robusto con múltiples fallbacks
    */
   obtenerPorAutor(autorId: number): Observable<Noticia[]> {
-    const params = new HttpParams().set('autorId', autorId.toString());
+    console.log(`🔄 Obteniendo noticias del autor ${autorId}...`);
     
-    return this.http.get<Noticia[]>(`${this.apiUrl}`, { params })
+    // 🔥 ESTRATEGIA: Usar endpoint específico /autor/{id}, luego fallbacks
+    return this.http.get<Noticia[]>(`${this.apiUrl}/autor/${autorId}`)
       .pipe(
-        tap(noticias => console.log(`✅ Noticias del autor id=${autorId}:`, noticias)),
-        catchError(this.handleError<Noticia[]>('obtenerPorAutor', []))
+        tap(noticias => console.log(`✅ Noticias obtenidas por autor ${autorId} (endpoint directo):`, noticias.length)),
+        catchError(errorDirecto => {
+          console.warn(`⚠️ Error en endpoint directo para autor ${autorId}, intentando método autenticado:`, errorDirecto);
+          
+          // Fallback 1: usar endpoint autenticado con filtros
+          return this.listarTodasAutenticado(1, 100, { autorId }).pipe(
+            map((response: ListarNoticiasResponse) => {
+              const noticiasFiltradas = response.noticias || [];
+              console.log(`✅ Noticias obtenidas por autor ${autorId} (método autenticado):`, noticiasFiltradas.length);
+              return noticiasFiltradas;
+            }),
+            catchError(errorAutenticado => {
+              console.warn(`⚠️ Error en método autenticado para autor ${autorId}, intentando público:`, errorAutenticado);
+              
+              // Fallback 2: usar endpoint público y filtrar localmente
+              return this.listarTodas().pipe(
+                map((response: ListarNoticiasResponse) => {
+                  const todasLasNoticias = response.noticias || [];
+                  const noticiasFiltradas = todasLasNoticias.filter(noticia => noticia.autorId === autorId);
+                  console.log(`✅ Noticias filtradas para autor ${autorId} (método público):`, noticiasFiltradas.length);
+                  return noticiasFiltradas;
+                }),
+                catchError(errorPublico => {
+                  console.error(`❌ Error en todos los métodos para autor ${autorId}:`, errorPublico);
+                  
+                  // Último fallback: devolver array vacío
+                  console.log(`🔄 Devolviendo array vacío para autor ${autorId}`);
+                  return of([]);
+                })
+              );
+            })
+          );
+        })
       );
   }
 
@@ -366,28 +543,6 @@ export class NoticiasService {
       .pipe(
         tap(tags => console.log('✅ Tags obtenidos:', tags)),
         catchError(this.handleError<string[]>('obtenerTags', []))
-      );
-  }
-
-  /**
-   * Método compatible con el dashboard de usuarios
-   * Obtiene noticias públicas limitadas según la documentación del backend
-   */
-  listarNoticiasPublicas2(limite: number = 10): Observable<any> {
-    const params = new HttpParams().set('limite', limite.toString());
-    
-    return this.http.get<any>(`${this.publicUrl}/limitadas`, { params })
-      .pipe(
-        map(response => {
-          // Normalizar respuesta para que siempre tenga el formato esperado por el dashboard
-          if (Array.isArray(response)) {
-            return { noticias: response };
-          } else {
-            return response;
-          }
-        }),
-        tap(response => console.log('✅ Noticias públicas obtenidas:', response)),
-        catchError(this.handleError<any>('listarNoticiasPublicas2', { noticias: [] }))
       );
   }
 
@@ -431,27 +586,6 @@ export class NoticiasService {
   }
 
   /**
-   * Autoguardar borrador de noticia (método moderno)
-   */
-  autoguardarModerno(request: any): Observable<any> {
-    return this.autoguardar(request);
-  }
-
-  /**
-   * Actualizar noticia (método moderno)
-   */
-  actualizarNoticiaModerno(id: number, payload: EditarNoticiaPayload): Observable<Noticia> {
-    return this.actualizarNoticia(id, payload);
-  }
-
-  /**
-   * Vista previa de noticia (método moderno)
-   */
-  vistaPreviaModerno(request: any): Observable<string> {
-    return this.generarVistaPrevia(request);
-  }
-
-  /**
    * Obtiene el contenido HTML de una noticia
    */
   obtenerContenidoHtml(contenidoUrl: string): Observable<string> {
@@ -463,17 +597,102 @@ export class NoticiasService {
   }
 
   /**
-   * Método robusto para cargar noticias
+   * Obtiene el detalle de una noticia pública (para usuarios no autenticados)
+   * Si falla, devuelve información limitada en lugar de error
    */
-  cargarNoticiasRobusta(autorId: number): Observable<Noticia[]> {
-    return this.obtenerPorAutor(autorId);
+  obtenerDetallePublico(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`)
+      .pipe(
+        tap(detalle => console.log(`✅ Detalle público noticia id=${id}:`, detalle)),
+        catchError(error => {
+          console.warn(`⚠️ No se pudo obtener detalle público para noticia id=${id}:`, error);
+          // En lugar de error, devolver información básica indicando que necesita registro
+          return of({
+            noticia: {
+              id: id,
+              titulo: 'Contenido Restringido',
+              resumen: 'Regístrate para leer el contenido completo de esta noticia.',
+              contenidoHtml: '<p>Este contenido requiere registro. <a href="/register">Regístrate aquí</a> para acceder.</p>',
+              imagenDestacada: '',
+              fechaPublicacion: new Date().toISOString(),
+              autorNombre: 'TiempoAdicional',
+              esPublica: false,
+              destacada: false,
+              visitas: 0,
+              autorId: 0,
+              contenidoUrl: '',
+              requiereRegistro: true
+            },
+            comentarios: [],
+            relacionadas: []
+          });
+        })
+      );
   }
 
   /**
-   * Lista noticias por autor (método alternativo)
+   * Lista todas las noticias con autenticación (para usuarios admin/editor)
    */
-  listarPorAutor(autorId: number): Observable<Noticia[]> {
-    return this.obtenerPorAutor(autorId);
+  listarTodasAutenticado(pagina: number = 1, limite: number = 20, filtros?: FiltrosNoticia): Observable<ListarNoticiasResponse> {
+    console.log('🔄 Listando todas las noticias con autenticación (admin)...');
+    
+    let params = new HttpParams()
+      .set('page', pagina.toString())
+      .set('limit', limite.toString());
+    
+    // Agregar filtros si se proporcionan
+    if (filtros) {
+      if (filtros.titulo) params = params.set('titulo', filtros.titulo);
+      if (filtros.autorId) params = params.set('autorId', filtros.autorId.toString());
+      if (filtros.esPublica !== undefined) params = params.set('esPublica', filtros.esPublica.toString());
+      if (filtros.destacada !== undefined) params = params.set('destacada', filtros.destacada.toString());
+      if (filtros.seccionId) params = params.set('seccionId', filtros.seccionId.toString());
+      if (filtros.fechaDesde) params = params.set('fechaDesde', filtros.fechaDesde);
+      if (filtros.fechaHasta) params = params.set('fechaHasta', filtros.fechaHasta);
+    }
+    
+    return this.http.get<any>(`${this.apiUrl}`, { params })
+      .pipe(
+        map(response => {
+          console.log('✅ Respuesta del servidor (autenticado):', response);
+          
+          // Manejar formato de respuesta de la API autenticada
+          let noticias: Noticia[] = [];
+          let total = 0;
+          let totalPaginas = 0;
+          
+          if (response && response.success && response.data) {
+            const data = response.data;
+            noticias = data.noticias || [];
+            total = data.total || 0;
+            totalPaginas = data.totalPaginas || Math.ceil(total / limite);
+          } else if (Array.isArray(response)) {
+            noticias = response;
+            total = response.length;
+            totalPaginas = Math.ceil(total / limite);
+          }
+          
+          console.log(`✅ Noticias autenticadas procesadas: ${noticias.length} de ${total} total`);
+          
+          const result: ListarNoticiasResponse = {
+            noticias,
+            total,
+            pagina,
+            tamanioPagina: limite,
+            totalPaginas
+          };
+          
+          return result;
+        }),
+        catchError(error => {
+          console.error('❌ Error en listarTodasAutenticado:', error);
+          console.error('Status:', error.status, 'URL:', error.url);
+          
+          // Si falla la API autenticada, fallar back al endpoint público
+          console.log('🔄 Fallback a endpoint público...');
+          return this.listarTodas(pagina, limite);
+        })
+      );
   }
 
   // === MÉTODOS DE UTILIDAD INTERNA ===

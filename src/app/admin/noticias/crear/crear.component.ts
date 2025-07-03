@@ -329,7 +329,6 @@ export class CrearNoticiaComponent implements OnInit, OnDestroy {
           { id: 1, titulo: 'Portada', tipo: 'NOTICIAS', orden: 1, activa: true, visible: true },
           { id: 2, titulo: 'Deportes', tipo: 'NOTICIAS', orden: 2, activa: true, visible: true },
           { id: 3, titulo: 'Fútbol', tipo: 'NOTICIAS', orden: 3, activa: true, visible: true },
-          { id: 4, titulo: 'Otros Deportes', tipo: 'NOTICIAS', orden: 4, activa: true, visible: true }
         ];
       }
     });
@@ -421,7 +420,7 @@ export class CrearNoticiaComponent implements OnInit, OnDestroy {
       autorId: this.authService.obtenerIdUsuario()!
     };
 
-    this.noticiasService.autoguardarModerno(autoguardadoRequest).subscribe({
+    this.noticiasService.autoguardar(autoguardadoRequest).subscribe({
       next: (response: any) => {
         console.log('✅ Autoguardado completado:', response);
         
@@ -589,7 +588,7 @@ export class CrearNoticiaComponent implements OnInit, OnDestroy {
       autorId: this.authService.obtenerIdUsuario()!
     };
 
-    this.noticiasService.autoguardarModerno(autoguardadoRequest).subscribe({
+    this.noticiasService.autoguardar(autoguardadoRequest).subscribe({
       next: (response: any) => {
         this.mostrarExito('Borrador guardado automáticamente');
         this.guardandoBorrador = false;
@@ -619,7 +618,7 @@ export class CrearNoticiaComponent implements OnInit, OnDestroy {
       imagenDestacada: this.imagenDestacadaPreview || undefined
     };
     
-    this.noticiasService.vistaPreviaModerno(vistaPreviaRequest).subscribe({
+    this.noticiasService.generarVistaPrevia(vistaPreviaRequest).subscribe({
       next: (html: string) => {
         // Abrir en nueva ventana o modal
         const ventana = window.open('', '_blank', 'width=800,height=600');

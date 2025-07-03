@@ -228,7 +228,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   refrescarEstadisticas(): void {
     this.error = null;
-    this.cargarEstadisticas();
+    this.isLoading = true;
+    
+    console.log('🔄 Refrescando estadísticas (limpiando cache)...');
+    
+    // Usar el método de refresh que limpia el cache
+    this.estadisticasService.refrescar()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats: any) => {
+          console.log('✅ Estadísticas refrescadas exitosamente:', stats);
+          
+          this.estadisticas = {
+            totalNoticias: stats.totalNoticias || 0,
+            totalEventos: stats.totalEventos || 0,
+            totalSecciones: stats.totalSecciones || 0,
+            noticiasRecientes: stats.noticiasRecientes || 0,
+            eventosProximos: stats.eventosProximos || 0,
+            fechaActualizacion: new Date(),
+            partidosHoy: stats.partidosHoy || [],
+            partidosTemporadaActual: stats.partidosTemporadaActual || 0,
+            temporadaActual: stats.temporadaActual,
+            equipoLider: stats.equipoLider,
+            totalEquipos: stats.totalEquipos || 20
+          };
+
+          this.isLoading = false;
+          console.log('📊 Dashboard refrescado correctamente');
+        },
+        error: (error: any) => {
+          console.error('❌ Error al refrescar estadísticas:', error);
+          this.error = 'No se pudieron refrescar las estadísticas. Verifique la conexión.';
+          this.isLoading = false;
+        }
+      });
   }
 
   // === MÉTODOS DE NAVEGACIÓN ESPECÍFICOS ===

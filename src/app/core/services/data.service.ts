@@ -39,7 +39,18 @@ export class DataService {
 
   obtenerNoticiasPublicas(limite?: number): Observable<Noticia[]> {
     return this.getCachedData(`noticias-publicas-${limite || 10}`, () => 
-      this.noticiasService.listarNoticiasPublicas(limite || 10)
+      this.noticiasService.listarNoticiasPublicas(limite || 10).pipe(
+        map(response => {
+          // Handle both direct array and response object with noticias property
+          if (Array.isArray(response)) {
+            return response;
+          } else if (response && response.noticias) {
+            return response.noticias;
+          } else {
+            return [];
+          }
+        })
+      )
     );
   }
 
@@ -92,11 +103,14 @@ export class DataService {
           console.log('  - Eventos próximos:', eventosProximos?.length || 0);
           console.log('  - Secciones:', secciones?.length || 0);
           
+          // Handle wrapped backend response: { success: true, data: {...} }
+          const statsData = (statsNoticias as any)?.data || statsNoticias || {};
+          
           const estadisticas: EstadisticasGenerales = {
-            totalNoticias: statsNoticias?.totalNoticias || 0,
+            totalNoticias: statsData?.totalNoticias || 0,
             totalEventos: todosEventos?.length || 0,
             totalSecciones: secciones?.length || 0,
-            noticiasRecientes: statsNoticias?.ultimosDias || 0,
+            noticiasRecientes: statsData?.ultimosDias || 0,
             eventosProximos: eventosProximos?.length || 0,
             fechaActualizacion: new Date()
           };

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { NoticiasService, Noticia, EditarNoticiaPayload, FiltrosNoticia, ListarNoticiasResponse } from '../../../core/services/noticias.service';
+import { ComentariosService, ComentarioDTO } from '../../../core/services/comentarios.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { AsignacionSeccionService } from '../../../core/services/asignacion-seccion.service';
 import { SeccionesService, SeccionResponse } from '../../../core/services/secciones.service';
@@ -74,6 +75,7 @@ import { MatDividerModule } from '@angular/material/divider';
 export class EditarNoticiaComponent implements OnInit, OnDestroy {
   // Services
   private noticiasService = inject(NoticiasService);
+  private comentariosService = inject(ComentariosService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -293,6 +295,11 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
   // Auto-save
   private autoSaveSubject = new Subject<any>();
 
+  // 🔥 NUEVO: Gestión de comentarios
+  comentarios: ComentarioDTO[] = [];
+  comentariosLoading = false;
+  mostrarComentarios = false;
+
   constructor() {
     this.initForms();
     this.setupAutoSave();
@@ -409,6 +416,10 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
           console.log('✅ Noticia cargada:', noticia);
           this.noticia = noticia;
           this.cargarDatosEnFormularios();
+          
+          // 🔥 NUEVO: Cargar comentarios automáticamente
+          this.cargarComentarios();
+          
           this.loading = false;
         },
         error: (error) => {
@@ -653,7 +664,7 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.noticiasService.cargarNoticiasRobusta(autorId)
+    this.noticiasService.obtenerPorAutor(autorId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (noticias: any[]) => {
@@ -719,7 +730,7 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
       return;
     }
     
-    this.noticiasService.listarPorAutor(autorId)
+    this.noticiasService.obtenerPorAutor(autorId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (noticias: any[]) => {
@@ -811,7 +822,7 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
     console.log('💾 Guardando cambios:', { ...payload, contenidoHtml: 'CONTENT_LENGTH: ' + payload.contenidoHtml.length });
 
     // 🔥 Usar método moderno que sube contenido a Cloudinary
-    this.noticiasService.actualizarNoticiaModerno(this.noticiaId, payload)
+    this.noticiasService.actualizarNoticia(this.noticiaId, payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: Noticia) => {
@@ -874,7 +885,7 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
       noticiaOriginalId: this.noticiaId
     };
 
-    this.noticiasService.autoguardarModerno(autoguardadoRequest)
+    this.noticiasService.autoguardar(autoguardadoRequest)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -971,7 +982,7 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
       imagenDestacada: datos.imagenDestacada
     };
     
-    this.noticiasService.vistaPreviaModerno(vistaPreviaRequest)
+    this.noticiasService.generarVistaPrevia(vistaPreviaRequest)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (html: string) => {
@@ -1190,5 +1201,137 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
 
   get iconoEstado(): string {
     return this.noticia?.esPublica ? 'visibility' : 'visibility_off';
+  }
+
+  // ===============================
+  // 🔥 NUEVO: GESTIÓN DE COMENTARIOS
+  // ===============================
+
+  /**
+   * Carga los comentarios de la noticia actual
+   */
+  cargarComentarios(): void {
+    if (!this.noticiaId) return;
+    
+    this.comentariosLoading = true;
+    console.log(`🔄 Cargando comentarios para noticia ${this.noticiaId}...`);
+    
+    this.comentariosService.obtenerComentariosDeNoticia(this.noticiaId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (comentarios: ComentarioDTO[]) => {
+          console.log('✅ Comentarios cargados:', comentarios.length);
+          this.comentarios = comentarios;
+          this.comentariosLoading = false;
+        },
+        error: (error: any) => {
+          console.error('❌ Error al cargar comentarios:', error);
+          this.mostrarError('Error al cargar los comentarios');
+          this.comentarios = [];
+          this.comentariosLoading = false;
+        }
+      });
+  }
+
+  /**
+   * Toggle para mostrar/ocultar sección de comentarios
+   */
+  toggleComentarios(): void {
+    this.mostrarComentarios = !this.mostrarComentarios;
+    
+    if (this.mostrarComentarios && this.comentarios.length === 0) {
+      this.cargarComentarios();
+    }
+  }
+
+  /**
+   * Aprueba un comentario
+   */
+  aprobarComentario(comentario: ComentarioDTO): void {
+    if (!comentario.id) return;
+    
+    this.comentariosService.aprobarComentario(comentario.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            const index = this.comentarios.findIndex(c => c.id === comentario.id);
+            if (index !== -1) {
+              this.comentarios[index] = response.data;
+            }
+            this.mostrarExito('Comentario aprobado');
+          }
+        },
+        error: (error: any) => {
+          console.error('❌ Error al aprobar comentario:', error);
+          this.mostrarError('Error al aprobar el comentario');
+        }
+      });
+  }
+
+  /**
+   * Rechaza un comentario (eliminándolo)
+   */
+  rechazarComentario(comentario: ComentarioDTO): void {
+    if (!comentario.id) return;
+    
+    const confirmacion = confirm('¿Estás seguro de que quieres rechazar este comentario?');
+    if (!confirmacion) return;
+    
+    this.comentariosService.eliminarComentario(comentario.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.comentarios = this.comentarios.filter(c => c.id !== comentario.id);
+            this.mostrarExito('Comentario rechazado');
+          }
+        },
+        error: (error: any) => {
+          console.error('❌ Error al rechazar comentario:', error);
+          this.mostrarError('Error al rechazar el comentario');
+        }
+      });
+  }
+
+  /**
+   * Elimina un comentario
+   */
+  eliminarComentario(comentario: ComentarioDTO): void {
+    if (!comentario.id) return;
+    
+    const confirmacion = confirm('¿Estás seguro de que quieres eliminar este comentario? Esta acción no se puede deshacer.');
+    if (!confirmacion) return;
+    
+    this.comentariosService.eliminarComentario(comentario.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.comentarios = this.comentarios.filter(c => c.id !== comentario.id);
+            this.mostrarExito('Comentario eliminado');
+          }
+        },
+        error: (error: any) => {
+          console.error('❌ Error al eliminar comentario:', error);
+          this.mostrarError('Error al eliminar el comentario');
+        }
+      });
+  }
+
+  /**
+   * Obtiene la clase CSS para el estado del comentario
+   */
+  getClaseEstadoComentario(comentario: ComentarioDTO): string {
+    if (comentario.aprobado) return 'comentario-aprobado';
+    return 'comentario-pendiente';
+  }
+
+  /**
+   * Obtiene el texto del estado del comentario
+   */
+  getTextoEstadoComentario(comentario: ComentarioDTO): string {
+    if (comentario.aprobado) return 'Aprobado';
+    return 'Pendiente';
   }
 }

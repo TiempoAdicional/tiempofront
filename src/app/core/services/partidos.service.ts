@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../environment/environment';
 
@@ -32,17 +32,38 @@ export class PartidosService {
   // === MÉTODOS PRINCIPALES ===
 
   obtenerPartidosHoy(): Observable<Partido[]> {
+    console.log('🔄 Obteniendo partidos de hoy...');
+    
     return this.http.get<Partido[]>(`${this.apiUrl}/hoy`)
       .pipe(
-        tap(partidos => this.partidosSubject.next(partidos)),
-        catchError(this.handleError<Partido[]>('obtenerPartidosHoy', []))
+        tap(partidos => {
+          console.log('✅ Partidos de hoy obtenidos:', partidos.length);
+          this.partidosSubject.next(partidos);
+        }),
+        catchError(error => {
+          console.error('❌ Error al obtener partidos de hoy:', error);
+          console.log('🔄 Devolviendo array vacío - no hay partidos disponibles');
+          
+          // 🔥 NO usar datos ficticios - devolver array vacío
+          this.partidosSubject.next([]);
+          return of([]);
+        })
       );
   }
 
   obtenerPartidosCombinados(): Observable<Partido[]> {
+    console.log('🔄 Obteniendo partidos combinados (API + Liga Colombiana)...');
+    
     return this.http.get<Partido[]>(`${this.apiUrl}/combinados`)
       .pipe(
-        catchError(this.handleError<Partido[]>('obtenerPartidosCombinados', []))
+        tap(partidos => console.log('✅ Partidos combinados obtenidos:', partidos.length)),
+        catchError(error => {
+          console.error('❌ Error al obtener partidos combinados:', error);
+          console.log('🔄 Devolviendo array vacío - no hay partidos disponibles');
+          
+          // 🔥 NO usar datos ficticios - devolver array vacío
+          return of([]);
+        })
       );
   }
 
@@ -52,6 +73,160 @@ export class PartidosService {
         tap(partidos => this.partidosSubject.next(partidos)),
         catchError(this.handleError<Partido[]>('listarTodos', []))
       );
+  }
+
+  // === MÉTODOS PARA CONTENIDO PÚBLICO ===
+  
+  /**
+   * Obtiene partidos públicos - solo datos reales del backend
+   */
+  obtenerPartidosPublicos(limite: number = 6): Observable<any> {
+    console.log('🔄 Obteniendo partidos públicos...');
+    
+    return this.obtenerPartidosLigaColombiana(limite)
+      .pipe(
+        catchError(error => {
+          console.warn('⚠️ Liga Colombiana no disponible:', error);
+          console.log('🔄 Devolviendo array vacío - no hay partidos disponibles');
+          
+          // 🔥 NO usar datos ficticios - devolver array vacío
+          return of({ partidos: [], total: 0 });
+        })
+      );
+  }
+
+  /**
+   * Obtiene partidos de Liga Colombiana
+   */
+  private obtenerPartidosLigaColombiana(limite: number = 6): Observable<any> {
+    return this.http.get<any>(`${environment.apiBaseUrl}/api/liga-colombiana/partidos/hoy`)
+      .pipe(
+        tap(response => {
+          console.log('⚽ Partidos Liga Colombiana obtenidos:', response);
+          
+          let partidosLiga = [];
+          if (Array.isArray(response)) {
+            partidosLiga = response;
+          } else if (response && response.partidos) {
+            partidosLiga = response.partidos;
+          }
+          
+          // Format Liga Colombiana matches with proper team names
+          const partidosFormateados = partidosLiga.map((partido: any) => ({
+            id: partido.id || Math.random() * 1000,
+            equipoLocal: this.formatearNombreEquipo(partido.nombreEquipoLocal || partido.equipoLocal?.nombre),
+            equipoVisitante: this.formatearNombreEquipo(partido.nombreEquipoVisitante || partido.equipoVisitante?.nombre),
+            fecha: partido.fecha,
+            liga: 'Liga BetPlay',
+            estado: this.formatearEstado(partido.estado),
+            golesLocal: partido.golesLocal,
+            golesVisitante: partido.golesVisitante,
+            jornada: partido.jornada,
+            estadio: partido.estadio,
+            esDeApi: false,
+            tipo: 'liga-colombiana'
+          }));
+          
+          const partidosLimitados = partidosFormateados.slice(0, limite);
+          
+          if (partidosLimitados.length > 0) {
+            this.partidosSubject.next(partidosLimitados);
+          }
+          
+          return { partidos: partidosLimitados, total: partidosLimitados.length };
+        }),
+        catchError(error => {
+          console.error('❌ Error al obtener partidos Liga Colombiana:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  // === MÉTODOS AUXILIARES ===
+
+  private actualizarCachePartido(partido: Partido): void {
+    const partidosActuales = this.partidosSubject.value;
+    const index = partidosActuales.findIndex(p => p.id === partido.id);
+    
+    if (index !== -1) {
+      partidosActuales[index] = partido;
+    } else {
+      partidosActuales.push(partido);
+    }
+    
+    this.partidosSubject.next([...partidosActuales]);
+  }
+
+  private eliminarDelCache(id: number): void {
+    const partidosActuales = this.partidosSubject.value;
+    const partidosFiltered = partidosActuales.filter(p => p.id !== id);
+    this.partidosSubject.next(partidosFiltered);
+  }
+
+  private formatearNombreEquipo(nombre: string | undefined): string {
+    if (!nombre) return 'Equipo';
+    
+    // Clean up common API variations
+    let nombreLimpio = nombre.toString().trim();
+    
+    // Handle common team name patterns
+    if (nombreLimpio.length < 2) {
+      return 'Equipo';
+    }
+    
+    // Capitalize first letter and ensure proper formatting
+    nombreLimpio = nombreLimpio.charAt(0).toUpperCase() + nombreLimpio.slice(1);
+    
+    return nombreLimpio;
+  }
+
+  private formatearLiga(liga: string | undefined): string {
+    if (!liga) return 'Liga Colombiana';
+    
+    const ligaStr = liga.toString().trim();
+    
+    // Map common league names to display names
+    const ligaMapping: { [key: string]: string } = {
+      'liga_betplay': 'Liga BetPlay',
+      'liga betplay': 'Liga BetPlay',
+      'primera division': 'Primera División',
+      'copa colombia': 'Copa Colombia',
+      'torneo': 'Liga Colombiana',
+      'championship': 'Liga Colombiana'
+    };
+    
+    const ligaNormalizada = ligaStr.toLowerCase();
+    return ligaMapping[ligaNormalizada] || ligaStr;
+  }
+
+  private formatearEstado(estado: string | undefined): string {
+    if (!estado) return 'Programado';
+    
+    const estadoStr = estado.toString().trim();
+    
+    // Map common status to Spanish
+    const estadoMapping: { [key: string]: string } = {
+      'scheduled': 'Programado',
+      'live': 'En Vivo',
+      'finished': 'Finalizado',
+      'postponed': 'Pospuesto',
+      'cancelled': 'Cancelado',
+      'full-time': 'Finalizado',
+      'half-time': 'Descanso',
+      'programado': 'Programado',
+      'en_vivo': 'En Vivo',
+      'finalizado': 'Finalizado'
+    };
+    
+    const estadoNormalizado = estadoStr.toLowerCase().replace(/\s+/g, '_');
+    return estadoMapping[estadoNormalizado] || estadoStr;
+  }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed:`, error);
+      return throwError(() => error);
+    };
   }
 
   // === MÉTODOS API EXTERNA ===
@@ -129,32 +304,6 @@ export class PartidosService {
       );
   }
 
-  // === MÉTODOS CRUD GENERALES ===
-
-  crear(formData: FormData): Observable<Partido> {
-    return this.http.post<Partido>(`${this.apiUrl}/crear`, formData)
-      .pipe(
-        tap(p => this.actualizarCachePartido(p)),
-        catchError(this.handleError<Partido>('crear'))
-      );
-  }
-
-  actualizar(id: number, formData: FormData): Observable<Partido> {
-    return this.http.put<Partido>(`${this.apiUrl}/actualizar/${id}`, formData)
-      .pipe(
-        tap(p => this.actualizarCachePartido(p)),
-        catchError(this.handleError<Partido>('actualizar'))
-      );
-  }
-
-  eliminar(id: number): Observable<string> {
-    return this.http.delete<string>(`${this.apiUrl}/${id}`)
-      .pipe(
-        tap(() => this.eliminarDelCache(id)),
-        catchError(this.handleError<string>('eliminar'))
-      );
-  }
-
   // === MÉTODOS DE BÚSQUEDA ===
 
   buscarPorFecha(fecha: string): Observable<Partido[]> {
@@ -200,28 +349,43 @@ export class PartidosService {
       );
   }
 
-  // === MÉTODOS PARA CONTENIDO PÚBLICO ===
-  
-  /**
-   * Obtiene partidos públicos limitados sin requerir autenticación
-   * Usa el endpoint específico /public/partidos/limitados configurado en el backend
-   */
-  obtenerPartidosPublicos(limite: number = 6): Observable<Partido[]> {
+  // === MÉTODOS CRUD GENERALES ===
+
+  crear(formData: FormData): Observable<Partido> {
+    return this.http.post<Partido>(`${this.apiUrl}/crear`, formData)
+      .pipe(
+        tap(p => this.actualizarCachePartido(p)),
+        catchError(this.handleError<Partido>('crear'))
+      );
+  }
+
+  actualizar(id: number, formData: FormData): Observable<Partido> {
+    return this.http.put<Partido>(`${this.apiUrl}/actualizar/${id}`, formData)
+      .pipe(
+        tap(p => this.actualizarCachePartido(p)),
+        catchError(this.handleError<Partido>('actualizar'))
+      );
+  }
+
+  eliminar(id: number): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/${id}`)
+      .pipe(
+        tap(() => this.eliminarDelCache(id)),
+        catchError(this.handleError<string>('eliminar'))
+      );
+  }
+
+  // === MÉTODOS RECIENTES Y LIMITADOS ===
+
+  obtenerPartidosRecientes(limite: number = 6): Observable<Partido[]> {
     const params = new HttpParams().set('limite', limite.toString());
     
-    // Usar endpoint público específico según documentación del backend
-    const publicUrl = `${environment.apiBaseUrl}/public/partidos/limitados`;
-    
-    return this.http.get<Partido[]>(publicUrl, { params })
+    return this.http.get<Partido[]>(`${this.apiUrl}/recientes`, { params })
       .pipe(
-        tap(partidos => {
-          console.log('⚽ Partidos públicos obtenidos desde /public/partidos/limitados:', partidos);
-          this.partidosSubject.next(partidos);
-        }),
+        tap(partidos => console.log('⚽ Partidos recientes obtenidos:', partidos)),
         catchError(error => {
-          console.error('❌ Error al obtener partidos públicos:', error);
-          // Si falla el endpoint específico, intentar con el endpoint general para compatibilidad
-          return this.obtenerPartidosHoy();
+          console.error('❌ Error al obtener partidos recientes:', error);
+          return this.handleError<Partido[]>('obtenerPartidosRecientes', [])(error);
         })
       );
   }
@@ -230,33 +394,5 @@ export class PartidosService {
 
   obtenerPartidosHoyApi(): Observable<Partido[]> {
     return this.obtenerPartidosApiHoy();
-  }
-
-  // === MÉTODOS AUXILIARES ===
-
-  private actualizarCachePartido(partido: Partido): void {
-    const partidosActuales = this.partidosSubject.value;
-    const index = partidosActuales.findIndex(p => p.id === partido.id);
-    
-    if (index !== -1) {
-      partidosActuales[index] = partido;
-    } else {
-      partidosActuales.push(partido);
-    }
-    
-    this.partidosSubject.next([...partidosActuales]);
-  }
-
-  private eliminarDelCache(id: number): void {
-    const partidosActuales = this.partidosSubject.value;
-    const partidosFiltered = partidosActuales.filter(p => p.id !== id);
-    this.partidosSubject.next(partidosFiltered);
-  }
-
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(`${operation} failed:`, error);
-      return throwError(() => error);
-    };
   }
 }

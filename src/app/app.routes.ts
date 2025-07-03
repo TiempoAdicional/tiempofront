@@ -7,9 +7,33 @@ import { SuperAdminGuard } from './core/guards/super-admin.guard';
 import { UsuarioGuard } from './core/guards/usuario.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'usuarios', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  
+  // Public dashboard route (for non-authenticated users)
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./usuarios/dashboard/dashboard.component').then(m => m.UsuarioDashboardComponent)
+  },
+  
+  // Public detail routes
+  {
+    path: 'noticia/:id',
+    loadComponent: () =>
+      import('./usuarios/noticia-detalle/noticia-detalle.component').then(m => m.NoticiaDetalleComponent)
+  },
+  {
+    path: 'evento/:id',
+    loadComponent: () =>
+      import('./usuarios/evento-detalle/evento-detalle.component').then(m => m.EventoDetalleComponent)
+  },
+  {
+    path: 'partidos',
+    loadComponent: () =>
+      import('./admin/eventos/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
+  },
 
   // ===============================
   // 📰 USUARIO ROUTES (Public/Registered Users)

@@ -395,6 +395,7 @@
       align-items: center;
       gap: 2rem;
       animation: fadeInUp 0.8s ease-out 1.2s backwards;
+      flex-wrap: wrap;
 
       @media (max-width: 768px) {
         flex-direction: column;
@@ -409,6 +410,28 @@
       .fecha {
         font-size: clamp(0.8rem, 1.5vw, 1rem);
         opacity: 0.8;
+      }
+
+      .autor-destacado {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: clamp(0.85rem, 1.4vw, 0.95rem);
+        color: var(--verde-lima);
+        font-family: 'League Spartan', sans-serif;
+        font-weight: 700;
+        font-style: italic;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+
+        &:hover {
+          color: white;
+          transform: translateY(-1px);
+        }
+
+        mat-icon {
+          font-size: 1rem;
+        }
       }
 
       .leer-mas-btn {
@@ -834,15 +857,32 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
 
       .fecha-mini {
         font-size: clamp(0.7rem, 1.5vw, 0.8rem);
         color: #888;
       }
 
+      .autor-mini {
+        font-size: clamp(0.65rem, 1.4vw, 0.75rem);
+        color: var(--verde-selva);
+        font-family: 'League Spartan', sans-serif;
+        font-weight: 600;
+        font-style: italic;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+
       .read-icon {
         color: var(--verde-selva);
         transition: transform 0.3s ease;
+        margin-left: auto;
 
         &:hover {
           transform: scale(1.2);
@@ -1061,10 +1101,32 @@
           gap: 0.3rem;
           font-size: 0.8rem;
           color: #666;
-          margin: 0;
+          margin: 0 0 0.3rem;
 
           mat-icon {
             font-size: 1rem;
+          }
+        }
+
+        .evento-autor {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+          font-size: 0.75rem;
+          color: var(--verde-selva);
+          font-family: 'League Spartan', sans-serif;
+          font-weight: 600;
+          font-style: italic;
+          margin: 0;
+          opacity: 0.8;
+          transition: opacity 0.3s ease;
+
+          &:hover {
+            opacity: 1;
+          }
+
+          mat-icon {
+            font-size: 0.9rem;
           }
         }
       }

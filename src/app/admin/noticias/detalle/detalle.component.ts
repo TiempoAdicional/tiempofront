@@ -2,7 +2,9 @@ import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NoticiasService, NoticiaDetalleDTO } from '../../../core/services/noticias.service';
+import { ComentariosService, ComentarioDTO } from '../../../core/services/comentarios.service';
 import { AuthService } from '../../../auth/services/auth.service';
+import { environment } from '../../../../environment/environment';
 
 // Material Design imports
 import { MatCardModule } from '@angular/material/card';
@@ -38,12 +40,14 @@ export class DetalleComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private noticiasService = inject(NoticiasService);
+  private comentariosService = inject(ComentariosService);
   private authService = inject(AuthService);
   private destroy$ = new Subject<void>();
 
   detalle: NoticiaDetalleDTO | null = null;
   contenidoHtml = '';
   cargando = true;
+  cargandoComentarios = false;
   error: string | null = null;
   
   // Estados y funcionalidades adicionales
@@ -81,25 +85,96 @@ export class DetalleComponent implements OnInit, OnDestroy {
 
   /**
    * CARGA DEL DETALLE COMPLETO
-   * Carga la noticia con toda la información detallada
+   * Carga la noticia con toda la información detallada incluidos TODOS los comentarios
    */
   private cargarDetalleCompleto(noticiaId: number): void {
     this.cargando = true;
     
-    this.noticiasService.verDetalleConComentarios(noticiaId)
+    // Para administradores, cargamos la noticia y TODOS los comentarios por separado
+    this.noticiasService.obtenerPorId(noticiaId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          this.detalle = data;
-          this.cargarContenidoHtml(data.noticia.contenidoUrl);
+        next: (noticia) => {
+          console.log('📰 Noticia recibida del servicio:', noticia);
+          
+          if (!noticia) {
+            console.error('❌ Error: noticia no encontrada');
+            this.error = 'No se pudo cargar la noticia - datos inválidos.';
+            this.cargando = false;
+            return;
+          }
+          
+          // Crear estructura de detalle temporal
+          this.detalle = {
+            noticia: noticia,
+            comentarios: []
+          };
+          
+          // Cargar TODOS los comentarios para admin (incluidos pendientes)
+          this.cargarTodosLosComentarios(noticiaId);
+          
+          // Cargar el contenido HTML si está disponible
+          if (noticia.contenidoUrl) {
+            this.cargarContenidoHtml(noticia.contenidoUrl);
+          } else {
+            console.warn('⚠️ No hay contenidoUrl, usando contenidoHtml directo');
+            this.contenidoHtml = noticia.contenidoHtml || 'Sin contenido disponible';
+            this.cargando = false;
+          }
+          
           this.cargarMetricas(noticiaId);
           this.cargarNoticiasRelacionadas(noticiaId);
           this.incrementarVisita(noticiaId);
         },
         error: (err) => {
-          console.error('❌ Error al cargar detalle de noticia:', err);
-          this.error = 'No se pudo cargar la noticia.';
+          console.error('❌ Error al cargar noticia:', err);
+          this.error = 'No se pudo cargar la noticia. Verifique que existe y que tiene permisos para verla.';
           this.cargando = false;
+        }
+      });
+  }
+
+  /**
+   * CARGA TODOS LOS COMENTARIOS PARA ADMINISTRADORES
+   * Incluye comentarios aprobados y pendientes
+   */
+  private cargarTodosLosComentarios(noticiaId: number): void {
+    console.log(`🔄 [ADMIN] Intentando cargar comentarios para noticia ${noticiaId}`);
+    console.log(`🔄 [ADMIN] Usuario autenticado:`, this.authService.estaAutenticado());
+    console.log(`🔄 [ADMIN] Token:`, this.authService.obtenerToken());
+    
+    // Primero probar el endpoint público para ver si hay comentarios
+    console.log('🔄 [ADMIN] Probando endpoint público primero...');
+    this.comentariosService.obtenerComentariosDeNoticia(noticiaId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (comentariosPublicos: ComentarioDTO[]) => {
+          console.log(`✅ [ADMIN] Comentarios públicos encontrados: ${comentariosPublicos.length}`, comentariosPublicos);
+          
+          // Luego intentar con el endpoint de admin
+          console.log('🔄 [ADMIN] Ahora probando endpoint de admin...');
+          this.comentariosService.obtenerTodosLosComentariosDeNoticia(noticiaId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (comentariosAdmin: ComentarioDTO[]) => {
+                console.log(`✅ [ADMIN] Comentarios de admin cargados: ${comentariosAdmin.length}`, comentariosAdmin);
+                if (this.detalle) {
+                  this.detalle.comentarios = comentariosAdmin;
+                }
+              },
+              error: (errAdmin: any) => {
+                console.error('❌ Error con endpoint de admin, usando comentarios públicos:', errAdmin);
+                if (this.detalle) {
+                  this.detalle.comentarios = comentariosPublicos;
+                }
+              }
+            });
+        },
+        error: (errPublico: any) => {
+          console.error('❌ Error con endpoint público:', errPublico);
+          if (this.detalle) {
+            this.detalle.comentarios = [];
+          }
         }
       });
   }
@@ -127,15 +202,32 @@ export class DetalleComponent implements OnInit, OnDestroy {
    * Obtiene el contenido completo de la noticia
    */
   private cargarContenidoHtml(url: string): void {
+    if (!url) {
+      console.warn('⚠️ No hay URL de contenido disponible');
+      this.contenidoHtml = 'Sin contenido disponible';
+      this.cargando = false;
+      return;
+    }
+    
     fetch(url)
-      .then(resp => resp.text())
+      .then(resp => {
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+        return resp.text();
+      })
       .then(html => {
-        this.contenidoHtml = html;
+        this.contenidoHtml = html || 'Sin contenido disponible';
         this.cargando = false;
       })
       .catch(err => {
         console.error('❌ Error al cargar el contenido HTML:', err);
-        this.error = 'No se pudo cargar el contenido.';
+        // Usar contenido HTML directo como fallback
+        if (this.detalle?.noticia?.contenidoHtml) {
+          this.contenidoHtml = this.detalle.noticia.contenidoHtml;
+        } else {
+          this.contenidoHtml = 'No se pudo cargar el contenido.';
+        }
         this.cargando = false;
       });
   }
@@ -150,11 +242,11 @@ export class DetalleComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (estadisticas) => {
           this.metricas = {
-            visitas: this.detalle?.noticia.visitas || 0,
+            visitas: this.detalle?.noticia?.visitas || 0,
             tiempoPromedioPagina: '2:30', // valor simulado
             rebote: 0.25, // valor simulado 
             compartidos: 0,
-            comentarios: this.detalle?.comentarios.length || 0,
+            comentarios: this.detalle?.comentarios?.length || 0,
             reacciones: 0
           };
         },
@@ -163,8 +255,8 @@ export class DetalleComponent implements OnInit, OnDestroy {
           // Usar métricas básicas
           this.metricas = {
             ...this.metricas,
-            visitas: this.detalle?.noticia.visitas || 0,
-            comentarios: this.detalle?.comentarios.length || 0
+            visitas: this.detalle?.noticia?.visitas || 0,
+            comentarios: this.detalle?.comentarios?.length || 0
           };
         }
       });
@@ -178,11 +270,24 @@ export class DetalleComponent implements OnInit, OnDestroy {
     this.noticiasService.obtenerRelacionadas(noticiaId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (noticias) => {
-          this.noticiasRelacionadas = noticias.slice(0, 5); // Máximo 5
+        next: (noticias: any) => {
+          console.log('🔄 Noticias relacionadas recibidas:', noticias);
+          
+          // Validar que noticias sea un array
+          if (Array.isArray(noticias)) {
+            this.noticiasRelacionadas = noticias.slice(0, 5); // Máximo 5
+          } else if (noticias && noticias.noticias && Array.isArray(noticias.noticias)) {
+            // Si viene en formato envuelto
+            this.noticiasRelacionadas = noticias.noticias.slice(0, 5);
+          } else {
+            console.warn('⚠️ Formato de noticias relacionadas inesperado:', noticias);
+            this.noticiasRelacionadas = [];
+          }
+          
+          console.log('✅ Noticias relacionadas procesadas:', this.noticiasRelacionadas.length);
         },
         error: (error: any) => {
-          console.error('Error al cargar noticias relacionadas:', error);
+          console.error('❌ Error al cargar noticias relacionadas:', error);
           this.noticiasRelacionadas = [];
         }
       });
@@ -297,16 +402,6 @@ export class DetalleComponent implements OnInit, OnDestroy {
   /**
    * UTILIDADES
    */
-  formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
   calcularTiempoLectura(): number {
     if (!this.contenidoHtml) return 0;
     const palabras = this.contenidoHtml.replace(/<[^>]*>/g, '').split(/\s+/).length;
@@ -314,12 +409,12 @@ export class DetalleComponent implements OnInit, OnDestroy {
   }
 
   obtenerColorEstado(): string {
-    if (!this.detalle) return 'accent';
+    if (!this.detalle?.noticia) return 'accent';
     return this.detalle.noticia.esPublica ? 'primary' : 'warn';
   }
 
   obtenerTextoEstado(): string {
-    if (!this.detalle) return '';
+    if (!this.detalle?.noticia) return '';
     return this.detalle.noticia.esPublica ? 'Pública' : 'Borrador';
   }
 
@@ -340,9 +435,38 @@ export class DetalleComponent implements OnInit, OnDestroy {
     window.location.reload();
   }
 
+  /**
+   * Método público para recargar comentarios manualmente
+   */
+  recargarComentarios(): void {
+    if (this.detalle?.noticia?.id) {
+      console.log('🔄 Recargando comentarios manualmente...');
+      console.log('🔄 URL del endpoint:', `${environment.apiBaseUrl}/api/comentarios/admin/noticia/${this.detalle.noticia.id}`);
+      
+      this.cargandoComentarios = true;
+      this.cargarTodosLosComentarios(this.detalle.noticia.id);
+      
+      // Resetear el estado de carga después de un tiempo
+      setTimeout(() => {
+        this.cargandoComentarios = false;
+      }, 2000);
+    }
+  }
+
+  /**
+   * Alternar vista de comentarios (para móvil)
+   */
+  mostrarComentarios = false;
+  mostrarFormularioComentario = false;
+  
+  toggleComentarios(): void {
+    this.mostrarComentarios = !this.mostrarComentarios;
+  }
+
   // Getters para el template
   get fechaFormateada(): string {
-    return this.detalle ? this.formatearFecha(this.detalle.noticia.fechaPublicacion) : '';
+    return this.detalle?.noticia?.fechaPublicacion ? 
+      this.formatearFecha(this.detalle.noticia.fechaPublicacion) : '';
   }
 
   get tiempoLectura(): number {
@@ -350,10 +474,211 @@ export class DetalleComponent implements OnInit, OnDestroy {
   }
 
   get tieneTags(): boolean {
-    return !!(this.detalle?.noticia.tags && this.detalle.noticia.tags.length > 0);
+    return !!(this.detalle?.noticia?.tags && this.detalle.noticia.tags.length > 0);
   }
 
   get tags(): string[] {
-    return this.detalle?.noticia.tags || [];
+    return this.detalle?.noticia?.tags || [];
+  }
+
+  get comentariosAprobados(): number {
+    return this.detalle?.comentarios?.filter(c => c.aprobado)?.length || 0;
+  }
+
+  get comentariosPendientes(): number {
+    return this.detalle?.comentarios?.filter(c => !c.aprobado)?.length || 0;
+  }
+
+  // === GESTIÓN DE EVENTOS DE COMENTARIOS ===
+
+  /**
+   * Maneja cuando se crea un nuevo comentario
+   */
+  onComentarioCreado(comentario: ComentarioDTO): void {
+    console.log('✅ Nuevo comentario creado en admin:', comentario);
+    
+    // Ocultar el formulario después de crear
+    this.mostrarFormularioComentario = false;
+    
+    // Recargar todos los comentarios para mostrar el nuevo
+    if (this.detalle?.noticia?.id) {
+      this.cargarTodosLosComentarios(this.detalle.noticia.id);
+    }
+  }
+
+  /**
+   * Maneja cuando se aprueba un comentario
+   */
+  onComentarioAprobado(comentario: ComentarioDTO): void {
+    console.log('✅ Comentario aprobado en admin:', comentario);
+    
+    // Actualizar el comentario en la lista local
+    if (this.detalle?.comentarios) {
+      const index = this.detalle.comentarios.findIndex(c => c.id === comentario.id);
+      if (index >= 0) {
+        this.detalle.comentarios[index] = comentario;
+      }
+    }
+  }
+
+  /**
+   * Maneja cuando se elimina un comentario
+   */
+  onComentarioEliminado(comentarioId: number): void {
+    console.log('✅ Comentario eliminado en admin:', comentarioId);
+    
+    // Remover el comentario de la lista local
+    if (this.detalle?.comentarios) {
+      this.detalle.comentarios = this.detalle.comentarios.filter(c => c.id !== comentarioId);
+    }
+  }
+
+  /**
+   * Método para agregar comentarios de prueba (solo para desarrollo)
+   */
+  agregarComentariosPrueba(): void {
+    if (this.detalle?.noticia?.id) {
+      console.log('🔄 Creando comentario de prueba...');
+      
+      // Usar el servicio para crear un comentario real
+      this.comentariosService.crearComentario(this.detalle.noticia.id, {
+        autor: 'Usuario de Prueba',
+        mensaje: 'Este es un comentario de prueba creado desde el admin para verificar que funciona la integración con la base de datos.',
+        email: 'prueba@ejemplo.com'
+      }).subscribe({
+        next: (response) => {
+          console.log('✅ Comentario de prueba creado:', response);
+          if (response.success) {
+            // Recargar todos los comentarios
+            this.cargarTodosLosComentarios(this.detalle!.noticia.id);
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error al crear comentario de prueba:', error);
+        }
+      });
+    }
+  }
+
+  /**
+   * Método para debuggear el estado de los comentarios
+   */
+  debugComentarios(): void {
+    if (this.detalle?.noticia?.id) {
+      console.log('🔍 DEBUG - Estado actual de comentarios:');
+      console.log('🔍 Noticia ID:', this.detalle.noticia.id);
+      console.log('🔍 Comentarios en detalle:', this.detalle.comentarios);
+      console.log('🔍 Usuario autenticado:', this.authService.estaAutenticado());
+      console.log('🔍 Token:', this.authService.obtenerToken());
+      console.log('🔍 Rol:', this.authService.obtenerRol());
+      console.log('🔍 Endpoint admin:', `${environment.apiBaseUrl}/api/comentarios/admin/noticia/${this.detalle.noticia.id}`);
+      console.log('🔍 Endpoint público:', `${environment.apiBaseUrl}/api/comentarios/noticia/${this.detalle.noticia.id}`);
+    }
+  }
+
+  /**
+   * Cargar estadísticas generales de comentarios
+   */
+  cargarEstadisticasComentarios(): void {
+    this.comentariosService.obtenerEstadisticas().subscribe({
+      next: (estadisticas) => {
+        console.log('📊 Estadísticas de comentarios:', estadisticas);
+        this.mostrarExito(`Sistema: ${estadisticas.total} comentarios, ${estadisticas.pendientes} pendientes`);
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar estadísticas:', error);
+      }
+    });
+  }
+
+  /**
+   * Obtener comentarios pendientes del sistema (útil para admin general)
+   */
+  verComentariosPendientesGlobal(): void {
+    this.comentariosService.obtenerComentariosPendientes().subscribe({
+      next: (comentarios) => {
+        console.log('📝 Comentarios pendientes en el sistema:', comentarios);
+        const mensaje = comentarios.length > 0 
+          ? `Hay ${comentarios.length} comentarios pendientes de aprobación`
+          : 'No hay comentarios pendientes';
+        this.mostrarExito(mensaje);
+      },
+      error: (error) => {
+        console.error('❌ Error al obtener comentarios pendientes:', error);
+      }
+    });
+  }
+
+  /**
+   * Aprobar un comentario específico
+   */
+  aprobarComentario(comentario: ComentarioDTO): void {
+    if (comentario.id) {
+      console.log('🔄 Aprobando comentario:', comentario.id);
+      
+      this.comentariosService.aprobarComentario(comentario.id).subscribe({
+        next: (response) => {
+          console.log('✅ Comentario aprobado:', response);
+          if (response.success) {
+            // Actualizar el comentario localmente
+            if (this.detalle?.comentarios) {
+              const index = this.detalle.comentarios.findIndex(c => c.id === comentario.id);
+              if (index >= 0) {
+                this.detalle.comentarios[index] = { ...comentario, aprobado: true };
+              }
+            }
+            this.mostrarExito('Comentario aprobado exitosamente');
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error al aprobar comentario:', error);
+          this.mostrarError('Error al aprobar el comentario');
+        }
+      });
+    }
+  }
+
+  /**
+   * Eliminar un comentario específico
+   */
+  eliminarComentario(comentario: ComentarioDTO): void {
+    if (comentario.id && confirm('¿Estás seguro de que deseas eliminar este comentario?')) {
+      console.log('🔄 Eliminando comentario:', comentario.id);
+      
+      this.comentariosService.eliminarComentario(comentario.id).subscribe({
+        next: (response) => {
+          console.log('✅ Comentario eliminado:', response);
+          if (response.success) {
+            // Remover el comentario localmente
+            if (this.detalle?.comentarios) {
+              this.detalle.comentarios = this.detalle.comentarios.filter(c => c.id !== comentario.id);
+            }
+            this.mostrarExito('Comentario eliminado exitosamente');
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error al eliminar comentario:', error);
+          this.mostrarError('Error al eliminar el comentario');
+        }
+      });
+    }
+  }
+
+  /**
+   * Formatear fecha para mostrar en comentarios
+   */
+  formatearFecha(fechaString: string): string {
+    try {
+      const fecha = new Date(fechaString);
+      return fecha.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return fechaString;
+    }
   }
 }

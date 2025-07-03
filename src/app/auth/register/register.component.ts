@@ -55,8 +55,8 @@ export class RegisterComponent {
       this.authService.register(this.registerForm.value).subscribe({
         next: () => {
           this.isLoading = false;
-          alert('✅ Registro exitoso - Bienvenido a Tiempo Adicional');
-          this.router.navigate(['/usuarios']); // Redirigir al dashboard del usuario
+          alert('✅ Registro exitoso - Por favor inicia sesión con tus credenciales');
+          this.router.navigate(['/login']); // Redirigir al login para activar token
         },
         error: () => {
           this.isLoading = false;

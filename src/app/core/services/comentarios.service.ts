@@ -1,0 +1,383 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { environment } from '../../../environment/environment';
+
+// === INTERFACES SEGÚN DOCUMENTACIÓN DEL BACKEND ===
+
+export interface CrearComentarioDTO {
+  autor: string;        // Obligatorio
+  mensaje: string;      // Obligatorio (máx 1000 chars)
+  email?: string;       // Opcional
+}
+
+export interface ComentarioDTO {
+  id: number;
+  autor: string;
+  mensaje: string;
+  fecha: string;        // Formato: "yyyy-MM-dd HH:mm:ss"
+  aprobado: boolean;
+  noticiaId: number;
+  noticiaTitle?: string; // Para administración
+}
+
+export interface EstadisticasComentariosDTO {
+  total: number;        // Total de comentarios en el sistema
+  aprobados: number;    // Comentarios aprobados y visibles
+  pendientes: number;   // Esperando aprobación
+  rechazados: number;   // Eliminados
+}
+
+export interface ApiResponseDTO<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ComentariosService {
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/comentarios`;
+
+  constructor(private http: HttpClient) {}
+
+  // === MÉTODOS PÚBLICOS (Sin Autenticación) ===
+
+  /**
+   * Crear comentario público - requiere aprobación
+   */
+  crearComentario(noticiaId: number, comentario: CrearComentarioDTO): Observable<ApiResponseDTO<ComentarioDTO>> {
+    console.log(`🔄 Creando comentario para noticia ${noticiaId}:`, comentario);
+    
+    return this.http.post<ApiResponseDTO<ComentarioDTO>>(`${this.apiUrl}/noticia/${noticiaId}`, comentario)
+      .pipe(
+        tap(response => {
+          if (response.success) {
+            console.log('✅ Comentario creado exitosamente:', response.data);
+          }
+        }),
+        catchError(error => {
+          console.error('❌ Error al crear comentario:', error);
+          return of({
+            success: false,
+            message: 'Error al enviar el comentario. Inténtalo de nuevo.',
+            data: null as any
+          });
+        })
+      );
+  }
+
+  /**
+   * Crear comentario simple (retrocompatibilidad)
+   */
+  crearComentarioSimple(noticiaId: number, autor: string, mensaje: string): Observable<ApiResponseDTO<ComentarioDTO>> {
+    console.log(`🔄 Creando comentario simple para noticia ${noticiaId}`);
+    
+    const body = `autor=${encodeURIComponent(autor)}&mensaje=${encodeURIComponent(mensaje)}`;
+    const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    
+    return this.http.post<ApiResponseDTO<ComentarioDTO>>(`${this.apiUrl}/noticia/${noticiaId}/simple`, body, { headers })
+      .pipe(
+        tap(response => {
+          if (response.success) {
+            console.log('✅ Comentario simple creado exitosamente:', response.data);
+          }
+        }),
+        catchError(error => {
+          console.error('❌ Error al crear comentario simple:', error);
+          return of({
+            success: false,
+            message: 'Error al enviar el comentario. Inténtalo de nuevo.',
+            data: null as any
+          });
+        })
+      );
+  }
+
+  /**
+   * Obtener comentarios aprobados de una noticia (público)
+   */
+  obtenerComentariosDeNoticia(noticiaId: number): Observable<ComentarioDTO[]> {
+    console.log(`🔄 Obteniendo comentarios de noticia ${noticiaId}`);
+    
+    return this.http.get<ApiResponseDTO<ComentarioDTO[]>>(`${this.apiUrl}/noticia/${noticiaId}`)
+      .pipe(
+        map(response => {
+          if (response.success) {
+            console.log(`✅ Comentarios obtenidos: ${response.data.length}`);
+            return response.data;
+          }
+          return [];
+        }),
+        catchError(error => {
+          console.error('❌ Error al obtener comentarios:', error);
+          return of([]);
+        })
+      );
+  }
+
+  /**
+   * Buscar comentarios por contenido (público)
+   */
+  buscarComentarios(texto: string): Observable<ComentarioDTO[]> {
+    console.log(`🔄 Buscando comentarios con texto: "${texto}"`);
+    
+    const params = new HttpParams().set('texto', texto);
+    
+    return this.http.get<ApiResponseDTO<ComentarioDTO[]>>(`${this.apiUrl}/buscar`, { params })
+      .pipe(
+        map(response => {
+          if (response.success) {
+            console.log(`✅ Encontrados ${response.data.length} comentarios`);
+            return response.data;
+          }
+          return [];
+        }),
+        catchError(error => {
+          console.error('❌ Error al buscar comentarios:', error);
+          return of([]);
+        })
+      );
+  }
+
+  // === MÉTODOS DE ADMINISTRACIÓN (Requieren Autenticación) ===
+
+  /**
+   * Ver todos los comentarios de una noticia (incluyendo pendientes) - Admin
+   */
+  obtenerTodosLosComentariosDeNoticia(noticiaId: number): Observable<ComentarioDTO[]> {
+    console.log(`🔄 [ADMIN] Obteniendo todos los comentarios de noticia ${noticiaId}`);
+    
+    return this.http.get<ApiResponseDTO<ComentarioDTO[]>>(`${this.apiUrl}/admin/noticia/${noticiaId}`)
+      .pipe(
+        map(response => {
+          if (response.success) {
+            console.log(`✅ [ADMIN] Comentarios obtenidos: ${response.data.length}`);
+            return response.data;
+          }
+          return [];
+        }),
+        catchError(error => {
+          console.error('❌ [ADMIN] Error al obtener comentarios:', error);
+          return of([]);
+        })
+      );
+  }
+
+  /**
+   * Obtener comentarios pendientes de aprobación - Admin
+   */
+  obtenerComentariosPendientes(): Observable<ComentarioDTO[]> {
+    console.log('🔄 [ADMIN] Obteniendo comentarios pendientes de aprobación');
+    
+    return this.http.get<ApiResponseDTO<ComentarioDTO[]>>(`${this.apiUrl}/admin/pendientes`)
+      .pipe(
+        map(response => {
+          if (response.success) {
+            console.log(`✅ [ADMIN] Comentarios pendientes: ${response.data.length}`);
+            return response.data;
+          }
+          return [];
+        }),
+        catchError(error => {
+          console.error('❌ [ADMIN] Error al obtener comentarios pendientes:', error);
+          return of([]);
+        })
+      );
+  }
+
+  /**
+   * Listado paginado para administración
+   */
+  obtenerComentariosPaginados(page: number = 1, limit: number = 20, soloAprobados: boolean = false): Observable<any> {
+    console.log(`🔄 [ADMIN] Obteniendo comentarios paginados (página ${page}, límite ${limit})`);
+    
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString())
+      .set('soloAprobados', soloAprobados.toString());
+    
+    return this.http.get<any>(`${this.apiUrl}/admin`, { params })
+      .pipe(
+        tap(response => {
+          if (response.success) {
+            console.log(`✅ [ADMIN] Página ${page} obtenida exitosamente`);
+          }
+        }),
+        catchError(error => {
+          console.error('❌ [ADMIN] Error al obtener comentarios paginados:', error);
+          return of({
+            success: false,
+            message: 'Error al cargar comentarios',
+            data: {
+              content: [],
+              totalElements: 0,
+              totalPages: 0,
+              number: 0
+            }
+          });
+        })
+      );
+  }
+
+  /**
+   * Obtener estadísticas de comentarios - Admin
+   */
+  obtenerEstadisticas(): Observable<EstadisticasComentariosDTO> {
+    console.log('🔄 [ADMIN] Obteniendo estadísticas de comentarios');
+    
+    return this.http.get<ApiResponseDTO<EstadisticasComentariosDTO>>(`${this.apiUrl}/admin/estadisticas`)
+      .pipe(
+        map(response => {
+          if (response.success) {
+            console.log('✅ [ADMIN] Estadísticas obtenidas:', response.data);
+            return response.data;
+          }
+          // Devolver estadísticas vacías si hay error
+          return {
+            total: 0,
+            aprobados: 0,
+            pendientes: 0,
+            rechazados: 0
+          };
+        }),
+        catchError(error => {
+          console.error('❌ [ADMIN] Error al obtener estadísticas:', error);
+          return of({
+            total: 0,
+            aprobados: 0,
+            pendientes: 0,
+            rechazados: 0
+          });
+        })
+      );
+  }
+
+  /**
+   * Aprobar comentario - Admin
+   */
+  aprobarComentario(comentarioId: number): Observable<ApiResponseDTO<ComentarioDTO>> {
+    console.log(`🔄 [ADMIN] Aprobando comentario ${comentarioId}`);
+    
+    return this.http.patch<ApiResponseDTO<ComentarioDTO>>(`${this.apiUrl}/${comentarioId}/aprobar`, {})
+      .pipe(
+        tap(response => {
+          if (response.success) {
+            console.log('✅ [ADMIN] Comentario aprobado exitosamente:', response.data);
+          }
+        }),
+        catchError(error => {
+          console.error('❌ [ADMIN] Error al aprobar comentario:', error);
+          return of({
+            success: false,
+            message: 'Error al aprobar el comentario. Inténtalo de nuevo.',
+            data: null as any
+          });
+        })
+      );
+  }
+
+  /**
+   * Eliminar comentario - Admin
+   */
+  eliminarComentario(comentarioId: number): Observable<ApiResponseDTO<string>> {
+    console.log(`🔄 [ADMIN] Eliminando comentario ${comentarioId}`);
+    
+    return this.http.delete<ApiResponseDTO<string>>(`${this.apiUrl}/${comentarioId}`)
+      .pipe(
+        tap(response => {
+          if (response.success) {
+            console.log('✅ [ADMIN] Comentario eliminado exitosamente');
+          }
+        }),
+        catchError(error => {
+          console.error('❌ [ADMIN] Error al eliminar comentario:', error);
+          return of({
+            success: false,
+            message: 'Error al eliminar el comentario. Inténtalo de nuevo.',
+            data: 'Error'
+          });
+        })
+      );
+  }
+
+  // === MÉTODOS UTILITARIOS ===
+
+  /**
+   * Contar comentarios aprobados de una noticia
+   */
+  contarComentariosAprobados(noticiaId: number): Observable<number> {
+    return this.obtenerComentariosDeNoticia(noticiaId)
+      .pipe(
+        map(comentarios => comentarios.length),
+        catchError(() => of(0))
+      );
+  }
+
+  /**
+   * Validar contenido del comentario antes de enviar
+   */
+  validarComentario(comentario: CrearComentarioDTO): { valido: boolean; errores: string[] } {
+    const errores: string[] = [];
+
+    if (!comentario.autor || comentario.autor.trim().length === 0) {
+      errores.push('El nombre del autor es obligatorio');
+    }
+
+    if (!comentario.mensaje || comentario.mensaje.trim().length === 0) {
+      errores.push('El mensaje es obligatorio');
+    }
+
+    if (comentario.mensaje && comentario.mensaje.length > 1000) {
+      errores.push('El mensaje no puede superar los 1000 caracteres');
+    }
+
+    if (comentario.email && !this.validarEmail(comentario.email)) {
+      errores.push('El formato del email no es válido');
+    }
+
+    return {
+      valido: errores.length === 0,
+      errores
+    };
+  }
+
+  /**
+   * Validar formato de email
+   */
+  private validarEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  /**
+   * Formatear fecha para mostrar
+   */
+  formatearFecha(fechaString: string): string {
+    try {
+      const fecha = new Date(fechaString);
+      return fecha.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return fechaString;
+    }
+  }
+
+  /**
+   * Obtener mensaje de estado del comentario
+   */
+  obtenerMensajeEstado(comentario: ComentarioDTO): string {
+    if (comentario.aprobado) {
+      return 'Comentario aprobado y visible';
+    } else {
+      return 'Comentario pendiente de aprobación';
+    }
+  }
+}

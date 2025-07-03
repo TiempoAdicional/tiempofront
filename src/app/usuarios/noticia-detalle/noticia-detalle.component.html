@@ -47,72 +47,17 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Sección de comentarios (solo para usuarios registrados) -->
-    <div class="comentarios-section" *ngIf="estaAutenticado">
-      <mat-card class="comentarios-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>comment</mat-icon>
-            Comentarios ({{ comentarios.length }})
-          </mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          <!-- Formulario para nuevo comentario -->
-          <div class="nuevo-comentario" *ngIf="estaAutenticado">
-            <mat-form-field appearance="outline" class="comment-field">
-              <mat-label>Escribe tu comentario...</mat-label>
-              <textarea 
-                matInput 
-                [(ngModel)]="nuevoComentario"
-                rows="3"
-                placeholder="Comparte tu opinión sobre esta noticia">
-              </textarea>
-            </mat-form-field>
-            <button 
-              mat-raised-button 
-              color="primary" 
-              (click)="enviarComentario()"
-              [disabled]="!nuevoComentario.trim()">
-              <mat-icon>send</mat-icon>
-              Comentar
-            </button>
-          </div>
-
-          <mat-divider></mat-divider>
-
-          <!-- Lista de comentarios -->
-          <div class="comentarios-lista">
-            <div *ngIf="comentarios.length === 0" class="no-comentarios">
-              <mat-icon>chat_bubble_outline</mat-icon>
-              <p>Sé el primero en comentar esta noticia</p>
-            </div>
-
-            <div 
-              *ngFor="let comentario of comentarios" 
-              class="comentario-item"
-              [class.pendiente]="!comentario.aprobado">
-              
-              <div class="comentario-header">
-                <div class="autor-info">
-                  <mat-icon class="avatar-icon">person</mat-icon>
-                  <span class="autor-nombre">{{ comentario.autor }}</span>
-                </div>
-                <span class="fecha-comentario">{{ comentario.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
-              </div>
-              
-              <div class="comentario-contenido">
-                <p>{{ comentario.mensaje }}</p>
-              </div>
-              
-              <div class="comentario-estado" *ngIf="!comentario.aprobado">
-                <mat-chip color="warn">Pendiente de moderación</mat-chip>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+    <!-- Sección de comentarios modernizada -->
+    <app-comentarios 
+      [noticiaId]="noticia.id"
+      [comentarios]="comentarios"
+      [cargando]="false"
+      [permitirComentarios]="estaAutenticado"
+      [esAdmin]="false"
+      (comentarioCreado)="onComentarioCreado($event)"
+      (comentarioAprobado)="onComentarioAprobado($event)"
+      (comentarioEliminado)="onComentarioEliminado($event)">
+    </app-comentarios>
 
     <!-- Banner para usuarios no registrados -->
     <div class="registro-comentarios" *ngIf="!estaAutenticado">

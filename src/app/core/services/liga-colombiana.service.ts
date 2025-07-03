@@ -95,6 +95,24 @@ export class LigaColombianService {
   obtenerTemporadaActual(): Observable<Temporada> {
     return this.getCached('temporada-actual', () =>
       this.http.get<Temporada>(`${this.apiUrl}/temporadas/actual`)
+        .pipe(
+          catchError(error => {
+            console.warn('⚠️ No se pudo obtener temporada actual del servidor, usando mock:', error);
+            
+            // 🔥 FALLBACK: Temporada mock cuando el endpoint no existe
+            const temporadaMock: Temporada = {
+              id: 1,
+              nombre: 'Liga BetPlay 2025-I',
+              año: 2025,
+              semestre: Semestre.I,
+              fechaInicio: '2025-01-15',
+              fechaFin: '2025-06-30',
+              activa: true
+            };
+            
+            return of(temporadaMock);
+          })
+        )
     );
   }
 

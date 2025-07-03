@@ -13,7 +13,7 @@
     <span class="spacer"></span>
     
     <!-- ACCIONES DEL AUTOR -->
-    <div class="header-actions" *ngIf="esAutorDeLaNoticia && detalle">
+    <div class="header-actions" *ngIf="esAutorDeLaNoticia && detalle?.noticia">
       <button mat-icon-button 
               (click)="editarNoticia()" 
               matTooltip="Editar noticia">
@@ -32,8 +32,8 @@
           Duplicar
         </button>
         <button mat-menu-item (click)="cambiarEstadoPublicacion()">
-          <mat-icon>{{ detalle.noticia.esPublica ? 'unpublished' : 'publish' }}</mat-icon>
-          {{ detalle.noticia.esPublica ? 'Despublicar' : 'Publicar' }}
+          <mat-icon>{{ detalle?.noticia?.esPublica ? 'unpublished' : 'publish' }}</mat-icon>
+          {{ detalle?.noticia?.esPublica ? 'Despublicar' : 'Publicar' }}
         </button>
         <button mat-menu-item (click)="exportarNoticia()">
           <mat-icon>download</mat-icon>
@@ -48,7 +48,23 @@
     </div>
     
     <!-- ACCIONES GENERALES -->
-    <div class="header-actions" *ngIf="detalle">
+    <div class="header-actions" *ngIf="detalle?.noticia">
+      <!-- Botón comentarios para móvil -->
+      <button mat-icon-button 
+              (click)="toggleComentarios()"
+              matTooltip="Ver comentarios"
+              class="mobile-only">
+        <mat-icon [matBadge]="detalle?.comentarios?.length || 0" 
+                  [matBadgeHidden]="(detalle?.comentarios?.length || 0) === 0"
+                  matBadgeColor="accent">comment</mat-icon>
+      </button>
+      
+      <button mat-icon-button 
+              (click)="recargarComentarios()" 
+              matTooltip="Recargar comentarios">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      
       <button mat-icon-button 
               (click)="abrirVistaPrevia()" 
               matTooltip="Vista previa">
@@ -64,10 +80,37 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<!-- CONTENEDOR PRINCIPAL -->
-<div class="detalle-container" *ngIf="!cargando && detalle">
+<!-- ESTADO DE CARGA -->
+<div *ngIf="cargando" class="loading-container">
+  <mat-progress-spinner diameter="60" mode="indeterminate"></mat-progress-spinner>
+  <p>Cargando noticia...</p>
+</div>
+
+<!-- ESTADO DE ERROR -->
+<div *ngIf="!cargando && error" class="error-container">
+  <mat-card class="error-card">
+    <mat-card-content>
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <h2>Error al cargar la noticia</h2>
+      <p>{{ error }}</p>
+      <div class="error-actions">
+        <button mat-raised-button color="primary" (click)="recargarPagina()">
+          <mat-icon>refresh</mat-icon>
+          Recargar
+        </button>
+        <button mat-button (click)="volverAlDashboard()">
+          <mat-icon>arrow_back</mat-icon>
+          Volver al Dashboard
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- CONTENEDOR PRINCIPAL CON LAYOUT DE DOS COLUMNAS -->
+<div class="detalle-container" *ngIf="!cargando && detalle?.noticia">
   
-  <!-- CONTENIDO PRINCIPAL -->
+  <!-- COLUMNA IZQUIERDA: CONTENIDO PRINCIPAL -->
   <div class="contenido-principal">
     
     <!-- HEADER DE LA NOTICIA -->
@@ -76,10 +119,10 @@
         <div class="noticia-meta">
           <mat-chip-set>
             <mat-chip [color]="obtenerColorEstado()" [highlighted]="true">
-              <mat-icon>{{ detalle.noticia.esPublica ? 'public' : 'draft' }}</mat-icon>
+              <mat-icon>{{ detalle?.noticia?.esPublica ? 'public' : 'draft' }}</mat-icon>
               {{ obtenerTextoEstado() }}
             </mat-chip>
-            <mat-chip *ngIf="detalle.noticia.destacada" color="accent" highlighted>
+            <mat-chip *ngIf="detalle?.noticia?.destacada" color="accent" highlighted>
               <mat-icon>star</mat-icon>
               Destacada
             </mat-chip>
@@ -88,7 +131,7 @@
           <div class="info-publicacion">
             <span class="autor">
               <mat-icon>person</mat-icon>
-              {{ detalle.noticia.autorNombre }}
+              {{ detalle?.noticia?.autorNombre }}
             </span>
             <span class="fecha">
               <mat-icon>schedule</mat-icon>
@@ -103,13 +146,13 @@
       </mat-card-header>
       
       <mat-card-content>
-        <h1 class="titulo-noticia">{{ detalle.noticia.titulo }}</h1>
-        <p class="resumen-noticia">{{ detalle.noticia.resumen }}</p>
+        <h1 class="titulo-noticia">{{ detalle?.noticia?.titulo }}</h1>
+        <p class="resumen-noticia">{{ detalle?.noticia?.resumen }}</p>
         
         <!-- IMAGEN DESTACADA -->
-        <div class="imagen-destacada" *ngIf="detalle.noticia.imagenDestacada">
-          <img [src]="detalle.noticia.imagenDestacada" 
-               [alt]="detalle.noticia.titulo" 
+        <div class="imagen-destacada" *ngIf="detalle?.noticia?.imagenDestacada">
+          <img [src]="detalle?.noticia?.imagenDestacada" 
+               [alt]="detalle?.noticia?.titulo" 
                class="imagen-principal">
         </div>
         
@@ -134,51 +177,75 @@
           <ng-template matTabContent>
             <div class="contenido-noticia">
               <div [innerHTML]="contenidoHtml" class="html-content"></div>
-            </div>
-          </ng-template>
-        </mat-tab>
-
-        <!-- PESTAÑA DE COMENTARIOS -->
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <span>Comentarios</span>
-            <mat-chip-listbox class="tab-badge">
-              <mat-chip>{{ detalle.comentarios.length }}</mat-chip>
-            </mat-chip-listbox>
-          </ng-template>
-          <ng-template matTabContent>
-            <div class="comentarios-section">
-              <div class="comentarios-header">
-                <h3>
-                  <mat-icon>comment</mat-icon>
-                  Comentarios de la Hinchada ({{ detalle.comentarios.length }})
-                </h3>
-              </div>
               
-              <div class="comentarios-lista" *ngIf="detalle.comentarios.length > 0">
-                <mat-list>
-                  <mat-list-item *ngFor="let comentario of detalle.comentarios" class="comentario-item">
-                    <div matListItemIcon class="avatar-container">
-                      <img [src]="'https://api.dicebear.com/7.x/fun-emoji/svg?seed=' + comentario.autor.slice(0, 3)" 
-                           alt="Avatar fan" 
-                           class="comentario-avatar">
-                    </div>
-                    <div matListItemTitle class="comentario-contenido">
-                      <p class="comentario-texto">{{ comentario.mensaje }}</p>
-                      <div class="comentario-meta">
-                        <mat-icon>sports_soccer</mat-icon>
+              <!-- SECCIÓN DE COMENTARIOS -->
+              <div class="comentarios-section">
+                <mat-divider></mat-divider>
+                <h3 class="comentarios-titulo">
+                  <mat-icon>comment</mat-icon>
+                  Comentarios ({{ detalle?.comentarios?.length || 0 }})
+                </h3>
+                
+                <!-- Indicador de carga -->
+                <div *ngIf="cargandoComentarios" class="comentarios-loading">
+                  <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                  <p>Cargando comentarios...</p>
+                </div>
+                
+                <!-- Lista de comentarios -->
+                <div *ngIf="!cargandoComentarios" class="comentarios-lista">
+                  <!-- Comentario individual -->
+                  <div *ngFor="let comentario of detalle?.comentarios" class="comentario-item">
+                    <div class="comentario-header">
+                      <div class="comentario-autor">
+                        <mat-icon>person</mat-icon>
                         <span>{{ comentario.autor }}</span>
-                        <span class="fecha">{{ comentario.fecha | date:'short' }}</span>
+                      </div>
+                      <div class="comentario-fecha">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ formatearFecha(comentario.fecha) }}</span>
+                      </div>
+                      <div class="comentario-estado">
+                        <mat-chip 
+                          [color]="comentario.aprobado ? 'primary' : 'warn'"
+                          [highlighted]="true">
+                          <mat-icon>{{ comentario.aprobado ? 'check_circle' : 'pending' }}</mat-icon>
+                          {{ comentario.aprobado ? 'Aprobado' : 'Pendiente' }}
+                        </mat-chip>
                       </div>
                     </div>
-                  </mat-list-item>
-                </mat-list>
-              </div>
-              
-              <div class="sin-comentarios" *ngIf="detalle.comentarios.length === 0">
-                <mat-icon>comment_bank</mat-icon>
-                <p>Aún no hay comentarios para esta noticia.</p>
-                <p class="sub-text">¡Sé el primero en comentar cuando se publique!</p>
+                    
+                    <div class="comentario-contenido">
+                      <p>{{ comentario.mensaje }}</p>
+                    </div>
+                    
+                    <!-- Acciones de admin -->
+                    <div class="comentario-acciones">
+                      <button *ngIf="!comentario.aprobado" 
+                              mat-stroked-button 
+                              color="primary"
+                              (click)="aprobarComentario(comentario)">
+                        <mat-icon>check</mat-icon>
+                        Aprobar
+                      </button>
+                      <button mat-stroked-button 
+                              color="warn"
+                              (click)="eliminarComentario(comentario)">
+                        <mat-icon>delete</mat-icon>
+                        Eliminar
+                      </button>
+                    </div>
+                    
+                    <mat-divider></mat-divider>
+                  </div>
+                  
+                  <!-- Mensaje cuando no hay comentarios -->
+                  <div *ngIf="(detalle?.comentarios?.length ?? 0) === 0" class="sin-comentarios">
+                    <mat-icon>comment_bank</mat-icon>
+                    <p>No hay comentarios para esta noticia</p>
+                    <p class="sub-text">Los comentarios aparecerán aquí una vez que se creen</p>
+                  </div>
+                </div>
               </div>
             </div>
           </ng-template>
@@ -256,6 +323,71 @@
         </mat-tab>
       </mat-tab-group>
     </mat-card>
+
+    <!-- COMENTARIOS MÓVIL -->
+    <mat-card class="comentarios-mobile" *ngIf="mostrarComentarios">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>comment</mat-icon>
+          Gestión de Comentarios ({{ detalle?.comentarios?.length || 0 }})
+        </mat-card-title>
+        <button mat-icon-button (click)="toggleComentarios()" class="close-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="comentarios-lista">
+          <!-- Comentario individual -->
+          <div *ngFor="let comentario of detalle?.comentarios" class="comentario-item">
+            <div class="comentario-header">
+              <div class="comentario-autor">
+                <mat-icon>person</mat-icon>
+                <span>{{ comentario.autor }}</span>
+              </div>
+              <div class="comentario-fecha">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatearFecha(comentario.fecha) }}</span>
+              </div>
+              <div class="comentario-estado">
+                <mat-chip 
+                  [color]="comentario.aprobado ? 'primary' : 'warn'"
+                  [highlighted]="true">
+                  <mat-icon>{{ comentario.aprobado ? 'check_circle' : 'pending' }}</mat-icon>
+                  {{ comentario.aprobado ? 'Aprobado' : 'Pendiente' }}
+                </mat-chip>
+              </div>
+            </div>
+            
+            <div class="comentario-contenido">
+              <p>{{ comentario.mensaje }}</p>
+            </div>
+            
+            <!-- Acciones de admin -->
+            <div class="comentario-acciones">
+              <button *ngIf="!comentario.aprobado" 
+                      mat-stroked-button 
+                      color="primary"
+                      (click)="aprobarComentario(comentario)">
+                <mat-icon>check</mat-icon>
+                Aprobar
+              </button>
+              <button mat-stroked-button 
+                      color="warn"
+                      (click)="eliminarComentario(comentario)">
+                <mat-icon>delete</mat-icon>
+                Eliminar
+              </button>
+            </div>
+          </div>
+          
+          <!-- Mensaje cuando no hay comentarios -->
+          <div *ngIf="(detalle?.comentarios?.length ?? 0) === 0" class="sin-comentarios">
+            <mat-icon>comment_bank</mat-icon>
+            <p>No hay comentarios para esta noticia</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <!-- SIDEBAR DERECHO -->
@@ -287,11 +419,11 @@
           </button>
           
           <button mat-stroked-button 
-                  [color]="detalle.noticia.esPublica ? 'warn' : 'accent'"
+                  [color]="detalle?.noticia?.esPublica ? 'warn' : 'accent'"
                   (click)="cambiarEstadoPublicacion()" 
                   class="accion-btn">
-            <mat-icon>{{ detalle.noticia.esPublica ? 'unpublished' : 'publish' }}</mat-icon>
-            {{ detalle.noticia.esPublica ? 'Despublicar' : 'Publicar' }}
+            <mat-icon>{{ detalle?.noticia?.esPublica ? 'unpublished' : 'publish' }}</mat-icon>
+            {{ detalle?.noticia?.esPublica ? 'Despublicar' : 'Publicar' }}
           </button>
           
           <mat-divider></mat-divider>
@@ -324,23 +456,23 @@
       <mat-card-content>
         <div class="info-item">
           <mat-icon>fingerprint</mat-icon>
-          <span>ID: {{ detalle.noticia.id }}</span>
+          <span>ID: {{ detalle?.noticia?.id }}</span>
         </div>
         <div class="info-item">
           <mat-icon>schedule</mat-icon>
-          <span>Creada: {{ detalle.noticia.fechaPublicacion | date:'short' }}</span>
+          <span>Creada: {{ detalle?.noticia?.fechaPublicacion | date:'short' }}</span>
         </div>
         <div class="info-item">
           <mat-icon>update</mat-icon>
-          <span>Modificada: {{ detalle.noticia.fechaActualizacion | date:'short' }}</span>
+          <span>Modificada: {{ detalle?.noticia?.fechaActualizacion | date:'short' }}</span>
         </div>
         <div class="info-item">
           <mat-icon>visibility</mat-icon>
-          <span>{{ detalle.noticia.visitas || 0 }} visitas</span>
+          <span>{{ detalle?.noticia?.visitas || 0 }} visitas</span>
         </div>
         <div class="info-item">
           <mat-icon>comment</mat-icon>
-          <span>{{ detalle.comentarios.length }} comentarios</span>
+          <span>{{ detalle?.comentarios?.length || 0 }} comentarios</span>
         </div>
       </mat-card-content>
     </mat-card>
@@ -365,6 +497,72 @@
             </div>
           </mat-list-item>
         </mat-list>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- GESTIÓN DE COMENTARIOS -->
+    <mat-card class="comentarios-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>comment</mat-icon>
+          Herramientas de Comentarios
+        </mat-card-title>
+        <mat-card-subtitle>
+          Gestiona los comentarios de esta noticia
+        </mat-card-subtitle>
+        <div class="header-actions">
+          <button mat-icon-button 
+                  (click)="recargarComentarios()"
+                  matTooltip="Recargar comentarios"
+                  class="reload-btn">
+            <mat-icon>refresh</mat-icon>
+          </button>
+          <button mat-icon-button 
+                  (click)="agregarComentariosPrueba()"
+                  matTooltip="Crear comentario de prueba"
+                  class="test-btn">
+            <mat-icon>add_comment</mat-icon>
+          </button>
+          <button mat-icon-button 
+                  (click)="debugComentarios()"
+                  matTooltip="Debug comentarios"
+                  class="debug-btn">
+            <mat-icon>bug_report</mat-icon>
+          </button>
+          <button mat-icon-button 
+                  (click)="cargarEstadisticasComentarios()"
+                  matTooltip="Ver estadísticas del sistema"
+                  class="stats-btn">
+            <mat-icon>analytics</mat-icon>
+          </button>
+          <button mat-icon-button 
+                  (click)="verComentariosPendientesGlobal()"
+                  matTooltip="Ver comentarios pendientes del sistema"
+                  class="pending-btn">
+            <mat-icon>pending_actions</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-content class="comentarios-content">
+        <div class="comentarios-stats">
+          <div class="stat-item">
+            <mat-icon>comment</mat-icon>
+            <span>{{ detalle?.comentarios?.length || 0 }} Total</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>check_circle</mat-icon>
+            <span>{{ comentariosAprobados }} Aprobados</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>pending</mat-icon>
+            <span>{{ comentariosPendientes }} Pendientes</span>
+          </div>
+        </div>
+        
+        <p class="helper-text">
+          <mat-icon>info</mat-icon>
+          Los comentarios se muestran debajo del contenido de la noticia donde puedes aprobarlos o eliminarlos.
+        </p>
       </mat-card-content>
     </mat-card>
   </div>
