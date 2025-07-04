@@ -165,284 +165,370 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   private cargarNoticias(): void {
     this.cargandoNoticias = true;
     
-    // Use different strategy based on authentication status
-    const noticiasObservable = this.estaAutenticado 
-      ? this.noticiasService.listarNoticiasPublicas(20) // Temporalmente usar endpoint público hasta arreglar paginación
-      : this.noticiasService.listarNoticiasPublicas(15); // Public users: limited access
-    
-    noticiasObservable
+    if (this.estaAutenticado) {
+      // Usuario autenticado: acceso completo
+      console.log('🔓 Usuario autenticado - Cargando todas las noticias');
+      this.noticiasService.listarTodasAutenticado(1, 50)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            console.log('✅ Noticias autenticadas cargadas:', response);
+            this.procesarNoticiasCompletas(response.noticias || []);
+            this.cargandoNoticias = false;
+          },
+          error: (error) => {
+            console.error('❌ Error cargando noticias autenticadas:', error);
+            this.cargarNoticiasPublicas(); // Fallback
+          }
+        });
+    } else {
+      // Usuario no autenticado: contenido limitado
+      console.log('🔒 Usuario no autenticado - Cargando 10 noticias públicas');
+      this.cargarNoticiasPublicas();
+    }
+  }
+
+  private cargarNoticiasPublicas(): void {
+    // Usar endpoint público con límite de 10 noticias
+    this.noticiasService.listarNoticiasPublicas(this.LIMITE_NOTICIAS)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ Noticias cargadas exitosamente:', response);
+          console.log('✅ Noticias públicas cargadas:', response);
           
-          // Handle different response structures
           let noticias = [];
           if (response?.noticias) {
             noticias = response.noticias;
           } else if (Array.isArray(response)) {
             noticias = response;
-          } else if (response?.content) {
-            // Handle paginated response from listarTodas
-            noticias = response.content;
           }
           
-          console.log('📰 Noticias procesadas:', noticias.length, 'noticias');
+          console.log(`📰 Procesando ${noticias.length} noticias públicas (límite: ${this.LIMITE_NOTICIAS})`);
           
-          // First, try to get featured news from dedicated endpoint for better results
-          if (!this.estaAutenticado) {
-            this.noticiasService.obtenerDestacadas()
-              .pipe(takeUntil(this.destroy$))
-              .subscribe({
-                next: (destacadas) => {
-                  if (destacadas && destacadas.length > 0) {
-                    const noticiaDestacadaRaw = destacadas[0];
-                    this.noticiaDestacada = {
-                      id: noticiaDestacadaRaw.id,
-                      titulo: noticiaDestacadaRaw.titulo,
-                      resumen: noticiaDestacadaRaw.resumen || noticiaDestacadaRaw.contenidoHtml?.substring(0, 150) + '...',
-                      fechaPublicacion: noticiaDestacadaRaw.fechaPublicacion,
-                      seccion: 'Destacada',
-                      imagenUrl: noticiaDestacadaRaw.imagenDestacada,
-                      bloqueada: false
-                    };
-                    console.log('✨ Noticia destacada configurada:', this.noticiaDestacada);
-                  }
-                },
-                error: (error) => {
-                  console.warn('⚠️ No se pudieron cargar noticias destacadas:', error);
-                }
-              });
-          }
+          // Cargar noticia destacada primero
+          this.cargarNoticiaDestacada();
           
-          // Find featured news in the main response (destacada: true) if authenticated
-          const noticiaDestacadaRaw = this.estaAutenticado 
-            ? noticias.find((n: any) => n.destacada === true)
-            : null;
-          
-          // Configure featured news if exists and user is authenticated
-          if (noticiaDestacadaRaw) {
-            this.obtenerNombreUsuario(noticiaDestacadaRaw.creador_id).then(autorNombre => {
+          // Procesar noticias limitadas
+          this.procesarNoticiasLimitadas(noticias);
+          this.mostrarAvisoLimiteNoticias = noticias.length >= this.LIMITE_NOTICIAS;
+          this.cargandoNoticias = false;
+        },
+        error: (error) => {
+          console.error('❌ Error cargando noticias públicas:', error);
+          this.cargarNoticiasFallback();
+        }
+      });
+  }
+
+  private cargarNoticiaDestacada(): void {
+    if (!this.estaAutenticado) {
+      this.noticiasService.obtenerDestacadas()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (destacadas) => {
+            if (destacadas && destacadas.length > 0) {
+              const noticiaDestacadaRaw = destacadas[0];
               this.noticiaDestacada = {
                 id: noticiaDestacadaRaw.id,
                 titulo: noticiaDestacadaRaw.titulo,
-                resumen: noticiaDestacadaRaw.resumen || noticiaDestacadaRaw.contenidoHtml?.substring(0, 150) + '...',
+                resumen: this.limitarTexto(noticiaDestacadaRaw.resumen || noticiaDestacadaRaw.contenidoHtml, 150),
                 fechaPublicacion: noticiaDestacadaRaw.fechaPublicacion,
                 seccion: 'Destacada',
                 imagenUrl: noticiaDestacadaRaw.imagenDestacada,
                 bloqueada: false,
-                autorNombre: autorNombre,
-                creadorId: noticiaDestacadaRaw.creador_id
+                autorNombre: noticiaDestacadaRaw.autorNombre || 'TiempoAdicional'
               };
-              console.log('✨ Noticia destacada configurada (auth):', this.noticiaDestacada);
-            });
+              console.log('✨ Noticia destacada pública configurada:', this.noticiaDestacada);
+            }
+          },
+          error: (error) => {
+            console.warn('⚠️ No se pudieron cargar noticias destacadas:', error);
           }
-          
-          // Filter news for grid (exclude featured if exists)
-          const noticiasParaGrid = noticiaDestacadaRaw 
-            ? noticias.filter((n: any) => n.id !== noticiaDestacadaRaw.id)
-            : noticias;
-          
-          // For non-authenticated users, show only first 10 in grid
-          const noticiasParaMostrar = this.estaAutenticado 
-            ? noticiasParaGrid 
-            : noticiasParaGrid.slice(0, this.LIMITE_NOTICIAS);
-          
-          // Map news - ALL displayed news are navigable, with author names
-          Promise.all(
-            noticiasParaMostrar.map(async (noticia: any) => ({
-              id: noticia.id,
-              titulo: noticia.titulo,
-              resumen: noticia.resumen || noticia.contenidoHtml?.substring(0, 150) + '...',
-              fechaPublicacion: noticia.fechaPublicacion,
-              seccion: 'General',
-              imagenUrl: noticia.imagenDestacada,
-              bloqueada: false, // Todas las noticias mostradas son navegables
-              autorNombre: await this.obtenerNombreUsuario(noticia.creador_id),
-              creadorId: noticia.creador_id
-            }))
-          ).then(noticiasConAutores => {
-            this.noticiasLimitadas = noticiasConAutores;
-          });
-          
-          // Mostrar aviso si hay más noticias disponibles
-          if (!this.estaAutenticado && noticiasParaGrid.length > this.LIMITE_NOTICIAS) {
-            this.mostrarAvisoLimiteNoticias = true;
-          }
-          
-          console.log('📰 Noticias para mostrar:', this.noticiasLimitadas.length);
-          console.log('✨ Noticia destacada:', this.noticiaDestacada ? 'SÍ' : 'NO');
-          
-          this.cargandoNoticias = false;
-        },
-        error: (error) => {
-          console.error('❌ Error al cargar noticias:', error);
-          console.error('Status:', error.status);
-          console.error('URL:', error.url);
-          console.error('Headers:', error.headers);
-          
-          this.cargandoNoticias = false;
-          this.backendDisponible = false;
-          this.mensajeConexion = 'Error loading content';
-          
-          // Show user-friendly error message
-          this.snackBar.open(
-            `Unable to load news. Please check your connection and try again.`,
-            'Close',
-            { duration: 5000 }
-          );
-          
-          // Set empty arrays to maintain UI functionality
-          this.noticiasLimitadas = [];
-          this.noticiaDestacada = null;
-        }
+        });
+    }
+  }
+
+  private procesarNoticiasCompletas(noticias: any[]): void {
+    // Para usuarios autenticados: acceso completo
+    const noticiaDestacadaRaw = noticias.find((n: any) => n.destacada === true);
+    
+    if (noticiaDestacadaRaw) {
+      this.obtenerNombreUsuario(noticiaDestacadaRaw.autorId || noticiaDestacadaRaw.creador_id).then(autorNombre => {
+        this.noticiaDestacada = {
+          id: noticiaDestacadaRaw.id,
+          titulo: noticiaDestacadaRaw.titulo,
+          resumen: noticiaDestacadaRaw.resumen || this.limitarTexto(noticiaDestacadaRaw.contenidoHtml, 150),
+          fechaPublicacion: noticiaDestacadaRaw.fechaPublicacion,
+          seccion: 'Destacada',
+          imagenUrl: noticiaDestacadaRaw.imagenDestacada,
+          bloqueada: false,
+          autorNombre: autorNombre,
+          creadorId: noticiaDestacadaRaw.autorId || noticiaDestacadaRaw.creador_id
+        };
       });
+    }
+    
+    // Filtrar noticias para grid (excluir destacada)
+    const noticiasParaGrid = noticiaDestacadaRaw 
+      ? noticias.filter((n: any) => n.id !== noticiaDestacadaRaw.id)
+      : noticias;
+    
+    this.procesarListaNoticias(noticiasParaGrid, false);
+  }
+
+  private procesarNoticiasLimitadas(noticias: any[]): void {
+    // Para usuarios no autenticados: contenido limitado
+    const noticiasLimitadas = noticias.slice(0, this.LIMITE_NOTICIAS);
+    this.procesarListaNoticias(noticiasLimitadas, true);
+  }
+
+  private procesarListaNoticias(noticias: any[], esLimitado: boolean): void {
+    Promise.all(
+      noticias.map(async (noticia: any) => {
+        const autorNombre = await this.obtenerNombreUsuario(noticia.autorId || noticia.creador_id);
+        
+        return {
+          id: noticia.id,
+          titulo: noticia.titulo,
+          resumen: this.limitarTexto(noticia.resumen || noticia.contenidoHtml, 120),
+          fechaPublicacion: noticia.fechaPublicacion,
+          seccion: this.determinarSeccion(noticia),
+          imagenUrl: noticia.imagenDestacada || '/assets/logo-tiempo.png',
+          bloqueada: false, // ✅ Permitir ver contenido, solo limitar cantidad
+          autorNombre: autorNombre,
+          creadorId: noticia.autorId || noticia.creador_id
+        } as NoticiaLimitada;
+      })
+    ).then(noticiasLimitadas => {
+      this.noticiasLimitadas = noticiasLimitadas;
+      console.log(`✅ ${noticiasLimitadas.length} noticias procesadas para el grid`);
+    }).catch(error => {
+      console.error('❌ Error procesando noticias:', error);
+      this.cargarNoticiasFallback();
+    });
+  }
+
+  private cargarNoticiasFallback(): void {
+    console.log('🔄 Cargando noticias con datos de fallback...');
+    this.noticiasLimitadas = [];
+    this.noticiaDestacada = null;
+    this.cargandoNoticias = false;
+    this.backendDisponible = false;
+    this.mensajeConexion = 'Error loading content';
+    
+    this.snackBar.open(
+      'No se pudieron cargar las noticias. Verifique su conexión.',
+      'Cerrar',
+      { duration: 5000 }
+    );
   }
 
   private cargarEventos(): void {
     this.cargandoEventos = true;
     
-    // Usar método específico según autenticación del usuario
-    const eventosObservable = this.estaAutenticado 
-      ? this.eventosService.listarTodos() // Usuarios autenticados: todos los eventos
-      : this.eventosService.listarEventosPublicos(12); // Públicos: traer 12 para detectar si hay más de 8
-    
-    eventosObservable
+    if (this.estaAutenticado) {
+      // Usuario autenticado: acceso completo
+      console.log('🔓 Usuario autenticado - Cargando todos los eventos');
+      this.eventosService.listarTodos()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            console.log('✅ Eventos autenticados cargados:', response);
+            this.procesarEventosCompletos(response);
+            this.cargandoEventos = false;
+          },
+          error: (error) => {
+            console.error('❌ Error cargando eventos autenticados:', error);
+            this.cargarEventosPublicos(); // Fallback
+          }
+        });
+    } else {
+      // Usuario no autenticado: contenido limitado
+      console.log('🔒 Usuario no autenticado - Cargando 8 eventos públicos');
+      this.cargarEventosPublicos();
+    }
+  }
+
+  private cargarEventosPublicos(): void {
+    // Usar endpoint público con límite de 8 eventos
+    this.eventosService.listarEventosPublicos(this.LIMITE_EVENTOS)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ Eventos cargados exitosamente:', response);
+          console.log('✅ Eventos públicos cargados:', response);
           
-          // Handle different response formats
-          let eventosArray = [];
-          if (response && response.eventos) {
-            eventosArray = response.eventos;
+          let eventos = [];
+          if (response?.eventos) {
+            eventos = response.eventos;
           } else if (Array.isArray(response)) {
-            eventosArray = response;
+            eventos = response;
           }
           
-          console.log('📅 Eventos procesados:', eventosArray.length, 'eventos');
+          console.log(`📅 Procesando ${eventos.length} eventos públicos (límite: ${this.LIMITE_EVENTOS})`);
           
-          // Para usuarios no autenticados, mostrar solo los primeros 8 pero permitir navegación
-          const eventosParaMostrar = this.estaAutenticado 
-            ? eventosArray 
-            : eventosArray.slice(0, this.LIMITE_EVENTOS);
-            
-          // Map events with author names
-          Promise.all(
-            eventosParaMostrar.map(async (evento: any) => ({
-              id: evento.id || 0,
-              titulo: evento.nombre || evento.titulo,
-              fecha: evento.fecha,
-              ubicacion: evento.lugar || evento.ubicacion,
-              competicion: evento.descripcion || evento.competicion || 'Evento',
-              bloqueado: false, // Todos los eventos mostrados son navegables
-              autorNombre: await this.obtenerNombreUsuario(evento.creador_id),
-              creadorId: evento.creador_id
-            }))
-          ).then(eventosConAutores => {
-            this.eventosLimitados = eventosConAutores;
-          });
-          
-          // Mostrar aviso si hay más eventos disponibles
-          if (!this.estaAutenticado && eventosArray.length > this.LIMITE_EVENTOS) {
-            this.mostrarAvisoLimiteEventos = true;
-          }
-          
-          console.log('📅 Eventos para mostrar:', this.eventosLimitados.length);
-          
+          this.procesarEventosLimitados(eventos);
+          this.mostrarAvisoLimiteEventos = eventos.length >= this.LIMITE_EVENTOS;
           this.cargandoEventos = false;
         },
         error: (error) => {
-          console.error('❌ Error al cargar eventos:', error);
-          console.error('Status:', error.status);
-          console.error('URL:', error.url);
-          console.error('Headers:', error.headers);
-          
-          this.cargandoEventos = false;
-          this.backendDisponible = false;
-          this.mensajeConexion = 'Error loading events';
-          
-          // Show user-friendly error message
-          this.snackBar.open(
-            `Unable to load events. Please check your connection.`,
-            'Close',
-            { duration: 5000 }
-          );
-          
-          // Set empty array to maintain UI functionality
-          this.eventosLimitados = [];
+          console.error('❌ Error cargando eventos públicos:', error);
+          this.cargarEventosFallback();
         }
       });
+  }
+
+  private procesarEventosCompletos(response: any): void {
+    // Para usuarios autenticados: acceso completo
+    let eventosArray = [];
+    if (response && response.eventos) {
+      eventosArray = response.eventos;
+    } else if (Array.isArray(response)) {
+      eventosArray = response;
+    }
+    
+    this.procesarListaEventos(eventosArray, false);
+  }
+
+  private procesarEventosLimitados(eventos: any[]): void {
+    // Para usuarios no autenticados: contenido limitado
+    const eventosLimitados = eventos.slice(0, this.LIMITE_EVENTOS);
+    this.procesarListaEventos(eventosLimitados, true);
+  }
+
+  private procesarListaEventos(eventos: any[], esLimitado: boolean): void {
+    Promise.all(
+      eventos.map(async (evento: any) => {
+        const autorNombre = await this.obtenerNombreUsuario(evento.creadorId || evento.creador_id);
+        
+        return {
+          id: evento.id || 0,
+          titulo: evento.nombre || evento.titulo,
+          fecha: evento.fecha,
+          ubicacion: evento.lugar || evento.ubicacion || 'Ubicación por confirmar',
+          competicion: evento.descripcion || evento.competicion || 'Evento',
+          bloqueado: false, // ✅ Permitir ver contenido, solo limitar cantidad
+          autorNombre: autorNombre,
+          creadorId: evento.creadorId || evento.creador_id
+        } as EventoLimitado;
+      })
+    ).then(eventosLimitados => {
+      this.eventosLimitados = eventosLimitados;
+      console.log(`✅ ${eventosLimitados.length} eventos procesados para el grid`);
+    }).catch(error => {
+      console.error('❌ Error procesando eventos:', error);
+      this.cargarEventosFallback();
+    });
+  }
+
+  private cargarEventosFallback(): void {
+    console.log('🔄 Cargando eventos con datos de fallback...');
+    this.eventosLimitados = [];
+    this.cargandoEventos = false;
+    
+    this.snackBar.open(
+      'No se pudieron cargar los eventos. Verifique su conexión.',
+      'Cerrar',
+      { duration: 5000 }
+    );
   }
 
   private cargarPartidos(): void {
     this.cargandoPartidos = true;
     
-    // Use different strategy based on authentication status
-    const partidosObservable = this.estaAutenticado 
-      ? this.partidosService.obtenerPartidosPublicos(10) // Temporalmente usar endpoint público hasta arreglar backend
-      : this.partidosService.obtenerPartidosPublicos(this.LIMITE_PARTIDOS); // Public users: limited access
-    
-    partidosObservable
+    if (this.estaAutenticado) {
+      // Usuario autenticado: acceso completo
+      console.log('🔓 Usuario autenticado - Cargando todos los partidos');
+      this.partidosService.listarTodos()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            console.log('✅ Partidos autenticados cargados:', response);
+            this.procesarPartidosCompletos(response);
+            this.cargandoPartidos = false;
+          },
+          error: (error) => {
+            console.error('❌ Error cargando partidos autenticados:', error);
+            this.cargarPartidosPublicos(); // Fallback
+          }
+        });
+    } else {
+      // Usuario no autenticado: contenido limitado
+      console.log('🔒 Usuario no autenticado - Cargando 6 partidos públicos');
+      this.cargarPartidosPublicos();
+    }
+  }
+
+  private cargarPartidosPublicos(): void {
+    // Usar endpoint público con límite de 6 partidos
+    this.partidosService.obtenerPartidosPublicos(this.LIMITE_PARTIDOS)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ Partidos cargados exitosamente:', response);
+          console.log('✅ Partidos públicos cargados:', response);
           
-          // Handle different response formats
-          let partidosArray = [];
-          if (response && response.partidos) {
-            partidosArray = response.partidos;
+          let partidos = [];
+          if (response?.partidos) {
+            partidos = response.partidos;
           } else if (Array.isArray(response)) {
-            partidosArray = response;
+            partidos = response;
           }
           
-          console.log('⚽ Partidos procesados:', partidosArray.length, 'partidos');
+          console.log(`⚽ Procesando ${partidos.length} partidos públicos (límite: ${this.LIMITE_PARTIDOS})`);
           
-          // Para usuarios no autenticados, mostrar SOLO los limitados (no más)
-          const partidosParaMostrar = this.estaAutenticado 
-            ? partidosArray 
-            : partidosArray.slice(0, this.LIMITE_PARTIDOS); // Solo mostrar los primeros 6
-          
-          // Mapear partidos - para usuarios no auth, todos los mostrados son navegables
-          this.partidosLimitados = partidosParaMostrar.map((partido: any) => ({
-            id: partido.id || 0,
-            equipoLocal: partido.equipoLocal,
-            equipoVisitante: partido.equipoVisitante,
-            fecha: partido.fecha,
-            liga: partido.liga || partido.competencia || 'Liga',
-            estado: partido.estado || 'Programado',
-            golesLocal: partido.golesLocal,
-            golesVisitante: partido.golesVisitante,
-            bloqueado: false // Todos los partidos mostrados son navegables para evitar confusión
-          }));
-          
-          console.log('⚽ Partidos para mostrar:', this.partidosLimitados.length);
-          
+          this.procesarPartidosLimitados(partidos);
           this.cargandoPartidos = false;
         },
         error: (error) => {
-          console.error('❌ Error al cargar partidos:', error);
-          console.error('Status:', error.status);
-          console.error('URL:', error.url);
-          console.error('Headers:', error.headers);
-          
-          this.cargandoPartidos = false;
-          this.backendDisponible = false;
-          this.mensajeConexion = 'Error loading matches';
-          
-          // Show user-friendly error message
-          this.snackBar.open(
-            `Unable to load matches. Please check your connection.`,
-            'Close',
-            { duration: 5000 }
-          );
-          
-          // Set empty array to maintain UI functionality
-          this.partidosLimitados = [];
+          console.error('❌ Error cargando partidos públicos:', error);
+          this.cargarPartidosFallback();
         }
       });
+  }
+
+  private procesarPartidosCompletos(response: any): void {
+    // Para usuarios autenticados: acceso completo
+    let partidosArray = [];
+    if (response && response.partidos) {
+      partidosArray = response.partidos;
+    } else if (Array.isArray(response)) {
+      partidosArray = response;
+    }
+    
+    this.procesarListaPartidos(partidosArray, false);
+  }
+
+  private procesarPartidosLimitados(partidos: any[]): void {
+    // Para usuarios no autenticados: contenido limitado
+    const partidosLimitados = partidos.slice(0, this.LIMITE_PARTIDOS);
+    this.procesarListaPartidos(partidosLimitados, true);
+  }
+
+  private procesarListaPartidos(partidos: any[], esLimitado: boolean): void {
+    this.partidosLimitados = partidos.map((partido: any) => ({
+      id: partido.id || 0,
+      equipoLocal: partido.equipoLocal,
+      equipoVisitante: partido.equipoVisitante,
+      fecha: partido.fecha,
+      liga: partido.liga || partido.competencia || 'Liga',
+      estado: partido.estado || 'Programado',
+      golesLocal: partido.golesLocal,
+      golesVisitante: partido.golesVisitante,
+      bloqueado: false // ✅ Permitir ver contenido, solo limitar cantidad
+    }));
+    
+    console.log(`✅ ${this.partidosLimitados.length} partidos procesados para el grid`);
+  }
+
+  private cargarPartidosFallback(): void {
+    console.log('🔄 Cargando partidos con datos de fallback...');
+    this.partidosLimitados = [];
+    this.cargandoPartidos = false;
+    
+    this.snackBar.open(
+      'No se pudieron cargar los partidos. Verifique su conexión.',
+      'Cerrar',
+      { duration: 5000 }
+    );
   }
 
   private scrollToSection(section: string): void {
@@ -466,17 +552,17 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   // Métodos de navegación y acciones
   verNoticia(noticia: NoticiaLimitada): void {
-    // Permitir navegación - el componente de detalle manejará la restricción
+    // ✅ Permitir navegación a todos los usuarios - contenido público disponible
     this.router.navigate(['/noticia', noticia.id]);
   }
 
   verEvento(evento: EventoLimitado): void {
-    // Permitir navegación - el componente de detalle manejará la restricción
+    // ✅ Permitir navegación a todos los usuarios - contenido público disponible
     this.router.navigate(['/evento', evento.id]);
   }
 
   verPartido(partido: PartidoLimitado): void {
-    // Permitir navegación - mostrar información básica y pedir registro para más detalles
+    // ✅ Permitir navegación a todos los usuarios - contenido público disponible
     this.router.navigate(['/partidos'], { fragment: `partido-${partido.id}` });
   }
 
@@ -544,4 +630,16 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   // === MÉTODOS AUXILIARES ===
+  
+  private limitarTexto(texto: string | undefined, limite: number): string {
+    if (!texto) return '';
+    return texto.length > limite ? texto.substring(0, limite) + '...' : texto;
+  }
+
+  private determinarSeccion(noticia: any): string {
+    if (noticia.seccion) return noticia.seccion;
+    if (noticia.seccion_id) return `Sección ${noticia.seccion_id}`;
+    if (noticia.tags && noticia.tags.length > 0) return noticia.tags[0];
+    return 'Noticias';
+  }
 }

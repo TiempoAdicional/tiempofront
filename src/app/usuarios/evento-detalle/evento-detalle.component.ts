@@ -75,31 +75,15 @@ export class EventoDetalleComponent implements OnInit, OnDestroy {
           this.evento = evento;
           this.cargando = false;
           
-          // Si el evento requiere registro, mostrar mensaje
-          if (evento.requiereRegistro) {
-            this.snackBar.open(
-              'Regístrate para acceder a los detalles completos', 
-              'Registrarse',
-              { 
-                duration: 0, // No desaparece automáticamente
-                horizontalPosition: 'center',
-                verticalPosition: 'top'
-              }
-            ).onAction().subscribe(() => {
-              this.router.navigate(['/register']);
-            });
-          }
+          // ✅ Ya no mostrar mensaje de registro - permitir acceso público al contenido
+          console.log('📅 Evento cargado correctamente para usuario', this.estaAutenticado ? 'autenticado' : 'público');
         },
         error: (error) => {
           console.error('Error al cargar evento:', error);
           this.cargando = false;
           
-          // Mensaje específico para usuarios no autenticados
-          const mensaje = !this.estaAutenticado 
-            ? 'Regístrate para acceder al contenido completo'
-            : 'Error al cargar el evento';
-            
-          this.snackBar.open(mensaje, 'Cerrar', { duration: 5000 });
+          // ✅ Mensaje genérico - no mencionar registro
+          this.snackBar.open('Error al cargar el evento', 'Cerrar', { duration: 5000 });
           
           // Redirigir al dashboard si hay error
           setTimeout(() => {

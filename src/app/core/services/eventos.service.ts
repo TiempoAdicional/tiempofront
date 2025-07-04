@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
+import { catchError, tap, map } from 'rxjs/operators';
 import { environment } from '../../../environment/environment';
 
 export interface Evento {
@@ -133,25 +133,43 @@ export class EventosService {
 
   /**
    * Obtiene el detalle de un evento público (para usuarios no autenticados)
-   * Si falla, devuelve información limitada en lugar de error
+   * ✅ Permite ver contenido público completo
    */
   obtenerDetallePublico(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`)
       .pipe(
         tap(evento => console.log(`✅ Detalle público evento id=${id}:`, evento)),
         catchError(error => {
-          console.warn(`⚠️ No se pudo obtener detalle público para evento id=${id}:`, error);
-          // En lugar de error, devolver información básica indicando que necesita registro
-          return of({
-            id: id,
-            nombre: 'Contenido Restringido',
-            descripcion: 'Regístrate para ver los detalles completos de este evento.',
-            fecha: new Date().toISOString(),
-            lugar: 'Ubicación disponible para usuarios registrados',
-            imagenEvento: '',
-            videoUrl: '',
-            requiereRegistro: true
-          });
+          console.warn(`⚠️ Error obteniendo detalle público para evento id=${id}:`, error);
+          
+          // Si falla el endpoint directo, intentar con el endpoint público
+          return this.http.get<any>(`${this.apiUrl}/proximos`).pipe(
+            map(response => {
+              console.log('🔄 Intentando obtener desde endpoint público:', response);
+              
+              // Buscar el evento específico en la lista pública
+              let eventos = [];
+              if (Array.isArray(response)) {
+                eventos = response;
+              } else if (response?.eventos) {
+                eventos = response.eventos;
+              }
+              
+              const eventoEncontrado = eventos.find((e: any) => e.id === id);
+              
+              if (eventoEncontrado) {
+                console.log('✅ Evento encontrado en endpoint público:', eventoEncontrado);
+                return eventoEncontrado;
+              } else {
+                console.warn(`⚠️ Evento id=${id} no encontrado en endpoint público`);
+                throw new Error(`Evento ${id} no disponible públicamente`);
+              }
+            }),
+            catchError(fallbackError => {
+              console.error(`❌ Error en todos los métodos para evento id=${id}:`, fallbackError);
+              return throwError(() => fallbackError);
+            })
+          );
         })
       );
   }

@@ -124,31 +124,15 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
           
           this.cargando = false;
           
-          // Si la noticia requiere registro, mostrar mensaje
-          if (noticia && noticia.requiereRegistro) {
-            this.snackBar.open(
-              'Regístrate para acceder al contenido completo', 
-              'Registrarse',
-              { 
-                duration: 0, // No desaparece automáticamente
-                horizontalPosition: 'center',
-                verticalPosition: 'top'
-              }
-            ).onAction().subscribe(() => {
-              this.router.navigate(['/register']);
-            });
-          }
+          // ✅ Ya no mostrar mensaje de registro - permitir acceso público al contenido
+          console.log('📰 Noticia cargada correctamente para usuario', this.estaAutenticado ? 'autenticado' : 'público');
         },
         error: (error) => {
           console.error('Error al cargar noticia:', error);
           this.cargando = false;
           
-          // Mensaje específico para usuarios no autenticados
-          const mensaje = !this.estaAutenticado 
-            ? 'Regístrate para acceder al contenido completo'
-            : 'Error al cargar la noticia';
-            
-          this.snackBar.open(mensaje, 'Cerrar', { duration: 5000 });
+          // ✅ Mensaje genérico - no mencionar registro
+          this.snackBar.open('Error al cargar la noticia', 'Cerrar', { duration: 5000 });
           
           // Redirigir al dashboard si hay error
           setTimeout(() => {

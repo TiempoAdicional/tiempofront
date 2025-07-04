@@ -171,8 +171,6 @@ export class NoticiasService {
           console.error('❌ Error en listarTodas (endpoint público):', error);
           console.error('Status:', error.status, 'URL:', error.url);
           
-          // 🔥 FALLBACK: Si falla el endpoint público, intentar con datos mock
-          console.log('🔄 Usando datos mock como último recurso...');
           
           const mockNoticias: Noticia[] = [
             {
@@ -598,34 +596,47 @@ export class NoticiasService {
 
   /**
    * Obtiene el detalle de una noticia pública (para usuarios no autenticados)
-   * Si falla, devuelve información limitada en lugar de error
+   * ✅ Permite ver contenido público completo, sin comentarios
    */
   obtenerDetallePublico(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`)
       .pipe(
         tap(detalle => console.log(`✅ Detalle público noticia id=${id}:`, detalle)),
         catchError(error => {
-          console.warn(`⚠️ No se pudo obtener detalle público para noticia id=${id}:`, error);
-          // En lugar de error, devolver información básica indicando que necesita registro
-          return of({
-            noticia: {
-              id: id,
-              titulo: 'Contenido Restringido',
-              resumen: 'Regístrate para leer el contenido completo de esta noticia.',
-              contenidoHtml: '<p>Este contenido requiere registro. <a href="/register">Regístrate aquí</a> para acceder.</p>',
-              imagenDestacada: '',
-              fechaPublicacion: new Date().toISOString(),
-              autorNombre: 'TiempoAdicional',
-              esPublica: false,
-              destacada: false,
-              visitas: 0,
-              autorId: 0,
-              contenidoUrl: '',
-              requiereRegistro: true
-            },
-            comentarios: [],
-            relacionadas: []
-          });
+          console.warn(`⚠️ Error obteniendo detalle público para noticia id=${id}:`, error);
+          
+          // Si falla el endpoint directo, intentar con el endpoint público
+          return this.http.get<any>(`${this.apiUrl}/publicas`).pipe(
+            map(response => {
+              console.log('🔄 Intentando obtener desde endpoint público:', response);
+              
+              // Buscar la noticia específica en la lista pública
+              let noticias = [];
+              if (Array.isArray(response)) {
+                noticias = response;
+              } else if (response?.noticias) {
+                noticias = response.noticias;
+              }
+              
+              const noticiaEncontrada = noticias.find((n: any) => n.id === id);
+              
+              if (noticiaEncontrada) {
+                console.log('✅ Noticia encontrada en endpoint público:', noticiaEncontrada);
+                return {
+                  noticia: noticiaEncontrada,
+                  comentarios: [], // Sin comentarios para usuarios no autenticados
+                  relacionadas: []
+                };
+              } else {
+                console.warn(`⚠️ Noticia id=${id} no encontrada en endpoint público`);
+                throw new Error(`Noticia ${id} no disponible públicamente`);
+              }
+            }),
+            catchError(fallbackError => {
+              console.error(`❌ Error en todos los métodos para noticia id=${id}:`, fallbackError);
+              return throwError(() => fallbackError);
+            })
+          );
         })
       );
   }
