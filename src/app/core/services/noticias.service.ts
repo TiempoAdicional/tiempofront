@@ -741,4 +741,24 @@ export class NoticiasService {
       return of(result as T);
     };
   }
+
+  /**
+   * Verifica si una noticia es pública sin incrementar visitas
+   */
+  verificarNoticiaPublica(id: number): Observable<boolean> {
+    console.log(`🔍 Verificando si noticia ${id} es pública...`);
+    
+    return this.http.get<{esPublica: boolean}>(`${this.apiUrl}/${id}/verificar-publica`)
+      .pipe(
+        map(response => {
+          console.log(`✅ Verificación completada para noticia ${id}:`, response.esPublica);
+          return response.esPublica;
+        }),
+        catchError(error => {
+          console.warn(`⚠️ Error verificando noticia ${id}:`, error);
+          // Si hay error, asumir que no es pública por seguridad
+          return of(false);
+        })
+      );
+  }
 }

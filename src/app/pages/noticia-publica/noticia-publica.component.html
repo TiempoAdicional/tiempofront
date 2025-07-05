@@ -1,0 +1,224 @@
+<!-- Loading State -->
+<div *ngIf="cargando" class="loading-container">
+  <mat-card class="loading-card">
+    <mat-card-content>
+      <mat-spinner diameter="60"></mat-spinner>
+      <p>Cargando noticia...</p>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !cargando" class="error-container">
+  <mat-card class="error-card">
+    <mat-card-content>
+      <mat-icon color="warn" class="error-icon">error_outline</mat-icon>
+      <h2>{{ error }}</h2>
+      <p>Lo sentimos, no pudimos cargar esta noticia.</p>
+      <button mat-raised-button color="primary" (click)="volverAlInicio()">
+        <mat-icon>home</mat-icon>
+        Volver al Inicio
+      </button>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Contenido de la Noticia -->
+<div *ngIf="noticia && !cargando && !error" class="noticia-container">
+  
+  <!-- Header de la noticia -->
+  <div class="noticia-header">
+    <mat-card class="header-card">
+      <mat-card-header>
+        
+        <!-- Breadcrumb y navegación -->
+        <div class="breadcrumb">
+          <button mat-icon-button (click)="volverAlInicio()" matTooltip="Volver al inicio">
+            <mat-icon>home</mat-icon>
+          </button>
+          <mat-icon>chevron_right</mat-icon>
+          <span>Noticias</span>
+          <mat-icon>chevron_right</mat-icon>
+          <span class="current-page">{{ noticia.titulo | slice:0:30 }}...</span>
+        </div>
+
+        <!-- Título principal -->
+        <mat-card-title class="titulo-principal">
+          {{ noticia.titulo }}
+        </mat-card-title>
+
+        <!-- Metadata de la noticia -->
+        <mat-card-subtitle class="metadata">
+          <div class="metadata-item">
+            <mat-icon>person</mat-icon>
+            <span>Por {{ noticia.autorNombre }}</span>
+          </div>
+          
+          <div class="metadata-item">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ formatearFecha(noticia.fechaPublicacion) }}</span>
+          </div>
+          
+          <div class="metadata-item" *ngIf="noticia.visitas">
+            <mat-icon>visibility</mat-icon>
+            <span>{{ noticia.visitas }} {{ noticia.visitas === 1 ? 'vista' : 'vistas' }}</span>
+          </div>
+        </mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+  </div>
+
+  <!-- Imagen destacada -->
+  <div class="imagen-destacada" *ngIf="noticia.imagenDestacada">
+    <mat-card class="imagen-card">
+      <img 
+        [src]="noticia.imagenDestacada" 
+        [alt]="noticia.titulo"
+        class="imagen-principal"
+        loading="lazy">
+    </mat-card>
+  </div>
+
+  <!-- Resumen -->
+  <div class="resumen-container" *ngIf="noticia.resumen">
+    <mat-card class="resumen-card">
+      <mat-card-content>
+        <div class="resumen-content">
+          <mat-icon class="quote-icon">format_quote</mat-icon>
+          <p class="resumen-texto">{{ noticia.resumen }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Contenido principal de la noticia -->
+  <div class="contenido-principal">
+    <mat-card class="contenido-card">
+      <mat-card-content>
+        <div 
+          class="contenido-html" 
+          [innerHTML]="contenidoSanitizado">
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Acciones y compartir -->
+  <div class="acciones-container">
+    <mat-card class="acciones-card">
+      <mat-card-content>
+        <div class="acciones-content">
+          
+          <!-- Información adicional -->
+          <div class="info-adicional">
+            <mat-chip-set>
+              <mat-chip *ngIf="noticia.destacada" color="accent">
+                <mat-icon matChipAvatar>star</mat-icon>
+                Destacada
+              </mat-chip>
+              <mat-chip color="primary">
+                <mat-icon matChipAvatar>public</mat-icon>
+                Pública
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="botones-accion">
+            <button mat-raised-button color="accent" (click)="compartirNoticia()">
+              <mat-icon>share</mat-icon>
+              Compartir
+            </button>
+
+            <button 
+              mat-icon-button 
+              [matMenuTriggerFor]="shareMenu"
+              matTooltip="Más opciones de compartir"
+              class="more-share-btn">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #shareMenu="matMenu">
+              <button mat-menu-item (click)="copiarEnlace()">
+                <mat-icon>link</mat-icon>
+                <span>Copiar enlace</span>
+              </button>
+              
+              <button mat-menu-item (click)="compartirEnRedSocial('twitter')">
+                <mat-icon>share</mat-icon>
+                <span>Compartir en Twitter</span>
+              </button>
+              
+              <button mat-menu-item (click)="compartirEnRedSocial('facebook')">
+                <mat-icon>share</mat-icon>
+                <span>Compartir en Facebook</span>
+              </button>
+              
+              <button mat-menu-item (click)="compartirEnRedSocial('whatsapp')">
+                <mat-icon>share</mat-icon>
+                <span>Compartir en WhatsApp</span>
+              </button>
+              
+              <button mat-menu-item (click)="compartirEnRedSocial('telegram')">
+                <mat-icon>share</mat-icon>
+                <span>Compartir en Telegram</span>
+              </button>
+            </mat-menu>
+            
+            <button mat-stroked-button (click)="volverAlInicio()">
+              <mat-icon>arrow_back</mat-icon>
+              Volver al Inicio
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Footer con información de la publicación -->
+  <div class="footer-noticia">
+    <mat-card class="footer-card">
+      <mat-card-content>
+        <div class="footer-content">
+          <div class="publicacion-info">
+            <p>
+              <strong>Publicado:</strong> {{ formatearFecha(noticia.fechaPublicacion) }}
+            </p>
+            <p *ngIf="noticia.autorNombre">
+              <strong>Autor:</strong> {{ noticia.autorNombre }}
+            </p>
+          </div>
+          
+          <div class="enlace-permanente">
+            <mat-form-field appearance="outline" class="enlace-field">
+              <mat-label>Enlace permanente</mat-label>
+              <input 
+                matInput 
+                [value]="window.location.href" 
+                readonly
+                #enlaceInput>
+              <button 
+                mat-icon-button 
+                matSuffix 
+                (click)="compartirNoticia()"
+                matTooltip="Copiar enlace">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+</div>
+
+<!-- Botón flotante para volver arriba -->
+<button 
+  mat-fab 
+  class="scroll-top-btn"
+  (click)="scrollToTop()"
+  *ngIf="showScrollTop"
+  matTooltip="Volver arriba">
+  <mat-icon>keyboard_arrow_up</mat-icon>
+</button>

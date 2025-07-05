@@ -520,4 +520,26 @@ export class ListarComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  // 🔗 MÉTODO PARA COMPARTIR NOTICIAS
+  compartirNoticia(noticia: Noticia): void {
+    if (!noticia.esPublica) {
+      this.mostrarError('Esta noticia no es pública y no se puede compartir');
+      return;
+    }
+
+    const urlCompartir = `${window.location.origin}/noticia/${noticia.id}`;
+    
+    // Copiar al portapapeles
+    navigator.clipboard.writeText(urlCompartir).then(() => {
+      this.mostrarExito('✅ Enlace copiado al portapapeles');
+    }).catch(() => {
+      this.mostrarError('❌ Error al copiar enlace');
+    });
+  }
+
+  // 🔗 MÉTODO PARA OBTENER URL DE COMPARTIR
+  obtenerUrlCompartir(noticia: Noticia): string {
+    return `${window.location.origin}/noticia/${noticia.id}`;
+  }
 }

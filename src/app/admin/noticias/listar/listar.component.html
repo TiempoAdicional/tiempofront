@@ -302,6 +302,13 @@
                 </button>
                 
                 <mat-menu #accionesMenu="matMenu">
+                  <button mat-menu-item (click)="compartirNoticia(noticia)" 
+                          [disabled]="!noticia.esPublica"
+                          [matTooltip]="!noticia.esPublica ? 'Solo las noticias públicas se pueden compartir' : 'Copiar enlace para compartir'">
+                    <mat-icon>share</mat-icon>
+                    Compartir
+                  </button>
+                  <mat-divider></mat-divider>
                   <button mat-menu-item (click)="duplicarNoticia(noticia)">
                     <mat-icon>content_copy</mat-icon>
                     Duplicar

@@ -5,6 +5,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { AdminGuard } from './core/guards/admin.guard';
 import { SuperAdminGuard } from './core/guards/super-admin.guard';
 import { UsuarioGuard } from './core/guards/usuario.guard';
+import { noticiaPublicaGuard } from './core/guards/noticia-publica.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -18,11 +19,12 @@ export const routes: Routes = [
       import('./usuarios/dashboard/dashboard.component').then(m => m.UsuarioDashboardComponent)
   },
   
-  // Public detail routes
+  // Public detail routes - URLs para compartir noticias
   {
     path: 'noticia/:id',
+    canActivate: [noticiaPublicaGuard],
     loadComponent: () =>
-      import('./usuarios/noticia-detalle/noticia-detalle.component').then(m => m.NoticiaDetalleComponent)
+      import('./pages/noticia-publica/noticia-publica.component').then(m => m.NoticiaPublicaComponent)
   },
   {
     path: 'evento/:id',
