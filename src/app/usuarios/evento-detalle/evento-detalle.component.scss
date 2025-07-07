@@ -350,6 +350,230 @@
   }
 }
 
+// ========== SECCIÓN DE COMPARTIR ==========
+.compartir-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+
+  h3 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    mat-icon {
+      color: #007bff;
+    }
+  }
+
+  .compartir-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+
+    .compartir-btn {
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      color: white;
+      border-radius: 25px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+      }
+
+      mat-icon {
+        margin-right: 0.5rem;
+      }
+    }
+
+    button[mat-icon-button] {
+      background: rgba(0, 123, 255, 0.1);
+      border: 1px solid rgba(0, 123, 255, 0.2);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(0, 123, 255, 0.2);
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin: 1rem 0;
+    padding: 1rem;
+
+    .compartir-buttons {
+      flex-direction: column;
+      align-items: stretch;
+
+      .compartir-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+// ========== DESCRIPCIÓN SANITIZADA ==========
+.descripcion {
+  div[innerHTML] {
+    line-height: 1.8;
+    font-size: 1.1rem;
+    color: #495057;
+
+    h1, h2, h3, h4, h5, h6 {
+      color: #212529;
+      margin: 1.5rem 0 1rem 0;
+      font-weight: 600;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      text-align: justify;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1rem 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    blockquote {
+      border-left: 4px solid #007bff;
+      padding-left: 1rem;
+      margin: 1rem 0;
+      font-style: italic;
+      background: rgba(0, 123, 255, 0.05);
+      border-radius: 0 8px 8px 0;
+    }
+
+    ul, ol {
+      margin: 1rem 0;
+      padding-left: 2rem;
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// ===============================
+// 🏆 SECCIÓN DE EQUIPOS
+// ===============================
+.equipos-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border-left: 4px solid #28a745;
+
+  h3 {
+    color: #495057;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+
+    mat-icon {
+      color: #28a745;
+    }
+  }
+
+  .equipos-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .equipo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      min-width: 150px;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      mat-icon {
+        font-size: 2rem;
+        width: 2rem;
+        height: 2rem;
+        color: #007bff;
+      }
+
+      .equipo-label {
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .equipo-nombre {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #333;
+        text-align: center;
+      }
+    }
+
+    .vs-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      border-radius: 50%;
+      color: white;
+      font-weight: 900;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(238, 90, 36, 0.3);
+
+      @media (max-width: 768px) {
+        width: 50px;
+        height: 50px;
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
 // ===============================
 // 📱 RESPONSIVE ADJUSTMENTS
 // ===============================

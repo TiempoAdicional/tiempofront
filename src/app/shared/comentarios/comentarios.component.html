@@ -1,6 +1,52 @@
 <div class="comentarios-container">
+  <!-- 🆕 Información del         <mat-form-field appearance="outline" class="contenido-field">
+          <mat-label>Tu comentario</mat-label>
+          <textarea matInput formControlName="contenido" rows="4" 
+                   placeholder="Escribe tu comentario aquí..." 
+                   [attr.maxlength]="1000"></textarea>
+          <mat-hint align="end">
+            {{ comentarioForm.get('contenido')?.value?.length || 0 }}/1000
+          </mat-hint>
+          <mat-error *ngIf="comentarioForm.get('contenido')?.errors?.['required']">
+            El comentario es requerido
+          </mat-error>
+          <mat-error *ngIf="comentarioForm.get('contenido')?.errors?.['minlength']">
+            El comentario debe tener al menos 10 caracteres
+          </mat-error>
+          <mat-error *ngIf="comentarioForm.get('contenido')?.errors?.['maxlength']">
+            El comentario no puede superar los 1000 caracteres
+          </mat-error>
+        </mat-form-field>ios -->
+  <div class="comentarios-limite-info" *ngIf="!cargandoComentarios" @fadeIn>
+    <mat-card class="limite-card">
+      <mat-card-content>
+        <div class="limite-content">
+          <div class="limite-stats">
+            <mat-icon [class.limite-warning]="infoComentarios.restantes <= 1" 
+                      [class.limite-ok]="infoComentarios.restantes > 1">
+              {{ infoComentarios.restantes > 1 ? 'comment' : 'warning' }}
+            </mat-icon>
+            <div class="limite-text">
+              <strong>{{ infoComentarios.totalComentarios }}/{{ infoComentarios.limite }}</strong>
+              <span class="limite-description">comentarios</span>
+            </div>
+          </div>
+          
+          <div class="limite-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="porcentajeLimite"></div>
+            </div>
+            <span class="limite-mensaje" [class.limite-completo]="!infoComentarios.puedeComentary">
+              {{ mensajeLimite }}
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
   <!-- Formulario para nuevo comentario -->
-  <mat-card class="comentario-form-card" *ngIf="permitirComentarios" @slideInUp>
+  <mat-card class="comentario-form-card" *ngIf="puedeComentary" @slideInUp>
     <mat-card-header>
       <mat-card-title>
         <mat-icon>comment</mat-icon>
@@ -33,26 +79,26 @@
         
         <mat-form-field appearance="outline" class="mensaje-field">
           <mat-label>Tu comentario</mat-label>
-          <textarea matInput formControlName="mensaje" rows="4" 
+          <textarea matInput formControlName="contenido" rows="4" 
                    placeholder="Escribe tu comentario aquí..." 
                    [attr.maxlength]="1000"></textarea>
           <mat-hint align="end">
-            {{ comentarioForm.get('mensaje')?.value?.length || 0 }}/1000
+            {{ comentarioForm.get('contenido')?.value?.length || 0 }}/1000
           </mat-hint>
-          <mat-error *ngIf="comentarioForm.get('mensaje')?.errors?.['required']">
+          <mat-error *ngIf="comentarioForm.get('contenido')?.errors?.['required']">
             El comentario es requerido
           </mat-error>
-          <mat-error *ngIf="comentarioForm.get('mensaje')?.errors?.['minlength']">
+          <mat-error *ngIf="comentarioForm.get('contenido')?.errors?.['minlength']">
             El comentario debe tener al menos 10 caracteres
           </mat-error>
-          <mat-error *ngIf="comentarioForm.get('mensaje')?.errors?.['maxlength']">
+          <mat-error *ngIf="comentarioForm.get('contenido')?.errors?.['maxlength']">
             El comentario no puede superar los 1000 caracteres
           </mat-error>
         </mat-form-field>
         
         <div class="form-actions">
           <button mat-raised-button color="primary" type="submit" 
-                  [disabled]="comentarioForm.invalid || enviando"
+                  [disabled]="comentarioForm.invalid || enviando || !puedeComentary"
                   class="submit-button">
             <mat-icon *ngIf="!enviando">send</mat-icon>
             <mat-progress-spinner *ngIf="enviando" diameter="20" mode="indeterminate"></mat-progress-spinner>
@@ -67,31 +113,46 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- Mensaje cuando no se puede comentar -->
+  <mat-card class="comentario-disabled-card" *ngIf="!puedeComentary && permitirComentarios" @slideInUp>
+    <mat-card-content>
+      <div class="disabled-content">
+        <mat-icon class="disabled-icon">block</mat-icon>
+        <h4>Comentarios llenos</h4>
+        <p>Esta noticia ya tiene el máximo de comentarios permitidos ({{ infoComentarios.limite }})</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <!-- Lista de comentarios -->
   <div class="comentarios-lista" @fadeIn>
     <div class="comentarios-header" *ngIf="comentarios.length > 0">
       <h3 class="comentarios-titulo">
         <mat-icon>forum</mat-icon>
-        Comentarios ({{ comentarios.length }})
+        Comentarios 
+        <mat-chip class="comentarios-count" [matBadge]="infoComentarios.comentariosAprobados" 
+                  [matBadgeHidden]="infoComentarios.comentariosAprobados === 0">
+          {{ infoComentarios.totalComentarios }}
+        </mat-chip>
       </h3>
       <mat-divider></mat-divider>
     </div>
     
     <!-- Estado de carga -->
-    <div class="comentarios-loading" *ngIf="cargando" @pulse>
+    <div class="comentarios-loading" *ngIf="cargandoComentarios" @pulse>
       <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
       <p>Cargando comentarios...</p>
     </div>
     
     <!-- Estado vacío -->
-    <div class="no-comentarios" *ngIf="!cargando && comentarios.length === 0" @fadeIn>
+    <div class="no-comentarios" *ngIf="!cargandoComentarios && comentarios.length === 0" @fadeIn>
       <mat-icon class="empty-icon">comment_bank</mat-icon>
       <h4>Aún no hay comentarios</h4>
       <p>¡Sé el primero en compartir tu opinión!</p>
     </div>
     
     <!-- Tarjetas de comentarios -->
-    <div class="comentarios-grid" *ngIf="!cargando && comentarios.length > 0">
+    <div class="comentarios-grid" *ngIf="!cargandoComentarios && comentarios.length > 0">
       <mat-card class="comentario-card" 
                 *ngFor="let comentario of comentarios; let i = index; trackBy: trackByComentario"
                 [class.comentario-pendiente]="!comentario.aprobado"
@@ -102,11 +163,13 @@
             <mat-icon>person</mat-icon>
           </div>
           <div class="comentario-header-content">
-            <mat-card-title class="comentario-autor">{{ comentario.autor }}</mat-card-title>
+            <mat-card-title class="comentario-autor">
+              {{ comentario.autor || comentario.autorNombre || 'Anónimo' }}
+            </mat-card-title>
             <mat-card-subtitle class="comentario-metadata">
               <span class="comentario-fecha">
                 <mat-icon class="metadata-icon">schedule</mat-icon>
-                {{ formatearFecha(comentario.fecha) }}
+                {{ formatearFecha(comentario.fechaCreacion) }}
               </span>
               <mat-chip class="comentario-estado" [class]="getClaseEstado(comentario)" selected>
                 <mat-icon>{{ getIconoEstado(comentario) }}</mat-icon>
@@ -139,7 +202,7 @@
         </mat-card-header>
         
         <mat-card-content>
-          <p class="comentario-mensaje">{{ comentario.mensaje }}</p>
+          <p class="comentario-mensaje">{{ comentario.contenido }}</p>
         </mat-card-content>
         
         <!-- Acciones rápidas de admin para móvil -->

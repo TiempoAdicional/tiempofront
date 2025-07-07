@@ -7,19 +7,31 @@ import { environment } from '../../../environment/environment';
 // === INTERFACES SEGÚN DOCUMENTACIÓN DEL BACKEND ===
 
 export interface CrearComentarioDTO {
-  autor: string;        // Obligatorio
-  mensaje: string;      // Obligatorio (máx 1000 chars)
-  email?: string;       // Opcional
+  noticiaId: number;
+  contenido: string;     // Cambio de 'mensaje' a 'contenido'
+  autorId?: number;      // Para usuarios autenticados
 }
 
 export interface ComentarioDTO {
   id: number;
-  autor: string;
-  mensaje: string;
-  fecha: string;        // Formato: "yyyy-MM-dd HH:mm:ss"
-  aprobado: boolean;
+  autor?: string;        // Para comentarios públicos
+  autorId?: number;      // Para comentarios de usuarios autenticados
+  autorNombre?: string;  // Nombre del autor autenticado
+  contenido: string;     // Cambio de 'mensaje' a 'contenido'
   noticiaId: number;
+  fechaCreacion: string; // Cambio de 'fecha' a 'fechaCreacion'
+  aprobado: boolean;
   noticiaTitle?: string; // Para administración
+}
+
+// 🆕 NUEVA INTERFAZ PARA INFO COMPLETA DE COMENTARIOS
+export interface InfoComentariosDTO {
+  comentarios: ComentarioDTO[];
+  totalComentarios: number;        // Total (aprobados + pendientes)
+  comentariosAprobados: number;    // Solo aprobados
+  puedeComentary: boolean;         // Si puede agregar más comentarios
+  limite: number;                  // Límite máximo (5)
+  restantes: number;               // Comentarios restantes
 }
 
 export interface EstadisticasComentariosDTO {
@@ -46,12 +58,44 @@ export class ComentariosService {
   // === MÉTODOS PÚBLICOS (Sin Autenticación) ===
 
   /**
-   * Crear comentario público - requiere aprobación
+   * 🆕 NUEVO - Obtener información completa de comentarios con límite
    */
-  crearComentario(noticiaId: number, comentario: CrearComentarioDTO): Observable<ApiResponseDTO<ComentarioDTO>> {
-    console.log(`🔄 Creando comentario para noticia ${noticiaId}:`, comentario);
+  obtenerInfoComentarios(noticiaId: number): Observable<ApiResponseDTO<InfoComentariosDTO>> {
+    console.log(`🔄 Obteniendo información completa de comentarios para noticia ${noticiaId}`);
     
-    return this.http.post<ApiResponseDTO<ComentarioDTO>>(`${this.apiUrl}/noticia/${noticiaId}`, comentario)
+    return this.http.get<ApiResponseDTO<InfoComentariosDTO>>(`${this.apiUrl}/noticia/${noticiaId}/info`)
+      .pipe(
+        tap(response => {
+          if (response.success) {
+            console.log('✅ Información de comentarios obtenida:', response.data);
+            console.log(`📊 Total: ${response.data.totalComentarios}, Aprobados: ${response.data.comentariosAprobados}, Restantes: ${response.data.restantes}`);
+          }
+        }),
+        catchError(error => {
+          console.error('❌ Error al obtener información de comentarios:', error);
+          return of({
+            success: false,
+            message: 'Error al obtener información de comentarios',
+            data: {
+              comentarios: [],
+              totalComentarios: 0,
+              comentariosAprobados: 0,
+              puedeComentary: false,
+              limite: 5,
+              restantes: 0
+            }
+          });
+        })
+      );
+  }
+
+  /**
+   * Crear comentario con validación de límite
+   */
+  crearComentario(comentarioData: CrearComentarioDTO): Observable<ApiResponseDTO<ComentarioDTO>> {
+    console.log(`🔄 Creando comentario para noticia ${comentarioData.noticiaId}:`, comentarioData);
+    
+    return this.http.post<ApiResponseDTO<ComentarioDTO>>(`${this.apiUrl}`, comentarioData)
       .pipe(
         tap(response => {
           if (response.success) {
@@ -60,9 +104,19 @@ export class ComentariosService {
         }),
         catchError(error => {
           console.error('❌ Error al crear comentario:', error);
+          
+          // Manejo específico para límite excedido
+          if (error.error?.codigo === 'LIMITE_COMENTARIOS_EXCEDIDO') {
+            return of({
+              success: false,
+              message: 'Esta noticia ya tiene el máximo de comentarios permitidos (5)',
+              data: null as any
+            });
+          }
+          
           return of({
             success: false,
-            message: 'Error al enviar el comentario. Inténtalo de nuevo.',
+            message: error.error?.message || 'Error al enviar el comentario. Inténtalo de nuevo.',
             data: null as any
           });
         })
@@ -71,29 +125,18 @@ export class ComentariosService {
 
   /**
    * Crear comentario simple (retrocompatibilidad)
+   * @deprecated Usar crearComentario() en su lugar
    */
   crearComentarioSimple(noticiaId: number, autor: string, mensaje: string): Observable<ApiResponseDTO<ComentarioDTO>> {
     console.log(`🔄 Creando comentario simple para noticia ${noticiaId}`);
     
-    const body = `autor=${encodeURIComponent(autor)}&mensaje=${encodeURIComponent(mensaje)}`;
-    const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    // Convertir a nuevo formato
+    const comentarioData: CrearComentarioDTO = {
+      noticiaId: noticiaId,
+      contenido: mensaje
+    };
     
-    return this.http.post<ApiResponseDTO<ComentarioDTO>>(`${this.apiUrl}/noticia/${noticiaId}/simple`, body, { headers })
-      .pipe(
-        tap(response => {
-          if (response.success) {
-            console.log('✅ Comentario simple creado exitosamente:', response.data);
-          }
-        }),
-        catchError(error => {
-          console.error('❌ Error al crear comentario simple:', error);
-          return of({
-            success: false,
-            message: 'Error al enviar el comentario. Inténtalo de nuevo.',
-            data: null as any
-          });
-        })
-      );
+    return this.crearComentario(comentarioData);
   }
 
   /**
@@ -102,14 +145,10 @@ export class ComentariosService {
   obtenerComentariosDeNoticia(noticiaId: number): Observable<ComentarioDTO[]> {
     console.log(`🔄 Obteniendo comentarios de noticia ${noticiaId}`);
     
-    return this.http.get<ApiResponseDTO<ComentarioDTO[]>>(`${this.apiUrl}/noticia/${noticiaId}`)
+    return this.http.get<ComentarioDTO[]>(`${this.apiUrl}/noticia/${noticiaId}`)
       .pipe(
-        map(response => {
-          if (response.success) {
-            console.log(`✅ Comentarios obtenidos: ${response.data.length}`);
-            return response.data;
-          }
-          return [];
+        tap(comentarios => {
+          console.log(`✅ Comentarios obtenidos: ${comentarios.length}`);
         }),
         catchError(error => {
           console.error('❌ Error al obtener comentarios:', error);
@@ -322,20 +361,16 @@ export class ComentariosService {
   validarComentario(comentario: CrearComentarioDTO): { valido: boolean; errores: string[] } {
     const errores: string[] = [];
 
-    if (!comentario.autor || comentario.autor.trim().length === 0) {
-      errores.push('El nombre del autor es obligatorio');
+    if (!comentario.contenido || comentario.contenido.trim().length === 0) {
+      errores.push('El contenido del comentario es obligatorio');
     }
 
-    if (!comentario.mensaje || comentario.mensaje.trim().length === 0) {
-      errores.push('El mensaje es obligatorio');
+    if (comentario.contenido && comentario.contenido.length > 1000) {
+      errores.push('El comentario no puede superar los 1000 caracteres');
     }
 
-    if (comentario.mensaje && comentario.mensaje.length > 1000) {
-      errores.push('El mensaje no puede superar los 1000 caracteres');
-    }
-
-    if (comentario.email && !this.validarEmail(comentario.email)) {
-      errores.push('El formato del email no es válido');
+    if (!comentario.noticiaId || comentario.noticiaId <= 0) {
+      errores.push('ID de noticia inválido');
     }
 
     return {

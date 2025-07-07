@@ -28,15 +28,35 @@
           <div class="meta-info">
             <div class="meta-item">
               <mat-icon>event</mat-icon>
-              <span>{{ evento.fecha | date:'EEEE, dd MMMM yyyy' }}</span>
+              <span>{{ extraerFecha(evento.fecha) | date:'EEEE, dd MMMM yyyy':'es' }}</span>
             </div>
             <div class="meta-item">
               <mat-icon>schedule</mat-icon>
-              <span>{{ evento.fecha | date:'HH:mm' }}</span>
+              <span>{{ extraerHora(evento.fecha, evento.hora) }} hrs</span>
             </div>
-            <div class="meta-item">
+            <div class="meta-item" *ngIf="evento.lugar">
               <mat-icon>location_on</mat-icon>
               <span>{{ evento.lugar }}</span>
+            </div>
+            <div class="meta-item" *ngIf="evento.ciudad">
+              <mat-icon>location_city</mat-icon>
+              <span>{{ evento.ciudad }}</span>
+            </div>
+            <div class="meta-item" *ngIf="evento.competicion || evento.competencia">
+              <mat-icon>emoji_events</mat-icon>
+              <span>{{ evento.competicion || evento.competencia }}</span>
+            </div>
+            <div class="meta-item" *ngIf="evento.tipoEvento">
+              <mat-icon>sports</mat-icon>
+              <span>{{ evento.tipoEvento }}</span>
+            </div>
+            <div class="meta-item" *ngIf="evento.importancia">
+              <mat-icon>priority_high</mat-icon>
+              <span>Importancia: {{ evento.importancia }}</span>
+            </div>
+            <div class="meta-item" *ngIf="evento.precioEstimado || evento.valorEstimado">
+              <mat-icon>attach_money</mat-icon>
+              <span>${{ (evento.precioEstimado || evento.valorEstimado) | number:'1.0-0' }}</span>
             </div>
           </div>
         </mat-card-subtitle>
@@ -47,6 +67,26 @@
         <div class="descripcion" *ngIf="evento.descripcion">
           <h3><mat-icon>description</mat-icon> Descripción del Evento</h3>
           <div [innerHTML]="descripcionSanitizada || evento.descripcion"></div>
+        </div>
+
+        <!-- Equipos enfrentados -->
+        <div class="equipos-section" *ngIf="evento.equipoLocal || evento.equipoVisitante">
+          <h3><mat-icon>sports_soccer</mat-icon> Equipos</h3>
+          <div class="equipos-container">
+            <div class="equipo" *ngIf="evento.equipoLocal">
+              <mat-icon>home</mat-icon>
+              <span class="equipo-label">Local:</span>
+              <span class="equipo-nombre">{{ evento.equipoLocal }}</span>
+            </div>
+            <div class="vs-divider" *ngIf="evento.equipoLocal && evento.equipoVisitante">
+              <span>VS</span>
+            </div>
+            <div class="equipo" *ngIf="evento.equipoVisitante">
+              <mat-icon>flight_takeoff</mat-icon>
+              <span class="equipo-label">Visitante:</span>
+              <span class="equipo-nombre">{{ evento.equipoVisitante }}</span>
+            </div>
+          </div>
         </div>
 
         <mat-divider></mat-divider>
@@ -83,32 +123,87 @@
                 <mat-icon>send</mat-icon>
                 <span>Telegram</span>
               </button>
-              <mat-divider></mat-divider>
-              <button mat-menu-item (click)="copiarEnlace()">
-                <mat-icon>content_copy</mat-icon>
-                <span>Copiar enlace</span>
-              </button>
             </mat-menu>
           </div>
         </div>
 
         <!-- Detalles adicionales -->
         <div class="evento-detalles">
-          <div class="detalle-item">
+          <h3><mat-icon>info</mat-icon> Información del Evento</h3>
+          
+          <div class="detalle-item" *ngIf="evento.tipoEvento">
             <h4><mat-icon>sports_soccer</mat-icon> Tipo de Evento</h4>
-            <p>Evento Deportivo</p>
+            <p>{{ evento.tipoEvento }}</p>
           </div>
-          <div class="detalle-item">
-            <h4><mat-icon>stadium</mat-icon> Estadio</h4>
+          
+          <div class="detalle-item" *ngIf="evento.competicion || evento.competencia">
+            <h4><mat-icon>emoji_events</mat-icon> Competición</h4>
+            <p>{{ evento.competicion || evento.competencia }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.importancia">
+            <h4><mat-icon>priority_high</mat-icon> Importancia</h4>
+            <p>{{ evento.importancia }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.lugar">
+            <h4><mat-icon>stadium</mat-icon> Lugar</h4>
             <p>{{ evento.lugar }}</p>
           </div>
-          <div class="detalle-item">
-            <h4><mat-icon>confirmation_number</mat-icon> Estado</h4>
-            <p>Programado</p>
+          
+          <div class="detalle-item" *ngIf="evento.ciudad">
+            <h4><mat-icon>location_city</mat-icon> Ciudad</h4>
+            <p>{{ evento.ciudad }}</p>
           </div>
-          <div class="detalle-item">
-            <h4><mat-icon>calendar_today</mat-icon> Fecha</h4>
-            <p>{{ evento.fecha | date:'dd/MM/yyyy' }}</p>
+          
+          <div class="detalle-item" *ngIf="evento.estado">
+            <h4><mat-icon>event_available</mat-icon> Estado</h4>
+            <p>{{ evento.estado }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.precioEstimado || evento.valorEstimado">
+            <h4><mat-icon>attach_money</mat-icon> Precio Estimado</h4>
+            <p>${{ (evento.precioEstimado || evento.valorEstimado) | number:'1.0-0' }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.tags">
+            <h4><mat-icon>label</mat-icon> Tags</h4>
+            <p>{{ evento.tags }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.notas">
+            <h4><mat-icon>notes</mat-icon> Notas</h4>
+            <p>{{ evento.notas }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.seccionNombre">
+            <h4><mat-icon>folder</mat-icon> Sección</h4>
+            <p>{{ evento.seccionNombre }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.fecha">
+            <h4><mat-icon>calendar_today</mat-icon> Fecha Completa</h4>
+            <p>{{ extraerFecha(evento.fecha) | date:'EEEE, dd \'de\' MMMM \'de\' yyyy':'es' }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.hora">
+            <h4><mat-icon>schedule</mat-icon> Hora del Evento</h4>
+            <p>{{ extraerHora(evento.fecha, evento.hora) }} hrs</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.creadorNombre">
+            <h4><mat-icon>person</mat-icon> Creado por</h4>
+            <p>{{ evento.creadorNombre }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.id">
+            <h4><mat-icon>fingerprint</mat-icon> ID del Evento</h4>
+            <p>#{{ evento.id }}</p>
+          </div>
+          
+          <div class="detalle-item" *ngIf="evento.visitas">
+            <h4><mat-icon>visibility</mat-icon> Visualizaciones</h4>
+            <p>{{ evento.visitas }} {{ evento.visitas === 1 ? 'visita' : 'visitas' }}</p>
           </div>
         </div>
 
@@ -127,17 +222,62 @@
         </div>
 
         <!-- Información adicional -->
-        <div class="info-adicional" *ngIf="evento.descripcion">
-          <h3><mat-icon>info</mat-icon> Detalles Adicionales</h3>
+        <div class="info-adicional">
+          <h3><mat-icon>info</mat-icon> Resumen del Evento</h3>
           <div class="info-grid">
-            <div class="info-item">
+            <div class="info-item" *ngIf="evento.tipoEvento">
+              <strong>Tipo:</strong> {{ evento.tipoEvento }}
+            </div>
+            <div class="info-item" *ngIf="!evento.tipoEvento">
               <strong>Tipo:</strong> Evento deportivo
             </div>
-            <div class="info-item">
-              <strong>Categoría:</strong> Fútbol
+            
+            <div class="info-item" *ngIf="evento.competicion || evento.competencia">
+              <strong>Competición:</strong> {{ evento.competicion || evento.competencia }}
             </div>
-            <div class="info-item">
-              <strong>Entrada:</strong> Información próximamente
+            
+            <div class="info-item" *ngIf="evento.importancia">
+              <strong>Importancia:</strong> {{ evento.importancia }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.lugar">
+              <strong>Lugar:</strong> {{ evento.lugar }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.ciudad">
+              <strong>Ciudad:</strong> {{ evento.ciudad }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.fecha">
+              <strong>Fecha:</strong> {{ extraerFecha(evento.fecha) | date:'dd/MM/yyyy':'es' }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.hora">
+              <strong>Hora:</strong> {{ extraerHora(evento.fecha, evento.hora) }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.estado">
+              <strong>Estado:</strong> {{ evento.estado }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.precioEstimado || evento.valorEstimado">
+              <strong>Precio:</strong> ${{ (evento.precioEstimado || evento.valorEstimado) | number:'1.0-0' }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.equipoLocal">
+              <strong>Equipo Local:</strong> {{ evento.equipoLocal }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.equipoVisitante">
+              <strong>Equipo Visitante:</strong> {{ evento.equipoVisitante }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.tags">
+              <strong>Tags:</strong> {{ evento.tags }}
+            </div>
+            
+            <div class="info-item" *ngIf="evento.seccionNombre">
+              <strong>Sección:</strong> {{ evento.seccionNombre }}
             </div>
           </div>
         </div>

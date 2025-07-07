@@ -362,10 +362,12 @@ export class DetalleComponent implements OnInit, OnDestroy {
         text: this.detalle.noticia.resumen,
         url: window.location.href
       }).catch(err => console.log('Error al compartir:', err));
-    } else {
+    } else if (this.detalle) {
       // Fallback: copiar al portapapeles
       navigator.clipboard.writeText(window.location.href).then(() => {
         this.mostrarExito('Enlace copiado al portapapeles');
+      }).catch(() => {
+        this.mostrarError('Error al copiar enlace');
       });
     }
   }
@@ -541,10 +543,9 @@ export class DetalleComponent implements OnInit, OnDestroy {
       console.log('🔄 Creando comentario de prueba...');
       
       // Usar el servicio para crear un comentario real
-      this.comentariosService.crearComentario(this.detalle.noticia.id, {
-        autor: 'Usuario de Prueba',
-        mensaje: 'Este es un comentario de prueba creado desde el admin para verificar que funciona la integración con la base de datos.',
-        email: 'prueba@ejemplo.com'
+      this.comentariosService.crearComentario({
+        noticiaId: this.detalle.noticia.id,
+        contenido: 'Este es un comentario de prueba creado desde el admin para verificar que funciona la integración con la base de datos.'
       }).subscribe({
         next: (response) => {
           console.log('✅ Comentario de prueba creado:', response);

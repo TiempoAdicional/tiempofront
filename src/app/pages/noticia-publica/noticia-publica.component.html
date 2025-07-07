@@ -139,11 +139,6 @@
             </button>
 
             <mat-menu #shareMenu="matMenu">
-              <button mat-menu-item (click)="copiarEnlace()">
-                <mat-icon>link</mat-icon>
-                <span>Copiar enlace</span>
-              </button>
-              
               <button mat-menu-item (click)="compartirEnRedSocial('twitter')">
                 <mat-icon>share</mat-icon>
                 <span>Compartir en Twitter</span>
@@ -187,24 +182,6 @@
             <p *ngIf="noticia.autorNombre">
               <strong>Autor:</strong> {{ noticia.autorNombre }}
             </p>
-          </div>
-          
-          <div class="enlace-permanente">
-            <mat-form-field appearance="outline" class="enlace-field">
-              <mat-label>Enlace permanente</mat-label>
-              <input 
-                matInput 
-                [value]="window.location.href" 
-                readonly
-                #enlaceInput>
-              <button 
-                mat-icon-button 
-                matSuffix 
-                (click)="compartirNoticia()"
-                matTooltip="Copiar enlace">
-                <mat-icon>content_copy</mat-icon>
-              </button>
-            </mat-form-field>
           </div>
         </div>
       </mat-card-content>

@@ -88,16 +88,36 @@ export class NoticiaPublicaComponent implements OnInit {
     // Usar el método para obtener la noticia por ID
     this.noticiasService.obtenerPorId(id).subscribe({
       next: (noticia: any) => {
+        console.log('🔍 Noticia cargada completa:', noticia);
+        console.log('📄 Contenido HTML disponible:', !!noticia.contenidoHtml);
+        console.log('📝 Contenido HTML:', noticia.contenidoHtml?.substring(0, 100));
+        console.log('🔗 URL de contenido:', noticia.contenidoUrl);
+        
         this.noticia = noticia;
-        this.contenidoSanitizado = this.sanitizer.bypassSecurityTrustHtml(noticia.contenidoHtml);
         
-        // Generar URL simple para compartir
-        this.urlCompartir = `${window.location.origin}/noticia/${noticia.id}`;
-        
-        // Configurar SEO
-        this.configurarSEO(noticia);
-        
-        this.cargando = false;
+        // Prioridad 1: contenidoHtml directo
+        if (noticia.contenidoHtml && noticia.contenidoHtml.trim() !== '') {
+          console.log('✅ Usando contenidoHtml directo');
+          this.contenidoSanitizado = this.sanitizer.bypassSecurityTrustHtml(noticia.contenidoHtml);
+          this.finalizarCarga(noticia);
+        }
+        // Prioridad 2: cargar desde contenidoUrl
+        else if (noticia.contenidoUrl) {
+          console.log('🔄 Cargando contenido desde URL:', noticia.contenidoUrl);
+          this.cargarContenidoDesdeUrl(noticia.contenidoUrl, noticia);
+        }
+        // Prioridad 3: usar resumen como contenido
+        else {
+          console.warn('⚠️ No hay contenido disponible, usando resumen');
+          this.contenidoSanitizado = this.sanitizer.bypassSecurityTrustHtml(
+            `<div class="contenido-resumen">
+              <p><strong>Resumen:</strong></p>
+              <p>${noticia.resumen || 'Contenido no disponible'}</p>
+              <p><em>El contenido completo no está disponible en este momento.</em></p>
+            </div>`
+          );
+          this.finalizarCarga(noticia);
+        }
       },
       error: (err: any) => {
         console.error('Error cargando noticia:', err);
@@ -113,6 +133,53 @@ export class NoticiaPublicaComponent implements OnInit {
         this.cargando = false;
       }
     });
+  }
+
+  private cargarContenidoDesdeUrl(url: string, noticia: any): void {
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+      })
+      .then(contenidoHtml => {
+        console.log('✅ Contenido cargado desde URL:', contenidoHtml.substring(0, 100));
+        if (contenidoHtml && contenidoHtml.trim() !== '') {
+          this.contenidoSanitizado = this.sanitizer.bypassSecurityTrustHtml(contenidoHtml);
+        } else {
+          // Si el contenido está vacío, usar resumen
+          this.contenidoSanitizado = this.sanitizer.bypassSecurityTrustHtml(
+            `<div class="contenido-resumen">
+              <p><strong>Resumen:</strong></p>
+              <p>${noticia.resumen || 'Contenido no disponible'}</p>
+            </div>`
+          );
+        }
+        this.finalizarCarga(noticia);
+      })
+      .catch(error => {
+        console.error('❌ Error cargando contenido desde URL:', error);
+        // Fallback: usar resumen
+        this.contenidoSanitizado = this.sanitizer.bypassSecurityTrustHtml(
+          `<div class="contenido-resumen">
+            <p><strong>Resumen:</strong></p>
+            <p>${noticia.resumen || 'Contenido no disponible'}</p>
+            <p><em>No se pudo cargar el contenido completo.</em></p>
+          </div>`
+        );
+        this.finalizarCarga(noticia);
+      });
+  }
+
+  private finalizarCarga(noticia: any): void {
+    // Generar URL simple para compartir
+    this.urlCompartir = `${window.location.origin}/noticia/${noticia.id}`;
+    
+    // Configurar SEO
+    this.configurarSEO(noticia);
+    
+    this.cargando = false;
   }
 
   private configurarSEO(noticia: Noticia): void {

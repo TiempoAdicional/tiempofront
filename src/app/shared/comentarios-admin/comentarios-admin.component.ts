@@ -77,13 +77,13 @@ import { ComentariosService, ComentarioDTO } from '../../core/services/comentari
           
           <!-- CONTENIDO DEL COMENTARIO -->
           <div class="comentario-contenido">
-            <p class="comentario-mensaje">{{ comentario.mensaje }}</p>
+            <p class="comentario-mensaje">{{ comentario.contenido }}</p>
             
             <!-- METADATA -->
             <div class="comentario-metadata">
               <span class="comentario-fecha">
                 <mat-icon>schedule</mat-icon>
-                {{ formatearFecha(comentario.fecha) }}
+                {{ formatearFecha(comentario.fechaCreacion) }}
               </span>
               <span class="comentario-id">
                 <mat-icon>fingerprint</mat-icon>

@@ -47,13 +47,13 @@ import { ComentarioDTO } from '../../core/services/comentarios.service';
             
             <div class="comentario-fecha">
               <mat-icon>schedule</mat-icon>
-              {{ formatearFecha(comentario.fecha) }}
+              {{ formatearFecha(comentario.fechaCreacion) }}
             </div>
           </div>
           
           <!-- CONTENIDO DEL COMENTARIO -->
           <div class="comentario-contenido">
-            <p class="comentario-mensaje">{{ comentario.mensaje }}</p>
+            <p class="comentario-mensaje">{{ comentario.contenido }}</p>
           </div>
           
           <mat-divider *ngIf="!isLast(comentario)"></mat-divider>

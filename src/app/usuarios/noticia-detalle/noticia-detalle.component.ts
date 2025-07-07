@@ -48,10 +48,8 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   
   noticia: Noticia | null = null;
-  comentarios: ComentarioDTO[] = [];
   cargando = true;
   estaAutenticado = false;
-  nuevoComentario = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -63,7 +61,7 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.estaAutenticado = this.authService.estaAutenticado();
+    this.verificarAutenticacion();
     this.cargarNoticia();
   }
 
@@ -72,69 +70,43 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private verificarAutenticacion(): void {
+    this.authService.autenticado$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe((isAuth: boolean) => {
+      this.estaAutenticado = isAuth;
+      console.log('🔐 Estado de autenticación:', this.estaAutenticado);
+    });
+  }
+
   private cargarNoticia(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.cargando = false;
+      console.error('❌ ID de noticia no encontrado');
+      this.router.navigate(['/usuarios']);
       return;
     }
 
-    // Usar método según estado de autenticación
-    const observable = this.estaAutenticado 
-      ? this.noticiasService.verDetalleConComentarios(Number(id))
-      : this.noticiasService.obtenerDetallePublico(Number(id));
-
-    observable
+    // 🆕 Simplificado: usar siempre el endpoint público
+    // El componente de comentarios maneja su propia carga
+    this.noticiasService.obtenerDetallePublico(Number(id))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          console.log('📰 Respuesta del servicio:', response);
-          
-          // Handle different response formats
-          let noticia;
-          let comentarios = [];
-          
-          // Check if response has detalle.noticia structure (authenticated) or is direct noticia (public)
-          if (response && response.noticia) {
-            // Authenticated user response: { noticia: {...}, comentarios: [...] }
-            noticia = response.noticia;
-            comentarios = response.comentarios || [];
-          } else if (response && (response.id || response.titulo)) {
-            // Public user response: direct noticia object
-            noticia = response;
-            comentarios = [];
-          } else {
-            console.error('❌ Error: formato de respuesta inválido:', response);
-            this.cargando = false;
-            this.snackBar.open('No se pudo cargar la noticia', 'Cerrar', { duration: 5000 });
-            setTimeout(() => {
-              this.router.navigate(['/usuarios']);
-            }, 2000);
-            return;
-          }
-          
+        next: (noticia) => {
+          console.log('📰 Noticia cargada:', noticia);
           this.noticia = noticia;
-          
-          // Solo mostrar comentarios aprobados para usuarios no-admin
-          if (this.estaAutenticado && comentarios.length > 0) {
-            this.comentarios = comentarios.filter((c: any) => c.aprobado === true);
-          } else {
-            this.comentarios = []; // No mostrar comentarios para usuarios no autenticados
-          }
-          
           this.cargando = false;
           
-          // ✅ Ya no mostrar mensaje de registro - permitir acceso público al contenido
-          console.log('📰 Noticia cargada correctamente para usuario', this.estaAutenticado ? 'autenticado' : 'público');
+          // ✅ Verificar que el contenido esté disponible
+          if (this.noticia && !this.noticia.contenidoHtml && this.noticia.resumen) {
+            console.log('⚠️ Usando resumen como contenido principal');
+            this.noticia.contenidoHtml = `<p>${this.noticia.resumen}</p>`;
+          }
         },
         error: (error) => {
-          console.error('Error al cargar noticia:', error);
+          console.error('❌ Error al cargar noticia:', error);
           this.cargando = false;
-          
-          // ✅ Mensaje genérico - no mencionar registro
-          this.snackBar.open('Error al cargar la noticia', 'Cerrar', { duration: 5000 });
-          
-          // Redirigir al dashboard si hay error
+          this.snackBar.open('No se pudo cargar la noticia', 'Cerrar', { duration: 5000 });
           setTimeout(() => {
             this.router.navigate(['/usuarios']);
           }, 2000);
@@ -142,47 +114,24 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
       });
   }
 
-  private cargarComentarios(): void {
-    if (!this.noticia || !this.estaAutenticado) return;
+  // === EVENT HANDLERS PARA COMENTARIOS ===
 
-    // Los comentarios ya se cargan con la noticia en cargarNoticia()
-    // Si necesitas recargarlos por separado, aquí llamarías al servicio
-    console.log('ℹ️ Los comentarios se cargan automáticamente con la noticia');
+  onComentarioCreado(comentario: ComentarioDTO): void {
+    console.log('✅ Comentario creado:', comentario);
+    // El componente de comentarios maneja su propia actualización
   }
 
-  enviarComentario(): void {
-    if (!this.nuevoComentario.trim() || !this.noticia) return;
-
-    const nuevoComentario = {
-      autor: this.authService.obtenerNombreUsuario() || 'Usuario',
-      mensaje: this.nuevoComentario.trim()
-    };
-
-    // Usar el servicio real de comentarios
-    this.comentariosService.crearComentario(this.noticia.id, nuevoComentario)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.comentarios.unshift(response.data);
-            this.snackBar.open('Comentario enviado y pendiente de aprobación', 'Cerrar', { 
-              duration: 4000 
-            });
-            this.nuevoComentario = '';
-          } else {
-            this.snackBar.open(response.message || 'Error al enviar comentario', 'Cerrar', { 
-              duration: 3000 
-            });
-          }
-        },
-        error: (error) => {
-          console.error('Error al enviar comentario:', error);
-          this.snackBar.open('Error al enviar comentario. Inténtalo de nuevo.', 'Cerrar', { 
-            duration: 5000 
-          });
-        }
-      });
+  onComentarioAprobado(comentario: ComentarioDTO): void {
+    console.log('✅ Comentario aprobado:', comentario);
+    // El componente de comentarios maneja su propia actualización
   }
+
+  onComentarioEliminado(comentarioId: number): void {
+    console.log('✅ Comentario eliminado:', comentarioId);
+    // El componente de comentarios maneja su propia actualización
+  }
+
+  // === MÉTODOS DE NAVEGACIÓN ===
 
   volverAlDashboard(): void {
     this.router.navigate(['/usuarios']);
@@ -192,20 +141,78 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
     this.router.navigate(['/auth/register']);
   }
 
-  // 🔥 NUEVO: Métodos para el componente de comentarios
-  onComentarioCreado(comentario: ComentarioDTO): void {
-    this.comentarios.unshift(comentario);
-    console.log('✅ Comentario agregado a la lista:', comentario);
-  }
+  // === MÉTODOS DE UTILIDAD ===
 
-  onComentarioAprobado(comentario: ComentarioDTO): void {
-    const index = this.comentarios.findIndex(c => c.id === comentario.id);
-    if (index !== -1) {
-      this.comentarios[index] = comentario;
+  formatearFecha(fecha: string): string {
+    try {
+      const fechaObj = new Date(fecha);
+      return fechaObj.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error al formatear fecha:', error);
+      return fecha;
     }
   }
 
-  onComentarioEliminado(comentarioId: number): void {
-    this.comentarios = this.comentarios.filter(c => c.id !== comentarioId);
+  obtenerNombreAutor(): string {
+    if (!this.noticia) return '';
+    
+    if (this.noticia.autorNombre) {
+      return this.noticia.autorNombre;
+    }
+    
+    return 'Equipo Tiempo Adicional';
+  }
+
+  // === COMPARTIR EN REDES SOCIALES ===
+
+  compartirEnFacebook(): void {
+    if (!this.noticia) return;
+    
+    const url = window.location.href;
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+  }
+
+  compartirEnTwitter(): void {
+    if (!this.noticia) return;
+    
+    const url = window.location.href;
+    const text = `${this.noticia.titulo} - Tiempo Adicional`;
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+  }
+
+  compartirEnWhatsApp(): void {
+    if (!this.noticia) return;
+    
+    const url = window.location.href;
+    const text = `${this.noticia.titulo} - Tiempo Adicional: ${url}`;
+    const shareUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(shareUrl, '_blank');
+  }
+
+  compartirNativo(): void {
+    if (!this.noticia) return;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: this.noticia.titulo,
+        text: this.noticia.resumen || this.noticia.titulo,
+        url: window.location.href
+      }).catch(err => {
+        console.log('Error al compartir:', err);
+      });
+    } else {
+      // Fallback: copiar enlace
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        this.snackBar.open('Enlace copiado al portapapeles', 'Cerrar', { duration: 3000 });
+      }).catch(() => {
+        this.snackBar.open('Error al copiar enlace', 'Cerrar', { duration: 3000 });
+      });
+    }
   }
 }

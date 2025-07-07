@@ -154,6 +154,12 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     this.estaAutenticado = this.authService.estaAutenticado();
     this.mostrarLimites = !this.estaAutenticado;
     this.nombreUsuario = this.authService.obtenerNombreUsuario() || 'Usuario';
+    
+    console.log('🔍 Estado de autenticación:', {
+      estaAutenticado: this.estaAutenticado,
+      mostrarLimites: this.mostrarLimites,
+      nombreUsuario: this.nombreUsuario
+    });
   }
 
   private cargarContenido(): void {
@@ -205,12 +211,14 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
           
           console.log(`📰 Procesando ${noticias.length} noticias públicas (límite: ${this.LIMITE_NOTICIAS})`);
           
-          // Cargar noticia destacada primero
-          this.cargarNoticiaDestacada();
+          // Solo cargar noticia destacada si NO está autenticado
+          if (!this.estaAutenticado) {
+            this.cargarNoticiaDestacada();
+          }
           
           // Procesar noticias limitadas
           this.procesarNoticiasLimitadas(noticias);
-          this.mostrarAvisoLimiteNoticias = noticias.length >= this.LIMITE_NOTICIAS;
+          this.mostrarAvisoLimiteNoticias = !this.estaAutenticado && noticias.length >= this.LIMITE_NOTICIAS;
           this.cargandoNoticias = false;
         },
         error: (error) => {
@@ -249,11 +257,20 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   private procesarNoticiasCompletas(noticias: any[]): void {
+    console.log('📰 Procesando noticias completas para usuario autenticado:', noticias.length);
+    
     // Para usuarios autenticados: acceso completo
     const noticiaDestacadaRaw = noticias.find((n: any) => n.destacada === true);
     
     if (noticiaDestacadaRaw) {
-      this.obtenerNombreUsuario(noticiaDestacadaRaw.autorId || noticiaDestacadaRaw.creador_id).then(autorNombre => {
+      console.log('✨ Noticia destacada encontrada:', noticiaDestacadaRaw.titulo);
+      
+      // Priorizar creadorNombre (igual que en noticia-detalle), luego autorNombre
+      const autorNombre = noticiaDestacadaRaw.creadorNombre || 
+                         noticiaDestacadaRaw.autorNombre || 
+                         noticiaDestacadaRaw.autor_nombre;
+      
+      if (autorNombre) {
         this.noticiaDestacada = {
           id: noticiaDestacadaRaw.id,
           titulo: noticiaDestacadaRaw.titulo,
@@ -265,7 +282,26 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
           autorNombre: autorNombre,
           creadorId: noticiaDestacadaRaw.autorId || noticiaDestacadaRaw.creador_id
         };
-      });
+        console.log('✅ Noticia destacada configurada con autorNombre:', autorNombre);
+      } else {
+        // Fallback a obtener nombre por ID si no está disponible
+        this.obtenerNombreUsuario(noticiaDestacadaRaw.autorId || noticiaDestacadaRaw.creador_id).then(autorNombre => {
+          this.noticiaDestacada = {
+            id: noticiaDestacadaRaw.id,
+            titulo: noticiaDestacadaRaw.titulo,
+            resumen: noticiaDestacadaRaw.resumen || this.limitarTexto(noticiaDestacadaRaw.contenidoHtml, 150),
+            fechaPublicacion: noticiaDestacadaRaw.fechaPublicacion,
+            seccion: 'Destacada',
+            imagenUrl: noticiaDestacadaRaw.imagenDestacada,
+            bloqueada: false,
+            autorNombre: autorNombre,
+            creadorId: noticiaDestacadaRaw.autorId || noticiaDestacadaRaw.creador_id
+          };
+          console.log('✅ Noticia destacada configurada con autorNombre por ID:', autorNombre);
+        });
+      }
+    } else {
+      console.log('⚠️ No hay noticia destacada en las noticias autenticadas');
     }
     
     // Filtrar noticias para grid (excluir destacada)
@@ -273,6 +309,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       ? noticias.filter((n: any) => n.id !== noticiaDestacadaRaw.id)
       : noticias;
     
+    console.log(`📋 Procesando ${noticiasParaGrid.length} noticias para el grid (excluyendo destacada)`);
     this.procesarListaNoticias(noticiasParaGrid, false);
   }
 
@@ -285,7 +322,16 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   private procesarListaNoticias(noticias: any[], esLimitado: boolean): void {
     Promise.all(
       noticias.map(async (noticia: any) => {
-        const autorNombre = await this.obtenerNombreUsuario(noticia.autorId || noticia.creador_id);
+        // Priorizar creadorNombre (igual que en noticia-detalle), luego autorNombre
+        let autorNombre = noticia.creadorNombre || noticia.autorNombre || noticia.autor_nombre;
+        
+        // Log para diagnosticar qué campo se está usando
+        console.log(`📰 Noticia ${noticia.id} - creadorNombre: ${noticia.creadorNombre}, autorNombre: ${noticia.autorNombre}, autor_nombre: ${noticia.autor_nombre}`);
+        
+        // Solo buscar por ID si no tenemos ningún nombre disponible
+        if (!autorNombre) {
+          autorNombre = await this.obtenerNombreUsuario(noticia.autorId || noticia.creador_id);
+        }
         
         return {
           id: noticia.id,
@@ -367,7 +413,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
           console.log(`📅 Procesando ${eventos.length} eventos públicos (límite: ${this.LIMITE_EVENTOS})`);
           
           this.procesarEventosLimitados(eventos);
-          this.mostrarAvisoLimiteEventos = eventos.length >= this.LIMITE_EVENTOS;
+          this.mostrarAvisoLimiteEventos = !this.estaAutenticado && eventos.length >= this.LIMITE_EVENTOS;
           this.cargandoEventos = false;
         },
         error: (error) => {
@@ -398,7 +444,16 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   private procesarListaEventos(eventos: any[], esLimitado: boolean): void {
     Promise.all(
       eventos.map(async (evento: any) => {
-        const autorNombre = await this.obtenerNombreUsuario(evento.creadorId || evento.creador_id);
+        // Priorizar creadorNombre (igual que en evento-detalle), luego autorNombre
+        let autorNombre = evento.creadorNombre || evento.autorNombre || evento.autor_nombre;
+        
+        // Log para diagnosticar qué campo se está usando
+        console.log(`📅 Evento ${evento.id} - creadorNombre: ${evento.creadorNombre}, autorNombre: ${evento.autorNombre}, autor_nombre: ${evento.autor_nombre}`);
+        
+        // Solo buscar por ID si no tenemos ningún nombre disponible
+        if (!autorNombre) {
+          autorNombre = await this.obtenerNombreUsuario(evento.creadorId || evento.creador_id);
+        }
         
         return {
           id: evento.id || 0,
@@ -622,8 +677,17 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       const nombre = usuario?.nombre || 'Usuario';
       this.usuariosCache.set(creadorId, nombre);
       return nombre;
-    } catch (error) {
+    } catch (error: any) {
       console.warn(`⚠️ No se pudo obtener usuario con ID ${creadorId}:`, error);
+      
+      // Si es un error 403, el usuario no tiene permisos para ver otros usuarios
+      if (error.status === 403) {
+        console.log('🔒 Error 403 - Sin permisos para obtener información de usuarios');
+        this.usuariosCache.set(creadorId, 'Redactor');
+        return 'Redactor';
+      }
+      
+      // Para otros errores, usar "Usuario" como fallback
       this.usuariosCache.set(creadorId, 'Usuario');
       return 'Usuario';
     }

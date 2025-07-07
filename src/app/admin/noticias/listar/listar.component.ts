@@ -530,12 +530,21 @@ export class ListarComponent implements OnInit, AfterViewInit {
 
     const urlCompartir = `${window.location.origin}/noticia/${noticia.id}`;
     
-    // Copiar al portapapeles
-    navigator.clipboard.writeText(urlCompartir).then(() => {
-      this.mostrarExito('✅ Enlace copiado al portapapeles');
-    }).catch(() => {
-      this.mostrarError('❌ Error al copiar enlace');
-    });
+    if (navigator.share) {
+      // API nativa de compartir
+      navigator.share({
+        title: noticia.titulo,
+        text: noticia.resumen || '',
+        url: urlCompartir
+      }).catch(err => console.log('Error compartiendo:', err));
+    } else {
+      // Fallback: copiar al portapapeles
+      navigator.clipboard.writeText(urlCompartir).then(() => {
+        this.mostrarExito('✅ Enlace copiado al portapapeles');
+      }).catch(() => {
+        this.mostrarError('❌ Error al copiar enlace');
+      });
+    }
   }
 
   // 🔗 MÉTODO PARA OBTENER URL DE COMPARTIR

@@ -50,8 +50,6 @@
     <!-- Sección de comentarios modernizada -->
     <app-comentarios 
       [noticiaId]="noticia.id"
-      [comentarios]="comentarios"
-      [cargando]="false"
       [permitirComentarios]="estaAutenticado"
       [esAdmin]="false"
       (comentarioCreado)="onComentarioCreado($event)"

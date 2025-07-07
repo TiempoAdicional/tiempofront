@@ -199,11 +199,11 @@
                     <div class="comentario-header">
                       <div class="comentario-autor">
                         <mat-icon>person</mat-icon>
-                        <span>{{ comentario.autor }}</span>
+                        <span>{{ comentario.autorNombre || comentario.autor || 'Usuario Anónimo' }}</span>
                       </div>
                       <div class="comentario-fecha">
                         <mat-icon>schedule</mat-icon>
-                        <span>{{ formatearFecha(comentario.fecha) }}</span>
+                        <span>{{ formatearFecha(comentario.fechaCreacion) }}</span>
                       </div>
                       <div class="comentario-estado">
                         <mat-chip 
@@ -216,7 +216,7 @@
                     </div>
                     
                     <div class="comentario-contenido">
-                      <p>{{ comentario.mensaje }}</p>
+                      <p>{{ comentario.contenido }}</p>
                     </div>
                     
                     <!-- Acciones de admin -->
@@ -339,14 +339,13 @@
         <div class="comentarios-lista">
           <!-- Comentario individual -->
           <div *ngFor="let comentario of detalle?.comentarios" class="comentario-item">
-            <div class="comentario-header">
-              <div class="comentario-autor">
-                <mat-icon>person</mat-icon>
-                <span>{{ comentario.autor }}</span>
-              </div>
+            <div class="comentario-header">            <div class="comentario-autor">
+              <mat-icon>person</mat-icon>
+              <span>{{ comentario.autorNombre || comentario.autor || 'Usuario Anónimo' }}</span>
+            </div>
               <div class="comentario-fecha">
                 <mat-icon>schedule</mat-icon>
-                <span>{{ formatearFecha(comentario.fecha) }}</span>
+                <span>{{ formatearFecha(comentario.fechaCreacion) }}</span>
               </div>
               <div class="comentario-estado">
                 <mat-chip 
@@ -359,7 +358,7 @@
             </div>
             
             <div class="comentario-contenido">
-              <p>{{ comentario.mensaje }}</p>
+              <p>{{ comentario.contenido }}</p>
             </div>
             
             <!-- Acciones de admin -->

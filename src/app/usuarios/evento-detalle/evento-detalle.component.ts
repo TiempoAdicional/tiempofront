@@ -85,6 +85,16 @@ export class EventoDetalleComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (evento) => {
+          console.log('📅 Evento cargado completo:', evento);
+          console.log('� Todos los campos disponibles:', Object.keys(evento));
+          console.log('📅 Fecha raw:', evento.fecha);
+          console.log('📅 Fecha parseada:', new Date(evento.fecha));
+          console.log('�📝 Descripción disponible:', !!evento.descripcion);
+          console.log('🖼️ Imagen disponible:', !!evento.imagenEvento);
+          console.log('📹 Video disponible:', !!evento.videoUrl);
+          console.log('🏟️ Lugar:', evento.lugar);
+          console.log('� ¿Hay equipos?:', (evento as any).equipoLocal || (evento as any).equipoVisitante);
+          
           this.evento = evento;
           this.cargando = false;
           
@@ -96,7 +106,7 @@ export class EventoDetalleComponent implements OnInit, OnDestroy {
           // Configurar SEO para redes sociales
           this.configurarSEO(evento);
           
-          console.log('📅 Evento cargado correctamente para usuario', this.estaAutenticado ? 'autenticado' : 'público');
+          console.log('✅ Evento cargado correctamente para usuario', this.estaAutenticado ? 'autenticado' : 'público');
         },
         error: (error) => {
           console.error('Error al cargar evento:', error);
@@ -152,18 +162,12 @@ export class EventoDetalleComponent implements OnInit, OnDestroy {
       }).catch(err => console.log('Error compartiendo:', err));
     } else {
       // Fallback: copiar al portapapeles
-      this.copiarEnlace();
+      navigator.clipboard.writeText(this.urlCompartir).then(() => {
+        this.mostrarNotificacion('✅ Enlace copiado al portapapeles');
+      }).catch(() => {
+        this.mostrarNotificacion('❌ Error al copiar enlace');
+      });
     }
-  }
-
-  copiarEnlace(): void {
-    if (!this.urlCompartir) return;
-    
-    navigator.clipboard.writeText(this.urlCompartir).then(() => {
-      this.mostrarNotificacion('✅ Enlace copiado al portapapeles');
-    }).catch(() => {
-      this.mostrarNotificacion('❌ Error al copiar enlace');
-    });
   }
 
   compartirEnRedSocial(plataforma: string): void {
@@ -203,6 +207,74 @@ export class EventoDetalleComponent implements OnInit, OnDestroy {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  /**
+   * Extrae la hora del campo hora o fecha cuando viene en formato datetime
+   */
+  extraerHora(fechaDateTime: string, hora?: string): string {
+    // Si tenemos el campo hora separado (formato HH:mm:ss), usarlo directamente
+    if (hora) {
+      try {
+        // Extraer solo HH:mm de HH:mm:ss
+        return hora.substring(0, 5);
+      } catch (error) {
+        console.error('Error al procesar hora:', error);
+      }
+    }
+    
+    if (!fechaDateTime) return 'Hora no especificada';
+    
+    try {
+      // Si la fecha viene en formato ISO completo (YYYY-MM-DD HH:mm:ss)
+      if (fechaDateTime.includes(' ')) {
+        const partes = fechaDateTime.split(' ');
+        if (partes.length > 1) {
+          const horaCompleta = partes[1];
+          // Extraer solo HH:mm de HH:mm:ss
+          return horaCompleta.substring(0, 5);
+        }
+      }
+      
+      // Si viene en formato ISO con T (YYYY-MM-DDTHH:mm:ss)
+      if (fechaDateTime.includes('T')) {
+        // Extraer la hora directamente sin conversión de zona horaria
+        const horaIso = fechaDateTime.split('T')[1];
+        if (horaIso) {
+          return horaIso.substring(0, 5); // Solo HH:mm
+        }
+      }
+      
+      return 'Hora no disponible';
+    } catch (error) {
+      console.error('Error al extraer hora:', error);
+      return 'Error en hora';
+    }
+  }
+
+  /**
+   * Obtiene solo la fecha sin hora
+   */
+  extraerFecha(fechaDateTime: string): string {
+    if (!fechaDateTime) return '';
+    
+    try {
+      // Si la fecha viene en formato ISO completo (YYYY-MM-DD HH:mm:ss)
+      if (fechaDateTime.includes(' ')) {
+        const partes = fechaDateTime.split(' ');
+        return partes[0];
+      }
+      
+      // Si viene en formato ISO con T
+      if (fechaDateTime.includes('T')) {
+        return fechaDateTime.split('T')[0];
+      }
+      
+      return fechaDateTime;
+    } catch (error) {
+      console.error('Error al extraer fecha:', error);
+      return fechaDateTime;
+    }
   }
 
   private mostrarNotificacion(mensaje: string): void {

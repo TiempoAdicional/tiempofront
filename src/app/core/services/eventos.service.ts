@@ -9,12 +9,41 @@ export interface Evento {
   id?: number;
   nombre: string;
   descripcion: string;
-  fecha: string; // formato ISO yyyy-MM-dd
+  fecha: string; // formato YYYY-MM-DD
+  hora?: string; // formato HH:mm:ss
   lugar: string;
+  ciudad?: string; // 🆕 Nueva propiedad
   imagenEvento?: string;
   videoUrl?: string;
   creador_id?: number;
+  creadorId?: number; // 🆕 También viene así
+  creadorNombre?: string;
   seccion_id?: number;
+  seccionId?: number; // 🆕 También viene así
+  seccionNombre?: string; // 🆕 Nueva propiedad
+  
+  // Campos específicos del evento deportivo
+  equipoLocal?: string;
+  equipoVisitante?: string;
+  tipoEvento?: string; // PARTIDO, TORNEO, etc.
+  estado?: string; // PROGRAMADO, EN_CURSO, FINALIZADO
+  categoria?: string;
+  competencia?: string;
+  competicion?: string; // 🆕 También viene así (LIGA_BETPLAY)
+  importancia?: string; // 🆕 ALTA, MEDIA, BAJA
+  precioEstimado?: number; // 🆕 Precio estimado (no valorEstimado)
+  valorEstimado?: number; // Mantener compatibilidad
+  
+  // Campos adicionales
+  tags?: string; // 🆕 Tags del evento
+  notas?: string; // 🆕 Notas adicionales
+  
+  // Metadatos
+  fechaCreacion?: string;
+  fechaActualizacion?: string;
+  activo?: boolean;
+  visitas?: number;
+  destacado?: boolean;
 }
 
 @Injectable({
