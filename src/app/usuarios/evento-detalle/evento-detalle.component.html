@@ -46,7 +46,50 @@
         <!-- Descripción principal -->
         <div class="descripcion" *ngIf="evento.descripcion">
           <h3><mat-icon>description</mat-icon> Descripción del Evento</h3>
-          <p>{{ evento.descripcion }}</p>
+          <div [innerHTML]="descripcionSanitizada || evento.descripcion"></div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Sección de compartir -->
+        <div class="compartir-section">
+          <h3><mat-icon>share</mat-icon> Compartir Evento</h3>
+          <div class="compartir-buttons">
+            <!-- Botón principal de compartir -->
+            <button mat-raised-button color="primary" (click)="compartirEvento()" class="compartir-btn">
+              <mat-icon>share</mat-icon>
+              Compartir
+            </button>
+
+            <!-- Menú de redes sociales -->
+            <button mat-icon-button [matMenuTriggerFor]="shareMenu" matTooltip="Más opciones de compartir">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #shareMenu="matMenu">
+              <button mat-menu-item (click)="compartirEnRedSocial('whatsapp')">
+                <mat-icon>message</mat-icon>
+                <span>WhatsApp</span>
+              </button>
+              <button mat-menu-item (click)="compartirEnRedSocial('facebook')">
+                <mat-icon>facebook</mat-icon>
+                <span>Facebook</span>
+              </button>
+              <button mat-menu-item (click)="compartirEnRedSocial('twitter')">
+                <mat-icon>alternate_email</mat-icon>
+                <span>Twitter</span>
+              </button>
+              <button mat-menu-item (click)="compartirEnRedSocial('telegram')">
+                <mat-icon>send</mat-icon>
+                <span>Telegram</span>
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="copiarEnlace()">
+                <mat-icon>content_copy</mat-icon>
+                <span>Copiar enlace</span>
+              </button>
+            </mat-menu>
+          </div>
         </div>
 
         <!-- Detalles adicionales -->

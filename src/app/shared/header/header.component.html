@@ -47,7 +47,7 @@
                         <div class="dropdown-content">
                             <a href="#" class="dropdown-item" (click)="onSubNavClick('nuestra-historia', $event)">📖
                                 Historia</a>
-                            <a href="#" class="dropdown-item" (click)="onSubNavClick('equipo', $event)">👥 Equipo</a>
+                            <a href="#" class="dropdown-item" (click)="irAEquipo(); $event.preventDefault(); $event.stopPropagation()">👥 Nuestro Equipo</a>
                             <a href="#" class="dropdown-item" (click)="onSubNavClick('contacto', $event)">📞
                                 Contacto</a>
                         </div>
@@ -139,7 +139,7 @@
                 <div class="mobile-dropdown" [class.active]="activeMobileSection === 'nosotros'">
                     <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('nuestra-historia', $event)">📖
                         Historia</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('equipo', $event)">👥 Equipo</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irAEquipo(); $event.preventDefault(); $event.stopPropagation()">👥 Nuestro Equipo</a>
                     <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('contacto', $event)">📞 Contacto</a>
                 </div>
             </div>

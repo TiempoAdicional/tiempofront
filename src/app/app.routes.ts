@@ -32,6 +32,11 @@ export const routes: Routes = [
       import('./usuarios/evento-detalle/evento-detalle.component').then(m => m.EventoDetalleComponent)
   },
   {
+    path: 'equipo',
+    loadComponent: () =>
+      import('./pages/equipo-publico/equipo-publico.component').then(m => m.EquipoPublicoComponent)
+  },
+  {
     path: 'partidos',
     loadComponent: () =>
       import('./admin/eventos/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
@@ -153,6 +158,13 @@ export const routes: Routes = [
         path: 'secciones/vista-previa',
         loadComponent: () =>
           import('./admin/secciones/vista-previa/vista-previa.component').then(m => m.VistaPreviaComponent)
+      },
+
+      // EQUIPO
+      {
+        path: 'equipo',
+        loadComponent: () =>
+          import('./admin/equipo/equipo.component').then(m => m.AdminEquipoComponent)
       },
     ]
   },

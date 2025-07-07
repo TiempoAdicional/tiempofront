@@ -217,6 +217,25 @@
         }
       }
     }
+
+    // Stats grid adjustments para Gestión de Equipo
+    .equipo-card {
+      .equipo-icon {
+        background: linear-gradient(45deg, #673ab7, #9c27b0);
+        color: #ffffff;
+      }
+
+      .stat-number {
+        color: #9c27b0;
+        text-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
+      }
+
+      .stat-detail {
+        .detail-icon {
+          color: #9c27b0;
+        }
+      }
+    }
   }
 
   // Secciones de administración

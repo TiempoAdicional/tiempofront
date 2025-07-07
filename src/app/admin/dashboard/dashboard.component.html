@@ -109,6 +109,26 @@
           </div>
         </mat-card-content>
       </mat-card>
+
+      <!-- Nueva card para Gestión de Equipo -->
+      <mat-card class="stat-card equipo-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="stat-icon equipo-icon">groups</mat-icon>
+          <mat-card-title>Equipo del Periódico</mat-card-title>
+          <mat-card-subtitle>Miembros Activos</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stat-number">{{ totalMiembrosEquipo || 0 }}</div>
+          <div class="stat-detail" *ngIf="miembrosActivos > 0">
+            <mat-icon class="detail-icon">check_circle</mat-icon>
+            {{ miembrosActivos }} activos
+          </div>
+          <div class="stat-detail" *ngIf="totalPublicacionesEquipo > 0">
+            <mat-icon class="detail-icon">article</mat-icon>
+            {{ totalPublicacionesEquipo }} publicaciones
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
 
     <!-- Secciones de administración -->
@@ -214,6 +234,34 @@
                   class="preview-button">
             <mat-icon>preview</mat-icon>
             Vista Previa del Periódico
+          </button>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Gestión de Equipo -->
+      <mat-expansion-panel class="admin-panel" [expanded]="equipoExpandido">
+        <mat-expansion-panel-header (click)="toggleEquipo()">
+          <mat-panel-title>
+            <mat-icon class="panel-icon">groups</mat-icon>
+            Gestión de Equipo
+          </mat-panel-title>
+          <mat-panel-description>
+            Administrar miembros del periódico
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        
+        <div class="panel-actions">
+          <button mat-raised-button color="primary" (click)="navegar('/admin/equipo')">
+            <mat-icon>group_add</mat-icon>
+            Gestionar Miembros
+          </button>
+          <button mat-stroked-button color="accent" (click)="navegar('/equipo')">
+            <mat-icon>visibility</mat-icon>
+            Vista Pública
+          </button>
+          <button mat-stroked-button color="warn" (click)="navegar('/admin/equipo')">
+            <mat-icon>analytics</mat-icon>
+            Estadísticas
           </button>
         </div>
       </mat-expansion-panel>

@@ -19,6 +19,7 @@ import { AuthService } from '../../auth/services/auth.service';
 import { NoticiasService } from '../../core/services/noticias.service';
 import { EventosService } from '../../core/services/eventos.service';
 import { EstadisticasService } from '../../core/services/estadisticas.service';
+import { EquipoService } from '../../core/services/equipo.service';
 
 interface EstadisticasDashboard {
   totalNoticias: number;
@@ -117,20 +118,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   paneles = {
     noticias: false,
     eventos: false,
-    secciones: false
+    secciones: false,
+    equipo: false
   };
 
   // Propiedades específicas
   noticiasExpandido = false;
   eventosExpandido = false;
   seccionesExpandido = false;
+  equipoExpandido = false;
+
+  // Estadísticas del equipo
+  totalMiembrosEquipo = 0;
+  miembrosActivos = 0;
+  totalPublicacionesEquipo = 0;
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private noticiasService: NoticiasService,
     private eventosService: EventosService,
-    private estadisticasService: EstadisticasService
+    private estadisticasService: EstadisticasService,
+    private equipoService: EquipoService
   ) {}
 
   ngOnInit(): void {
@@ -145,6 +154,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private inicializarDashboard(): void {
     this.obtenerDatosUsuario();
     this.cargarEstadisticas();
+    this.cargarEstadisticasEquipo();
   }
 
   private obtenerDatosUsuario(): void {
@@ -195,6 +205,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
           console.error('❌ Error al cargar estadísticas:', error);
           this.error = 'No se pudieron cargar las estadísticas. Verifique la conexión.';
           this.isLoading = false;
+        }
+      });
+  }
+
+  private cargarEstadisticasEquipo(): void {
+    console.log('🔄 Cargando estadísticas del equipo...');
+    
+    this.equipoService.obtenerEstadisticas()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats: any) => {
+          console.log('✅ Estadísticas del equipo cargadas:', stats);
+          this.totalMiembrosEquipo = stats.total || 0;
+          this.miembrosActivos = stats.activos || 0;
+          this.totalPublicacionesEquipo = (stats.totalNoticias || 0) + (stats.totalEventos || 0);
+        },
+        error: (error: any) => {
+          console.warn('⚠️ Error al cargar estadísticas del equipo:', error);
+          // No mostrar error aquí ya que es una funcionalidad nueva
         }
       });
   }
@@ -264,17 +293,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
-  // === MÉTODOS DE NAVEGACIÓN ESPECÍFICOS ===
+  // === MÉTODOS TOGGLE ===
 
   toggleNoticias(): void {
-    this.togglePanel('noticias');
+    this.noticiasExpandido = !this.noticiasExpandido;
+    if (this.noticiasExpandido) {
+      this.eventosExpandido = false;
+      this.seccionesExpandido = false;
+      this.equipoExpandido = false;
+    }
   }
 
   toggleEventos(): void {
-    this.togglePanel('eventos');
+    this.eventosExpandido = !this.eventosExpandido;
+    if (this.eventosExpandido) {
+      this.noticiasExpandido = false;
+      this.seccionesExpandido = false;
+      this.equipoExpandido = false;
+    }
   }
 
   toggleSecciones(): void {
-    this.togglePanel('secciones');
+    this.seccionesExpandido = !this.seccionesExpandido;
+    if (this.seccionesExpandido) {
+      this.noticiasExpandido = false;
+      this.eventosExpandido = false;
+      this.equipoExpandido = false;
+    }
+  }
+
+  // 🆕 Método toggle para el equipo
+  toggleEquipo(): void {
+    this.equipoExpandido = !this.equipoExpandido;
+    if (this.equipoExpandido) {
+      this.noticiasExpandido = false;
+      this.eventosExpandido = false;
+      this.seccionesExpandido = false;
+    }
   }
 }

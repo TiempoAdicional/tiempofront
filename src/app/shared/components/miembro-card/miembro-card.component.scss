@@ -1,0 +1,1057 @@
+// Variables para breakpoints responsive
+$breakpoint-xs: 480px;    // Móviles pequeños
+$breakpoint-sm: 768px;    // Tablets y móviles grandes  
+$breakpoint-md: 1024px;   // Tablets horizontales y laptops pequeñas
+$breakpoint-lg: 1200px;   // Laptops y desktops
+
+// Variables de diseño
+$primary-color: #1976d2;
+$accent-color: #ff4081;
+$warn-color: #f44336;
+$success-color: #4caf50;
+$text-primary: #212121;
+$text-secondary: #757575;
+$border-color: #e0e0e0;
+$shadow: 0 2px 8px rgba(0,0,0,0.1);
+$shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+$border-radius: 12px;
+$transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+// Mixins para media queries
+@mixin mobile-small {
+  @media (max-width: $breakpoint-xs) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: $breakpoint-sm) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: $breakpoint-sm) and (max-width: $breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $breakpoint-lg) {
+    @content;
+  }
+}
+
+// ===== COMPONENTE PRINCIPAL =====
+.miembro-card {
+  height: 100%;
+  width: 100%;
+  
+  .card-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    position: relative;
+    background: white;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    &:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      transform: translateY(-4px);
+      border-color: var(--primary-color);
+
+      @include mobile-small {
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  // Header con imagen y info básica
+  .card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 24px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px 16px 0 0;
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+
+    // Efecto de ondas de fondo
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    @include mobile-small {
+      padding: 24px 20px 20px;
+    }
+
+    @include mobile {
+      padding: 28px 22px 22px;
+    }
+    
+    .imagen-container {
+      position: relative;
+      margin-bottom: 16px;
+      z-index: 1;
+
+      @include mobile-small {
+        margin-bottom: 12px;
+      }
+
+      @include mobile {
+        margin-bottom: 14px;
+      }
+      
+      .miembro-imagen {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+        @include mobile-small {
+          width: 75px;
+          height: 75px;
+          border-width: 3px;
+        }
+
+        @include mobile {
+          width: 80px;
+          height: 80px;
+        }
+
+        @include tablet {
+          width: 95px;
+          height: 95px;
+        }
+
+        @include desktop {
+          width: 100px;
+          height: 100px;
+        }
+        
+        &:hover {
+          transform: scale(1.05);
+          border-color: rgba(255, 255, 255, 1);
+        }
+      }
+      
+      .estado-badge {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        
+        mat-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+          color: white;
+        }
+        
+        &.activo {
+          background-color: var(--success-color);
+        }
+        
+        &.inactivo {
+          background-color: var(--warn-color);
+        }
+
+        @include mobile-small {
+          width: 20px;
+          height: 20px;
+          border-width: 2px;
+          
+          mat-icon {
+            font-size: 12px;
+            width: 12px;
+            height: 12px;
+          }
+        }
+      }
+    }
+    
+    .info-basica {
+      text-align: center;
+      z-index: 1;
+      
+      .nombre {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+        @include mobile-small {
+          font-size: 1.2rem;
+          margin-bottom: 6px;
+        }
+
+        @include mobile {
+          font-size: 1.3rem;
+          margin-bottom: 7px;
+        }
+      }
+      
+      .rol-chip {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        font-weight: 500;
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        border-radius: 20px;
+        margin-bottom: 8px;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: translateY(-1px);
+        }
+
+        @include mobile-small {
+          font-size: 0.8rem;
+          padding: 5px 10px;
+        }
+      }
+      
+      .cargo {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+        font-weight: 300;
+
+        @include mobile-small {
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+
+  // Estadísticas container
+  .estadisticas-container {
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+
+    @include mobile-small {
+      padding: 16px;
+    }
+
+    @include mobile {
+      padding: 18px;
+    }
+    
+    .estadisticas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+
+      @include mobile-small {
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      @include mobile {
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+      
+      .stat-item {
+        text-align: center;
+        padding: 12px 8px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @include mobile-small {
+          padding: 10px 6px;
+        }
+
+        @include mobile {
+          padding: 11px 7px;
+        }
+        
+        .stat-number {
+          display: block;
+          font-size: 1.4rem;
+          font-weight: 700;
+          color: var(--primary-color);
+          margin-bottom: 2px;
+
+          @include mobile-small {
+            font-size: 1.2rem;
+          }
+
+          @include mobile {
+            font-size: 1.3rem;
+          }
+        }
+        
+        .stat-label {
+          font-size: 0.75rem;
+          color: var(--text-secondary);
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          @include mobile-small {
+            font-size: 0.7rem;
+          }
+        }
+      }
+    }
+    
+    .total-publicaciones {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(var(--primary-color-rgb), 0.1);
+      border-radius: 8px;
+      color: var(--primary-color);
+      font-weight: 500;
+      font-size: 0.9rem;
+
+      @include mobile-small {
+        padding: 10px;
+        font-size: 0.85rem;
+        gap: 6px;
+      }
+
+      @include mobile {
+        padding: 11px;
+        font-size: 0.87rem;
+        gap: 7px;
+      }
+      
+      mat-icon {
+        font-size: 1.1rem;
+        width: 1.1rem;
+        height: 1.1rem;
+
+        @include mobile-small {
+          font-size: 1rem;
+          width: 1rem;
+          height: 1rem;
+        }
+      }
+    }
+  }
+      
+      .nombre {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: $text-primary;
+        margin: 0 0 8px 0;
+        line-height: 1.3;
+
+        @include mobile-small {
+          font-size: 1.1rem;
+          margin: 0 0 6px 0;
+        }
+
+        @include mobile {
+          font-size: 1.2rem;
+          margin: 0 0 7px 0;
+        }
+
+        @include tablet {
+          font-size: 1.25rem;
+        }
+
+        @include desktop {
+          font-size: 1.4rem;
+          margin: 0 0 10px 0;
+        }
+      }
+      
+      .rol {
+        font-size: 0.9rem;
+        color: $primary-color;
+        font-weight: 500;
+        margin: 0 0 4px 0;
+
+        @include mobile-small {
+          font-size: 0.8rem;
+          margin: 0 0 3px 0;
+        }
+
+        @include mobile {
+          font-size: 0.85rem;
+        }
+
+        @include desktop {
+          font-size: 0.95rem;
+          margin: 0 0 6px 0;
+        }
+      }
+      
+      .especialidad {
+        font-size: 0.8rem;
+        color: $text-secondary;
+        margin: 0;
+        font-style: italic;
+
+        @include mobile-small {
+          font-size: 0.75rem;
+        }
+
+        @include desktop {
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+
+  // Cuerpo con estadísticas y biografía
+  .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+
+    @include mobile-small {
+      padding: 15px;
+    }
+
+    @include mobile {
+      padding: 18px;
+    }
+
+    @include desktop {
+      padding: 24px;
+    }
+    
+    .estadisticas {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+
+      @include mobile-small {
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      @include mobile {
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      @include desktop {
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      
+      .stat-item {
+        text-align: center;
+        padding: 12px 8px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        transition: $transition;
+
+        @include mobile-small {
+          padding: 10px 6px;
+          border-radius: 6px;
+        }
+
+        @include mobile {
+          padding: 11px 7px;
+          border-radius: 7px;
+        }
+
+        @include desktop {
+          padding: 14px 10px;
+          border-radius: 10px;
+        }
+        
+        &:hover {
+          background: #e9ecef;
+          transform: translateY(-1px);
+
+          @include mobile-small {
+            transform: none;
+          }
+        }
+        
+        .stat-number {
+          font-size: 1.4rem;
+          font-weight: 700;
+          color: $primary-color;
+          margin: 0 0 4px 0;
+          line-height: 1;
+
+          @include mobile-small {
+            font-size: 1.2rem;
+            margin: 0 0 3px 0;
+          }
+
+          @include mobile {
+            font-size: 1.3rem;
+          }
+
+          @include desktop {
+            font-size: 1.5rem;
+            margin: 0 0 6px 0;
+          }
+        }
+        
+        .stat-label {
+          font-size: 0.7rem;
+          color: $text-secondary;
+          margin: 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          @include mobile-small {
+            font-size: 0.65rem;
+            letter-spacing: 0.3px;
+          }
+
+          @include mobile {
+            font-size: 0.68rem;
+          }
+
+          @include desktop {
+            font-size: 0.75rem;
+            letter-spacing: 0.6px;
+          }
+        }
+      }
+    }
+    
+    .biografia {
+      flex: 1;
+      
+      .biografia-texto {
+        font-size: 0.9rem;
+        color: $text-secondary;
+        line-height: 1.5;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        @include mobile-small {
+          font-size: 0.8rem;
+          line-height: 1.4;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
+        }
+
+        @include mobile {
+          font-size: 0.85rem;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
+        }
+
+        @include tablet {
+          -webkit-line-clamp: 3;
+          line-clamp: 3;
+        }
+
+        @include desktop {
+          font-size: 0.95rem;
+          line-height: 1.6;
+          -webkit-line-clamp: 4;
+          line-clamp: 4;
+        }
+      }
+      
+      .sin-biografia {
+        font-style: italic;
+        color: lighten($text-secondary, 10%);
+        text-align: center;
+        padding: 20px 0;
+
+        @include mobile-small {
+          padding: 15px 0;
+          font-size: 0.8rem;
+        }
+
+        @include mobile {
+          padding: 18px 0;
+          font-size: 0.85rem;
+        }
+
+        @include desktop {
+          padding: 24px 0;
+          font-size: 0.95rem;
+        }
+      }
+    }
+  }
+
+  // Footer con acciones (solo para admin)
+  .card-footer {
+    padding: 16px 20px;
+    border-top: 1px solid $border-color;
+    background: #fafafa;
+
+    @include mobile-small {
+      padding: 12px 15px;
+    }
+
+    @include mobile {
+      padding: 14px 18px;
+    }
+
+    @include desktop {
+      padding: 20px 24px;
+    }
+    
+    .acciones {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+
+      @include mobile-small {
+        gap: 6px;
+      }
+
+      @include desktop {
+        gap: 12px;
+      }
+      
+      .estado-toggle {
+        flex: 1;
+        
+        .toggle-btn {
+          width: 100%;
+          font-size: 0.8rem;
+          padding: 8px 12px;
+          border-radius: 6px;
+          transition: $transition;
+
+          @include mobile-small {
+            font-size: 0.75rem;
+            padding: 6px 10px;
+            border-radius: 5px;
+          }
+
+          @include mobile {
+            font-size: 0.78rem;
+            padding: 7px 11px;
+          }
+
+          @include desktop {
+            font-size: 0.85rem;
+            padding: 10px 16px;
+            border-radius: 8px;
+          }
+          
+          &.activar {
+            background: rgba($success-color, 0.1);
+            color: $success-color;
+            border: 1px solid rgba($success-color, 0.3);
+            
+            &:hover {
+              background: rgba($success-color, 0.2);
+            }
+          }
+          
+          &.desactivar {
+            background: rgba($warn-color, 0.1);
+            color: $warn-color;
+            border: 1px solid rgba($warn-color, 0.3);
+            
+            &:hover {
+              background: rgba($warn-color, 0.2);
+            }
+          }
+        }
+      }
+      
+      .acciones-principales {
+        display: flex;
+        gap: 8px;
+
+        @include mobile-small {
+          gap: 6px;
+        }
+
+        @include desktop {
+          gap: 10px;
+        }
+        
+        .action-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: $transition;
+
+          @include mobile-small {
+            width: 32px;
+            height: 32px;
+          }
+
+          @include mobile {
+            width: 34px;
+            height: 34px;
+          }
+
+          @include desktop {
+            width: 40px;
+            height: 40px;
+          }
+          
+          .mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+
+            @include mobile-small {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+            }
+
+            @include desktop {
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
+            }
+          }
+          
+          &.edit-btn {
+            background: rgba($primary-color, 0.1);
+            color: $primary-color;
+            
+            &:hover {
+              background: rgba($primary-color, 0.2);
+            }
+          }
+          
+          &.delete-btn {
+            background: rgba($warn-color, 0.1);
+            color: $warn-color;
+            
+            &:hover {
+              background: rgba($warn-color, 0.2);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Información de contacto (expandible)
+  .contact-info {
+    padding: 16px 20px;
+    border-top: 1px solid $border-color;
+    background: #f9f9f9;
+
+    @include mobile-small {
+      padding: 12px 15px;
+    }
+
+    @include mobile {
+      padding: 14px 18px;
+    }
+
+    @include desktop {
+      padding: 20px 24px;
+    }
+    
+    .contact-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      @include mobile-small {
+        font-size: 0.8rem;
+        margin: 0 0 10px 0;
+        gap: 6px;
+      }
+
+      @include desktop {
+        font-size: 0.95rem;
+        margin: 0 0 16px 0;
+        gap: 10px;
+      }
+      
+      .contact-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+
+        @include mobile-small {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
+
+        @include desktop {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      color: $text-secondary;
+
+      @include mobile-small {
+        gap: 6px;
+        margin-bottom: 6px;
+        font-size: 0.75rem;
+      }
+
+      @include mobile {
+        gap: 7px;
+        margin-bottom: 7px;
+        font-size: 0.78rem;
+      }
+
+      @include desktop {
+        gap: 10px;
+        margin-bottom: 10px;
+        font-size: 0.85rem;
+      }
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .contact-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        color: $primary-color;
+
+        @include mobile-small {
+          font-size: 12px;
+          width: 12px;
+          height: 12px;
+        }
+
+        @include desktop {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+      
+      .contact-text {
+        flex: 1;
+        word-break: break-word;
+      }
+    }
+  }
+
+  // Última publicación
+  .ultima-publicacion {
+    padding: 12px 20px;
+    background: rgba($primary-color, 0.05);
+    border-left: 4px solid $primary-color;
+    margin: 16px 0 0 0;
+
+    @include mobile-small {
+      padding: 10px 15px;
+      margin: 12px 0 0 0;
+      border-left-width: 3px;
+    }
+
+    @include mobile {
+      padding: 11px 18px;
+      margin: 14px 0 0 0;
+    }
+
+    @include desktop {
+      padding: 16px 24px;
+      margin: 20px 0 0 0;
+      border-left-width: 5px;
+    }
+    
+    .publicacion-label {
+      font-size: 0.7rem;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 4px 0;
+
+      @include mobile-small {
+        font-size: 0.65rem;
+        margin: 0 0 3px 0;
+        letter-spacing: 0.3px;
+      }
+
+      @include desktop {
+        font-size: 0.75rem;
+        margin: 0 0 6px 0;
+        letter-spacing: 0.6px;
+      }
+    }
+    
+    .publicacion-fecha {
+      font-size: 0.8rem;
+      color: $text-primary;
+      font-weight: 500;
+      margin: 0;
+
+      @include mobile-small {
+        font-size: 0.75rem;
+      }
+
+      @include desktop {
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+
+// Estados especiales
+.miembro-card {
+  &.inactivo {
+    .card-container {
+      opacity: 0.7;
+      filter: grayscale(0.3);
+    }
+  }
+  
+  &.destacado {
+    .card-container {
+      border: 2px solid $accent-color;
+      box-shadow: 0 4px 20px rgba($accent-color, 0.2);
+    }
+  }
+}
+
+// Animaciones y transiciones
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.miembro-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+// Mejoras de accesibilidad
+@media (prefers-reduced-motion: reduce) {
+  .miembro-card {
+    .card-container {
+      transition: none;
+      
+      &:hover {
+        transform: none;
+      }
+    }
+    
+    .stat-item {
+      transition: none;
+      
+      &:hover {
+        transform: none;
+      }
+    }
+    
+    animation: none;
+  }
+}
+
+// Modo high contrast
+@media (prefers-contrast: high) {
+  .miembro-card {
+    .card-container {
+      border: 2px solid $text-primary;
+    }
+    
+    .card-header {
+      background: white;
+      border-bottom: 2px solid $border-color;
+    }
+    
+    .estadisticas .stat-item {
+      border: 1px solid $border-color;
+    }
+  }
+}
+
+// Soporte para modo oscuro
+@media (prefers-color-scheme: dark) {
+  .miembro-card {
+    .card-container {
+      background: #1e1e1e;
+      color: #ffffff;
+    }
+    
+    .card-header {
+      background: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
+    }
+    
+    .estadisticas .stat-item {
+      background: #2a2a2a;
+      
+      &:hover {
+        background: #333333;
+      }
+    }
+    
+    .card-footer,
+    .contact-info {
+      background: #2a2a2a;
+      border-color: #444444;
+    }
+    
+    .ultima-publicacion {
+      background: rgba($primary-color, 0.15);
+    }
+  }
+}

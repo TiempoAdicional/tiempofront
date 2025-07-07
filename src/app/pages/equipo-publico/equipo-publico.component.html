@@ -1,0 +1,158 @@
+<!-- Header principal -->
+<div class="equipo-header">
+  <div class="header-content">
+    <h1 class="page-title">
+      <mat-icon class="title-icon">groups</mat-icon>
+      Nuestro Equipo
+    </h1>
+    <p class="page-description">
+      Conoce a los profesionales que hacen posible el mejor periodismo deportivo
+    </p>
+    
+    <!-- Estadísticas generales -->
+    <div class="stats-general">
+      <div class="stat-item">
+        <span class="stat-number">{{ totalMiembros }}</span>
+        <span class="stat-label">Miembros</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">{{ totalPublicaciones }}</span>
+        <span class="stat-label">Publicaciones</span>
+      </div>
+      <div class="stat-item" *ngIf="miembroMasProductivo">
+        <span class="stat-name">{{ miembroMasProductivo.nombre }}</span>
+        <span class="stat-label">Más Productivo</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filtros y búsqueda -->
+<div class="filtros-container">
+  <mat-card class="filtros-card">
+    <div class="filtros-content">
+      <!-- Búsqueda por texto -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar miembro...</mat-label>
+        <input 
+          matInput 
+          [(ngModel)]="textoBusqueda"
+          (input)="onBusquedaChange(textoBusqueda)"
+          placeholder="Nombre, apellido o rol">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      
+      <!-- Filtro por rol -->
+      <mat-form-field appearance="outline" class="role-field">
+        <mat-label>Filtrar por rol</mat-label>
+        <mat-select [(ngModel)]="rolSeleccionado" (selectionChange)="onRolChange()">
+          <mat-option value="">Todos los roles</mat-option>
+          <mat-option *ngFor="let rol of rolesDisponibles" [value]="rol">
+            {{ rol }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix>filter_list</mat-icon>
+      </mat-form-field>
+      
+      <!-- Acciones -->
+      <div class="filtros-actions">
+        <button mat-raised-button color="primary" (click)="limpiarFiltros()">
+          <mat-icon>clear</mat-icon>
+          Limpiar Filtros
+        </button>
+        
+        <button mat-raised-button color="accent" (click)="recargar()">
+          <mat-icon>refresh</mat-icon>
+          Recargar
+        </button>
+        
+        <mat-chip class="resultados-chip" color="primary">
+          {{ miembrosFiltrados.length }} resultados
+        </mat-chip>
+      </div>
+    </div>
+  </mat-card>
+</div>
+
+<!-- Loading -->
+<div *ngIf="cargando" class="loading-container">
+  <mat-progress-spinner 
+    mode="indeterminate" 
+    diameter="60"
+    color="primary">
+  </mat-progress-spinner>
+  <p>Cargando equipo...</p>
+</div>
+
+<!-- Error -->
+<div *ngIf="error && !cargando" class="error-container">
+  <mat-card class="error-card">
+    <mat-card-content>
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <h3>Error al cargar el equipo</h3>
+      <p>No se pudo obtener la información del equipo. Por favor, intenta nuevamente.</p>
+      <button mat-raised-button color="primary" (click)="recargar()">
+        <mat-icon>refresh</mat-icon>
+        Reintentar
+      </button>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Grid de miembros -->
+<div *ngIf="!cargando && !error" class="miembros-container">
+  <!-- Sin resultados -->
+  <div *ngIf="miembrosFiltrados.length === 0" class="no-results">
+    <mat-card class="no-results-card">
+      <mat-card-content>
+        <mat-icon class="no-results-icon">search_off</mat-icon>
+        <h3>No se encontraron miembros</h3>
+        <p *ngIf="textoBusqueda || rolSeleccionado">
+          Intenta con otros términos de búsqueda o limpia los filtros.
+        </p>
+        <p *ngIf="!textoBusqueda && !rolSeleccionado">
+          No hay miembros activos en este momento.
+        </p>
+        <button mat-raised-button color="primary" (click)="limpiarFiltros()">
+          <mat-icon>clear</mat-icon>
+          Limpiar Filtros
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
+  <!-- Grid de cards -->
+  <div *ngIf="miembrosFiltrados.length > 0" class="miembros-grid">
+    <app-miembro-card
+      *ngFor="let miembro of miembrosFiltrados; trackBy: trackByMiembro"
+      [miembro]="miembro"
+      [mostrarEstadisticas]="mostrarEstadisticas"
+      [mostrarAcciones]="false"
+      [esAdmin]="false">
+    </app-miembro-card>
+  </div>
+</div>
+
+<!-- Footer informativo -->
+<div *ngIf="!cargando && !error && miembrosFiltrados.length > 0" class="footer-info">
+  <mat-card class="footer-card">
+    <mat-card-content>
+      <div class="footer-content">
+        <div class="footer-text">
+          <h4>¿Quieres formar parte de nuestro equipo?</h4>
+          <p>Estamos siempre buscando talento para unirse a nuestra familia de periodistas deportivos.</p>
+        </div>
+        <div class="footer-actions">
+          <button mat-raised-button color="primary">
+            <mat-icon>mail</mat-icon>
+            Contáctanos
+          </button>
+          <button mat-raised-button color="accent">
+            <mat-icon>description</mat-icon>
+            Ver Vacantes
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

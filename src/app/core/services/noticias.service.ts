@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, tap, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environment/environment';
 import { ComentarioDTO } from './comentarios.service';
+import { EquipoService } from './equipo.service'; // 🆕 Importar EquipoService
 
 // Interfaces para payloads
 export interface CrearNoticiaPayload {
@@ -114,7 +115,7 @@ export class NoticiasService {
   
   readonly noticias$ = this.noticiasSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private equipoService: EquipoService) {} // Inyectar EquipoService
 
   // === MÉTODOS CRUD OPTIMIZADOS ===
 
@@ -354,6 +355,19 @@ export class NoticiasService {
           console.log('✅ Noticia creada exitosamente:', noticia);
           this.actualizarCacheNoticia(noticia);
         }),
+        // 🆕 Actualizar estadísticas del equipo automáticamente
+        switchMap(noticia => {
+          console.log('📊 Actualizando estadísticas de noticia para autor:', autorId);
+          const accion = payload.destacada ? 'destacar' : 'crear';
+          return this.equipoService.actualizarEstadisticasNoticia(autorId, accion)
+            .pipe(
+              map(() => noticia), // Retornar la noticia original
+              catchError(error => {
+                console.warn('⚠️ Error actualizando estadísticas, pero noticia creada:', error);
+                return of(noticia); // Continuar con la noticia sin fallar
+              })
+            );
+        }),
         catchError(error => {
           console.error('❌ Error al crear noticia:', error);
           return throwError(() => error);
@@ -371,6 +385,22 @@ export class NoticiasService {
           console.log(`✅ Noticia actualizada id=${id}:`, noticia);
           this.actualizarCacheNoticia(noticia);
         }),
+        // 🆕 Actualizar estadísticas si cambió el estado destacado
+        switchMap(noticia => {
+          console.log('📊 Verificando cambios en estado destacado para estadísticas...');
+          if (payload.destacada !== undefined) {
+            const accion = payload.destacada ? 'destacar' : 'no-destacar';
+            return this.equipoService.actualizarEstadisticasNoticia(noticia.autorId, accion)
+              .pipe(
+                map(() => noticia),
+                catchError(error => {
+                  console.warn('⚠️ Error actualizando estadísticas destacada:', error);
+                  return of(noticia);
+                })
+              );
+          }
+          return of(noticia);
+        }),
         catchError(this.handleError<Noticia>('actualizarNoticia'))
       );
   }
@@ -379,14 +409,33 @@ export class NoticiasService {
    * Elimina una noticia por ID
    */
   eliminarNoticia(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`)
-      .pipe(
-        tap(() => {
-          console.log(`✅ Noticia eliminada id=${id}`);
-          this.eliminarDelCache(id);
-        }),
-        catchError(this.handleError<any>('eliminarNoticia'))
-      );
+    // Primero obtenemos la noticia para conocer el autorId
+    return this.obtenerPorId(id).pipe(
+      switchMap(noticia => {
+        const autorId = noticia.autorId;
+        
+        return this.http.delete<any>(`${this.apiUrl}/${id}`)
+          .pipe(
+            tap(() => {
+              console.log(`✅ Noticia eliminada id=${id}`);
+              this.eliminarDelCache(id);
+            }),
+            // 🆕 Actualizar estadísticas del equipo automáticamente
+            switchMap(result => {
+              console.log('📊 Actualizando estadísticas tras eliminar noticia del autor:', autorId);
+              return this.equipoService.actualizarEstadisticasNoticia(autorId, 'eliminar')
+                .pipe(
+                  map(() => result),
+                  catchError(error => {
+                    console.warn('⚠️ Error actualizando estadísticas tras eliminar:', error);
+                    return of(result);
+                  })
+                );
+            })
+          );
+      }),
+      catchError(this.handleError<any>('eliminarNoticia'))
+    );
   }
 
   /**
@@ -761,4 +810,22 @@ export class NoticiasService {
         })
       );
   }
+
+  /**
+   * Actualiza las estadísticas de una noticia
+   */
+  actualizarEstadisticas(noticiaId: number, tipo: 'visitas' | 'compartidas' | 'reacciones', valor: number): Observable<any> {
+    const url = `${this.apiUrl}/${noticiaId}/estadisticas`;
+    return this.http.put(url, { tipo, valor })
+      .pipe(
+        tap(() => console.log(`✅ Estadísticas actualizadas para noticia ${noticiaId}: ${tipo} = ${valor}`)),
+        catchError(error => {
+          console.error(`❌ Error actualizando estadísticas para noticia ${noticiaId}:`, error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  // === MÉTODOS AUXILIARES PRIVADOS ===
+
 }

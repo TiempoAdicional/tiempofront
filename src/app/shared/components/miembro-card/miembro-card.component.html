@@ -1,0 +1,157 @@
+<!-- Vista Card (por defecto) -->
+<div *ngIf="vista === 'card'" class="miembro-card" [class.inactivo]="!miembro.activo">
+  <mat-card class="card-container">
+    <!-- Header con imagen y estado -->
+    <div class="card-header">
+      <div class="imagen-container">
+        <img 
+          [src]="miembro.imagenUrl || imagenFallback" 
+          [alt]="nombreCompleto"
+          (error)="onImagenError($event)"
+          class="miembro-imagen">
+        
+        <!-- Badge de estado (solo admin) -->
+        <div *ngIf="esAdmin" class="estado-badge" [class.activo]="miembro.activo">
+          <mat-icon>{{ miembro.activo ? 'check_circle' : 'cancel' }}</mat-icon>
+        </div>
+      </div>
+
+      <!-- Información básica -->
+      <div class="info-basica">
+        <h3 class="nombre">{{ nombreCompleto }}</h3>
+        <mat-chip class="rol-chip" color="primary">{{ miembro.rol }}</mat-chip>
+        <p *ngIf="miembro.cargo" class="cargo">{{ miembro.cargo }}</p>
+      </div>
+    </div>
+
+    <!-- Estadísticas (si están habilitadas) -->
+    <div *ngIf="mostrarEstadisticas" class="estadisticas-container">
+      <div class="estadisticas-grid">
+        <div class="stat-item">
+          <span class="stat-number">{{ miembro.totalNoticias || 0 }}</span>
+          <span class="stat-label">Noticias</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ miembro.totalEventos || 0 }}</span>
+          <span class="stat-label">Eventos</span>
+        </div>
+        <div class="stat-item" *ngIf="miembro.noticiasDestacadas">
+          <span class="stat-number">{{ miembro.noticiasDestacadas }}</span>
+          <span class="stat-label">Destacadas</span>
+        </div>
+      </div>
+      
+      <!-- Total de publicaciones -->
+      <div class="total-publicaciones">
+        <mat-icon>article</mat-icon>
+        <span>{{ totalPublicaciones }} publicaciones totales</span>
+      </div>
+    </div>
+
+    <!-- Biografía -->
+    <mat-card-content *ngIf="miembro.biografia">
+      <p class="biografia">{{ miembro.biografia }}</p>
+    </mat-card-content>
+
+    <!-- Información de contacto -->
+    <div class="contacto-info" *ngIf="miembro.correo || miembro.telefono">
+      <div *ngIf="miembro.correo" class="contacto-item">
+        <mat-icon>email</mat-icon>
+        <span>{{ miembro.correo }}</span>
+      </div>
+      <div *ngIf="miembro.telefono" class="contacto-item">
+        <mat-icon>phone</mat-icon>
+        <span>{{ miembro.telefono }}</span>
+      </div>
+    </div>
+
+    <!-- Última publicación -->
+    <div *ngIf="miembro.fechaUltimaPublicacion" class="ultima-publicacion">
+      <mat-icon>schedule</mat-icon>
+      <span>Última publicación: {{ miembro.fechaUltimaPublicacion | date:'dd/MM/yyyy' }}</span>
+    </div>
+
+    <!-- Acciones (solo admin) -->
+    <mat-card-actions *ngIf="mostrarAcciones && esAdmin" class="card-actions">
+      <button mat-raised-button color="primary" (click)="onEditar()">
+        <mat-icon>edit</mat-icon>
+        Editar
+      </button>
+      
+      <button mat-raised-button 
+              [color]="miembro.activo ? 'warn' : 'accent'" 
+              (click)="onCambiarEstado()">
+        <mat-icon>{{ miembro.activo ? 'visibility_off' : 'visibility' }}</mat-icon>
+        {{ miembro.activo ? 'Desactivar' : 'Activar' }}
+      </button>
+      
+      <button mat-button color="primary" (click)="onVerEstadisticas()">
+        <mat-icon>analytics</mat-icon>
+        Estadísticas
+      </button>
+      
+      <button mat-button color="warn" (click)="onEliminar()">
+        <mat-icon>delete</mat-icon>
+        Eliminar
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<!-- Vista Lista (para admin) -->
+<div *ngIf="vista === 'list'" class="miembro-list-item" [class.inactivo]="!miembro.activo">
+  <div class="list-content">
+    <!-- Imagen pequeña -->
+    <div class="imagen-small">
+      <img 
+        [src]="miembro.imagenUrl || imagenFallback" 
+        [alt]="nombreCompleto"
+        (error)="onImagenError($event)">
+    </div>
+
+    <!-- Información principal -->
+    <div class="info-principal">
+      <h4 class="nombre">{{ nombreCompleto }}</h4>
+      <p class="rol">{{ miembro.rol }}</p>
+      <p *ngIf="miembro.cargo" class="cargo">{{ miembro.cargo }}</p>
+    </div>
+
+    <!-- Estadísticas compactas -->
+    <div *ngIf="mostrarEstadisticas" class="stats-compact">
+      <span class="stat-compact">{{ miembro.totalNoticias || 0 }}N</span>
+      <span class="stat-compact">{{ miembro.totalEventos || 0 }}E</span>
+      <span *ngIf="miembro.noticiasDestacadas" class="stat-compact destacadas">
+        {{ miembro.noticiasDestacadas }}★
+      </span>
+    </div>
+
+    <!-- Estado -->
+    <div class="estado-indicator">
+      <mat-chip [color]="miembro.activo ? 'primary' : 'warn'">
+        {{ miembro.activo ? 'Activo' : 'Inactivo' }}
+      </mat-chip>
+    </div>
+
+    <!-- Acciones compactas -->
+    <div *ngIf="mostrarAcciones && esAdmin" class="acciones-compact">
+      <button mat-icon-button color="primary" (click)="onEditar()" title="Editar">
+        <mat-icon>edit</mat-icon>
+      </button>
+      
+      <button mat-icon-button 
+              [color]="miembro.activo ? 'warn' : 'accent'" 
+              (click)="onCambiarEstado()"
+              [title]="miembro.activo ? 'Desactivar' : 'Activar'">
+        <mat-icon>{{ miembro.activo ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      
+      <button mat-icon-button color="primary" (click)="onVerEstadisticas()" title="Estadísticas">
+        <mat-icon>analytics</mat-icon>
+      </button>
+      
+      <button mat-icon-button color="warn" (click)="onEliminar()" title="Eliminar">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

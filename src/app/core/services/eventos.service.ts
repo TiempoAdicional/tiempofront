@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
+import { catchError, tap, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environment/environment';
+import { EquipoService } from './equipo.service'; // 🆕 Importar EquipoService
 
 export interface Evento {
   id?: number;
@@ -25,7 +26,10 @@ export class EventosService {
   
   readonly eventos$ = this.eventosSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private equipoService: EquipoService // 🆕 Inyectar EquipoService
+  ) {}
 
   // === MÉTODOS CRUD OPTIMIZADOS ===
 
@@ -55,6 +59,22 @@ export class EventosService {
     return this.http.post<Evento>(`${this.apiUrl}/crear`, formData)
       .pipe(
         tap(evento => this.actualizarCacheEvento(evento)),
+        // 🆕 Actualizar estadísticas del equipo automáticamente
+        switchMap(evento => {
+          const creadorId = evento.creador_id;
+          if (creadorId) {
+            console.log('📊 Actualizando estadísticas de evento para creador:', creadorId);
+            return this.equipoService.actualizarEstadisticasEvento(creadorId, 'crear')
+              .pipe(
+                map(() => evento),
+                catchError(error => {
+                  console.warn('⚠️ Error actualizando estadísticas de evento:', error);
+                  return of(evento);
+                })
+              );
+          }
+          return of(evento);
+        }),
         catchError(this.handleError<Evento>('crear'))
       );
   }
@@ -68,11 +88,33 @@ export class EventosService {
   }
 
   eliminar(id: number): Observable<string> {
-    return this.http.delete<string>(`${this.apiUrl}/${id}`)
-      .pipe(
-        tap(() => this.eliminarDelCache(id)),
-        catchError(this.handleError<string>('eliminar'))
-      );
+    // Primero obtenemos el evento para conocer el creador_id
+    return this.obtenerPorId(id).pipe(
+      switchMap(evento => {
+        const creadorId = evento.creador_id;
+        
+        return this.http.delete<string>(`${this.apiUrl}/${id}`)
+          .pipe(
+            tap(() => this.eliminarDelCache(id)),
+            // 🆕 Actualizar estadísticas del equipo automáticamente
+            switchMap(result => {
+              if (creadorId) {
+                console.log('📊 Actualizando estadísticas tras eliminar evento del creador:', creadorId);
+                return this.equipoService.actualizarEstadisticasEvento(creadorId, 'eliminar')
+                  .pipe(
+                    map(() => result),
+                    catchError(error => {
+                      console.warn('⚠️ Error actualizando estadísticas tras eliminar evento:', error);
+                      return of(result);
+                    })
+                  );
+              }
+              return of(result);
+            })
+          );
+      }),
+      catchError(this.handleError<string>('eliminar'))
+    );
   }
 
   listarPorCreador(creadorId: number): Observable<Evento[]> {

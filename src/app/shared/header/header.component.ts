@@ -80,6 +80,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       case 'torneo':
         this.router.navigate(['/usuarios/dashboard'], { fragment: 'liga' });
         break;
+      case 'equipo':
+        this.router.navigate(['/equipo']);
+        break;
       default:
         console.log(`Sub navigation clicked: ${item}`);
         break;
@@ -109,6 +112,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate(['/usuarios/dashboard'], { fragment: 'liga' });
     this.activeDropdown = null;
     this.closeMobileMenu();
+  }
+
+  irAEquipo(): void {
+    console.log('🔄 Navegando a página de equipo...');
+    this.activeDropdown = null;
+    this.closeMobileMenu();
+    this.router.navigate(['/equipo']).then(success => {
+      if (success) {
+        console.log('✅ Navegación a /equipo exitosa');
+      } else {
+        console.error('❌ Error en navegación a /equipo');
+      }
+    });
   }
 
   toggleMobileMenu(): void {
