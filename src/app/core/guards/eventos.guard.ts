@@ -9,7 +9,7 @@ export class eventosGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(): boolean {
-    if (this.authService.estaAutenticado() && this.authService.esAdmin()) {
+    if (this.authService.estaAutenticado() && this.authService.esAdminOEditorJefe()) {
       return true;
     } else {
       this.router.navigate(['/']);

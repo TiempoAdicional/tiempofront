@@ -260,14 +260,17 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
                 autorNombre: noticia.autorNombre || 'TiempoAdicional'
               }));
               
+
+              
               // Inicializar carousel
               if (this.noticiasDestacadas.length > 0) {
                 this.indiceNoticiaActual = 0;
                 this.noticiaDestacadaActual = this.noticiasDestacadas[0];
                 this.iniciarCarousel();
+                console.log('✨ Carousel inicializado con', this.noticiasDestacadas.length, 'noticias destacadas reales (sin duplicados)');
               }
               
-              console.log('✨ Noticias destacadas públicas configuradas:', this.noticiasDestacadas.length);
+              console.log('✨ Noticias destacadas públicas configuradas (solo reales):', this.noticiasDestacadas.length);
             }
           },
           error: (error) => {
@@ -305,14 +308,17 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
         };
       });
       
+
+      
       // Inicializar carousel
       if (this.noticiasDestacadas.length > 0) {
         this.indiceNoticiaActual = 0;
         this.noticiaDestacadaActual = this.noticiasDestacadas[0];
         this.iniciarCarousel();
+        console.log('✨ Carousel inicializado con', this.noticiasDestacadas.length, 'noticias destacadas reales (sin duplicados)');
       }
       
-      console.log('✅ Noticias destacadas configuradas:', this.noticiasDestacadas.length);
+      console.log('✅ Noticias destacadas configuradas (solo reales):', this.noticiasDestacadas.length);
     } else {
       console.log('⚠️ No hay noticias destacadas en las noticias autenticadas');
     }
@@ -680,18 +686,25 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   // ===============================
   
   private iniciarCarousel(): void {
-    if (this.noticiasDestacadas.length <= 1) return;
+    console.log('🎠 Iniciando carousel con', this.noticiasDestacadas.length, 'noticias');
+    if (this.noticiasDestacadas.length === 0) return;
     
     this.pararCarousel();
     
-    // Inicializar progress
-    this.progressValue = 0;
-    this.iniciarProgress();
-    
-    // Configurar cambio automático
-    this.carouselInterval = setInterval(() => {
-      this.siguienteNoticia();
-    }, this.CAROUSEL_DURATION);
+    // Solo iniciar animación automática si hay más de 1 noticia
+    if (this.noticiasDestacadas.length > 1) {
+      console.log('🔄 Iniciando animación automática del carousel');
+      // Inicializar progress
+      this.progressValue = 0;
+      this.iniciarProgress();
+      
+      // Configurar cambio automático
+      this.carouselInterval = setInterval(() => {
+        this.siguienteNoticia();
+      }, this.CAROUSEL_DURATION);
+    } else {
+      console.log('⏸️ Solo hay 1 noticia, carousel estático');
+    }
   }
   
   private pararCarousel(): void {
@@ -721,8 +734,11 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   siguienteNoticia(): void {
     if (this.noticiasDestacadas.length === 0) return;
     
+    const indiceAnterior = this.indiceNoticiaActual;
     this.indiceNoticiaActual = (this.indiceNoticiaActual + 1) % this.noticiasDestacadas.length;
     this.noticiaDestacadaActual = this.noticiasDestacadas[this.indiceNoticiaActual];
+    console.log(`🎠 Cambio de noticia: ${indiceAnterior} -> ${this.indiceNoticiaActual}`);
+    console.log('📰 Nueva noticia:', this.noticiaDestacadaActual.titulo);
     this.iniciarProgress();
   }
   

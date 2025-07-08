@@ -42,6 +42,14 @@
     *ngIf="saving" 
     mode="indeterminate">
   </mat-progress-bar>
+  
+  <!-- INDICADOR DE AUTOGUARDADOS -->
+  <div *ngIf="mostrarContadorAutoguardado" class="autoguardado-indicator">
+    <mat-chip [class]="autoguardadoActivo ? 'chip-info' : 'chip-warning'">
+      <mat-icon>{{ autoguardadoActivo ? 'save' : 'save_off' }}</mat-icon>
+      {{ textoEstadoAutoguardado }}
+    </mat-chip>
+  </div>
 </mat-toolbar>
 
 <!-- CONTENEDOR PRINCIPAL -->
@@ -96,7 +104,7 @@
         </mat-form-field>
         
         <button mat-icon-button 
-                (click)="filtroTexto = ''; filtroEstado = ''; aplicarFiltros()" 
+                (click)="limpiarFiltros()" 
                 matTooltip="Limpiar filtros">
           <mat-icon>clear</mat-icon>
         </button>
@@ -375,7 +383,7 @@
           
           <button mat-stroked-button 
                   color="warn" 
-                  (click)="cargarDatosEnFormulario()"
+                  (click)="cargarDatosEnFormularios()"
                   [disabled]="!hasUnsavedChanges">
             <mat-icon>undo</mat-icon>
             Deshacer Cambios

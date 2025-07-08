@@ -517,3 +517,34 @@
 .secciones-icon {
   background: linear-gradient(135deg, #f57c00, #ffb74d) !important;
 }
+
+// Chip exclusivo para Editor Jefe
+.exclusive-chip {
+  background: linear-gradient(135deg, #ff6f00, #ff8f00) !important;
+  color: white !important;
+  margin-left: 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  
+  mat-icon {
+    color: white !important;
+    font-size: 16px !important;
+  }
+}
+
+// Estilos adicionales para roles en el header
+.user-info {
+  mat-chip-set {
+    gap: 8px;
+    
+    mat-chip[color="accent"] {
+      background: linear-gradient(135deg, #00e676, #4caf50) !important;
+      color: white !important;
+      font-weight: 600 !important;
+      
+      mat-icon {
+        color: #ffd700 !important; // Dorado para el icono de estrella
+      }
+    }
+  }
+}

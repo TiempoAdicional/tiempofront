@@ -5,11 +5,11 @@ import { AuthService } from '../../auth/services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AdminGuard implements CanActivate {
+export class EditorJefeGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(): boolean {
-    if (this.authService.estaAutenticado() && this.authService.esAdminOEditorJefe()) {
+    if (this.authService.estaAutenticado() && this.authService.puedeGestionarEquipo()) {
       return true;
     }
     

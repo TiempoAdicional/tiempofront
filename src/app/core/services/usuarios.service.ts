@@ -10,20 +10,21 @@ export interface UsuarioDTO {
   id: number;
   nombre: string;
   correo: string;
-  rol: 'USUARIO' | 'ADMIN' | 'SUPER_ADMIN';
+  rol: 'USUARIO' | 'ADMIN' | 'EDITOR_JEFE' | 'SUPER_ADMIN';
   fechaCreacion: string;
   fechaUltimoAcceso?: string;
   activo: boolean;
 }
 
 export interface CambiarRolRequest {
-  rol: 'USUARIO' | 'ADMIN' | 'SUPER_ADMIN';
+  rol: 'USUARIO' | 'ADMIN' | 'EDITOR_JEFE' | 'SUPER_ADMIN';
 }
 
 export interface EstadisticasUsuarios {
   totalUsuarios: number;
   editores: number;
   administradores: number;
+  editoresJefe: number;
   superAdmins: number;
   usuariosActivos: number;
   usuariosInactivos: number;
@@ -185,6 +186,7 @@ export class UsuariosService {
       totalUsuarios: usuarios.length,
       editores: usuarios.filter(u => u.rol === 'USUARIO').length,
       administradores: usuarios.filter(u => u.rol === 'ADMIN').length,
+      editoresJefe: usuarios.filter(u => u.rol === 'EDITOR_JEFE').length,
       superAdmins: usuarios.filter(u => u.rol === 'SUPER_ADMIN').length,
       usuariosActivos: usuarios.filter(u => u.activo).length,
       usuariosInactivos: usuarios.filter(u => !u.activo).length
@@ -268,6 +270,7 @@ export class UsuariosService {
     const colores = {
       'USUARIO': '#17a2b8',        // Cian
       'ADMIN': '#ffc107',         // Amarillo
+      'EDITOR_JEFE': '#28a745',   // Verde
       'SUPER_ADMIN': '#dc3545'    // Rojo
     };
     return colores[rol as keyof typeof colores] || '#6c757d';
@@ -280,6 +283,7 @@ export class UsuariosService {
     const iconos = {
       'USUARIO': 'edit',
       'ADMIN': 'admin_panel_settings',
+      'EDITOR_JEFE': 'star',
       'SUPER_ADMIN': 'security'
     };
     return iconos[rol as keyof typeof iconos] || 'person';

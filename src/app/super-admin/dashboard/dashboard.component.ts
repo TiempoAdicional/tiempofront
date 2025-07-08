@@ -79,12 +79,12 @@ export class SuperAdminDashboardComponent implements OnInit, OnDestroy {
   readonly rolesDisponibles = [
     { value: 'USUARIO', label: 'Usuario', descripcion: 'Solo mirar el contenido', icon: 'person', color: '#17a2b8' },
     { value: 'ADMIN', label: 'Administrador', descripcion: 'Editor de todo el periódico', icon: 'admin_panel_settings', color: '#ffc107' },
+    { value: 'EDITOR_JEFE', label: 'Editor Jefe', descripcion: 'Editor en jefe con gestión de equipo', icon: 'star', color: '#28a745' },
     { value: 'SUPER_ADMIN', label: 'Super Administrador', descripcion: 'Control total del sistema', icon: 'security', color: '#dc3545' }
   ];
 
-  // AGREGAR después de la línea 79 (donde está rolesDisponibles):
+  // Roles que pueden ser asignados (excluye SUPER_ADMIN)
   get rolesDisponiblesParaCambio() {
-    // Solo mostrar ADMIN y USUARIO, nunca SUPER_ADMIN
     return this.rolesDisponibles.filter(rol => rol.value !== 'SUPER_ADMIN');
   }
 
@@ -229,6 +229,15 @@ export class SuperAdminDashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Validación especial para EDITOR_JEFE
+    if (nuevoRol === 'EDITOR_JEFE') {
+      const confirmacion = confirm(
+        `¿Está seguro de asignar el rol de Editor Jefe a ${usuario.nombre}?\n\n` +
+        'El Editor Jefe tendrá acceso completo al panel de administración y gestión exclusiva del equipo del periódico.'
+      );
+      if (!confirmacion) return;
+    }
+
     this.cambiandoRol = true;
 
     this.usuariosService.cambiarRol(usuario.id, nuevoRol)
@@ -237,7 +246,12 @@ export class SuperAdminDashboardComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.usuarioEncontrado!.rol = nuevoRol;
           this.cambiandoRol = false;
-          this.mostrarToast(`✅ Rol actualizado a ${this.obtenerLabelRol(nuevoRol)}`);
+          
+          let mensaje = `✅ Rol actualizado a ${this.obtenerLabelRol(nuevoRol)}`;
+          if (nuevoRol === 'EDITOR_JEFE') {
+            mensaje += ' 🌟 ¡Nuevo Editor Jefe asignado!';
+          }
+          this.mostrarToast(mensaje);
 
           // Actualizar búsquedas recientes
           this.actualizarBusquedaReciente(usuario.id, { rol: nuevoRol });

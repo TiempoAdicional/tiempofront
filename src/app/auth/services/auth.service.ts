@@ -64,6 +64,18 @@ export class AuthService {
   this.nombreSubject.next(nombre);
 }
 
+  obtenerCorreoUsuario(): string | null {
+    const token = this.obtenerToken();
+    if (!token) return null;
+
+    try {
+      const decoded: DecodedToken = jwtDecode(token);
+      return decoded.sub; // El sub del token generalmente contiene el correo
+    } catch (error) {
+      return null;
+    }
+  }
+
   obtenerToken(): string | null {
     return localStorage.getItem('jwt');
   }
@@ -80,6 +92,7 @@ export class AuthService {
     localStorage.removeItem('jwt');
     localStorage.removeItem('rol');
     localStorage.removeItem('nombre');
+    localStorage.removeItem('perfil_equipo_completado'); // Limpiar estado de perfil
     this.autenticadoSubject.next(false);
     this.nombreSubject.next('');
   }
@@ -100,6 +113,28 @@ export class AuthService {
 
   esAdmin(): boolean {
     return this.obtenerRol() === 'ADMIN';
+  }
+
+  esEditorJefe(): boolean {
+    return this.obtenerRol() === 'EDITOR_JEFE';
+  }
+
+  esAdminOEditorJefe(): boolean {
+    const rol = this.obtenerRol();
+    return rol === 'ADMIN' || rol === 'EDITOR_JEFE';
+  }
+
+  puedeGestionarEquipo(): boolean {
+    return this.esEditorJefe();
+  }
+
+  // Método para verificar si el editor jefe ya completó su perfil
+  necesitaCompletarPerfil(): boolean {
+    return localStorage.getItem('perfil_equipo_completado') !== 'true';
+  }
+
+  marcarPerfilCompletado(): void {
+    localStorage.setItem('perfil_equipo_completado', 'true');
   }
 
   esUsuario(): boolean {

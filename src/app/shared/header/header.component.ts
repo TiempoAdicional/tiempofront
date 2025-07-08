@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
@@ -91,11 +91,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Métodos específicos para navegación de usuarios
   irANoticias(): void {
-    console.log('🔄 Navegando a todas las noticias...');
+    console.log('🔄 [HEADER] irANoticias() llamado');
     this.irATodasLasNoticias();
   }
 
   irAEventos(): void {
+    console.log('🔄 [HEADER] irAEventos() llamado');
     this.router.navigate(['/usuarios/dashboard'], { fragment: 'eventos' });
     this.activeDropdown = null;
     this.closeMobileMenu();
@@ -132,12 +133,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   irANoticiasRecientes(): void {
     console.log('🔄 Navegando a noticias recientes...');
-    const rutaBase = this.estaAutenticado ? '/usuarios/noticias' : '/noticias';
+    console.log('🔍 Estado autenticado:', this.estaAutenticado);
+    
+    // Por ahora, siempre usar la ruta pública para debuggear
+    const rutaBase = '/noticias';
+    console.log('🛣️ Navegando a ruta:', rutaBase, 'con queryParams:', { tipo: 'recientes', limite: 10 });
+    
     this.router.navigate([rutaBase], { 
       queryParams: { 
         tipo: 'recientes',
         limite: 10 
       }
+    }).then(success => {
+      console.log('✅ Navegación exitosa:', success);
+    }).catch(error => {
+      console.error('❌ Error en navegación:', error);
     });
     this.activeDropdown = null;
     this.closeMobileMenu();
@@ -145,11 +155,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   irANoticiasDestacadas(): void {
     console.log('🔄 Navegando a noticias destacadas...');
-    const rutaBase = this.estaAutenticado ? '/usuarios/noticias' : '/noticias';
+    console.log('🔍 Estado autenticado:', this.estaAutenticado);
+    
+    // Por ahora, siempre usar la ruta pública para debuggear
+    const rutaBase = '/noticias';
+    console.log('🛣️ Navegando a ruta:', rutaBase, 'con queryParams:', { tipo: 'destacadas' });
+    
     this.router.navigate([rutaBase], { 
       queryParams: { 
         tipo: 'destacadas'
       }
+    }).then(success => {
+      console.log('✅ Navegación exitosa:', success);
+    }).catch(error => {
+      console.error('❌ Error en navegación:', error);
     });
     this.activeDropdown = null;
     this.closeMobileMenu();
@@ -157,12 +176,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   irATodasLasNoticias(): void {
     console.log('🔄 Navegando a todas las noticias...');
-    const rutaBase = this.estaAutenticado ? '/usuarios/noticias' : '/noticias';
+    console.log('🔍 Estado autenticado:', this.estaAutenticado);
+    
+    // Por ahora, siempre usar la ruta pública para debuggear
+    const rutaBase = '/noticias';
+    console.log('🛣️ Navegando a ruta:', rutaBase, 'con queryParams:', { tipo: 'todas', limite: 20 });
+    
     this.router.navigate([rutaBase], { 
       queryParams: { 
         tipo: 'todas',
         limite: 20
       }
+    }).then(success => {
+      console.log('✅ Navegación exitosa:', success);
+    }).catch(error => {
+      console.error('❌ Error en navegación:', error);
     });
     this.activeDropdown = null;
     this.closeMobileMenu();

@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { NoticiasService, Noticia, EditarNoticiaPayload, FiltrosNoticia, ListarNoticiasResponse } from '../../../core/services/noticias.service';
-import { ComentariosService, ComentarioDTO } from '../../../core/services/comentarios.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { AsignacionSeccionService } from '../../../core/services/asignacion-seccion.service';
 import { SeccionesService, SeccionResponse } from '../../../core/services/secciones.service';
@@ -66,7 +65,6 @@ import { MatDividerModule } from '@angular/material/divider';
     MatBadgeModule,
     MatSlideToggleModule,
     MatProgressBarModule,
-    MatDividerModule,
     MatDividerModule
   ],
   templateUrl: './editar.component.html',
@@ -75,7 +73,6 @@ import { MatDividerModule } from '@angular/material/divider';
 export class EditarNoticiaComponent implements OnInit, OnDestroy {
   // Services
   private noticiasService = inject(NoticiasService);
-  private comentariosService = inject(ComentariosService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -294,11 +291,11 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
 
   // Auto-save
   private autoSaveSubject = new Subject<any>();
-
-  // 🔥 NUEVO: Gestión de comentarios
-  comentarios: ComentarioDTO[] = [];
-  comentariosLoading = false;
-  mostrarComentarios = false;
+  
+  // 🔥 NUEVO: Control de autoguardados limitados
+  private autoguardadosRealizados = 0;
+  private readonly MAX_AUTOGUARDADOS = 2;
+  private autoguardadoHabilitado = true;
 
   constructor() {
     this.initForms();
@@ -388,6 +385,15 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
     this.configuracionForm.valueChanges
       .pipe(takeUntil(this.destroy$), debounceTime(1000))
       .subscribe(() => this.autoGuardar());
+
+    // Listener específico para el campo destacada
+    this.configuracionForm.get('destacada')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((valor: boolean) => {
+        if (this.noticia && valor !== this.noticia.destacada) {
+          this.cambiarEstadoDestacada();
+        }
+      });
   }
 
   private setupAutoSave(): void {
@@ -406,7 +412,10 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
 
   private cargarNoticia(): void {
     this.loading = true;
-    console.log('🔄 Cargando noticia ID:', this.noticiaId);
+    
+    // Resetear contador de autoguardados para nueva noticia
+    this.autoguardadosRealizados = 0;
+    this.autoguardadoHabilitado = true;
     
     // 🔥 ACTUALIZADO: Usar método robusto para evitar errores SQL
     this.noticiasService.obtenerPorId(this.noticiaId)
@@ -416,9 +425,6 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
           console.log('✅ Noticia cargada:', noticia);
           this.noticia = noticia;
           this.cargarDatosEnFormularios();
-          
-          // 🔥 NUEVO: Cargar comentarios automáticamente
-          this.cargarComentarios();
           
           this.loading = false;
         },
@@ -479,7 +485,7 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
         next: (noticia: any) => {
           console.log('✅ Noticia cargada (método alternativo):', noticia);
           this.noticia = noticia;
-          this.cargarDatosEnFormulariosBasico();
+          this.cargarDatosEnFormularios();
           this.loading = false;
         },
         error: (error: any) => {
@@ -496,13 +502,13 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 🔥 NUEVO: Carga básica de datos evitando operaciones complejas
+   * Carga datos de la noticia en los formularios (acceso público para el template)
    */
-  private cargarDatosEnFormulariosBasico(): void {
+  cargarDatosEnFormularios(): void {
     if (!this.noticia) return;
 
     try {
-      // Cargar datos básicos sin operaciones de búsqueda complejas
+      // Información básica
       this.informacionForm.patchValue({
         titulo: this.noticia.titulo || '',
         resumen: this.noticia.resumen || '',
@@ -510,120 +516,41 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
         imagenDestacada: this.noticia.imagenDestacada || ''
       });
 
-      // Contenido básico
-      this.contenidoForm.patchValue({
-        contenido: (this.noticia as any).contenidoHtml || ''
-      });
-      this.contenidoHtml = (this.noticia as any).contenidoHtml || '';
-
-      // Configuración básica
+      // Configuración
       this.configuracionForm.patchValue({
         esPublica: this.noticia.esPublica !== undefined ? this.noticia.esPublica : false,
         destacada: this.noticia.destacada || false,
         permitirComentarios: true,
-        seccionId: this.noticia.seccion_id || '',
-        tags: this.noticia.tags?.join(', ') || ''
+        seccionId: this.noticia.seccion_id || ''
       });
 
       this.tags = this.noticia.tags || [];
       this.noticiaSeleccionada = this.noticia;
       this.imagenDestacadaPreview = this.noticia.imagenDestacada;
 
-      console.log('✅ Datos cargados en formularios (método básico)');
+      // Cargar contenido HTML
+      if (this.noticia.contenidoUrl) {
+        this.noticiasService.obtenerContenidoHtml(this.noticia.contenidoUrl)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (contenidoHtml: string) => {
+              this.contenidoForm.patchValue({ contenido: contenidoHtml });
+              this.contenidoHtml = contenidoHtml;
+            },
+            error: (error: any) => {
+              this.mostrarError('Error al cargar el contenido de la noticia');
+              this.contenidoForm.patchValue({ contenido: '' });
+              this.contenidoHtml = '';
+            }
+          });
+      } else {
+        this.contenidoForm.patchValue({ contenido: (this.noticia as any).contenidoHtml || '' });
+        this.contenidoHtml = (this.noticia as any).contenidoHtml || '';
+      }
+
     } catch (error) {
-      console.error('❌ Error al cargar datos en formularios:', error);
       this.mostrarError('Error al procesar los datos de la noticia');
     }
-  }
-
-  /**
-   * 🔥 ACTUALIZADO: Carga datos en formularios desde nueva estructura con Cloudinary URLs
-   */
-  private cargarDatosEnFormularios(): void {
-    if (!this.noticia) return;
-
-    this.informacionForm.patchValue({
-      titulo: this.noticia.titulo,
-      resumen: this.noticia.resumen,
-      fechaPublicacion: this.noticia.fechaPublicacion,
-      imagenDestacada: this.noticia.imagenDestacada
-    });
-
-    // 🔥 IMPORTANTE: Cargar contenido HTML desde Cloudinary URL
-    if (this.noticia.contenidoUrl) {
-      console.log('🔄 Cargando contenido HTML para edición desde:', this.noticia.contenidoUrl);
-      
-      this.noticiasService.obtenerContenidoHtml(this.noticia.contenidoUrl)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (contenidoHtml: string) => {
-            console.log('✅ Contenido HTML cargado exitosamente');
-            this.contenidoForm.patchValue({
-              contenido: contenidoHtml
-            });
-            this.contenidoHtml = contenidoHtml;
-          },
-          error: (error: any) => {
-            console.error('❌ Error al cargar contenido desde Cloudinary:', error);
-            
-            // Mensaje específico según el tipo de error
-            let mensajeError = 'Error al cargar el contenido de la noticia';
-            if (error.status === 400) {
-              mensajeError = 'La URL del contenido no es válida o el archivo no existe';
-            } else if (error.status === 404) {
-              mensajeError = 'El contenido de la noticia no fue encontrado';
-            } else if (error.status >= 500) {
-              mensajeError = 'Error del servidor al obtener el contenido';
-            }
-            
-            this.mostrarError(mensajeError);
-            
-            // Fallback - permitir edición con contenido vacío
-            const contenidoFallback = `
-              <div class="contenido-no-disponible">
-                <h3>Contenido no disponible</h3>
-                <p>El contenido original no pudo ser cargado.</p>
-                <p>Puede escribir nuevo contenido a continuación:</p>
-              </div>
-            `;
-            
-            this.contenidoForm.patchValue({
-              contenido: contenidoFallback
-            });
-            this.contenidoHtml = contenidoFallback;
-          }
-        });
-    } else {
-      console.warn('⚠️ La noticia no tiene contenidoUrl definido');
-      // Si no hay URL de contenido, verificar si tiene contenidoHtml directo (noticias legacy)
-      const contenidoLegacy = (this.noticia as any).contenidoHtml;
-      if (contenidoLegacy) {
-        this.contenidoForm.patchValue({
-          contenido: contenidoLegacy
-        });
-        this.contenidoHtml = contenidoLegacy;
-      } else {
-        // Inicializar con contenido vacío
-        this.contenidoForm.patchValue({
-          contenido: '<p>Escriba aquí el contenido de la noticia...</p>'
-        });
-        this.contenidoHtml = '<p>Escriba aquí el contenido de la noticia...</p>';
-      }
-    }
-
-    this.configuracionForm.patchValue({
-      esPublica: this.noticia.esPublica,
-      destacada: this.noticia.destacada || false,
-      permitirComentarios: true,
-      seccionId: this.noticia.seccion_id,
-      tags: this.noticia.tags?.join(', ') || ''
-    });
-
-    this.tags = this.noticia.tags || [];
-    
-    // Set template variables
-    this.noticiaSeleccionada = this.noticia;
-    this.imagenDestacadaPreview = this.noticia.imagenDestacada;
   }
 
   private cargarSecciones(): void {
@@ -809,7 +736,7 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
   // ===============================
 
   /**
-   * 🔥 ACTUALIZADO: Guarda cambios usando backend modernizado con manejo robusto de errores
+   * Guarda cambios usando backend con FormData
    */
   guardarCambios(): void {
     if (!this.validarFormularios()) {
@@ -819,14 +746,11 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
 
     this.saving = true;
     const payload = this.construirPayload();
-    console.log('💾 Guardando cambios:', { ...payload, contenidoHtml: 'CONTENT_LENGTH: ' + payload.contenidoHtml.length });
 
-    // 🔥 Usar método moderno que sube contenido a Cloudinary
     this.noticiasService.actualizarNoticia(this.noticiaId, payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: Noticia) => {
-          console.log('✅ Noticia actualizada:', response);
           this.noticia = response;
           this.hasUnsavedChanges = false;
           this.saving = false;
@@ -834,9 +758,6 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
           this.mostrarExito('Noticia actualizada correctamente');
         },
         error: (error: any) => {
-          console.error('❌ Error al actualizar noticia:', error);
-          
-          // Manejo específico de errores de backend
           let mensajeError = 'Error al guardar los cambios';
           
           if (error.status === 400) {
@@ -849,9 +770,6 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
             mensajeError = 'Error interno del servidor. Intente nuevamente.';
           } else if (error.status === 0) {
             mensajeError = 'Error de conexión. Verifique su conexión a internet.';
-          } else if (error.message && error.message.includes('lower(bytea)')) {
-            mensajeError = 'Error de configuración del servidor. Contacte al administrador.';
-            console.error('🔥 Error específico de SQL bytea en guardado:', error);
           }
           
           this.mostrarError(mensajeError);
@@ -861,21 +779,30 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
   }
 
   private autoGuardar(): void {
+    if (!this.autoguardadoHabilitado || this.autoguardadosRealizados >= this.MAX_AUTOGUARDADOS) {
+      return;
+    }
+
     if (!this.hasUnsavedChanges) {
       this.hasUnsavedChanges = true;
     }
+    
     this.autoSaveSubject.next(this.construirPayload());
   }
 
   /**
-   * 🔥 ACTUALIZADO: Autoguardado usando backend modernizado
+   * Autoguardado usando backend modernizado con límite de intentos
    */
   private ejecutarAutoGuardado(): void {
-    if (!this.validarFormularios()) return;
+    if (!this.autoguardadoHabilitado || this.autoguardadosRealizados >= this.MAX_AUTOGUARDADOS) {
+      return;
+    }
+
+    if (!this.validarFormularios()) {
+      return;
+    }
 
     const payload = this.construirPayload();
-
-    // 🔥 Usar método moderno para autoguardado
     const autoguardadoRequest = {
       titulo: payload.titulo,
       resumen: payload.resumen || '',
@@ -885,15 +812,28 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
       noticiaOriginalId: this.noticiaId
     };
 
+    this.autoguardadosRealizados++;
+
     this.noticiasService.autoguardar(autoguardadoRequest)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.hasUnsavedChanges = false;
-          this.mostrarInfo('Cambios guardados automáticamente');
+          
+          const mensaje = `Autoguardado ${this.autoguardadosRealizados}/${this.MAX_AUTOGUARDADOS} completado`;
+          this.mostrarInfo(mensaje);
+          
+          if (this.autoguardadosRealizados >= this.MAX_AUTOGUARDADOS) {
+            this.autoguardadoHabilitado = false;
+            this.mostrarInfo('Autoguardado deshabilitado (límite alcanzado). Use "Guardar" para cambios finales.');
+          }
         },
         error: (error: any) => {
-          console.error('Error en auto-guardado:', error);
+          this.autoguardadosRealizados--;
+          
+          if (this.autoguardadosRealizados === 0) {
+            this.mostrarError('Error en autoguardado. Use "Guardar" para guardar manualmente.');
+          }
         }
       });
   }
@@ -943,170 +883,56 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
       });
   }
 
-  cambiarEstadoPublicacion(): void {
-    if (!this.noticia) return;
-
-    const nuevoEstado = !this.noticia.esPublica;
-    this.noticiasService.cambiarEstadoPublicacion(this.noticia.id, nuevoEstado)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (noticia: Noticia) => {
-          this.noticia = noticia;
-          this.configuracionForm.patchValue({ esPublica: nuevoEstado });
-          const mensaje = nuevoEstado ? 'Noticia publicada' : 'Noticia movida a borradores';
-          this.mostrarExito(mensaje);
-        },
-        error: (error: any) => {
-          console.error('Error al cambiar estado:', error);
-          this.mostrarError('Error al cambiar el estado de publicación');
-        }
-      });
-  }
+  // ===============================
+  // GESTIÓN DE ESTADO DESTACADA
+  // ===============================
 
   /**
-   * 🔥 ACTUALIZADO: Vista previa usando backend modernizado
+   * Cambia solo el estado destacada usando endpoint específico PATCH
    */
-  previsualizar(): void {
-    if (!this.validarFormularios()) {
-      this.mostrarError('Completa todos los campos requeridos');
+  cambiarEstadoDestacada(): void {
+    if (!this.noticia) return;
+
+    const autorId = this.authService.obtenerIdUsuario();
+    if (!autorId) {
+      this.mostrarError('Error: No se pudo obtener el ID del usuario');
       return;
     }
 
-    const datos = this.construirPayload();
-    
-    // 🔥 Usar método moderno de vista previa
-    const vistaPreviaRequest = {
-      titulo: datos.titulo,
-      resumen: datos.resumen || '',
-      contenidoHtml: datos.contenidoHtml,
-      imagenDestacada: datos.imagenDestacada
-    };
-    
-    this.noticiasService.generarVistaPrevia(vistaPreviaRequest)
+    const nuevoEstado = this.configuracionForm.get('destacada')?.value;
+    this.saving = true;
+
+    this.noticiasService.cambiarDestacada(this.noticia.id, autorId, nuevoEstado)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (html: string) => {
-          // Open preview in new window
-          const ventana = window.open('', '_blank');
-          if (ventana) {
-            ventana.document.write(html);
-            ventana.document.close();
-          }
+        next: (noticiaActualizada: Noticia) => {
+          this.noticia = noticiaActualizada;
+          
+          const mensaje = nuevoEstado ? 'Noticia marcada como destacada' : 'Noticia desmarcada como destacada';
+          this.mostrarExito(mensaje);
+          
+          this.saving = false;
         },
         error: (error: any) => {
-          console.error('Error al previsualizar:', error);
-          this.mostrarError('Error al generar la vista previa');
+          let mensajeError = 'Error al cambiar el estado destacada';
+          if (error.status === 401) {
+            mensajeError = 'No tiene permisos para cambiar el estado de esta noticia';
+          } else if (error.status === 404) {
+            mensajeError = 'La noticia no fue encontrada';
+          } else if (error.status === 500) {
+            mensajeError = 'Error interno del servidor';
+          }
+          
+          this.mostrarError(mensajeError);
+          
+          // Revertir el cambio en el formulario
+          this.configuracionForm.patchValue({
+            destacada: this.noticia?.destacada || false
+          });
+          
+          this.saving = false;
         }
       });
-  }
-
-  // ===============================
-  // GESTIÓN DE TAGS
-  // ===============================
-
-  agregarTag(event?: any): void {
-    let value = '';
-    
-    if (event && event.target) {
-      value = event.target.value.trim();
-      event.target.value = '';
-    } else if (this.tagInput) {
-      value = this.tagInput.trim();
-      this.tagInput = '';
-    }
-    
-    if (value && !this.tags.includes(value)) {
-      this.tags.push(value);
-      this.autoGuardar();
-    }
-  }
-
-  eliminarTag(tag: string): void {
-    const index = this.tags.indexOf(tag);
-    if (index >= 0) {
-      this.tags.splice(index, 1);
-      this.autoGuardar();
-    }
-  }
-
-  // ===============================
-  // SIDEBAR Y FILTROS
-  // ===============================
-
-  toggleSidebar(): void {
-    this.sidebarOpen = !this.sidebarOpen;
-  }
-
-  aplicarFiltrosSidebar(): void {
-    this.cargarNoticias();
-  }
-
-  limpiarFiltrosSidebar(): void {
-    this.filtrosSidebar = {};
-    this.busquedaSidebar = '';
-    this.cargarNoticias();
-  }
-
-  aplicarFiltros(): void {
-    this.noticiasFiltradas = this.aplicarFiltrosLocales(this.noticias);
-  }
-
-  seleccionarNoticia(noticia: Noticia): void {
-    console.log('🔄 Seleccionando noticia:', noticia.id, noticia.titulo);
-    
-    // Si ya estamos editando esta noticia, no hacer nada
-    if (this.noticiaId === noticia.id) {
-      console.log('⚠️ Ya se está editando esta noticia');
-      return;
-    }
-    
-    if (this.hasUnsavedChanges) {
-      // Show confirmation dialog
-      const confirmacion = confirm('Tienes cambios sin guardar. ¿Deseas continuar?');
-      if (!confirmacion) return;
-    }
-    
-    // 🔥 MEJORADO: Mejor manejo de navegación
-    console.log('🔄 Navegando a noticia:', noticia.id);
-    
-    // Limpiar estado actual antes de navegar
-    this.loading = true;
-    this.noticia = null;
-    this.hasUnsavedChanges = false;
-    
-    // Navegar a la nueva noticia
-    this.router.navigate(['/admin/noticias/editar', noticia.id]).then(() => {
-      console.log('✅ Navegación completada a noticia:', noticia.id);
-    }).catch(error => {
-      console.error('❌ Error en navegación:', error);
-      this.loading = false;
-    });
-  }
-
-  // ===============================
-  // NAVEGACIÓN
-  // ===============================
-
-  irAListar(): void {
-    if (this.hasUnsavedChanges) {
-      const confirmacion = confirm('Tienes cambios sin guardar. ¿Deseas continuar?');
-      if (!confirmacion) return;
-    }
-    
-    this.router.navigate(['/admin/noticias']);
-  }
-
-  irADetalle(): void {
-    this.router.navigate(['/admin/noticias/detalle', this.noticiaId]);
-  }
-
-  irACrear(): void {
-    if (this.hasUnsavedChanges) {
-      const confirmacion = confirm('Tienes cambios sin guardar. ¿Deseas continuar?');
-      if (!confirmacion) return;
-    }
-    
-    this.router.navigate(['/admin/noticias/crear']);
   }
 
   // ===============================
@@ -1143,17 +969,45 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
   }
 
   abrirVistaPreviaEnNuevaVentana(): void {
-    this.previsualizar();
+    this.generarVistaPrevia();
+  }
+
+  generarVistaPrevia(): void {
+    if (!this.validarFormularios()) {
+      this.mostrarError('Completa todos los campos requeridos');
+      return;
+    }
+
+    const datos = this.construirPayload();
+    
+    // 🔥 Usar método moderno de vista previa
+    const vistaPreviaRequest = {
+      titulo: datos.titulo,
+      resumen: datos.resumen || '',
+      contenidoHtml: datos.contenidoHtml,
+      imagenDestacada: datos.imagenDestacada
+    };
+    
+    this.noticiasService.generarVistaPrevia(vistaPreviaRequest)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (html: string) => {
+          // Open preview in new window
+          const ventana = window.open('', '_blank');
+          if (ventana) {
+            ventana.document.write(html);
+            ventana.document.close();
+          }
+        },
+        error: (error: any) => {
+          console.error('Error al previsualizar:', error);
+          this.mostrarError('Error al generar la vista previa');
+        }
+      });
   }
 
   onSubmit(): void {
     this.guardarCambios();
-  }
-
-  cargarDatosEnFormulario(): void {
-    if (this.noticia) {
-      this.cargarDatosEnFormularios();
-    }
   }
 
   toggleVistaPrevia(): void {
@@ -1176,8 +1030,25 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
 
 
 
-  // Additional properties needed for template
-  porcentajeGuardado = 0;
+  // 🔥 NUEVO: Getters para el estado del autoguardado
+  get autoguardadosRestantes(): number {
+    return Math.max(0, this.MAX_AUTOGUARDADOS - this.autoguardadosRealizados);
+  }
+
+  get mostrarContadorAutoguardado(): boolean {
+    return this.autoguardadosRealizados > 0 || !this.autoguardadoHabilitado;
+  }
+
+  get autoguardadoActivo(): boolean {
+    return this.autoguardadoHabilitado;
+  }
+
+  get textoEstadoAutoguardado(): string {
+    if (!this.autoguardadoHabilitado) {
+      return 'Autoguardado deshabilitado (límite alcanzado)';
+    }
+    return `Autoguardados restantes: ${this.autoguardadosRestantes}`;
+  }
 
   // Getters para el template
   get tituloInvalido(): boolean {
@@ -1204,134 +1075,79 @@ export class EditarNoticiaComponent implements OnInit, OnDestroy {
   }
 
   // ===============================
-  // 🔥 NUEVO: GESTIÓN DE COMENTARIOS
+  // MÉTODOS PÚBLICOS PARA TEMPLATE
   // ===============================
 
-  /**
-   * Carga los comentarios de la noticia actual
-   */
-  cargarComentarios(): void {
-    if (!this.noticiaId) return;
-    
-    this.comentariosLoading = true;
-    console.log(`🔄 Cargando comentarios para noticia ${this.noticiaId}...`);
-    
-    this.comentariosService.obtenerComentariosDeNoticia(this.noticiaId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (comentarios: ComentarioDTO[]) => {
-          console.log('✅ Comentarios cargados:', comentarios.length);
-          this.comentarios = comentarios;
-          this.comentariosLoading = false;
-        },
-        error: (error: any) => {
-          console.error('❌ Error al cargar comentarios:', error);
-          this.mostrarError('Error al cargar los comentarios');
-          this.comentarios = [];
-          this.comentariosLoading = false;
-        }
-      });
+  aplicarFiltros(): void {
+    this.noticiasFiltradas = this.aplicarFiltrosLocales(this.noticias);
   }
 
-  /**
-   * Toggle para mostrar/ocultar sección de comentarios
-   */
-  toggleComentarios(): void {
-    this.mostrarComentarios = !this.mostrarComentarios;
+  limpiarFiltros(): void {
+    this.filtroTexto = '';
+    this.filtroEstado = '';
+    this.aplicarFiltros();
+  }
+
+  seleccionarNoticia(noticia: Noticia): void {
+    console.log('🔄 Seleccionando noticia:', noticia.id, noticia.titulo);
     
-    if (this.mostrarComentarios && this.comentarios.length === 0) {
-      this.cargarComentarios();
+    // Si ya estamos editando esta noticia, no hacer nada
+    if (this.noticiaId === noticia.id) {
+      console.log('⚠️ Ya se está editando esta noticia');
+      return;
+    }
+    
+    if (this.hasUnsavedChanges) {
+      // Show confirmation dialog
+      const confirmacion = confirm('Tienes cambios sin guardar. ¿Deseas continuar?');
+      if (!confirmacion) return;
+    }
+    
+    // 🔥 MEJORADO: Mejor manejo de navegación
+    console.log('🔄 Navegando a noticia:', noticia.id);
+    
+    // Limpiar estado actual antes de navegar
+    this.loading = true;
+    this.noticia = null;
+    this.hasUnsavedChanges = false;
+    
+    // Navegar a la nueva noticia
+    this.router.navigate(['/admin/noticias/editar', noticia.id]).then(() => {
+      console.log('✅ Navegación completada a noticia:', noticia.id);
+    }).catch(error => {
+      console.error('❌ Error en navegación:', error);
+      this.loading = false;
+    });
+  }
+
+  // ===============================
+  // GESTIÓN DE TAGS
+  // ===============================
+
+  agregarTag(event?: any): void {
+    let value = '';
+    
+    if (event && event.target) {
+      value = event.target.value.trim();
+      event.target.value = '';
+    } else if (this.tagInput) {
+      value = this.tagInput.trim();
+      this.tagInput = '';
+    }
+    
+    if (value && !this.tags.includes(value)) {
+      this.tags.push(value);
+      this.hasUnsavedChanges = true;
+      console.log('✅ Tag agregado:', value);
     }
   }
 
-  /**
-   * Aprueba un comentario
-   */
-  aprobarComentario(comentario: ComentarioDTO): void {
-    if (!comentario.id) return;
-    
-    this.comentariosService.aprobarComentario(comentario.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            const index = this.comentarios.findIndex(c => c.id === comentario.id);
-            if (index !== -1) {
-              this.comentarios[index] = response.data;
-            }
-            this.mostrarExito('Comentario aprobado');
-          }
-        },
-        error: (error: any) => {
-          console.error('❌ Error al aprobar comentario:', error);
-          this.mostrarError('Error al aprobar el comentario');
-        }
-      });
-  }
-
-  /**
-   * Rechaza un comentario (eliminándolo)
-   */
-  rechazarComentario(comentario: ComentarioDTO): void {
-    if (!comentario.id) return;
-    
-    const confirmacion = confirm('¿Estás seguro de que quieres rechazar este comentario?');
-    if (!confirmacion) return;
-    
-    this.comentariosService.eliminarComentario(comentario.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.comentarios = this.comentarios.filter(c => c.id !== comentario.id);
-            this.mostrarExito('Comentario rechazado');
-          }
-        },
-        error: (error: any) => {
-          console.error('❌ Error al rechazar comentario:', error);
-          this.mostrarError('Error al rechazar el comentario');
-        }
-      });
-  }
-
-  /**
-   * Elimina un comentario
-   */
-  eliminarComentario(comentario: ComentarioDTO): void {
-    if (!comentario.id) return;
-    
-    const confirmacion = confirm('¿Estás seguro de que quieres eliminar este comentario? Esta acción no se puede deshacer.');
-    if (!confirmacion) return;
-    
-    this.comentariosService.eliminarComentario(comentario.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.comentarios = this.comentarios.filter(c => c.id !== comentario.id);
-            this.mostrarExito('Comentario eliminado');
-          }
-        },
-        error: (error: any) => {
-          console.error('❌ Error al eliminar comentario:', error);
-          this.mostrarError('Error al eliminar el comentario');
-        }
-      });
-  }
-
-  /**
-   * Obtiene la clase CSS para el estado del comentario
-   */
-  getClaseEstadoComentario(comentario: ComentarioDTO): string {
-    if (comentario.aprobado) return 'comentario-aprobado';
-    return 'comentario-pendiente';
-  }
-
-  /**
-   * Obtiene el texto del estado del comentario
-   */
-  getTextoEstadoComentario(comentario: ComentarioDTO): string {
-    if (comentario.aprobado) return 'Aprobado';
-    return 'Pendiente';
+  eliminarTag(tag: string): void {
+    const index = this.tags.indexOf(tag);
+    if (index >= 0) {
+      this.tags.splice(index, 1);
+      this.hasUnsavedChanges = true;
+      console.log('🗑️ Tag eliminado:', tag);
+    }
   }
 }

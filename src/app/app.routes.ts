@@ -5,7 +5,9 @@ import { authGuard } from './core/guards/auth.guard';
 import { AdminGuard } from './core/guards/admin.guard';
 import { SuperAdminGuard } from './core/guards/super-admin.guard';
 import { UsuarioGuard } from './core/guards/usuario.guard';
+import { EditorJefeGuard } from './core/guards/editor-jefe.guard';
 import { noticiaPublicaGuard } from './core/guards/noticia-publica.guard';
+import { perfilEquipoGuard } from './core/guards/perfil-equipo.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -87,7 +89,7 @@ export const routes: Routes = [
   // ===============================
   {
     path: 'admin',
-    canActivate: [AdminGuard],
+    canActivate: [AdminGuard, perfilEquipoGuard],
     children: [
       {
         path: '',
@@ -170,9 +172,10 @@ export const routes: Routes = [
           import('./admin/secciones/vista-previa/vista-previa.component').then(m => m.VistaPreviaComponent)
       },
 
-      // EQUIPO
+      // EQUIPO - Solo para EDITOR_JEFE
       {
         path: 'equipo',
+        canActivate: [EditorJefeGuard],
         loadComponent: () =>
           import('./admin/equipo/equipo.component').then(m => m.AdminEquipoComponent)
       },

@@ -15,13 +15,13 @@ export class UsuarioGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const isAuthenticated = this.authService.estaAutenticado();
     const isUser = this.authService.esUsuario();
-    const isAdmin = this.authService.esAdmin();
+    const isAdminOEditorJefe = this.authService.esAdminOEditorJefe();
     const isSuperAdmin = this.authService.esSuperAdmin();
 
     console.log('UsuarioGuard: Checking access', {
       isAuthenticated,
       isUser,
-      isAdmin,
+      isAdminOEditorJefe,
       isSuperAdmin,
       url: state.url
     });
@@ -32,8 +32,8 @@ export class UsuarioGuard implements CanActivate {
     }
 
     // If user is authenticated but has different role, redirect to appropriate dashboard
-    if (isAuthenticated && isAdmin) {
-      console.log('UsuarioGuard: Redirecting admin to admin dashboard');
+    if (isAuthenticated && isAdminOEditorJefe) {
+      console.log('UsuarioGuard: Redirecting admin/editor_jefe to admin dashboard');
       this.router.navigate(['/admin']);
       return false;
     }

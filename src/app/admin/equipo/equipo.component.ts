@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +18,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { EquipoService } from '../../core/services/equipo.service';
 import { MiembroCardComponent } from '../../shared/components/miembro-card/miembro-card.component';
 import { MiembroEquipo, MiembroStats, EstadisticasEquipo } from '../../core/services/equipo.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
@@ -59,7 +61,9 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly destroy$ = new Subject<void>();
+
+  // Estado para completar perfil de editor jefe
+  completandoPerfil = signal(false);
 
   // Signals para manejo de estado
   isLoading = signal(false);
@@ -87,6 +91,14 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
   // Para upload de imagen
   selectedImage: File | null = null;
   imagePreview: string | null = null;
+
+  // Control de suscripciones
+  private destroy$ = new Subject<void>();
+  
+  // Servicios inyectados
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   // Opciones para selects
   roles = [
@@ -152,6 +164,7 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.verificarCompletarPerfil();
     this.loadMiembros();
     this.loadEstadisticas();
     this.setupSearch();
@@ -160,6 +173,41 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private verificarCompletarPerfil(): void {
+    // Verificar si viene con el parámetro de completar perfil
+    this.route.queryParams.subscribe(params => {
+      if (params['completarPerfil'] === 'true' && this.authService.esEditorJefe()) {
+        this.completandoPerfil.set(true);
+        this.showForm.set(true);
+        
+        // Pre-llenar el formulario con el correo del usuario
+        const correo = this.authService.obtenerCorreoUsuario();
+        const nombre = this.authService.obtenerNombre();
+        
+        if (correo) {
+          this.miembroForm.patchValue({
+            correo: correo,
+            nombre: nombre || '',
+            rol: 'DIRECTOR', // Por defecto para editor jefe
+            activo: true,
+            ordenVisualizacion: 1 // Primer puesto para el director
+          });
+
+          // Deshabilitar el campo de correo
+          this.miembroForm.get('correo')?.disable();
+          
+          this.showSuccess('👋 ¡Bienvenido! Complete su perfil como miembro del equipo editorial');
+        }
+
+        // Remover el parámetro de la URL sin recargar
+        this.router.navigate([], {
+          queryParams: {},
+          replaceUrl: true
+        });
+      }
+    });
   }
 
   private setupSearch(): void {
@@ -257,6 +305,12 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
   }
 
   cancelForm(): void {
+    // Si está completando perfil, no permitir cancelar
+    if (this.completandoPerfil()) {
+      this.showError('⚠️ Debe completar su perfil para continuar');
+      return;
+    }
+
     this.showForm.set(false);
     this.editingMiembro.set(null);
     this.miembroForm.reset();
@@ -311,6 +365,13 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
       this.showSuccess(
         this.editingMiembro() ? 'Miembro actualizado exitosamente' : 'Miembro creado exitosamente'
       );
+
+      // Si es un editor jefe completando su perfil, marcar como completado
+      if (this.completandoPerfil() && this.authService.esEditorJefe()) {
+        this.authService.marcarPerfilCompletado();
+        this.completandoPerfil.set(false);
+        this.showSuccess('✅ ¡Perfil completado! Ya puede acceder a todas las funciones de administración');
+      }
       
       this.cancelForm();
       this.loadMiembros();

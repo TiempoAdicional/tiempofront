@@ -211,6 +211,18 @@
         }
       }
 
+      &.editors-jefe {
+        border-color: #28a745;
+        
+        .stat-icon {
+          background: linear-gradient(135deg, #28a745, #1e7e34);
+        }
+        
+        .stat-number {
+          color: #28a745;
+        }
+      }
+
       &.super-admins {
         border-color: #dc3545;
         

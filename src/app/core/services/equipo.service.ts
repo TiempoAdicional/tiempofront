@@ -85,6 +85,22 @@ export class EquipoService {
 
   constructor(private http: HttpClient) {}
 
+  // ===== VERIFICACIÓN DE MIEMBRO =====
+
+  /**
+   * Verifica si un correo ya está registrado como miembro del equipo
+   */
+  verificarMiembroPorCorreo(correo: string): Observable<boolean> {
+    return this.http.get<MiembroEquipo[]>(`${this.apiUrl}`)
+      .pipe(
+        map(miembros => miembros.some(miembro => miembro.correo === correo)),
+        catchError(error => {
+          console.error('Error verificando miembro por correo:', error);
+          return of(false);
+        })
+      );
+  }
+
   // ===== MÉTODOS PÚBLICOS (Sin autenticación) =====
 
   /**

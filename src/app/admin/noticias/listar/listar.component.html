@@ -241,6 +241,18 @@
                   {{ noticia.esPublica ? 'Publicada' : 'Borrador' }}
                 </mat-chip>
                 
+                <!-- 🆕 NUEVO: Indicador de archivada -->
+                <mat-chip *ngIf="noticia.archivada" color="accent" selected>
+                  <mat-icon matChipAvatar>archive</mat-icon>
+                  Archivada
+                </mat-chip>
+                
+                <!-- 🆕 NUEVO: Indicador de destacada -->
+                <mat-chip *ngIf="noticia.destacada" color="warn" selected>
+                  <mat-icon matChipAvatar>star</mat-icon>
+                  Destacada
+                </mat-chip>
+                
                 <button mat-icon-button 
                         [matTooltip]="noticia.esPublica ? 'Despublicar' : 'Publicar'"
                         (click)="togglePublicacion(noticia)">
@@ -316,6 +328,20 @@
                   <button mat-menu-item (click)="toggleDestacada(noticia)">
                     <mat-icon>{{ noticia.destacada ? 'star_border' : 'star' }}</mat-icon>
                     {{ noticia.destacada ? 'Quitar destacado' : 'Marcar destacada' }}
+                  </button>
+                  <mat-divider></mat-divider>
+                  <!-- 🆕 NUEVO: Botones de archivar/restaurar -->
+                  <button mat-menu-item (click)="archivarNoticia(noticia)" 
+                          *ngIf="!noticia.archivada"
+                          matTooltip="Ocultar noticia de las listas (se puede restaurar)">
+                    <mat-icon>archive</mat-icon>
+                    Archivar
+                  </button>
+                  <button mat-menu-item (click)="restaurarNoticia(noticia)" 
+                          *ngIf="noticia.archivada"
+                          matTooltip="Restaurar noticia a las listas">
+                    <mat-icon>unarchive</mat-icon>
+                    Restaurar
                   </button>
                   <mat-divider></mat-divider>
                   <button mat-menu-item (click)="eliminarSeleccionadas()" class="delete-action">

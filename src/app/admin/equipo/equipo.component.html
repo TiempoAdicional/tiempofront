@@ -1,19 +1,46 @@
 <div class="admin-equipo-container">
-  <!-- Header con estadísticas y controles -->
-  <div class="header-section">
-    <div class="title-row">
-      <h1 class="page-title">
-        <mat-icon>groups</mat-icon>
-        Gestión de Equipo
-      </h1>
+  <!-- Mensaje especial para completar perfil -->
+  <div class="perfil-alert" *ngIf="completandoPerfil()">
+    <mat-card class="welcome-card">
+      <mat-card-content>
+        <div class="welcome-content">
+          <mat-icon class="welcome-icon">star</mat-icon>
+          <h2>¡Bienvenido, Editor Jefe!</h2>
+          <p>Para acceder a todas las funciones de administración, primero debe completar su perfil como miembro del equipo editorial.</p>
+          <p><strong>Su correo ya está configurado.</strong> Solo complete la información adicional.</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- 📋 Header de la página -->
+  <div class="page-header fade-in-up" *ngIf="!completandoPerfil()">
+    <div class="header-content">
+      <div class="title-section">
+        <h1>
+          <mat-icon>groups</mat-icon>
+          Gestión de Equipo
+        </h1>
+        <p class="subtitle">Administra los miembros del equipo editorial</p>
+      </div>
       
-      <button mat-raised-button color="primary" 
-              (click)="openCreateForm()" 
-              class="create-btn">
-        <mat-icon>add</mat-icon>
-        Nuevo Miembro
-      </button>
+      <div class="actions-section">
+        <button mat-button 
+                (click)="openCreateForm()" 
+                class="add-member-btn bounce-on-hover">
+          <mat-icon>add</mat-icon>
+          Nuevo Miembro
+        </button>
+        
+        <button mat-icon-button 
+                (click)="loadMiembros()" 
+                class="refresh-btn"
+                matTooltip="Actualizar">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
     </div>
+  </div>
 
     <!-- Estadísticas rápidas -->
     <div class="stats-cards" *ngIf="estadisticas() as stats">
@@ -261,14 +288,18 @@
     (page)="onPageChange($event)"
     class="paginator">
   </mat-paginator>
-</div>
+
 
 <!-- Modal para crear/editar miembro -->
-<div class="form-overlay" *ngIf="showForm()" (click)="cancelForm()">
+<div class="form-overlay" *ngIf="showForm()" (click)="!completandoPerfil() && cancelForm()">
   <div class="form-modal" (click)="$event.stopPropagation()">
     <div class="form-header">
-      <h2>{{ editingMiembro() ? 'Editar Miembro' : 'Nuevo Miembro' }}</h2>
-      <button mat-icon-button (click)="cancelForm()">
+      <h2 *ngIf="!completandoPerfil()">{{ editingMiembro() ? 'Editar Miembro' : 'Nuevo Miembro' }}</h2>
+      <h2 *ngIf="completandoPerfil()" class="perfil-title">
+        <mat-icon>star</mat-icon>
+        Complete su Perfil de Editor Jefe
+      </h2>
+      <button mat-icon-button (click)="cancelForm()" *ngIf="!completandoPerfil()">
         <mat-icon>close</mat-icon>
       </button>
     </div>

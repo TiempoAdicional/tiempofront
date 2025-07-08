@@ -72,15 +72,20 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private usuariosService: UsuariosService,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    console.log('🏗️ [NOTICIAS-LISTA] Constructor ejecutado');
+  }
 
   ngOnInit(): void {
+    console.log('🚀 NoticiasListaComponent inicializado');
     this.estaAutenticado = this.authService.estaAutenticado();
+    console.log('🔍 Estado autenticado en noticias-lista:', this.estaAutenticado);
     
     // Leer parámetros de la URL
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
+        console.log('📋 Parámetros recibidos:', params);
         this.configurarFiltros(params);
         this.cargarNoticias();
       });

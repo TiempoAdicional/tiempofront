@@ -58,12 +58,12 @@ export class AppComponent implements OnInit, OnDestroy {
     const rutaActual = this.router.url;
     const esRutaAdmin = rutaActual.startsWith('/admin');
     const esRutaSuperAdmin = rutaActual.startsWith('/super-admin');
-    const esUsuarioAdmin = this.authService.esAdmin();
+    const esUsuarioAdminOEditorJefe = this.authService.esAdminOEditorJefe();
     const esUsuarioSuperAdmin = this.authService.esSuperAdmin();
 
     // Ocultar header si:
-    // - Estamos en rutas admin Y el usuario es admin, O
+    // - Estamos en rutas admin Y el usuario es admin/editor_jefe, O
     // - Estamos en rutas super-admin Y el usuario es super admin
-    this.mostrarHeader = !((esRutaAdmin && esUsuarioAdmin) || (esRutaSuperAdmin && esUsuarioSuperAdmin));
+    this.mostrarHeader = !((esRutaAdmin && esUsuarioAdminOEditorJefe) || (esRutaSuperAdmin && esUsuarioSuperAdmin));
   }
 }

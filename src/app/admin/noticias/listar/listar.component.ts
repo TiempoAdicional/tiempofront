@@ -551,4 +551,56 @@ export class ListarComponent implements OnInit, AfterViewInit {
   obtenerUrlCompartir(noticia: Noticia): string {
     return `${window.location.origin}/noticia/${noticia.id}`;
   }
+
+  /**
+   * Archiva una noticia
+   * 🆕 NUEVO: Método para archivar noticias según documentación backend
+   */
+  archivarNoticia(noticia: Noticia): void {
+    const mensaje = `¿Está seguro de archivar la noticia "${noticia.titulo}"? Podrá restaurarla posteriormente.`;
+    
+    if (confirm(mensaje)) {
+      this.cargando = true;
+      this.noticiasService.archivarNoticia(noticia.id).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.mostrarExito(response.message || 'Noticia archivada exitosamente');
+            this.cargarNoticias(); // Recargar lista para quitar la noticia archivada
+          } else {
+            this.mostrarError(response.message || 'Error al archivar la noticia');
+          }
+          this.cargando = false;
+        },
+        error: (err: any) => {
+          console.error('❌ Error al archivar noticia:', err);
+          this.mostrarError('Error al archivar la noticia');
+          this.cargando = false;
+        }
+      });
+    }
+  }
+
+  /**
+   * Restaura una noticia archivada
+   * 🆕 NUEVO: Método para restaurar noticias archivadas según documentación backend
+   */
+  restaurarNoticia(noticia: Noticia): void {
+    this.cargando = true;
+    this.noticiasService.restaurarNoticia(noticia.id).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.mostrarExito(response.message || 'Noticia restaurada exitosamente');
+          this.cargarNoticias(); // Recargar lista para mostrar la noticia restaurada
+        } else {
+          this.mostrarError(response.message || 'Error al restaurar la noticia');
+        }
+        this.cargando = false;
+      },
+      error: (err: any) => {
+        console.error('❌ Error al restaurar noticia:', err);
+        this.mostrarError('Error al restaurar la noticia');
+        this.cargando = false;
+      }
+    });
+  }
 }

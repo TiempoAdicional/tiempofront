@@ -27,7 +27,7 @@
   <!-- ===============================
        📰 HERO CAROUSEL - NOTICIAS DESTACADAS
        =============================== -->
-  <section class="hero-carousel" *ngIf="noticiaDestacadaActual && noticiasDestacadas.length > 0"
+  <section class="hero-carousel" *ngIf="noticiaDestacadaActual"
            (mouseenter)="pausarCarousel()" 
            (mouseleave)="reanudarCarousel()">
     

@@ -378,23 +378,55 @@ export class NoticiasService {
   /**
    * Actualiza una noticia existente
    */
+  /**
+   * Actualiza una noticia existente usando FormData según documentación backend
+   */
   actualizarNoticia(id: number, payload: EditarNoticiaPayload): Observable<Noticia> {
-    return this.http.put<Noticia>(`${this.apiUrl}/${id}`, payload)
+    const formData = new FormData();
+    
+    // Campos obligatorios
+    formData.append('titulo', payload.titulo);
+    formData.append('contenidoHtml', payload.contenidoHtml);
+    formData.append('esPublica', payload.esPublica.toString());
+    
+    // Campos opcionales
+    if (payload.resumen) {
+      formData.append('resumen', payload.resumen);
+    }
+    
+    if (payload.destacada !== undefined) {
+      formData.append('destacada', payload.destacada.toString());
+    }
+    
+    if (payload.seccionId) {
+      formData.append('seccionId', payload.seccionId.toString());
+    }
+    
+    if (payload.fechaPublicacion) {
+      formData.append('fechaPublicacion', payload.fechaPublicacion);
+    }
+    
+    // Tags (se pueden enviar múltiples)
+    if (payload.tags && payload.tags.length > 0) {
+      payload.tags.forEach(tag => {
+        formData.append('tags', tag);
+      });
+    }
+    
+    return this.http.put<Noticia>(`${this.apiUrl}/${id}`, formData)
       .pipe(
         tap(noticia => {
-          console.log(`✅ Noticia actualizada id=${id}:`, noticia);
           this.actualizarCacheNoticia(noticia);
         }),
-        // 🆕 Actualizar estadísticas si cambió el estado destacado
+        // Actualizar estadísticas si cambió el estado destacado
         switchMap(noticia => {
-          console.log('📊 Verificando cambios en estado destacado para estadísticas...');
           if (payload.destacada !== undefined) {
             const accion = payload.destacada ? 'destacar' : 'no-destacar';
             return this.equipoService.actualizarEstadisticasNoticia(noticia.autorId, accion)
               .pipe(
                 map(() => noticia),
                 catchError(error => {
-                  console.warn('⚠️ Error actualizando estadísticas destacada:', error);
+                  console.warn('Error actualizando estadísticas destacada:', error);
                   return of(noticia);
                 })
               );
@@ -454,29 +486,35 @@ export class NoticiasService {
 
   /**
    * Archiva una noticia (soft delete)
+   * 🔥 CORREGIDO: Usar endpoint PATCH según documentación backend
    */
-  archivarNoticia(id: number): Observable<Noticia> {
-    return this.http.put<Noticia>(`${this.apiUrl}/${id}/archivar`, {})
+  archivarNoticia(id: number): Observable<any> {
+    console.log(`📁 Archivando noticia id=${id}...`);
+    
+    return this.http.patch(`${this.apiUrl}/${id}/archivar`, {})
       .pipe(
-        tap(noticia => {
-          console.log(`✅ Noticia archivada id=${id}`);
-          this.actualizarCacheNoticia(noticia);
+        tap(response => {
+          console.log(`✅ Noticia archivada id=${id}:`, response);
+          // Invalidar cache para refrescar las listas (resetear estadísticas)
         }),
-        catchError(this.handleError<Noticia>('archivarNoticia'))
+        catchError(this.handleError<any>('archivarNoticia'))
       );
   }
 
   /**
    * Restaura una noticia archivada
+   * 🆕 NUEVO: Método para restaurar noticias archivadas según documentación backend
    */
-  restaurarNoticia(id: number): Observable<Noticia> {
-    return this.http.put<Noticia>(`${this.apiUrl}/${id}/restaurar`, {})
+  restaurarNoticia(id: number): Observable<any> {
+    console.log(`🔄 Restaurando noticia archivada id=${id}...`);
+    
+    return this.http.patch(`${this.apiUrl}/${id}/restaurar`, {})
       .pipe(
-        tap(noticia => {
-          console.log(`✅ Noticia restaurada id=${id}`);
-          this.actualizarCacheNoticia(noticia);
+        tap(response => {
+          console.log(`✅ Noticia restaurada id=${id}:`, response);
+          // Limpiar cache para refrescar las listas (resetear estadísticas)
         }),
-        catchError(this.handleError<Noticia>('restaurarNoticia'))
+        catchError(this.handleError<any>('restaurarNoticia'))
       );
   }
 
@@ -609,9 +647,12 @@ export class NoticiasService {
 
   /**
    * Cambia el estado destacado de una noticia
+   * 🔥 CORREGIDO: Usar endpoint específico del backend /destacar
    */
   cambiarDestacada(id: number, autorId: number, destacada: boolean): Observable<Noticia> {
-    return this.http.put<Noticia>(`${this.apiUrl}/${id}/destacada`, { destacada, autorId })
+    console.log(`🔄 Cambiando estado destacado de noticia ${id} a:`, destacada, 'autorId:', autorId);
+    
+    return this.http.patch<Noticia>(`${this.apiUrl}/${id}/destacar?destacada=${destacada}&autorId=${autorId}`, {})
       .pipe(
         tap(noticia => {
           console.log(`✅ Estado destacado cambiado id=${id}:`, noticia);

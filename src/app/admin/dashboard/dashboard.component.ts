@@ -142,6 +142,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private equipoService: EquipoService
   ) {}
 
+  // Métodos para verificar permisos
+  get puedeGestionarEquipo(): boolean {
+    return this.authService.puedeGestionarEquipo();
+  }
+
+  get esAdminOEditorJefe(): boolean {
+    return this.authService.esAdminOEditorJefe();
+  }
+
+  get rolUsuario(): string {
+    return this.authService.obtenerRol() || '';
+  }
+
   ngOnInit(): void {
     this.inicializarDashboard();
   }

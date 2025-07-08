@@ -15,6 +15,10 @@
             <mat-icon matChipAvatar>person</mat-icon>
             {{ nombreEditor }}
           </mat-chip>
+          <mat-chip [color]="rolUsuario === 'EDITOR_JEFE' ? 'accent' : 'primary'" highlighted>
+            <mat-icon matChipAvatar>{{ rolUsuario === 'EDITOR_JEFE' ? 'star' : 'admin_panel_settings' }}</mat-icon>
+            {{ rolUsuario === 'EDITOR_JEFE' ? 'Editor Jefe' : 'Administrador' }}
+          </mat-chip>
         </mat-chip-set>
         
         <button mat-icon-button 
@@ -110,8 +114,8 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Nueva card para Gestión de Equipo -->
-      <mat-card class="stat-card equipo-card">
+      <!-- Nueva card para Gestión de Equipo - Solo para EDITOR_JEFE -->
+      <mat-card class="stat-card equipo-card" *ngIf="puedeGestionarEquipo">
         <mat-card-header>
           <mat-icon mat-card-avatar class="stat-icon equipo-icon">groups</mat-icon>
           <mat-card-title>Equipo del Periódico</mat-card-title>
@@ -238,12 +242,16 @@
         </div>
       </mat-expansion-panel>
 
-      <!-- Gestión de Equipo -->
-      <mat-expansion-panel class="admin-panel" [expanded]="equipoExpandido">
+      <!-- Gestión de Equipo - Solo para EDITOR_JEFE -->
+      <mat-expansion-panel class="admin-panel" [expanded]="equipoExpandido" *ngIf="puedeGestionarEquipo">
         <mat-expansion-panel-header (click)="toggleEquipo()">
           <mat-panel-title>
             <mat-icon class="panel-icon">groups</mat-icon>
             Gestión de Equipo
+            <mat-chip class="exclusive-chip" color="accent">
+              <mat-icon matChipAvatar>star</mat-icon>
+              Exclusivo Editor Jefe
+            </mat-chip>
           </mat-panel-title>
           <mat-panel-description>
             Administrar miembros del periódico

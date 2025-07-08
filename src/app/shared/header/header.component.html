@@ -18,9 +18,9 @@
                     </a>
                     <div class="dropdown" [class.active]="activeDropdown === 'noticias'">
                         <div class="dropdown-content">
-                            <a href="#" class="dropdown-item" (click)="irANoticias()">📰 Ver Todas las Noticias</a>
-                            <a href="#" class="dropdown-item" (click)="irANoticiasRecientes()">🕒 Recientes</a>
-                            <a href="#" class="dropdown-item" (click)="irANoticiasDestacadas()">⭐ Destacadas</a>
+                            <a href="#" class="dropdown-item" (click)="irANoticias(); $event.preventDefault()">📰 Ver Todas las Noticias</a>
+                            <a href="#" class="dropdown-item" (click)="irANoticiasRecientes(); $event.preventDefault()">🕒 Recientes</a>
+                            <a href="#" class="dropdown-item" (click)="irANoticiasDestacadas(); $event.preventDefault()">⭐ Destacadas</a>
                         </div>
                     </div>
                 </li>
@@ -109,9 +109,9 @@
                     Noticias <span class="mobile-arrow" [class.rotated]="activeMobileSection === 'noticias'">▼</span>
                 </button>
                 <div class="mobile-dropdown" [class.active]="activeMobileSection === 'noticias'">
-                    <a href="#" class="mobile-dropdown-item" (click)="irANoticias()">📰 Ver Todas las Noticias</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="irANoticiasRecientes()">🕒 Recientes</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="irANoticiasDestacadas()">⭐ Destacadas</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irANoticias(); $event.preventDefault()">📰 Ver Todas las Noticias</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irANoticiasRecientes(); $event.preventDefault()">🕒 Recientes</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irANoticiasDestacadas(); $event.preventDefault()">⭐ Destacadas</a>
                 </div>
             </div>
 

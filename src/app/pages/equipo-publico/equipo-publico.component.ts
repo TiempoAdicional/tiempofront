@@ -73,6 +73,22 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Obtiene el ícono correspondiente al rol
+   */
+  getRoleIcon(rol: string): string {
+    const iconos: { [key: string]: string } = {
+      'DIRECTOR': 'star',
+      'EDITOR': 'edit',
+      'REDACTOR': 'create',
+      'FOTOGRAFO': 'photo_camera',
+      'COLUMNISTA': 'article',
+      'REPORTERO': 'mic',
+      'ADMINISTRADOR': 'admin_panel_settings'
+    };
+    return iconos[rol] || 'person';
+  }
+
   private cargarMiembros(): void {
     this.cargando = true;
     this.error = false;
@@ -233,7 +249,9 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Track by function para optimizar el renderizado
+  /**
+   * TrackBy function para optimizar el renderizado
+   */
   trackByMiembro(index: number, miembro: MiembroEquipo): number {
     return miembro.id;
   }
