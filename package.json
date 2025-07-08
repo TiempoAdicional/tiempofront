@@ -23,6 +23,7 @@
     "@tinymce/tinymce-angular": "^9.0.0",
     "gsap": "^3.13.0",
     "jwt-decode": "^4.0.0",
+    "ngx-cookie-service": "^18.0.0",
     "rxjs": "~7.8.0",
     "tinymce": "^7.9.1",
     "tslib": "^2.3.0",

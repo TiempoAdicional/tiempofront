@@ -1,0 +1,204 @@
+<!-- Overlay que bloquea toda la página -->
+<div class="cookies-overlay" *ngIf="mostrarBanner">
+  <div class="cookies-backdrop"></div>
+  
+  <div class="cookies-container">
+    <mat-card class="cookies-card">
+      <mat-card-header>
+        <div mat-card-avatar class="cookies-avatar">
+          <mat-icon>cookie</mat-icon>
+        </div>
+        <mat-card-title>🍪 Política de Cookies</mat-card-title>
+        <mat-card-subtitle>Tu privacidad es importante para nosotros</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p class="cookies-intro">
+          Utilizamos cookies para mejorar tu experiencia en <strong>Tiempo Adicional</strong>. 
+          Puedes personalizar tus preferencias de cookies a continuación.
+        </p>
+
+        <!-- Configuración básica -->
+        <div class="cookies-basic" *ngIf="!mostrarConfiguracion">
+          <div class="cookies-essential">
+            <mat-icon>security</mat-icon>
+            <span>Cookies esenciales para el funcionamiento del sitio</span>
+            <mat-checkbox 
+              [checked]="true" 
+              [disabled]="true"
+              class="cookies-checkbox">
+              Siempre activas
+            </mat-checkbox>
+          </div>
+        </div>
+
+        <!-- Configuración avanzada -->
+        <div class="cookies-advanced" *ngIf="mostrarConfiguracion">
+          <mat-accordion>
+            <!-- Cookies Esenciales -->
+            <mat-expansion-panel [expanded]="true" [disabled]="true">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>security</mat-icon>
+                  Cookies Esenciales
+                </mat-panel-title>
+                <mat-panel-description>
+                  Siempre activas
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <div class="cookies-category-content">
+                <p>Estas cookies son necesarias para el funcionamiento básico del sitio web y no se pueden desactivar.</p>
+                <ul>
+                  <li>Autenticación de usuarios</li>
+                  <li>Seguridad del sitio</li>
+                  <li>Funcionalidad básica</li>
+                </ul>
+                <mat-checkbox 
+                  [checked]="true" 
+                  [disabled]="true"
+                  class="cookies-checkbox">
+                  Esenciales (requeridas)
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Cookies de Rendimiento -->
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>speed</mat-icon>
+                  Cookies de Rendimiento
+                </mat-panel-title>
+                <mat-panel-description>
+                  {{ configuracionCookies.rendimiento ? 'Activadas' : 'Desactivadas' }}
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <div class="cookies-category-content">
+                <p>Nos ayudan a entender cómo los visitantes interactúan con el sitio web.</p>
+                <ul>
+                  <li>Google Analytics</li>
+                  <li>Métricas de rendimiento</li>
+                  <li>Estadísticas de uso</li>
+                </ul>
+                <mat-checkbox 
+                  [(ngModel)]="configuracionCookies.rendimiento"
+                  class="cookies-checkbox">
+                  Permitir cookies de rendimiento
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Cookies Funcionales -->
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>settings</mat-icon>
+                  Cookies Funcionales
+                </mat-panel-title>
+                <mat-panel-description>
+                  {{ configuracionCookies.funcionales ? 'Activadas' : 'Desactivadas' }}
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <div class="cookies-category-content">
+                <p>Permiten recordar tus preferencias y personalizar tu experiencia.</p>
+                <ul>
+                  <li>Preferencias de idioma</li>
+                  <li>Configuración de tema</li>
+                  <li>Contenido personalizado</li>
+                </ul>
+                <mat-checkbox 
+                  [(ngModel)]="configuracionCookies.funcionales"
+                  class="cookies-checkbox">
+                  Permitir cookies funcionales
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Cookies de Marketing -->
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>campaign</mat-icon>
+                  Cookies de Marketing
+                </mat-panel-title>
+                <mat-panel-description>
+                  {{ configuracionCookies.marketing ? 'Activadas' : 'Desactivadas' }}
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <div class="cookies-category-content">
+                <p>Se utilizan para mostrar anuncios relevantes y medir la efectividad de las campañas.</p>
+                <ul>
+                  <li>Google Ads</li>
+                  <li>Facebook Pixel</li>
+                  <li>Remarketing</li>
+                </ul>
+                <mat-checkbox 
+                  [(ngModel)]="configuracionCookies.marketing"
+                  class="cookies-checkbox">
+                  Permitir cookies de marketing
+                </mat-checkbox>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </div>
+
+        <mat-divider class="cookies-divider"></mat-divider>
+
+        <!-- Información adicional -->
+        <div class="cookies-info">
+          <p class="cookies-policy-link">
+            <mat-icon>info</mat-icon>
+            Consulta nuestra 
+            <a href="/politica-privacidad" target="_blank">Política de Privacidad</a> 
+            para más información.
+          </p>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions class="cookies-actions">
+        <div class="cookies-buttons">
+          <!-- Botones principales -->
+          <div class="cookies-primary-buttons">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              (click)="aceptarTodas()"
+              class="cookies-btn-primary">
+              <mat-icon>check_circle</mat-icon>
+              Aceptar Todas
+            </button>
+            
+            <button 
+              mat-raised-button 
+              color="accent" 
+              (click)="aceptarSeleccionadas()"
+              *ngIf="mostrarConfiguracion"
+              class="cookies-btn-accent">
+              <mat-icon>done</mat-icon>
+              Guardar Preferencias
+            </button>
+            
+            <button 
+              mat-stroked-button 
+              (click)="rechazarOpcionales()"
+              class="cookies-btn-minimal">
+              <mat-icon>block</mat-icon>
+              Solo Esenciales
+            </button>
+          </div>
+
+          <!-- Botón de configuración -->
+          <div class="cookies-config-button">
+            <button 
+              mat-button 
+              (click)="toggleConfiguracion()"
+              class="cookies-btn-config">
+              <mat-icon>{{ mostrarConfiguracion ? 'expand_less' : 'tune' }}</mat-icon>
+              {{ mostrarConfiguracion ? 'Ocultar opciones' : 'Personalizar' }}
+            </button>
+          </div>
+        </div>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>
