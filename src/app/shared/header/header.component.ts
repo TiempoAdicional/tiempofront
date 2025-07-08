@@ -64,7 +64,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       case 'noticias':
       case 'todas-noticias':
       case 'ultimas-noticias':
-        this.router.navigate(['/usuarios/dashboard'], { fragment: 'noticias' });
+        this.irATodasLasNoticias();
         break;
       case 'eventos':
       case 'proximos-eventos':
@@ -91,9 +91,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // Métodos específicos para navegación de usuarios
   irANoticias(): void {
-    this.router.navigate(['/usuarios/dashboard'], { fragment: 'noticias' });
-    this.activeDropdown = null;
-    this.closeMobileMenu();
+    console.log('🔄 Navegando a todas las noticias...');
+    this.irATodasLasNoticias();
   }
 
   irAEventos(): void {
@@ -125,6 +124,65 @@ export class HeaderComponent implements OnInit, OnDestroy {
         console.error('❌ Error en navegación a /equipo');
       }
     });
+  }
+
+  // ===============================
+  // 📰 MÉTODOS ESPECÍFICOS PARA NOTICIAS
+  // ===============================
+
+  irANoticiasRecientes(): void {
+    console.log('🔄 Navegando a noticias recientes...');
+    const rutaBase = this.estaAutenticado ? '/usuarios/noticias' : '/noticias';
+    this.router.navigate([rutaBase], { 
+      queryParams: { 
+        tipo: 'recientes',
+        limite: 10 
+      }
+    });
+    this.activeDropdown = null;
+    this.closeMobileMenu();
+  }
+
+  irANoticiasDestacadas(): void {
+    console.log('🔄 Navegando a noticias destacadas...');
+    const rutaBase = this.estaAutenticado ? '/usuarios/noticias' : '/noticias';
+    this.router.navigate([rutaBase], { 
+      queryParams: { 
+        tipo: 'destacadas'
+      }
+    });
+    this.activeDropdown = null;
+    this.closeMobileMenu();
+  }
+
+  irATodasLasNoticias(): void {
+    console.log('🔄 Navegando a todas las noticias...');
+    const rutaBase = this.estaAutenticado ? '/usuarios/noticias' : '/noticias';
+    this.router.navigate([rutaBase], { 
+      queryParams: { 
+        tipo: 'todas',
+        limite: 20
+      }
+    });
+    this.activeDropdown = null;
+    this.closeMobileMenu();
+  }
+
+  // ===============================
+  // 🏆 MÉTODOS ESPECÍFICOS PARA EVENTOS
+  // ===============================
+
+  irAEventosProximos(): void {
+    console.log('🔄 Navegando a eventos próximos...');
+    this.router.navigate(['/usuarios/dashboard'], { 
+      queryParams: { 
+        seccion: 'eventos',
+        filtro: 'proximos',
+        limite: 10 
+      }
+    });
+    this.activeDropdown = null;
+    this.closeMobileMenu();
   }
 
   toggleMobileMenu(): void {

@@ -94,8 +94,14 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   eventosLimitados: EventoLimitado[] = [];
   partidosLimitados: PartidoLimitado[] = [];
   
-  // Noticia destacada para hero section
-  noticiaDestacada: NoticiaLimitada | null = null;
+  // Noticia destacada para hero section (carousel)
+  noticiasDestacadas: NoticiaLimitada[] = [];
+  noticiaDestacadaActual: NoticiaLimitada | null = null;
+  indiceNoticiaActual = 0;
+  progressValue = 0;
+  carouselInterval: any;
+  progressInterval: any;
+  readonly CAROUSEL_DURATION = 2000; // 2 segundos por noticia
   
   // Límites para usuarios no registrados
   readonly LIMITE_NOTICIAS = 10;
@@ -131,12 +137,20 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   ngOnInit(): void {
     this.verificarAutenticacion();
-    this.cargarContenido();
+    this.cargarDatos();
+    
+    // Manejar query parameters para filtros específicos
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        this.manejarFiltros(params);
+      });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.pararCarousel();
   }
 
   ngAfterViewInit(): void {
@@ -162,7 +176,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     });
   }
 
-  private cargarContenido(): void {
+  private cargarDatos(): void {
     this.cargarNoticias();
     this.cargarEventos();
     this.cargarPartidos();
@@ -235,18 +249,25 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
         .subscribe({
           next: (destacadas) => {
             if (destacadas && destacadas.length > 0) {
-              const noticiaDestacadaRaw = destacadas[0];
-              this.noticiaDestacada = {
-                id: noticiaDestacadaRaw.id,
-                titulo: noticiaDestacadaRaw.titulo,
-                resumen: this.limitarTexto(noticiaDestacadaRaw.resumen || noticiaDestacadaRaw.contenidoHtml, 150),
-                fechaPublicacion: noticiaDestacadaRaw.fechaPublicacion,
+              this.noticiasDestacadas = destacadas.map(noticia => ({
+                id: noticia.id,
+                titulo: noticia.titulo,
+                resumen: this.limitarTexto(noticia.resumen || noticia.contenidoHtml, 150),
+                fechaPublicacion: noticia.fechaPublicacion,
                 seccion: 'Destacada',
-                imagenUrl: noticiaDestacadaRaw.imagenDestacada,
+                imagenUrl: noticia.imagenDestacada,
                 bloqueada: false,
-                autorNombre: noticiaDestacadaRaw.autorNombre || 'TiempoAdicional'
-              };
-              console.log('✨ Noticia destacada pública configurada:', this.noticiaDestacada);
+                autorNombre: noticia.autorNombre || 'TiempoAdicional'
+              }));
+              
+              // Inicializar carousel
+              if (this.noticiasDestacadas.length > 0) {
+                this.indiceNoticiaActual = 0;
+                this.noticiaDestacadaActual = this.noticiasDestacadas[0];
+                this.iniciarCarousel();
+              }
+              
+              console.log('✨ Noticias destacadas públicas configuradas:', this.noticiasDestacadas.length);
             }
           },
           error: (error) => {
@@ -259,57 +280,47 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   private procesarNoticiasCompletas(noticias: any[]): void {
     console.log('📰 Procesando noticias completas para usuario autenticado:', noticias.length);
     
-    // Para usuarios autenticados: acceso completo
-    const noticiaDestacadaRaw = noticias.find((n: any) => n.destacada === true);
+    // Para usuarios autenticados: buscar todas las noticias destacadas
+    const noticiasDestacadasRaw = noticias.filter((n: any) => n.destacada === true);
     
-    if (noticiaDestacadaRaw) {
-      console.log('✨ Noticia destacada encontrada:', noticiaDestacadaRaw.titulo);
+    if (noticiasDestacadasRaw.length > 0) {
+      console.log('✨ Noticias destacadas encontradas:', noticiasDestacadasRaw.length);
       
-      // Priorizar creadorNombre (igual que en noticia-detalle), luego autorNombre
-      const autorNombre = noticiaDestacadaRaw.creadorNombre || 
-                         noticiaDestacadaRaw.autorNombre || 
-                         noticiaDestacadaRaw.autor_nombre;
-      
-      if (autorNombre) {
-        this.noticiaDestacada = {
-          id: noticiaDestacadaRaw.id,
-          titulo: noticiaDestacadaRaw.titulo,
-          resumen: noticiaDestacadaRaw.resumen || this.limitarTexto(noticiaDestacadaRaw.contenidoHtml, 150),
-          fechaPublicacion: noticiaDestacadaRaw.fechaPublicacion,
+      this.noticiasDestacadas = noticiasDestacadasRaw.map(noticiaRaw => {
+        const autorNombre = noticiaRaw.creadorNombre || 
+                           noticiaRaw.autorNombre || 
+                           noticiaRaw.autor_nombre || 
+                           'TiempoAdicional';
+        
+        return {
+          id: noticiaRaw.id,
+          titulo: noticiaRaw.titulo,
+          resumen: noticiaRaw.resumen || this.limitarTexto(noticiaRaw.contenidoHtml, 150),
+          fechaPublicacion: noticiaRaw.fechaPublicacion,
           seccion: 'Destacada',
-          imagenUrl: noticiaDestacadaRaw.imagenDestacada,
+          imagenUrl: noticiaRaw.imagenDestacada,
           bloqueada: false,
           autorNombre: autorNombre,
-          creadorId: noticiaDestacadaRaw.autorId || noticiaDestacadaRaw.creador_id
+          creadorId: noticiaRaw.autorId || noticiaRaw.creador_id
         };
-        console.log('✅ Noticia destacada configurada con autorNombre:', autorNombre);
-      } else {
-        // Fallback a obtener nombre por ID si no está disponible
-        this.obtenerNombreUsuario(noticiaDestacadaRaw.autorId || noticiaDestacadaRaw.creador_id).then(autorNombre => {
-          this.noticiaDestacada = {
-            id: noticiaDestacadaRaw.id,
-            titulo: noticiaDestacadaRaw.titulo,
-            resumen: noticiaDestacadaRaw.resumen || this.limitarTexto(noticiaDestacadaRaw.contenidoHtml, 150),
-            fechaPublicacion: noticiaDestacadaRaw.fechaPublicacion,
-            seccion: 'Destacada',
-            imagenUrl: noticiaDestacadaRaw.imagenDestacada,
-            bloqueada: false,
-            autorNombre: autorNombre,
-            creadorId: noticiaDestacadaRaw.autorId || noticiaDestacadaRaw.creador_id
-          };
-          console.log('✅ Noticia destacada configurada con autorNombre por ID:', autorNombre);
-        });
+      });
+      
+      // Inicializar carousel
+      if (this.noticiasDestacadas.length > 0) {
+        this.indiceNoticiaActual = 0;
+        this.noticiaDestacadaActual = this.noticiasDestacadas[0];
+        this.iniciarCarousel();
       }
+      
+      console.log('✅ Noticias destacadas configuradas:', this.noticiasDestacadas.length);
     } else {
-      console.log('⚠️ No hay noticia destacada en las noticias autenticadas');
+      console.log('⚠️ No hay noticias destacadas en las noticias autenticadas');
     }
     
-    // Filtrar noticias para grid (excluir destacada)
-    const noticiasParaGrid = noticiaDestacadaRaw 
-      ? noticias.filter((n: any) => n.id !== noticiaDestacadaRaw.id)
-      : noticias;
+    // Filtrar noticias para grid (excluir destacadas)
+    const noticiasParaGrid = noticias.filter((n: any) => !n.destacada);
     
-    console.log(`📋 Procesando ${noticiasParaGrid.length} noticias para el grid (excluyendo destacada)`);
+    console.log(`📋 Procesando ${noticiasParaGrid.length} noticias para el grid (excluyendo destacadas)`);
     this.procesarListaNoticias(noticiasParaGrid, false);
   }
 
@@ -357,7 +368,9 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   private cargarNoticiasFallback(): void {
     console.log('🔄 Cargando noticias con datos de fallback...');
     this.noticiasLimitadas = [];
-    this.noticiaDestacada = null;
+    this.noticiasDestacadas = [];
+    this.noticiaDestacadaActual = null;
+    this.pararCarousel();
     this.cargandoNoticias = false;
     this.backendDisponible = false;
     this.mensajeConexion = 'Error loading content';
@@ -662,6 +675,85 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     return Math.max(0, this.LIMITE_PARTIDOS - this.partidosLimitados.length);
   }
 
+  // ===============================
+  // 🎠 MÉTODOS DEL CAROUSEL
+  // ===============================
+  
+  private iniciarCarousel(): void {
+    if (this.noticiasDestacadas.length <= 1) return;
+    
+    this.pararCarousel();
+    
+    // Inicializar progress
+    this.progressValue = 0;
+    this.iniciarProgress();
+    
+    // Configurar cambio automático
+    this.carouselInterval = setInterval(() => {
+      this.siguienteNoticia();
+    }, this.CAROUSEL_DURATION);
+  }
+  
+  private pararCarousel(): void {
+    if (this.carouselInterval) {
+      clearInterval(this.carouselInterval);
+      this.carouselInterval = null;
+    }
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
+      this.progressInterval = null;
+    }
+  }
+  
+  private iniciarProgress(): void {
+    this.progressValue = 0;
+    const incremento = 100 / (this.CAROUSEL_DURATION / 50); // Actualizar cada 50ms
+    
+    this.progressInterval = setInterval(() => {
+      this.progressValue += incremento;
+      if (this.progressValue >= 100) {
+        this.progressValue = 100;
+        clearInterval(this.progressInterval);
+      }
+    }, 50);
+  }
+  
+  siguienteNoticia(): void {
+    if (this.noticiasDestacadas.length === 0) return;
+    
+    this.indiceNoticiaActual = (this.indiceNoticiaActual + 1) % this.noticiasDestacadas.length;
+    this.noticiaDestacadaActual = this.noticiasDestacadas[this.indiceNoticiaActual];
+    this.iniciarProgress();
+  }
+  
+  anteriorNoticia(): void {
+    if (this.noticiasDestacadas.length === 0) return;
+    
+    this.indiceNoticiaActual = this.indiceNoticiaActual === 0 
+      ? this.noticiasDestacadas.length - 1 
+      : this.indiceNoticiaActual - 1;
+    this.noticiaDestacadaActual = this.noticiasDestacadas[this.indiceNoticiaActual];
+    this.pararCarousel();
+    this.iniciarCarousel();
+  }
+  
+  irANoticia(indice: number): void {
+    if (indice >= 0 && indice < this.noticiasDestacadas.length) {
+      this.indiceNoticiaActual = indice;
+      this.noticiaDestacadaActual = this.noticiasDestacadas[indice];
+      this.pararCarousel();
+      this.iniciarCarousel();
+    }
+  }
+  
+  pausarCarousel(): void {
+    this.pararCarousel();
+  }
+  
+  reanudarCarousel(): void {
+    this.iniciarCarousel();
+  }
+  
   // === MÉTODOS AUXILIARES ===
   
   private async obtenerNombreUsuario(creadorId: number | undefined): Promise<string> {
@@ -705,5 +797,191 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     if (noticia.seccion_id) return `Sección ${noticia.seccion_id}`;
     if (noticia.tags && noticia.tags.length > 0) return noticia.tags[0];
     return 'Noticias';
+  }
+
+  private manejarFiltros(params: any): void {
+    const seccion = params['seccion'];
+    const filtro = params['filtro'];
+    const limite = params['limite'] ? parseInt(params['limite']) : undefined;
+
+    console.log('🔍 Aplicando filtros:', { seccion, filtro, limite });
+
+    if (seccion === 'noticias') {
+      this.aplicarFiltroNoticias(filtro, limite);
+    } else if (seccion === 'eventos') {
+      this.aplicarFiltroEventos(filtro, limite);
+    }
+  }
+
+  private aplicarFiltroNoticias(filtro: string, limite?: number): void {
+    switch (filtro) {
+      case 'recientes':
+        this.cargarNoticiasRecientes(limite || 10);
+        break;
+      case 'destacadas':
+        this.cargarNoticiasDestacadas();
+        break;
+      default:
+        this.cargarNoticias();
+        break;
+    }
+  }
+
+  private aplicarFiltroEventos(filtro: string, limite?: number): void {
+    switch (filtro) {
+      case 'proximos':
+        this.cargarEventosProximos(limite || 10);
+        break;
+      default:
+        this.cargarEventos();
+        break;
+    }
+  }
+
+  private cargarNoticiasRecientes(limite: number): void {
+    console.log(`📰 Cargando ${limite} noticias recientes...`);
+    this.cargandoNoticias = true;
+    
+    // Usar el servicio existente pero con parámetros específicos
+    if (this.estaAutenticado) {
+      this.noticiasService.listarTodasAutenticado(1, limite)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            console.log('✅ Noticias recientes cargadas:', response);
+            const noticias = response.noticias || [];
+            // Ordenar por fecha más reciente
+            const noticiasOrdenadas = noticias.sort((a: any, b: any) => 
+              new Date(b.fechaPublicacion).getTime() - new Date(a.fechaPublicacion).getTime()
+            );
+            this.procesarNoticiasCompletas(noticiasOrdenadas);
+            this.cargandoNoticias = false;
+          },
+          error: (error) => {
+            console.error('❌ Error cargando noticias recientes:', error);
+            this.cargandoNoticias = false;
+          }
+        });
+    } else {
+      this.noticiasService.listarNoticiasPublicas(limite)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            let noticias = [];
+            if (response?.noticias) {
+              noticias = response.noticias;
+            } else if (Array.isArray(response)) {
+              noticias = response;
+            }
+            
+            // Ordenar por fecha más reciente
+            noticias.sort((a: any, b: any) => new Date(b.fechaPublicacion).getTime() - new Date(a.fechaPublicacion).getTime());
+            
+            this.procesarListaNoticias(noticias.slice(0, limite), true);
+            this.cargandoNoticias = false;
+          },
+          error: (error) => {
+            console.error('❌ Error cargando noticias recientes públicas:', error);
+            this.cargandoNoticias = false;
+          }
+        });
+    }
+  }
+
+  private cargarNoticiasDestacadas(): void {
+    console.log('⭐ Cargando noticias destacadas...');
+    this.cargandoNoticias = true;
+    
+    if (this.estaAutenticado) {
+      this.noticiasService.listarTodasAutenticado(1, 50)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            const noticias = response.noticias || [];
+            // Filtrar solo las destacadas
+            const destacadas = noticias.filter((n: any) => n.destacada === true);
+            console.log('✅ Noticias destacadas encontradas:', destacadas.length);
+            this.procesarNoticiasCompletas(destacadas);
+            this.cargandoNoticias = false;
+          },
+          error: (error) => {
+            console.error('❌ Error cargando noticias destacadas:', error);
+            this.cargandoNoticias = false;
+          }
+        });
+    } else {
+      // Para usuarios no autenticados, usar endpoint público
+      this.noticiasService.listarNoticiasPublicas(50)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            let noticias = [];
+            if (response?.noticias) {
+              noticias = response.noticias;
+            } else if (Array.isArray(response)) {
+              noticias = response;
+            }
+            
+            // Filtrar destacadas
+            const destacadas = noticias.filter((n: any) => n.destacada === true);
+            this.procesarListaNoticias(destacadas, true);
+            this.cargandoNoticias = false;
+          },
+          error: (error) => {
+            console.error('❌ Error cargando noticias destacadas públicas:', error);
+            this.cargandoNoticias = false;
+          }
+        });
+    }
+  }
+
+  private cargarEventosProximos(limite: number): void {
+    console.log(`🏆 Cargando ${limite} eventos próximos...`);
+    this.cargandoEventos = true;
+    
+    if (this.estaAutenticado) {
+      this.eventosService.listarTodos()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            const eventos = Array.isArray(response) ? response : (response as any).eventos || [];
+            // Filtrar eventos futuros y ordenar por fecha
+            const ahora = new Date();
+            const eventosFuturos = eventos
+              .filter((evento: any) => new Date(evento.fecha) > ahora)
+              .sort((a: any, b: any) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
+              .slice(0, limite);
+            
+            console.log('✅ Eventos próximos encontrados:', eventosFuturos.length);
+            this.procesarListaEventos(eventosFuturos, true);
+            this.cargandoEventos = false;
+          },
+          error: (error) => {
+            console.error('❌ Error cargando eventos próximos:', error);
+            this.cargandoEventos = false;
+          }
+        });
+    } else {
+      this.eventosService.listarEventosPublicos(50)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            const eventos = (response as any).eventos || response;
+            // Filtrar eventos futuros y ordenar por fecha
+            const ahora = new Date();
+            const eventosFuturos = eventos
+              .filter((evento: any) => new Date(evento.fecha) > ahora)
+              .sort((a: any, b: any) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
+              .slice(0, limite);
+            
+            this.procesarListaEventos(eventosFuturos, true);
+            this.cargandoEventos = false;
+          },
+          error: (error) => {
+            console.error('❌ Error cargando eventos próximos públicos:', error);
+            this.cargandoEventos = false;
+          }
+        });
+    }
   }
 }

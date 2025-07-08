@@ -41,6 +41,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./admin/eventos/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
   },
+  {
+    path: 'noticias',
+    loadComponent: () =>
+      import('./usuarios/noticias-lista/noticias-lista.component').then(m => m.NoticiasListaComponent)
+  },
 
   // ===============================
   // 📰 USUARIO ROUTES (Public/Registered Users)
@@ -63,6 +68,11 @@ export const routes: Routes = [
         path: 'evento/:id',
         loadComponent: () =>
           import('./usuarios/evento-detalle/evento-detalle.component').then(m => m.EventoDetalleComponent)
+      },
+      {
+        path: 'noticias',
+        loadComponent: () =>
+          import('./usuarios/noticias-lista/noticias-lista.component').then(m => m.NoticiasListaComponent)
       },
       {
         path: 'partidos',

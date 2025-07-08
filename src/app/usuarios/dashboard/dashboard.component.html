@@ -25,36 +25,85 @@
   </div>
 
   <!-- ===============================
-       📰 HERO SECTION - NOTICIA DESTACADA
+       📰 HERO CAROUSEL - NOTICIAS DESTACADAS
        =============================== -->
-  <section class="hero-section" *ngIf="noticiaDestacada">
-    <div class="hero-content">
-      <div class="hero-imagen">
-        <img [src]="noticiaDestacada.imagenUrl || '/assets/default-news.jpg'" 
-             [alt]="noticiaDestacada.titulo">
-        <div class="hero-overlay"></div>
-      </div>
-      
-      <div class="hero-info">
-        <mat-chip class="seccion-chip">⭐ {{ noticiaDestacada.seccion }}</mat-chip>
-        <h1 class="hero-titulo">{{ noticiaDestacada.titulo }}</h1>
-        <p class="hero-resumen">{{ noticiaDestacada.resumen }}</p>
-        
-        <div class="hero-meta">
-          <span class="fecha">{{ noticiaDestacada.fechaPublicacion | date:'dd MMM yyyy' }}</span>
-          <span class="autor-destacado" *ngIf="noticiaDestacada.autorNombre">
-            <mat-icon>person</mat-icon>
-            Por {{ noticiaDestacada.autorNombre }}
-          </span>
-          <button mat-raised-button 
-                  color="accent" 
-                  (click)="verNoticia(noticiaDestacada)"
-                  class="leer-mas-btn">
-            <mat-icon>article</mat-icon>
-            Leer Completa
-          </button>
+  <section class="hero-carousel" *ngIf="noticiaDestacadaActual && noticiasDestacadas.length > 0"
+           (mouseenter)="pausarCarousel()" 
+           (mouseleave)="reanudarCarousel()">
+    
+    <!-- Carousel Container -->
+    <div class="carousel-container">
+      <!-- Noticia Actual -->
+      <div class="carousel-slide active">
+        <div class="hero-content">
+          <div class="hero-imagen">
+            <img [src]="noticiaDestacadaActual.imagenUrl || '/assets/edit-tools.png'" 
+                 [alt]="noticiaDestacadaActual.titulo"
+                 class="hero-img">
+            <div class="hero-overlay"></div>
+          </div>
+          
+          <div class="hero-info">
+            <mat-chip class="seccion-chip">⭐ {{ noticiaDestacadaActual.seccion }}</mat-chip>
+            <h1 class="hero-titulo">{{ noticiaDestacadaActual.titulo }}</h1>
+            <p class="hero-resumen">{{ noticiaDestacadaActual.resumen }}</p>
+            
+            <div class="hero-meta">
+              <span class="fecha">{{ noticiaDestacadaActual.fechaPublicacion | date:'dd MMM yyyy' }}</span>
+              <span class="autor-destacado" *ngIf="noticiaDestacadaActual.autorNombre">
+                <mat-icon>person</mat-icon>
+                Por {{ noticiaDestacadaActual.autorNombre }}
+              </span>
+              <button mat-raised-button 
+                      color="accent" 
+                      (click)="verNoticia(noticiaDestacadaActual)"
+                      class="leer-mas-btn">
+                <mat-icon>article</mat-icon>
+                Leer Completa
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- Controles del Carousel -->
+    <div class="carousel-controls" *ngIf="noticiasDestacadas.length > 1">
+      <!-- Botón Anterior -->
+      <button mat-fab 
+              class="carousel-btn carousel-btn-prev"
+              (click)="anteriorNoticia()"
+              [attr.aria-label]="'Noticia anterior'">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      
+      <!-- Botón Siguiente -->
+      <button mat-fab 
+              class="carousel-btn carousel-btn-next"
+              (click)="siguienteNoticia()"
+              [attr.aria-label]="'Siguiente noticia'">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="carousel-indicators" *ngIf="noticiasDestacadas.length > 1">
+      <button *ngFor="let noticia of noticiasDestacadas; let i = index"
+              class="indicator"
+              [class.active]="i === indiceNoticiaActual"
+              (click)="irANoticia(i)"
+              [attr.aria-label]="'Ir a noticia ' + (i + 1)">
+      </button>
+    </div>
+
+    <!-- Barra de Progreso -->
+    <div class="progress-container" *ngIf="noticiasDestacadas.length > 1">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progressValue"></div>
+      </div>
+      <span class="progress-text">
+        {{ indiceNoticiaActual + 1 }} / {{ noticiasDestacadas.length }}
+      </span>
     </div>
   </section>
 

@@ -1,0 +1,128 @@
+<div class="noticias-lista-container">
+  <!-- Header con navegación -->
+  <div class="header-section">
+    <mat-toolbar class="lista-toolbar">
+      <button mat-icon-button (click)="volverAlDashboard()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span class="titulo-seccion">{{ tituloSeccion }}</span>
+      <span class="spacer"></span>
+      <mat-chip-set class="filtros-info">
+        <mat-chip class="chip-info">
+          <mat-icon>article</mat-icon>
+          {{ noticias.length }} {{ noticias.length === 1 ? 'noticia' : 'noticias' }}
+        </mat-chip>
+      </mat-chip-set>
+    </mat-toolbar>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="loading-container">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <p>Cargando noticias...</p>
+  </div>
+
+  <!-- Lista de noticias -->
+  <div *ngIf="!cargando" class="noticias-contenido">
+    <!-- Sin noticias -->
+    <div *ngIf="noticias.length === 0" class="sin-noticias">
+      <mat-icon class="icono-vacio">article</mat-icon>
+      <h3>No se encontraron noticias</h3>
+      <p>No hay noticias disponibles para mostrar en este momento.</p>
+      <button mat-raised-button color="primary" (click)="volverAlDashboard()">
+        Volver al Dashboard
+      </button>
+    </div>
+
+    <!-- Lista con noticias -->
+    <div *ngIf="noticias.length > 0" class="lista-noticias">
+      <mat-card *ngFor="let noticia of noticias; trackBy: trackByNoticiaId" 
+                class="noticia-card"
+                (click)="verNoticia(noticia)">
+        
+        <!-- Header de la card -->
+        <mat-card-header class="noticia-header">
+          <div mat-card-avatar class="noticia-avatar">
+            <mat-icon>article</mat-icon>
+          </div>
+          
+          <mat-card-title class="noticia-titulo">
+            {{ noticia.titulo }}
+          </mat-card-title>
+          
+          <mat-card-subtitle class="noticia-meta">
+            <div class="meta-info">
+              <span class="autor">
+                <mat-icon>person</mat-icon>
+                {{ noticia.autorNombre }}
+              </span>
+              <span class="fecha">
+                <mat-icon>schedule</mat-icon>
+                {{ formatearFecha(noticia.fechaPublicacion) }}
+              </span>
+              <span class="seccion">
+                <mat-icon>folder</mat-icon>
+                {{ noticia.seccion }}
+              </span>
+            </div>
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <!-- Imagen de la noticia -->
+        <div *ngIf="noticia.imagenDestacada" class="noticia-imagen">
+          <img [src]="noticia.imagenDestacada" 
+               [alt]="noticia.titulo"
+               class="imagen-destacada">
+        </div>
+
+        <!-- Contenido de la noticia -->
+        <mat-card-content class="noticia-contenido">
+          <p class="noticia-resumen">
+            {{ noticia.resumen }}
+          </p>
+          
+          <!-- Tags -->
+          <div *ngIf="noticia.tags && noticia.tags.length > 0" class="tags-container">
+            <mat-chip-set class="tags-list">
+              <mat-chip *ngFor="let tag of noticia.tags" class="tag-chip">
+                {{ tag }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <!-- Indicadores especiales -->
+          <div class="indicadores">
+            <mat-chip *ngIf="noticia.destacada" class="chip-destacada">
+              <mat-icon>star</mat-icon>
+              Destacada
+            </mat-chip>
+          </div>
+        </mat-card-content>
+
+        <!-- Acciones -->
+        <mat-card-actions class="noticia-acciones">
+          <button mat-button color="primary" (click)="verNoticia(noticia); $event.stopPropagation()">
+            <mat-icon>visibility</mat-icon>
+            Leer más
+          </button>
+          
+          <span class="spacer"></span>
+          
+          <span class="fecha-completa">
+            {{ formatearFechaCompleta(noticia.fechaPublicacion) }}
+          </span>
+        </mat-card-actions>
+
+        <mat-divider></mat-divider>
+      </mat-card>
+    </div>
+
+    <!-- Botón para cargar más (futuro) -->
+    <div class="acciones-lista" *ngIf="noticias.length > 0">
+      <button mat-stroked-button color="primary" class="boton-volver" (click)="volverAlDashboard()">
+        <mat-icon>dashboard</mat-icon>
+        Volver al Dashboard
+      </button>
+    </div>
+  </div>
+</div>
