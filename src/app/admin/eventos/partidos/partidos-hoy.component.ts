@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { Subject, forkJoin } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, forkJoin, interval } from 'rxjs';
+import { takeUntil, startWith, switchMap } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 
 // Material modules
@@ -19,10 +19,13 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 // Services
-import { PartidosService, Partido } from '../../../core/services/partidos.service';
-import { LigaColombianService, PartidoLigaColombiana, EstadoPartido, Temporada } from '../../../core/services/liga-colombiana.service';
+import { PartidosService, PartidoDTO, TablaEquipo, EstadoPartido } from '../../../core/services/partidos.service';
 
 @Component({
   selector: 'app-partidos-hoy',
@@ -43,208 +46,319 @@ import { LigaColombianService, PartidoLigaColombiana, EstadoPartido, Temporada }
     MatDividerModule,
     MatSelectModule,
     MatTabsModule,
+    MatBadgeModule,
+    MatSnackBarModule,
+    MatMenuModule,
+    MatExpansionModule,
     FormsModule
   ],
   templateUrl: './partidos-hoy.component.html',
   styleUrls: ['./partidos-hoy.component.scss']
 })
 export class PartidosHoyComponent implements OnInit, OnDestroy {
-  // Estados de la aplicación
-  cargando = true;
-  tabSeleccionada = 0;
-  nombre = '';
-
-  // Datos
-  partidosLigaColombiana: PartidoLigaColombiana[] = [];
-  partidos: Partido[] = [];
-  temporadaActual: Temporada | null = null;
-
+  
   private destroy$ = new Subject<void>();
-
+  
+  // ================================
+  // 🎯 ESTADO DEL COMPONENTE
+  // ================================
+  
+  cargando = false;
+  errorCarga = false;
+  mensajeError = '';
+  
+  // Datos de partidos
+  partidosEnVivo: PartidoDTO[] = [];
+  proximosPartidos: PartidoDTO[] = [];
+  ultimosResultados: PartidoDTO[] = [];
+  todosLosPartidos: PartidoDTO[] = [];
+  tablaLigaColombiana: TablaEquipo[] = [];
+  
+  // Control de pestañas
+  tabSeleccionada = 0;
+  
+  // Búsqueda
+  busquedaEquipo = '';
+  busquedaFecha = '';
+  partidosBusqueda: PartidoDTO[] = [];
+  mostrandoBusqueda = false;
+  
+  // Auto-refresh para partidos en vivo
+  private autoRefreshInterval: any;
+  readonly AUTO_REFRESH_INTERVAL = 30000; // 30 segundos
+  
   constructor(
+    private router: Router,
     private partidosService: PartidosService,
-    private ligaColombianService: LigaColombianService,
-    private router: Router
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.cargarDatos();
+    this.iniciarAutoRefresh();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.detenerAutoRefresh();
   }
 
-  /**
-   * Carga datos de ambos sistemas: Liga Colombiana y partidos generales
-   */
+  // ================================
+  // 📊 CARGA DE DATOS
+  // ================================
+
   cargarDatos(): void {
     this.cargando = true;
+    this.errorCarga = false;
     
+    console.log('🔄 Cargando datos de partidos...');
+    
+    // Cargar todos los datos en paralelo
     forkJoin({
-      partidosLigaColombiana: this.ligaColombianService.obtenerPartidosHoy(),
-      temporadaActual: this.ligaColombianService.obtenerTemporadaActual(),
-      partidosGenerales: this.partidosService.obtenerPartidosHoy()
-    }).subscribe({
+      enVivo: this.partidosService.obtenerPartidosEnVivo(),
+      proximos: this.partidosService.obtenerProximosPartidos(),
+      resultados: this.partidosService.obtenerUltimosResultados(),
+      tabla: this.partidosService.obtenerTablaLigaColombiana(),
+      todos: this.partidosService.obtenerTodosLosPartidos()
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (datos) => {
-        this.partidosLigaColombiana = datos.partidosLigaColombiana;
-        this.temporadaActual = datos.temporadaActual;
-        this.partidos = datos.partidosGenerales;
+        console.log('✅ Datos cargados exitosamente:', datos);
+        
+        this.partidosEnVivo = datos.enVivo || [];
+        this.proximosPartidos = datos.proximos || [];
+        this.ultimosResultados = datos.resultados || [];
+        this.tablaLigaColombiana = datos.tabla || [];
+        this.todosLosPartidos = datos.todos || [];
+        
         this.cargando = false;
+        this.mostrarNotificacion('✅ Datos actualizados');
       },
       error: (error) => {
-        console.error('Error al cargar datos:', error);
+        console.error('❌ Error cargando datos:', error);
+        this.errorCarga = true;
+        this.mensajeError = 'Error al cargar los datos de partidos';
         this.cargando = false;
-        // Cargar solo partidos generales como fallback
-        this.obtenerPartidosLegacy();
+        this.mostrarNotificacion('❌ Error al cargar datos', 'error');
       }
     });
   }
 
-  /**
-   * Método legacy de carga de partidos (fallback)
-   */
-  obtenerPartidosLegacy(): void {
+  recargarDatos(): void {
+    this.cargarDatos();
+  }
+
+  // ================================
+  // 🔍 BÚSQUEDA Y FILTROS
+  // ================================
+
+  buscarPorEquipo(): void {
+    if (!this.busquedaEquipo.trim()) {
+      this.limpiarBusqueda();
+      return;
+    }
+    
     this.cargando = true;
-    this.partidosService.obtenerPartidosHoy().subscribe({
-      next: (partidos) => {
-        this.partidos = partidos;
-        this.cargando = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar partidos legacy:', error);
-        this.cargando = false;
+    console.log(`🔍 Buscando partidos del equipo: ${this.busquedaEquipo}`);
+    
+    this.partidosService.buscarPartidosPorEquipo(this.busquedaEquipo.trim())
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (partidos) => {
+          console.log(`✅ ${partidos.length} partidos encontrados`);
+          this.partidosBusqueda = partidos;
+          this.mostrandoBusqueda = true;
+          this.cargando = false;
+        },
+        error: (error) => {
+          console.error('❌ Error en búsqueda:', error);
+          this.partidosBusqueda = [];
+          this.mostrandoBusqueda = false;
+          this.cargando = false;
+          this.mostrarNotificacion('❌ Error en la búsqueda', 'error');
+        }
+      });
+  }
+
+  buscarPorFecha(): void {
+    if (!this.busquedaFecha) {
+      this.limpiarBusqueda();
+      return;
+    }
+    
+    this.cargando = true;
+    console.log(`📅 Buscando partidos para la fecha: ${this.busquedaFecha}`);
+    
+    this.partidosService.buscarPartidosPorFecha(this.busquedaFecha)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (partidos) => {
+          console.log(`✅ ${partidos.length} partidos encontrados`);
+          this.partidosBusqueda = partidos;
+          this.mostrandoBusqueda = true;
+          this.cargando = false;
+        },
+        error: (error) => {
+          console.error('❌ Error en búsqueda:', error);
+          this.partidosBusqueda = [];
+          this.mostrandoBusqueda = false;
+          this.cargando = false;
+          this.mostrarNotificacion('❌ Error en la búsqueda', 'error');
+        }
+      });
+  }
+
+  limpiarBusqueda(): void {
+    this.busquedaEquipo = '';
+    this.busquedaFecha = '';
+    this.partidosBusqueda = [];
+    this.mostrandoBusqueda = false;
+  }
+
+  // ================================
+  // 🔄 AUTO-REFRESH
+  // ================================
+
+  private iniciarAutoRefresh(): void {
+    // Solo hacer auto-refresh si hay partidos en vivo
+    this.autoRefreshInterval = setInterval(() => {
+      if (this.partidosEnVivo.length > 0 && !this.cargando) {
+        console.log('🔄 Auto-refresh de partidos en vivo...');
+        this.actualizarPartidosEnVivo();
       }
+    }, this.AUTO_REFRESH_INTERVAL);
+  }
+
+  private detenerAutoRefresh(): void {
+    if (this.autoRefreshInterval) {
+      clearInterval(this.autoRefreshInterval);
+      this.autoRefreshInterval = null;
+    }
+  }
+
+  private actualizarPartidosEnVivo(): void {
+    this.partidosService.obtenerPartidosEnVivo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (partidos) => {
+          this.partidosEnVivo = partidos;
+          console.log(`🔄 Partidos en vivo actualizados: ${partidos.length}`);
+        },
+        error: (error) => {
+          console.warn('⚠️ Error actualizando partidos en vivo:', error);
+        }
+      });
+  }
+
+  // ================================
+  // 🎯 MÉTODOS AUXILIARES
+  // ================================
+
+  obtenerEstadoLegible(estado: string): string {
+    return this.partidosService.obtenerEstadoLegible(estado as EstadoPartido);
+  }
+
+  obtenerColorEstado(estado: string): string {
+    return this.partidosService.obtenerColorEstado(estado as EstadoPartido);
+  }
+
+  estaEnVivo(partido: PartidoDTO): boolean {
+    return this.partidosService.estaEnVivo(partido.estado as EstadoPartido);
+  }
+
+  haFinalizado(partido: PartidoDTO): boolean {
+    return this.partidosService.haFinalizado(partido.estado as EstadoPartido);
+  }
+
+  esGanador(partido: PartidoDTO, tipo: 'local' | 'visitante'): boolean {
+    if (!this.haFinalizado(partido)) return false;
+    
+    if (tipo === 'local') {
+      return partido.golesLocal > partido.golesVisitante;
+    } else {
+      return partido.golesVisitante > partido.golesLocal;
+    }
+  }
+
+  formatearFecha(fecha: string): string {
+    return new Date(fecha).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
-  /**
-   * Navegar de vuelta al dashboard
-   */
+  // ================================
+  // 📊 CONTADORES PARA STATS
+  // ================================
+
+  get partidosEnVivoCount(): number {
+    return this.partidosEnVivo.length;
+  }
+
+  get proximosPartidosCount(): number {
+    return this.proximosPartidos.length;
+  }
+
+  get ultimosResultadosCount(): number {
+    return this.ultimosResultados.length;
+  }
+
+  get totalPartidos(): number {
+    return this.todosLosPartidos.length;
+  }
+
+  // ================================
+  // 🎮 NAVEGACIÓN Y ACCIONES
+  // ================================
+
   volverAlDashboard(): void {
     this.router.navigate(['/admin']);
   }
 
-  /**
-   * Limpiar búsqueda
-   */
-  limpiarBusqueda(): void {
-    this.nombre = '';
-    this.buscarPorNombre();
+  verDetallesPartido(partido: PartidoDTO): void {
+    // Navegar a página de detalles (implementar después)
+    console.log('📋 Ver detalles del partido:', partido);
+    this.mostrarNotificacion(`🔍 Detalles: ${partido.nombreEquipoLocal} vs ${partido.nombreEquipoVisitante}`);
   }
 
-  /**
-   * Obtener cantidad de partidos en vivo (Liga Colombiana)
-   */
-  getPartidosEnVivoLigaColombiana(): number {
-    return this.partidosLigaColombiana.filter(p => p.estado === EstadoPartido.EN_VIVO).length;
-  }
-
-  /**
-   * Obtener cantidad de partidos finalizados (Liga Colombiana)
-   */
-  getPartidosFinalizadosLigaColombiana(): number {
-    return this.partidosLigaColombiana.filter(p => p.estado === EstadoPartido.FINALIZADO).length;
-  }
-
-  /**
-   * Obtener cantidad de partidos en vivo (Legacy)
-   */
-  getPartidosEnVivo(): number {
-    return this.partidos.filter(p => p.estado === 'EN JUEGO').length;
-  }
-
-  /**
-   * Obtener cantidad de partidos finalizados (Legacy)
-   */
-  getPartidosFinalizados(): number {
-    return this.partidos.filter(p => p.estado === 'FINALIZADO').length;
-  }
-
-  /**
-   * TrackBy function para partidos Liga Colombiana
-   */
-  trackByPartidoLigaColombiana(index: number, partido: PartidoLigaColombiana): any {
-    return partido.id || index;
-  }
-
-  /**
-   * TrackBy function para partidos legacy
-   */
-  trackByPartido(index: number, partido: Partido): any {
-    return partido.id || index;
-  }
-
-  /**
-   * Obtener color del estado del partido (Liga Colombiana)
-   */
-  obtenerColorEstado(estado: EstadoPartido): string {
-    return this.ligaColombianService.obtenerColorEstado(estado);
-  }
-
-  /**
-   * Obtener texto legible del estado (Liga Colombiana)
-   */
-  obtenerEstadoLegible(estado: EstadoPartido): string {
-    return this.ligaColombianService.obtenerEstadoLegible(estado);
-  }
-
-  buscarPorNombre(): void {
-    if (!this.nombre.trim()) {
-      this.cargarDatos();
-      return;
-    }
-
-    this.cargando = true;
-    this.partidosService.buscarPorNombre(this.nombre).subscribe({
-      next: (partidos) => {
-        this.partidos = partidos;
-        this.cargando = false;
-      },
-      error: (error) => {
-        console.error('Error en búsqueda:', error);
-        this.cargando = false;
-      }
-    });
-  }
-
-  /**
-   * Determina si un equipo es ganador (Liga Colombiana)
-   */
-  esGanadorLigaColombiana(partido: PartidoLigaColombiana, tipo: 'local' | 'visitante'): boolean {
-    if (partido.estado !== EstadoPartido.FINALIZADO) {
-      return false;
-    }
-
-    const gLocal = partido.golesLocal ?? -1;
-    const gVisitante = partido.golesVisitante ?? -1;
-
-    if (gLocal === -1 || gVisitante === -1 || gLocal === gVisitante) {
-      return false;
-    }
-
-    return tipo === 'local' ? gLocal > gVisitante : gVisitante > gLocal;
-  }
-
-  /**
-   * Determina si un equipo es ganador (Legacy)
-   */
-  esGanador(partido: Partido, tipo: 'local' | 'visitante'): boolean {
-    const gLocal = partido.golesLocal ?? -1;
-    const gVisitante = partido.golesVisitante ?? -1;
-
-    if (gLocal === -1 || gVisitante === -1 || gLocal === gVisitante) {
-      return false;
-    }
-
-    return tipo === 'local' ? gLocal > gVisitante : gVisitante > gLocal;
-  }
-
-  /**
-   * Cambiar entre tabs
-   */
   onTabChange(index: number): void {
     this.tabSeleccionada = index;
+    
+    // Limpiar búsqueda al cambiar de pestaña
+    if (this.mostrandoBusqueda) {
+      this.limpiarBusqueda();
+    }
+  }
+
+  // ================================
+  // 🎨 TRACKING FUNCTIONS
+  // ================================
+
+  trackByPartido(index: number, partido: PartidoDTO): string {
+    return partido.codigoApi;
+  }
+
+  trackByEquipoTabla(index: number, equipo: TablaEquipo): number {
+    return equipo.team.id;
+  }
+
+  // ================================
+  // 🔧 UTILIDADES
+  // ================================
+
+  onImageError(event: any): void {
+    event.target.style.display = 'none';
+  }
+
+  private mostrarNotificacion(mensaje: string, tipo: 'success' | 'error' = 'success'): void {
+    this.snackBar.open(mensaje, 'Cerrar', {
+      duration: 3000,
+      panelClass: tipo === 'success' ? 'success-snackbar' : 'error-snackbar'
+    });
   }
 }

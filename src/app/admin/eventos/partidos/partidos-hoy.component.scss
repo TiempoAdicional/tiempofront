@@ -344,12 +344,31 @@ $color-borde: #e0e0e0;
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 4px;
   
+  .escudo-equipo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+    transition: var(--transition);
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &:error {
+      display: none;
+    }
+  }
+  
+  // Fallback icon si no hay escudo
   mat-icon {
     font-size: 1.5rem;
     width: 1.5rem;
@@ -808,6 +827,26 @@ $color-borde: #e0e0e0;
         align-items: center;
         @include transicion-suave;
 
+        .escudo-equipo {
+          width: 36px;
+          height: 36px;
+          object-fit: contain;
+          border-radius: 50%;
+          background: white;
+          padding: 2px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          margin-bottom: 0.5rem;
+          transition: var(--transition);
+
+          &:hover {
+            transform: scale(1.1);
+          }
+
+          &:error {
+            display: none;
+          }
+        }
+
         .nombre {
           font-weight: 600;
           text-align: center;
@@ -925,4 +964,126 @@ $color-borde: #e0e0e0;
     }
   }
 }
+}
+
+// ===============================
+// 🏆 TABLA DE POSICIONES
+// ===============================
+.tabla-posiciones {
+  .equipo-fila {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    transition: var(--transition);
+    border-radius: 8px;
+    margin-bottom: 4px;
+    
+    &:hover {
+      background: rgba(0,0,0,0.05);
+    }
+    
+    .posicion {
+      min-width: 32px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-align: center;
+      
+      &.top-3 {
+        color: var(--accent-color);
+      }
+      
+      &.descenso {
+        color: #f44336;
+      }
+    }
+    
+    .escudo-tabla {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      border-radius: 50%;
+      background: white;
+      padding: 2px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      margin: 0 12px;
+      
+      &:error {
+        display: none;
+      }
+    }
+    
+    .equipo-nombre {
+      flex: 1;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-right: 12px;
+    }
+    
+    .estadisticas {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      
+      .stat {
+        min-width: 32px;
+        text-align: center;
+        font-size: 0.9rem;
+        
+        &.puntos {
+          font-weight: 700;
+          color: var(--primary-color);
+        }
+        
+        &.pj {
+          color: var(--text-secondary);
+        }
+        
+        &.dg {
+          color: var(--accent-color);
+          
+          &.negativo {
+            color: #f44336;
+          }
+        }
+      }
+    }
+  }
+  
+  .tabla-header {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: var(--surface-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+    
+    .pos-header {
+      min-width: 32px;
+      text-align: center;
+    }
+    
+    .escudo-header {
+      width: 28px;
+      margin: 0 12px;
+    }
+    
+    .equipo-header {
+      flex: 1;
+      margin-right: 12px;
+    }
+    
+    .stats-header {
+      display: flex;
+      gap: 8px;
+      
+      .stat-header {
+        min-width: 32px;
+        text-align: center;
+      }
+    }
+  }
 }

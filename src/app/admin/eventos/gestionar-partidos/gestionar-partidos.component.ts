@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { PartidosService, Partido } from '../../../core/services/partidos.service';
-import { AsignacionSeccionService } from '../../../core/services/asignacion-seccion.service';
+import { PartidosService, PartidoDTO } from '../../../core/services/partidos.service';
 
 // Angular Material
 import { MatCardModule } from '@angular/material/card';
@@ -55,19 +54,19 @@ export class GestionarPartidosComponent implements OnInit {
   crearPartidoForm!: FormGroup;
   
   // Data
-  partidosApi: Partido[] = [];
-  partidosLocales: Partido[] = [];
-  partidosCombinados: Partido[] = [];
+  partidosApi: PartidoDTO[] = [];
+  partidosEnVivo: PartidoDTO[] = [];
+  partidosProximos: PartidoDTO[] = [];
+  partidosResultados: PartidoDTO[] = [];
   
   // Estados
   cargandoApi = false;
-  cargandoLocales = false;
-  cargandoCombinados = false;
-  guardandoPartido = false;
-  creandoPartido = false;
+  cargandoEnVivo = false;
+  cargandoProximos = false;
+  cargandoResultados = false;
   
   // Configuración de tabla
-  columnasTabla: string[] = ['fecha', 'equipos', 'estado', 'resultado', 'competencia', 'origen', 'acciones'];
+  columnasTabla: string[] = ['fecha', 'equipos', 'estado', 'resultado', 'acciones'];
   
   // Tab activo
   tabSeleccionado = 0;
@@ -75,7 +74,6 @@ export class GestionarPartidosComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private partidosService: PartidosService,
-    private asignacionSeccionService: AsignacionSeccionService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
   ) {
@@ -83,71 +81,72 @@ export class GestionarPartidosComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cargarPartidosHoy();
-    this.cargarPartidosLocales();
+    this.cargarPartidosEnVivo();
+    this.cargarPartidosProximos();
+    this.cargarPartidosResultados();
   }
 
   initForms(): void {
     this.busquedaForm = this.fb.group({
       fecha: [''],
       equipo: [''],
-      tipoFuente: ['api'] // 'api', 'local', 'combinado'
+      tipoFuente: ['api'] // 'en-vivo', 'proximos', 'resultados'
     });
 
     this.crearPartidoForm = this.fb.group({
       equipoLocal: ['', Validators.required],
       equipoVisitante: ['', Validators.required],
       fecha: ['', Validators.required],
-      competencia: ['', Validators.required],
-      estado: ['SCHEDULED', Validators.required],
-      golesLocal: [null],
-      golesVisitante: [null]
+      competencia: ['Liga Colombiana', Validators.required],
+      estado: ['Not Started', Validators.required],
+      golesLocal: [0],
+      golesVisitante: [0]
     });
   }
 
   // === CARGA DE DATOS ===
 
-  cargarPartidosHoy(): void {
-    this.cargandoApi = true;
-    this.partidosService.obtenerPartidosHoyApi().subscribe({
-      next: (partidos) => {
-        this.partidosApi = partidos;
-        this.cargandoApi = false;
+  cargarPartidosEnVivo(): void {
+    this.cargandoEnVivo = true;
+    this.partidosService.obtenerPartidosEnVivo().subscribe({
+      next: (partidos: PartidoDTO[]) => {
+        this.partidosEnVivo = partidos;
+        this.cargandoEnVivo = false;
       },
-      error: (error) => {
-        console.error('Error cargando partidos de API:', error);
-        this.mostrarNotificacion('Error al cargar partidos de la API', 'error');
-        this.cargandoApi = false;
+      error: (error: any) => {
+        console.error('Error cargando partidos en vivo:', error);
+        this.mostrarNotificacion('Error al cargar partidos en vivo', 'error');
+        this.cargandoEnVivo = false;
       }
     });
   }
 
-  cargarPartidosLocales(): void {
-    this.cargandoLocales = true;
-    this.partidosService.listarPartidosLocales().subscribe({
-      next: (partidos) => {
-        this.partidosLocales = partidos;
-        this.cargandoLocales = false;
+  cargarPartidosProximos(): void {
+    this.cargandoProximos = true;
+    this.partidosService.obtenerProximosPartidos().subscribe({
+      next: (partidos: PartidoDTO[]) => {
+        this.partidosProximos = partidos;
+        this.cargandoProximos = false;
       },
-      error: (error) => {
-        console.error('Error cargando partidos locales:', error);
-        this.mostrarNotificacion('Error al cargar partidos locales', 'error');
-        this.cargandoLocales = false;
+      error: (error: any) => {
+        console.error('Error cargando próximos partidos:', error);
+        this.mostrarNotificacion('Error al cargar próximos partidos', 'error');
+        this.cargandoProximos = false;
       }
     });
   }
 
-  cargarPartidosCombinados(): void {
-    this.cargandoCombinados = true;
-    this.partidosService.obtenerPartidosCombinados().subscribe({
-      next: (partidos) => {
-        this.partidosCombinados = partidos;
-        this.cargandoCombinados = false;
+  cargarPartidosResultados(): void {
+    this.cargandoResultados = true;
+    this.partidosService.obtenerUltimosResultados().subscribe({
+      next: (partidos: PartidoDTO[]) => {
+        this.partidosResultados = partidos;
+        this.cargandoResultados = false;
       },
-      error: (error) => {
-        console.error('Error cargando partidos combinados:', error);
-        this.mostrarNotificacion('Error al cargar vista combinada', 'error');
-        this.cargandoCombinados = false;
+      error: (error: any) => {
+        console.error('Error cargando resultados:', error);
+        this.mostrarNotificacion('Error al cargar resultados', 'error');
+        this.cargandoResultados = false;
       }
     });
   }
@@ -172,26 +171,29 @@ export class GestionarPartidosComponent implements OnInit {
     switch (tipoFuente) {
       case 'api':
         this.cargandoApi = true;
-        this.partidosService.buscarPorFechaApi(fechaISO).subscribe({
-          next: (partidos) => {
+        this.partidosService.buscarPartidosPorFecha(fechaISO).subscribe({
+          next: (partidos: PartidoDTO[]) => {
             this.partidosApi = partidos;
             this.cargandoApi = false;
             this.tabSeleccionado = 0;
           },
-          error: (error) => this.manejarError(error, 'Error en búsqueda por fecha (API)')
+          error: (error: any) => this.manejarError(error, 'Error en búsqueda por fecha')
         });
         break;
 
-      case 'combinado':
-        this.cargandoCombinados = true;
-        this.partidosService.buscarPorFechaCombinado(fechaISO).subscribe({
-          next: (partidos) => {
-            this.partidosCombinados = partidos;
-            this.cargandoCombinados = false;
-            this.tabSeleccionado = 2;
-          },
-          error: (error) => this.manejarError(error, 'Error en búsqueda combinada por fecha')
-        });
+      case 'en-vivo':
+        this.cargarPartidosEnVivo();
+        this.tabSeleccionado = 0;
+        break;
+
+      case 'proximos':
+        this.cargarPartidosProximos();
+        this.tabSeleccionado = 1;
+        break;
+
+      case 'resultados':
+        this.cargarPartidosResultados();
+        this.tabSeleccionado = 2;
         break;
     }
   }
@@ -200,128 +202,51 @@ export class GestionarPartidosComponent implements OnInit {
     switch (tipoFuente) {
       case 'api':
         this.cargandoApi = true;
-        this.partidosService.buscarPorEquipoApi(equipo).subscribe({
-          next: (partidos) => {
+        this.partidosService.buscarPartidosPorEquipo(equipo).subscribe({
+          next: (partidos: PartidoDTO[]) => {
             this.partidosApi = partidos;
             this.cargandoApi = false;
             this.tabSeleccionado = 0;
           },
-          error: (error) => this.manejarError(error, 'Error en búsqueda por equipo (API)')
+          error: (error: any) => this.manejarError(error, 'Error en búsqueda por equipo')
         });
         break;
 
-      case 'local':
-        this.cargandoLocales = true;
-        this.partidosService.buscarPartidosLocalesPorEquipo(equipo).subscribe({
-          next: (partidos) => {
-            this.partidosLocales = partidos;
-            this.cargandoLocales = false;
-            this.tabSeleccionado = 1;
-          },
-          error: (error) => this.manejarError(error, 'Error en búsqueda por equipo (Local)')
-        });
+      case 'en-vivo':
+        // Filtrar partidos en vivo por equipo
+        this.partidosEnVivo = this.partidosEnVivo.filter(p => 
+          p.nombreEquipoLocal.toLowerCase().includes(equipo.toLowerCase()) ||
+          p.nombreEquipoVisitante.toLowerCase().includes(equipo.toLowerCase())
+        );
+        this.tabSeleccionado = 0;
+        break;
+
+      case 'proximos':
+        // Filtrar próximos partidos por equipo
+        this.partidosProximos = this.partidosProximos.filter(p => 
+          p.nombreEquipoLocal.toLowerCase().includes(equipo.toLowerCase()) ||
+          p.nombreEquipoVisitante.toLowerCase().includes(equipo.toLowerCase())
+        );
+        this.tabSeleccionado = 1;
+        break;
+
+      case 'resultados':
+        // Filtrar resultados por equipo
+        this.partidosResultados = this.partidosResultados.filter(p => 
+          p.nombreEquipoLocal.toLowerCase().includes(equipo.toLowerCase()) ||
+          p.nombreEquipoVisitante.toLowerCase().includes(equipo.toLowerCase())
+        );
+        this.tabSeleccionado = 2;
         break;
     }
   }
 
   // === GESTIÓN DE PARTIDOS ===
 
-  guardarPartidoDeApi(partido: Partido): void {
-    this.guardandoPartido = true;
-    
-    this.asignacionSeccionService.obtenerSeccionPartidos().subscribe({
-      next: (seccionId) => {
-        this.partidosService.guardarPartidoDeApi(partido, seccionId || undefined).subscribe({
-          next: (partidoGuardado) => {
-            this.mostrarNotificacion('✅ Partido guardado en base de datos local', 'success');
-            this.cargarPartidosLocales(); // Recargar la lista local
-            this.guardandoPartido = false;
-          },
-          error: (error) => {
-            this.manejarError(error, 'Error al guardar partido');
-            this.guardandoPartido = false;
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Error al obtener sección de partidos:', error);
-        // Guardar sin sección asignada
-        this.partidosService.guardarPartidoDeApi(partido).subscribe({
-          next: () => {
-            this.mostrarNotificacion('✅ Partido guardado (sin sección asignada)', 'success');
-            this.cargarPartidosLocales();
-            this.guardandoPartido = false;
-          },
-          error: (error) => this.manejarError(error, 'Error al guardar partido')
-        });
-      }
-    });
-  }
-
-  crearPartidoLocal(): void {
-    if (this.crearPartidoForm.invalid) {
-      this.mostrarNotificacion('Por favor completa todos los campos requeridos', 'warning');
-      return;
-    }
-
-    this.creandoPartido = true;
-    const formData = new FormData();
-    const formValue = this.crearPartidoForm.value;
-
-    Object.keys(formValue).forEach(key => {
-      if (formValue[key] !== null && formValue[key] !== '') {
-        if (key === 'fecha') {
-          const fechaISO = new Date(formValue[key]).toISOString();
-          formData.append(key, fechaISO);
-        } else {
-          formData.append(key, formValue[key].toString());
-        }
-      }
-    });
-
-    this.asignacionSeccionService.obtenerSeccionPartidos().subscribe({
-      next: (seccionId) => {
-        this.partidosService.crearPartidoLocal(formData, seccionId || undefined).subscribe({
-          next: (partidoCreado) => {
-            this.mostrarNotificacion('✅ Partido creado correctamente', 'success');
-            this.crearPartidoForm.reset();
-            this.cargarPartidosLocales();
-            this.creandoPartido = false;
-          },
-          error: (error) => {
-            this.manejarError(error, 'Error al crear partido');
-            this.creandoPartido = false;
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Error al obtener sección:', error);
-        this.partidosService.crearPartidoLocal(formData).subscribe({
-          next: () => {
-            this.mostrarNotificacion('✅ Partido creado (sin sección)', 'success');
-            this.crearPartidoForm.reset();
-            this.cargarPartidosLocales();
-            this.creandoPartido = false;
-          },
-          error: (error) => this.manejarError(error, 'Error al crear partido')
-        });
-      }
-    });
-  }
-
-  eliminarPartidoLocal(partido: Partido): void {
-    if (!partido.id) return;
-
-    const confirmacion = confirm(`¿Estás seguro de eliminar el partido ${partido.equipoLocal} vs ${partido.equipoVisitante}?`);
-    if (!confirmacion) return;
-
-    this.partidosService.eliminarPartidoLocal(partido.id).subscribe({
-      next: () => {
-        this.mostrarNotificacion('✅ Partido eliminado correctamente', 'success');
-        this.cargarPartidosLocales();
-      },
-      error: (error) => this.manejarError(error, 'Error al eliminar partido')
-    });
+  verDetallesPartido(partido: PartidoDTO): void {
+    // Implementar navegación a detalles o modal
+    console.log('Ver detalles del partido:', partido);
+    this.mostrarNotificacion(`🔍 Detalles: ${partido.nombreEquipoLocal} vs ${partido.nombreEquipoVisitante}`, 'success');
   }
 
   // === UTILIDADES ===
@@ -336,44 +261,71 @@ export class GestionarPartidosComponent implements OnInit {
     });
   }
 
-  formatearEquipos(partido: Partido): string {
-    return `${partido.equipoLocal} vs ${partido.equipoVisitante}`;
+  formatearEquipos(partido: PartidoDTO): string {
+    return `${partido.nombreEquipoLocal} vs ${partido.nombreEquipoVisitante}`;
   }
 
-  formatearResultado(partido: Partido): string {
+  formatearResultado(partido: PartidoDTO): string {
     if (partido.golesLocal !== null && partido.golesVisitante !== null) {
       return `${partido.golesLocal} - ${partido.golesVisitante}`;
     }
-    return partido.estado === 'FINISHED' ? 'Sin datos' : '-';
+    return partido.estado === 'Match Finished' ? 'Sin datos' : '-';
   }
 
   obtenerColorEstado(estado: string): string {
-    switch (estado?.toUpperCase()) {
-      case 'LIVE': return 'accent';
-      case 'FINISHED': return 'primary';
-      case 'SCHEDULED': return 'warn';
-      default: return '';
+    switch (estado) {
+      case 'First Half':
+      case 'Second Half':
+      case 'Halftime':
+        return 'accent';
+      case 'Match Finished':
+        return 'primary';
+      case 'Not Started':
+        return 'warn';
+      default:
+        return '';
     }
   }
 
-  obtenerIconoOrigen(esDeApi: boolean): string {
-    return esDeApi ? 'cloud' : 'storage';
+  obtenerEstadoLegible(estado: string): string {
+    switch (estado) {
+      case 'Not Started':
+        return 'Programado';
+      case 'First Half':
+        return 'Primer Tiempo';
+      case 'Halftime':
+        return 'Medio Tiempo';
+      case 'Second Half':
+        return 'Segundo Tiempo';
+      case 'Match Finished':
+        return 'Finalizado';
+      case 'Match Postponed':
+        return 'Aplazado';
+      case 'Match Cancelled':
+        return 'Cancelado';
+      default:
+        return estado;
+    }
+  }
+
+  estaEnVivo(partido: PartidoDTO): boolean {
+    return ['First Half', 'Second Half', 'Halftime', 'Extra Time'].includes(partido.estado);
   }
 
   limpiarBusqueda(): void {
     this.busquedaForm.reset({ tipoFuente: 'api' });
-    this.cargarPartidosHoy();
-    this.cargarPartidosLocales();
+    this.cargarPartidosEnVivo();
+    this.cargarPartidosProximos();
+    this.cargarPartidosResultados();
   }
 
   private manejarError(error: any, mensaje: string): void {
     console.error(mensaje, error);
     this.mostrarNotificacion(`❌ ${mensaje}`, 'error');
     this.cargandoApi = false;
-    this.cargandoLocales = false;
-    this.cargandoCombinados = false;
-    this.guardandoPartido = false;
-    this.creandoPartido = false;
+    this.cargandoEnVivo = false;
+    this.cargandoProximos = false;
+    this.cargandoResultados = false;
   }
 
   private mostrarNotificacion(mensaje: string, tipo: 'success' | 'error' | 'warning' = 'success'): void {

@@ -1,305 +1,523 @@
-<!-- Header con navegación -->
-<mat-toolbar class="partidos-header" color="primary">
-  <mat-toolbar-row>
+<!-- ================================ -->
+<!-- 🏆 PARTIDOS HOY - LIGA COLOMBIANA -->
+<!-- ================================ -->
+
+<div class="partidos-container">
+  
+  <!-- 🔝 Header con título y acciones -->
+  <mat-toolbar color="primary" class="header-toolbar">
     <button mat-icon-button (click)="volverAlDashboard()" matTooltip="Volver al Dashboard">
       <mat-icon>arrow_back</mat-icon>
     </button>
     
-    <span class="header-title">
-      <mat-icon>sports_soccer</mat-icon>
-      Partidos de Fútbol
-    </span>
+    <span class="toolbar-title">⚽ Partidos Liga Colombiana</span>
     
     <span class="spacer"></span>
     
-    <!-- Indicadores de resumen -->
-    <div class="header-stats" *ngIf="!cargando">
-      <mat-chip-set>
-        <mat-chip class="stat-chip en-vivo" *ngIf="tabSeleccionada === 0">
-          <mat-icon matChipAvatar>play_circle</mat-icon>
-          {{ getPartidosEnVivoLigaColombiana() }} En Vivo
-        </mat-chip>
-        <mat-chip class="stat-chip finalizados" *ngIf="tabSeleccionada === 0">
-          <mat-icon matChipAvatar>check_circle</mat-icon>
-          {{ getPartidosFinalizadosLigaColombiana() }} Finalizados
-        </mat-chip>
-        <mat-chip class="stat-chip en-vivo" *ngIf="tabSeleccionada === 1">
-          <mat-icon matChipAvatar>play_circle</mat-icon>
-          {{ getPartidosEnVivo() }} En Vivo
-        </mat-chip>
-        <mat-chip class="stat-chip finalizados" *ngIf="tabSeleccionada === 1">
-          <mat-icon matChipAvatar>check_circle</mat-icon>
-          {{ getPartidosFinalizados() }} Finalizados
-        </mat-chip>
-      </mat-chip-set>
-    </div>
-  </mat-toolbar-row>
-</mat-toolbar>
+    <button mat-icon-button (click)="recargarDatos()" [disabled]="cargando" matTooltip="Actualizar datos">
+      <mat-icon [class.spinning]="cargando">refresh</mat-icon>
+    </button>
+  </mat-toolbar>
 
-<!-- Contenido principal -->
-<div class="partidos-container">
-  <!-- Loading state -->
-  <div *ngIf="cargando" class="loading-container">
-    <mat-card class="loading-card">
-      <mat-card-content>
-        <mat-spinner diameter="60"></mat-spinner>
-        <p class="loading-text">Cargando partidos...</p>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  <!-- 🔄 Barra de progreso global -->
+  <mat-progress-bar mode="indeterminate" *ngIf="cargando" class="loading-bar"></mat-progress-bar>
 
-  <!-- Contenido principal cuando no está cargando -->
-  <div *ngIf="!cargando" class="content-wrapper">
+  <!-- ❌ Error de carga -->
+  <mat-card *ngIf="errorCarga && !cargando" class="error-card">
+    <mat-card-content>
+      <div class="error-content">
+        <mat-icon color="warn">error</mat-icon>
+        <h3>Error al cargar datos</h3>
+        <p>{{ mensajeError }}</p>
+        <button mat-raised-button color="primary" (click)="recargarDatos()">
+          <mat-icon>refresh</mat-icon>
+          Reintentar
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- 📊 Contenido principal -->
+  <div *ngIf="!errorCarga" class="main-content">
     
-    <!-- Pestañas principales -->
-    <mat-tab-group [(selectedIndex)]="tabSeleccionada" (selectedTabChange)="onTabChange($event.index)" class="main-tabs">
+    <!-- 🎯 Pestañas principales -->
+    <mat-tab-group [(selectedIndex)]="tabSeleccionada" (selectedIndexChange)="onTabChange($event)" class="main-tabs">
       
-      <!-- Pestaña Liga Colombiana -->
-      <mat-tab label="Liga Colombiana">
-        <ng-template matTabContent>
-          
-          <!-- Header de Liga Colombiana -->
-          <div class="liga-header" *ngIf="temporadaActual">
-            <mat-card class="temporada-card">
-              <mat-card-content>
-                <div class="temporada-info">
-                  <mat-icon class="temporada-icon">emoji_events</mat-icon>
-                  <div class="temporada-details">
-                    <h3>{{ temporadaActual.nombre }}</h3>
-                    <p>{{ temporadaActual.fechaInicio | date:'dd/MM/yyyy' }} - {{ temporadaActual.fechaFin | date:'dd/MM/yyyy' }}</p>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
+      <!-- 🔴 PESTAÑA: EN VIVO -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>sports_soccer</mat-icon>
+          En Vivo
+          <mat-chip *ngIf="partidosEnVivoCount > 0" class="tab-badge">{{ partidosEnVivoCount }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div *ngIf="partidosEnVivo.length === 0 && !cargando" class="empty-state">
+            <mat-icon>sports_soccer</mat-icon>
+            <h3>No hay partidos en vivo</h3>
+            <p>Actualmente no hay partidos de la Liga Colombiana en curso.</p>
           </div>
-
-          <!-- Lista de partidos Liga Colombiana -->
-          <div class="partidos-grid" *ngIf="partidosLigaColombiana.length > 0; else noPartidosLiga">
+          
+          <div class="partidos-grid" *ngIf="partidosEnVivo.length > 0">
             <mat-card 
-              *ngFor="let partido of partidosLigaColombiana; trackBy: trackByPartidoLigaColombiana" 
-              class="partido-card liga-colombiana"
-              [class.en-vivo]="partido.estado === 'EN_VIVO'"
-              [class.finalizado]="partido.estado === 'FINALIZADO'">
+              *ngFor="let partido of partidosEnVivo; trackBy: trackByPartido" 
+              class="partido-card en-vivo"
+              (click)="verDetallesPartido(partido)">
               
               <mat-card-header>
-                <div class="partido-header">
-                  <div class="jornada-info">
-                    <mat-chip class="jornada-chip">{{ partido.jornada }}</mat-chip>
-                  </div>
-                  <div class="estado-partido">
-                    <mat-chip 
-                      [style.background-color]="obtenerColorEstado(partido.estado)"
-                      class="estado-chip">
-                      {{ obtenerEstadoLegible(partido.estado) }}
-                    </mat-chip>
-                  </div>
+                <div class="estado-header">
+                  <mat-chip [style.background-color]="obtenerColorEstado(partido.estado)">
+                    {{ obtenerEstadoLegible(partido.estado) }}
+                  </mat-chip>
+                  <span class="minuto" *ngIf="partido.minutoActual > 0">{{ partido.minutoActual }}'</span>
                 </div>
               </mat-card-header>
-
+              
               <mat-card-content>
                 <div class="partido-info">
-                  
-                  <!-- Información de equipos -->
-                  <div class="equipos-container">
-                    
-                    <!-- Equipo Local -->
-                    <div class="equipo local" [class.ganador]="esGanadorLigaColombiana(partido, 'local')">
-                      <div class="equipo-info">
-                        <img 
-                          *ngIf="partido.equipoLocal?.escudo" 
-                          [src]="partido.equipoLocal!.escudo" 
-                          [alt]="partido.nombreEquipoLocal"
-                          class="escudo">
-                        <mat-icon *ngIf="!partido.equipoLocal?.escudo" class="escudo-placeholder">sports_soccer</mat-icon>
-                        <span class="nombre-equipo">{{ partido.nombreEquipoLocal }}</span>
-                      </div>
-                      <div class="goles" *ngIf="partido.golesLocal !== null && partido.golesLocal !== undefined">
-                        {{ partido.golesLocal }}
-                      </div>
-                    </div>
-
-                    <!-- Separador VS -->
-                    <div class="vs-separator">
-                      <mat-icon>sports</mat-icon>
-                      <span>VS</span>
-                    </div>
-
-                    <!-- Equipo Visitante -->
-                    <div class="equipo visitante" [class.ganador]="esGanadorLigaColombiana(partido, 'visitante')">
-                      <div class="goles" *ngIf="partido.golesVisitante !== null && partido.golesVisitante !== undefined">
-                        {{ partido.golesVisitante }}
-                      </div>
-                      <div class="equipo-info">
-                        <span class="nombre-equipo">{{ partido.nombreEquipoVisitante }}</span>
-                        <img 
-                          *ngIf="partido.equipoVisitante?.escudo" 
-                          [src]="partido.equipoVisitante!.escudo" 
-                          [alt]="partido.nombreEquipoVisitante"
-                          class="escudo">
-                        <mat-icon *ngIf="!partido.equipoVisitante?.escudo" class="escudo-placeholder">sports_soccer</mat-icon>
-                      </div>
-                    </div>
+                  <!-- Equipo Local -->
+                  <div class="equipo">
+                    <img [src]="partido.escudoEquipoLocal" 
+                         [alt]="partido.nombreEquipoLocal"
+                         (error)="onImageError($event)"
+                         class="escudo">
+                    <span class="nombre-equipo">{{ partido.nombreEquipoLocal }}</span>
                   </div>
-
-                  <!-- Información adicional -->
-                  <div class="info-adicional">
-                    <div class="fecha-hora">
-                      <mat-icon>schedule</mat-icon>
-                      <span>{{ partido.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
-                    </div>
-                    <div class="estadio" *ngIf="partido.estadio">
-                      <mat-icon>stadium</mat-icon>
-                      <span>{{ partido.estadio }}</span>
-                    </div>
-                    <div class="arbitro" *ngIf="partido.arbitro">
-                      <mat-icon>person</mat-icon>
-                      <span>{{ partido.arbitro }}</span>
-                    </div>
+                  
+                  <!-- Resultado -->
+                  <div class="resultado">
+                    <span class="goles-local" [class.ganador]="esGanador(partido, 'local')">
+                      {{ partido.golesLocal }}
+                    </span>
+                    <span class="separador">-</span>
+                    <span class="goles-visitante" [class.ganador]="esGanador(partido, 'visitante')">
+                      {{ partido.golesVisitante }}
+                    </span>
+                  </div>
+                  
+                  <!-- Equipo Visitante -->
+                  <div class="equipo">
+                    <img [src]="partido.escudoEquipoVisitante" 
+                         [alt]="partido.nombreEquipoVisitante"
+                         (error)="onImageError($event)"
+                         class="escudo">
+                    <span class="nombre-equipo">{{ partido.nombreEquipoVisitante }}</span>
+                  </div>
+                </div>
+                
+                <mat-divider></mat-divider>
+                
+                <div class="partido-detalles">
+                  <div class="detalle-item">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{ formatearFecha(partido.fecha) }}</span>
+                  </div>
+                  <div class="detalle-item">
+                    <mat-icon>stadium</mat-icon>
+                    <span>{{ partido.estadio }} - {{ partido.ciudadEstadio }}</span>
                   </div>
                 </div>
               </mat-card-content>
             </mat-card>
           </div>
-
-          <!-- No hay partidos Liga Colombiana -->
-          <ng-template #noPartidosLiga>
-            <div class="no-partidos">
-              <mat-card class="empty-state">
-                <mat-card-content>
-                  <mat-icon class="empty-icon">sports_soccer</mat-icon>
-                  <h3>No hay partidos de Liga Colombiana hoy</h3>
-                  <p>Los partidos aparecerán aquí cuando estén programados</p>
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </ng-template>
-        </ng-template>
+        </div>
       </mat-tab>
 
-      <!-- Pestaña Otros Partidos -->
-      <mat-tab label="Otros Partidos">
-        <ng-template matTabContent>
+      <!-- ⏰ PESTAÑA: PRÓXIMOS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>schedule</mat-icon>
+          Próximos
+          <mat-chip *ngIf="proximosPartidosCount > 0" class="tab-badge">{{ proximosPartidosCount }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div *ngIf="proximosPartidos.length === 0 && !cargando" class="empty-state">
+            <mat-icon>schedule</mat-icon>
+            <h3>No hay próximos partidos</h3>
+            <p>No se encontraron partidos programados próximamente.</p>
+          </div>
           
-          <!-- Barra de búsqueda -->
-          <div class="search-container">
-            <mat-card class="search-card">
+          <div class="partidos-grid" *ngIf="proximosPartidos.length > 0">
+            <mat-card 
+              *ngFor="let partido of proximosPartidos; trackBy: trackByPartido" 
+              class="partido-card proximo"
+              (click)="verDetallesPartido(partido)">
+              
+              <mat-card-header>
+                <div class="estado-header">
+                  <mat-chip [style.background-color]="obtenerColorEstado(partido.estado)">
+                    {{ obtenerEstadoLegible(partido.estado) }}
+                  </mat-chip>
+                </div>
+              </mat-card-header>
+              
               <mat-card-content>
-                <mat-form-field appearance="outline" class="search-field">
-                  <mat-label>Buscar por nombre de equipo</mat-label>
-                  <input 
-                    matInput 
-                    [(ngModel)]="nombre" 
-                    (keyup.enter)="buscarPorNombre()"
-                    placeholder="Ej: Barcelona, Real Madrid...">
-                  <mat-icon matSuffix>search</mat-icon>
+                <div class="partido-info">
+                  <!-- Equipo Local -->
+                  <div class="equipo">
+                    <img [src]="partido.escudoEquipoLocal" 
+                         [alt]="partido.nombreEquipoLocal"
+                         (error)="onImageError($event)"
+                         class="escudo">
+                    <span class="nombre-equipo">{{ partido.nombreEquipoLocal }}</span>
+                  </div>
+                  
+                  <!-- VS -->
+                  <div class="vs">
+                    <span>VS</span>
+                  </div>
+                  
+                  <!-- Equipo Visitante -->
+                  <div class="equipo">
+                    <img [src]="partido.escudoEquipoVisitante" 
+                         [alt]="partido.nombreEquipoVisitante"
+                         (error)="onImageError($event)"
+                         class="escudo">
+                    <span class="nombre-equipo">{{ partido.nombreEquipoVisitante }}</span>
+                  </div>
+                </div>
+                
+                <mat-divider></mat-divider>
+                
+                <div class="partido-detalles">
+                  <div class="detalle-item">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{ formatearFecha(partido.fecha) }}</span>
+                  </div>
+                  <div class="detalle-item">
+                    <mat-icon>stadium</mat-icon>
+                    <span>{{ partido.estadio }} - {{ partido.ciudadEstadio }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- ✅ PESTAÑA: RESULTADOS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>check_circle</mat-icon>
+          Resultados
+          <mat-chip *ngIf="ultimosResultadosCount > 0" class="tab-badge">{{ ultimosResultadosCount }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div *ngIf="ultimosResultados.length === 0 && !cargando" class="empty-state">
+            <mat-icon>check_circle</mat-icon>
+            <h3>No hay resultados recientes</h3>
+            <p>No se encontraron resultados de partidos recientes.</p>
+          </div>
+          
+          <div class="partidos-grid" *ngIf="ultimosResultados.length > 0">
+            <mat-card 
+              *ngFor="let partido of ultimosResultados; trackBy: trackByPartido" 
+              class="partido-card finalizado"
+              (click)="verDetallesPartido(partido)">
+              
+              <mat-card-header>
+                <div class="estado-header">
+                  <mat-chip [style.background-color]="obtenerColorEstado(partido.estado)">
+                    {{ obtenerEstadoLegible(partido.estado) }}
+                  </mat-chip>
+                </div>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="partido-info">
+                  <!-- Equipo Local -->
+                  <div class="equipo">
+                    <img [src]="partido.escudoEquipoLocal" 
+                         [alt]="partido.nombreEquipoLocal"
+                         (error)="onImageError($event)"
+                         class="escudo">
+                    <span class="nombre-equipo" [class.ganador]="esGanador(partido, 'local')">
+                      {{ partido.nombreEquipoLocal }}
+                    </span>
+                  </div>
+                  
+                  <!-- Resultado -->
+                  <div class="resultado">
+                    <span class="goles-local" [class.ganador]="esGanador(partido, 'local')">
+                      {{ partido.golesLocal }}
+                    </span>
+                    <span class="separador">-</span>
+                    <span class="goles-visitante" [class.ganador]="esGanador(partido, 'visitante')">
+                      {{ partido.golesVisitante }}
+                    </span>
+                  </div>
+                  
+                  <!-- Equipo Visitante -->
+                  <div class="equipo">
+                    <img [src]="partido.escudoEquipoVisitante" 
+                         [alt]="partido.nombreEquipoVisitante"
+                         (error)="onImageError($event)"
+                         class="escudo">
+                    <span class="nombre-equipo" [class.ganador]="esGanador(partido, 'visitante')">
+                      {{ partido.nombreEquipoVisitante }}
+                    </span>
+                  </div>
+                </div>
+                
+                <mat-divider></mat-divider>
+                
+                <div class="partido-detalles">
+                  <div class="detalle-item">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{ formatearFecha(partido.fecha) }}</span>
+                  </div>
+                  <div class="detalle-item">
+                    <mat-icon>stadium</mat-icon>
+                    <span>{{ partido.estadio }} - {{ partido.ciudadEstadio }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- 📊 PESTAÑA: TABLA DE POSICIONES -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>leaderboard</mat-icon>
+          Tabla
+        </ng-template>
+        
+        <div class="tab-content">
+          <div *ngIf="tablaLigaColombiana.length === 0 && !cargando" class="empty-state">
+            <mat-icon>leaderboard</mat-icon>
+            <h3>Tabla no disponible</h3>
+            <p>No se pudo cargar la tabla de posiciones.</p>
+          </div>
+          
+          <mat-card *ngIf="tablaLigaColombiana.length > 0" class="tabla-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>leaderboard</mat-icon>
+                Tabla de Posiciones - Liga Colombiana
+              </mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="tabla-container">
+                <div class="tabla-header">
+                  <div class="col-pos">#</div>
+                  <div class="col-equipo">Equipo</div>
+                  <div class="col-pts">Pts</div>
+                  <div class="col-pj">PJ</div>
+                  <div class="col-pg">PG</div>
+                  <div class="col-pe">PE</div>
+                  <div class="col-pp">PP</div>
+                  <div class="col-gf">GF</div>
+                  <div class="col-gc">GC</div>
+                  <div class="col-dif">+/-</div>
+                </div>
+                
+                <div 
+                  *ngFor="let equipo of tablaLigaColombiana; trackBy: trackByEquipoTabla; let i = index" 
+                  class="tabla-fila"
+                  [class.copa-libertadores]="i < 4"
+                  [class.copa-sudamericana]="i >= 4 && i < 8"
+                  [class.descenso]="i >= tablaLigaColombiana.length - 3">
+                  
+                  <div class="col-pos">{{ equipo.position }}</div>
+                  <div class="col-equipo">
+                    <img [src]="equipo.team.logo" 
+                         [alt]="equipo.team.name"
+                         (error)="onImageError($event)"
+                         class="escudo-tabla">
+                    <span class="nombre-equipo-tabla">{{ equipo.team.name }}</span>
+                  </div>
+                  <div class="col-pts puntos">{{ equipo.points }}</div>
+                  <div class="col-pj">{{ equipo.all.played }}</div>
+                  <div class="col-pg">{{ equipo.all.win }}</div>
+                  <div class="col-pe">{{ equipo.all.draw }}</div>
+                  <div class="col-pp">{{ equipo.all.lose }}</div>
+                  <div class="col-gf">{{ equipo.all.goals.for }}</div>
+                  <div class="col-gc">{{ equipo.all.goals.against }}</div>
+                  <div class="col-dif" [class.positivo]="equipo.goalsDiff > 0" [class.negativo]="equipo.goalsDiff < 0">
+                    {{ equipo.goalsDiff > 0 ? '+' : '' }}{{ equipo.goalsDiff }}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Leyenda -->
+              <div class="tabla-leyenda">
+                <div class="leyenda-item copa-libertadores">
+                  <span class="indicador"></span>
+                  Copa Libertadores
+                </div>
+                <div class="leyenda-item copa-sudamericana">
+                  <span class="indicador"></span>
+                  Copa Sudamericana
+                </div>
+                <div class="leyenda-item descenso">
+                  <span class="indicador"></span>
+                  Descenso
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- 🔍 PESTAÑA: BUSCAR -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>search</mat-icon>
+          Buscar
+        </ng-template>
+        
+        <div class="tab-content">
+          <mat-card class="busqueda-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>search</mat-icon>
+                Buscar Partidos
+              </mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="busqueda-form">
+                <mat-form-field class="busqueda-field">
+                  <mat-label>Buscar por equipo</mat-label>
+                  <input matInput 
+                         [(ngModel)]="busquedaEquipo" 
+                         (keyup.enter)="buscarPorEquipo()"
+                         placeholder="Ej: Millonarios, Nacional...">
+                  <mat-icon matSuffix>sports_soccer</mat-icon>
                 </mat-form-field>
                 
-                <div class="search-actions">
-                  <button mat-raised-button color="primary" (click)="buscarPorNombre()">
-                    <mat-icon>search</mat-icon>
-                    Buscar
-                  </button>
-                  <button mat-stroked-button (click)="limpiarBusqueda()">
-                    <mat-icon>clear</mat-icon>
-                    Limpiar
-                  </button>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-
-          <!-- Lista de otros partidos -->
-          <div class="partidos-grid" *ngIf="partidos.length > 0; else noPartidosOtros">
-            <mat-card 
-              *ngFor="let partido of partidos; trackBy: trackByPartido" 
-              class="partido-card otros-partidos"
-              [class.en-vivo]="partido.estado === 'EN JUEGO'"
-              [class.finalizado]="partido.estado === 'FINALIZADO'">
+                <mat-form-field class="busqueda-field">
+                  <mat-label>Buscar por fecha</mat-label>
+                  <input matInput 
+                         type="date"
+                         [(ngModel)]="busquedaFecha" 
+                         (change)="buscarPorFecha()">
+                  <mat-icon matSuffix>date_range</mat-icon>
+                </mat-form-field>
+              </div>
               
-              <mat-card-header>
-                <div class="partido-header">
-                  <div class="liga-info" *ngIf="partido.liga">
-                    <mat-chip class="liga-chip">{{ partido.liga }}</mat-chip>
-                  </div>
-                  <div class="estado-partido">
-                    <mat-chip 
-                      [class.estado-en-vivo]="partido.estado === 'EN JUEGO'"
-                      [class.estado-finalizado]="partido.estado === 'FINALIZADO'"
-                      [class.estado-programado]="partido.estado === 'PROGRAMADO'"
-                      class="estado-chip">
-                      {{ partido.estado }}
+              <div class="busqueda-acciones">
+                <button mat-raised-button 
+                        color="primary" 
+                        (click)="buscarPorEquipo()"
+                        [disabled]="!busquedaEquipo.trim() || cargando">
+                  <mat-icon>search</mat-icon>
+                  Buscar por Equipo
+                </button>
+                
+                <button mat-raised-button 
+                        color="accent" 
+                        (click)="buscarPorFecha()"
+                        [disabled]="!busquedaFecha || cargando">
+                  <mat-icon>date_range</mat-icon>
+                  Buscar por Fecha
+                </button>
+                
+                <button mat-button 
+                        (click)="limpiarBusqueda()"
+                        [disabled]="!mostrandoBusqueda">
+                  <mat-icon>clear</mat-icon>
+                  Limpiar
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+          
+          <!-- Resultados de búsqueda -->
+          <div *ngIf="mostrandoBusqueda" class="resultados-busqueda">
+            <h3 class="resultados-titulo">
+              <mat-icon>search</mat-icon>
+              Resultados de búsqueda ({{ partidosBusqueda.length }})
+            </h3>
+            
+            <div *ngIf="partidosBusqueda.length === 0" class="empty-state">
+              <mat-icon>search_off</mat-icon>
+              <h3>Sin resultados</h3>
+              <p>No se encontraron partidos con los criterios de búsqueda.</p>
+            </div>
+            
+            <div class="partidos-grid" *ngIf="partidosBusqueda.length > 0">
+              <mat-card 
+                *ngFor="let partido of partidosBusqueda; trackBy: trackByPartido" 
+                class="partido-card"
+                [class.en-vivo]="estaEnVivo(partido)"
+                [class.finalizado]="haFinalizado(partido)"
+                (click)="verDetallesPartido(partido)">
+                
+                <mat-card-header>
+                  <div class="estado-header">
+                    <mat-chip [style.background-color]="obtenerColorEstado(partido.estado)">
+                      {{ obtenerEstadoLegible(partido.estado) }}
                     </mat-chip>
+                    <span class="minuto" *ngIf="estaEnVivo(partido) && partido.minutoActual > 0">
+                      {{ partido.minutoActual }}'
+                    </span>
                   </div>
-                </div>
-              </mat-card-header>
-
-              <mat-card-content>
-                <div class="partido-info">
-                  
-                  <!-- Información de equipos -->
-                  <div class="equipos-container">
-                    
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <div class="partido-info">
                     <!-- Equipo Local -->
-                    <div class="equipo local" [class.ganador]="esGanador(partido, 'local')">
-                      <div class="equipo-info">
-                        <mat-icon class="escudo-placeholder">sports_soccer</mat-icon>
-                        <span class="nombre-equipo">{{ partido.equipoLocal }}</span>
-                      </div>
-                      <div class="goles" *ngIf="partido.golesLocal !== null && partido.golesLocal !== undefined">
-                        {{ partido.golesLocal }}
-                      </div>
+                    <div class="equipo">
+                      <img [src]="partido.escudoEquipoLocal" 
+                           [alt]="partido.nombreEquipoLocal"
+                           (error)="onImageError($event)"
+                           class="escudo">
+                      <span class="nombre-equipo" [class.ganador]="haFinalizado(partido) && esGanador(partido, 'local')">
+                        {{ partido.nombreEquipoLocal }}
+                      </span>
                     </div>
-
-                    <!-- Separador VS -->
-                    <div class="vs-separator">
-                      <mat-icon>sports</mat-icon>
+                    
+                    <!-- Resultado o VS -->
+                    <div class="resultado" *ngIf="haFinalizado(partido) || estaEnVivo(partido)">
+                      <span class="goles-local" [class.ganador]="esGanador(partido, 'local')">
+                        {{ partido.golesLocal }}
+                      </span>
+                      <span class="separador">-</span>
+                      <span class="goles-visitante" [class.ganador]="esGanador(partido, 'visitante')">
+                        {{ partido.golesVisitante }}
+                      </span>
+                    </div>
+                    <div class="vs" *ngIf="!haFinalizado(partido) && !estaEnVivo(partido)">
                       <span>VS</span>
                     </div>
-
+                    
                     <!-- Equipo Visitante -->
-                    <div class="equipo visitante" [class.ganador]="esGanador(partido, 'visitante')">
-                      <div class="goles" *ngIf="partido.golesVisitante !== null && partido.golesVisitante !== undefined">
-                        {{ partido.golesVisitante }}
-                      </div>
-                      <div class="equipo-info">
-                        <span class="nombre-equipo">{{ partido.equipoVisitante }}</span>
-                        <mat-icon class="escudo-placeholder">sports_soccer</mat-icon>
-                      </div>
+                    <div class="equipo">
+                      <img [src]="partido.escudoEquipoVisitante" 
+                           [alt]="partido.nombreEquipoVisitante"
+                           (error)="onImageError($event)"
+                           class="escudo">
+                      <span class="nombre-equipo" [class.ganador]="haFinalizado(partido) && esGanador(partido, 'visitante')">
+                        {{ partido.nombreEquipoVisitante }}
+                      </span>
                     </div>
                   </div>
-
-                  <!-- Información adicional -->
-                  <div class="info-adicional">
-                    <div class="fecha-hora">
+                  
+                  <mat-divider></mat-divider>
+                  
+                  <div class="partido-detalles">
+                    <div class="detalle-item">
                       <mat-icon>schedule</mat-icon>
-                      <span>{{ partido.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+                      <span>{{ formatearFecha(partido.fecha) }}</span>
                     </div>
-                    <div class="competencia" *ngIf="partido.competencia">
-                      <mat-icon>emoji_events</mat-icon>
-                      <span>{{ partido.competencia }}</span>
+                    <div class="detalle-item">
+                      <mat-icon>stadium</mat-icon>
+                      <span>{{ partido.estadio }} - {{ partido.ciudadEstadio }}</span>
                     </div>
                   </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-
-          <!-- No hay otros partidos -->
-          <ng-template #noPartidosOtros>
-            <div class="no-partidos">
-              <mat-card class="empty-state">
-                <mat-card-content>
-                  <mat-icon class="empty-icon">search_off</mat-icon>
-                  <h3 *ngIf="!nombre">No hay otros partidos disponibles</h3>
-                  <h3 *ngIf="nombre">No se encontraron partidos</h3>
-                  <p *ngIf="!nombre">Los partidos de otras ligas aparecerán aquí</p>
-                  <p *ngIf="nombre">Intenta con otro nombre de equipo</p>
                 </mat-card-content>
               </mat-card>
             </div>
-          </ng-template>
-        </ng-template>
+          </div>
+        </div>
       </mat-tab>
+      
     </mat-tab-group>
   </div>
 </div>

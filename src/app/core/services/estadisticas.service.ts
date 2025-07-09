@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable, combineLatest, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { DataService, EstadisticasGenerales } from './data.service';
-import { LigaColombianService, EstadisticasLigaColombiana } from './liga-colombiana.service';
 
-export interface EstadisticasDashboard extends EstadisticasGenerales, EstadisticasLigaColombiana {
+
+export interface EstadisticasDashboard extends EstadisticasGenerales {
   error?: string;
 }
 
@@ -15,7 +15,6 @@ export class EstadisticasService {
 
   constructor(
     private dataService: DataService,
-    private ligaColombianService: LigaColombianService
   ) {}
 
   /**
@@ -24,11 +23,10 @@ export class EstadisticasService {
   obtenerEstadisticas(): Observable<EstadisticasDashboard> {
     return combineLatest([
       this.dataService.obtenerEstadisticasCompletas(),
-      this.ligaColombianService.obtenerEstadisticas()
     ]).pipe(
-      map(([estadisticasGenerales, estadisticasLiga]) => ({
+      map(([estadisticasGenerales]) => ({
         ...estadisticasGenerales,
-        ...estadisticasLiga
+     
       })),
       catchError(error => {
         console.error('Error al obtener estadísticas:', error);
@@ -53,7 +51,6 @@ export class EstadisticasService {
    */
   refrescar(): Observable<EstadisticasDashboard> {
     this.dataService.limpiarCache();
-    this.ligaColombianService.limpiarCache();
     return this.obtenerEstadisticas();
   }
 }

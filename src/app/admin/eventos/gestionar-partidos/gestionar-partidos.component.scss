@@ -227,6 +227,59 @@
       }
       
       .celda-equipos {
+        .equipo-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 8px;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          .escudo-equipo {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: white;
+            padding: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+
+            &:error {
+              display: none;
+            }
+          }
+          
+          .nombre-equipo {
+            color: #333;
+            font-size: 0.95rem;
+            font-weight: 500;
+            flex: 1;
+            
+            &.local {
+              font-weight: 600;
+            }
+          }
+          
+          .vs-separator {
+            color: #666;
+            font-size: 0.8rem;
+            font-weight: 400;
+            margin: 0 4px;
+          }
+        }
+        
+        .vs-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.8rem;
+          color: #666;
+          margin: 4px 0;
+        }
+        
         strong {
           color: #333;
           font-size: 0.95rem;
@@ -234,9 +287,42 @@
       }
       
       .resultado {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         font-weight: bold;
         color: #2d3436;
         font-size: 1.1rem;
+        
+        .goles-local, .goles-visitante {
+          background: #e9ecef;
+          padding: 4px 8px;
+          border-radius: 4px;
+          min-width: 24px;
+          text-align: center;
+          font-weight: 700;
+        }
+        
+        .vs-resultado {
+          color: #666;
+          font-size: 0.9rem;
+          font-weight: 400;
+        }
+        
+        &.en-vivo {
+          .goles-local, .goles-visitante {
+            background: #d4edda;
+            color: #155724;
+          }
+        }
+        
+        &.finalizado {
+          .goles-local, .goles-visitante {
+            background: #f8d7da;
+            color: #721c24;
+          }
+        }
       }
       
       .acciones-celda {
@@ -444,5 +530,53 @@
         width: 100%;
       }
     }
+  }
+}
+
+// === ESTADO DEL PARTIDO ===
+.estado-partido {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &.por-jugar {
+    background: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  &.en-vivo {
+    background: #e8f5e8;
+    color: #2e7d32;
+    animation: pulse 2s infinite;
+  }
+  
+  &.finalizado {
+    background: #fce4ec;
+    color: #c2185b;
+  }
+  
+  &.medio-tiempo {
+    background: #fff3e0;
+    color: #f57c00;
+  }
+  
+  &.suspendido {
+    background: #ffebee;
+    color: #d32f2f;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1.05);
   }
 }

@@ -1243,6 +1243,26 @@
             align-items: flex-end;
           }
 
+          .escudo-equipo {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            margin-bottom: 0.5rem;
+            border-radius: 50%;
+            background: white;
+            padding: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+
+            &:hover {
+              transform: scale(1.1);
+            }
+
+            &:error {
+              display: none;
+            }
+          }
+
           .equipo-nombre {
             font-size: 0.85rem;
             font-weight: 600;
@@ -1283,6 +1303,16 @@
             color: var(--purpura-real);
             font-weight: 500;
             white-space: nowrap;
+          }
+
+          .partido-estadio {
+            margin-top: 0.25rem;
+            
+            small {
+              font-size: 0.6rem;
+              color: #666;
+              font-style: italic;
+            }
           }
         }
       }
@@ -1431,6 +1461,21 @@
           flex-direction: column;
           align-items: center;
           flex: 1;
+
+          .escudo-mobile {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            margin-bottom: 0.5rem;
+            border-radius: 50%;
+            background: white;
+            padding: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+            &:error {
+              display: none;
+            }
+          }
 
           .nombre {
             font-size: 0.8rem;

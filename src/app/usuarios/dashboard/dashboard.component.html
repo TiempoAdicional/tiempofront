@@ -284,8 +284,13 @@
             <mat-card-content>
               <div class="partido-equipos">
                 <div class="equipo local">
-                  <span class="equipo-nombre">{{ partido.equipoLocal }}</span>
-                  <span class="equipo-score" *ngIf="partido.golesLocal !== null">
+                  <img 
+                    [src]="partido.escudoEquipoLocal" 
+                    [alt]="'Escudo ' + partido.nombreEquipoLocal"
+                    class="escudo-equipo"
+                    (error)="onImagenEscudoError($event)">
+                  <span class="equipo-nombre">{{ partido.nombreEquipoLocal }}</span>
+                  <span class="equipo-score" *ngIf="partido.estado !== 'Por jugar'">
                     {{ partido.golesLocal }}
                   </span>
                 </div>
@@ -295,22 +300,33 @@
                   <div class="partido-fecha">
                     {{ partido.fecha | date:'dd/MM HH:mm' }}
                   </div>
+                  <div class="partido-estadio" *ngIf="partido.estadio">
+                    <small>{{ partido.estadio }}</small>
+                  </div>
                 </div>
                 
                 <div class="equipo visitante">
-                  <span class="equipo-nombre">{{ partido.equipoVisitante }}</span>
-                  <span class="equipo-score" *ngIf="partido.golesVisitante !== null">
+                  <img 
+                    [src]="partido.escudoEquipoVisitante" 
+                    [alt]="'Escudo ' + partido.nombreEquipoVisitante"
+                    class="escudo-equipo"
+                    (error)="onImagenEscudoError($event)">
+                  <span class="equipo-nombre">{{ partido.nombreEquipoVisitante }}</span>
+                  <span class="equipo-score" *ngIf="partido.estado !== 'Por jugar'">
                     {{ partido.golesVisitante }}
                   </span>
                 </div>
               </div>
               
               <div class="partido-info">
-                <mat-chip class="liga-chip">{{ partido.liga }}</mat-chip>
+                <mat-chip class="liga-chip">Liga Colombiana</mat-chip>
                 <mat-chip 
                   class="estado-chip" 
-                  [color]="partido.estado === 'En Vivo' ? 'accent' : 'primary'">
+                  [color]="partido.estado === 'En vivo' ? 'accent' : 'primary'">
                   {{ partido.estado }}
+                  <span *ngIf="partido.minutoActual > 0 && partido.estado === 'En vivo'">
+                    - {{ partido.minutoActual }}'
+                  </span>
                 </mat-chip>
               </div>
 
@@ -380,25 +396,38 @@
               
               <mat-card-content>
                 <div class="partido-mobile-header">
-                  <mat-chip class="liga-chip">{{ partido.liga }}</mat-chip>
+                  <mat-chip class="liga-chip">Liga Colombiana</mat-chip>
                   <span class="fecha-mobile">{{ partido.fecha | date:'dd/MM HH:mm' }}</span>
                 </div>
                 
                 <div class="equipos-mobile">
                   <div class="equipo-mobile">
-                    <span class="nombre">{{ partido.equipoLocal }}</span>
-                    <span class="score" *ngIf="partido.golesLocal !== null">{{ partido.golesLocal }}</span>
+                    <img 
+                      [src]="partido.escudoEquipoLocal" 
+                      [alt]="'Escudo ' + partido.nombreEquipoLocal"
+                      class="escudo-mobile"
+                      (error)="onImagenEscudoError($event)">
+                    <span class="nombre">{{ partido.nombreEquipoLocal }}</span>
+                    <span class="score" *ngIf="partido.estado !== 'Por jugar'">{{ partido.golesLocal }}</span>
                   </div>
                   <div class="vs-mobile">VS</div>
                   <div class="equipo-mobile">
-                    <span class="nombre">{{ partido.equipoVisitante }}</span>
-                    <span class="score" *ngIf="partido.golesVisitante !== null">{{ partido.golesVisitante }}</span>
+                    <img 
+                      [src]="partido.escudoEquipoVisitante" 
+                      [alt]="'Escudo ' + partido.nombreEquipoVisitante"
+                      class="escudo-mobile"
+                      (error)="onImagenEscudoError($event)">
+                    <span class="nombre">{{ partido.nombreEquipoVisitante }}</span>
+                    <span class="score" *ngIf="partido.estado !== 'Por jugar'">{{ partido.golesVisitante }}</span>
                   </div>
                 </div>
                 
                 <div class="estado-mobile">
-                  <mat-chip [color]="partido.estado === 'En Vivo' ? 'accent' : 'primary'">
+                  <mat-chip [color]="partido.estado === 'En vivo' ? 'accent' : 'primary'">
                     {{ partido.estado }}
+                    <span *ngIf="partido.minutoActual > 0 && partido.estado === 'En vivo'">
+                      - {{ partido.minutoActual }}'
+                    </span>
                   </mat-chip>
                 </div>
 

@@ -48,14 +48,17 @@ interface EventoLimitado {
 }
 
 interface PartidoLimitado {
-  id: number;
-  equipoLocal: string;
-  equipoVisitante: string;
+  codigoApi: string;
+  nombreEquipoLocal: string;
+  nombreEquipoVisitante: string;
+  escudoEquipoLocal: string;
+  escudoEquipoVisitante: string;
   fecha: string;
-  liga: string;
   estado: string;
-  golesLocal: number | null;
-  golesVisitante: number | null;
+  golesLocal: number;
+  golesVisitante: number;
+  estadio: string;
+  minutoActual: number;
   bloqueado?: boolean;
 }
 
@@ -510,50 +513,120 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     this.cargandoPartidos = true;
     
     if (this.estaAutenticado) {
-      // Usuario autenticado: acceso completo
-      console.log('🔓 Usuario autenticado - Cargando todos los partidos');
-      this.partidosService.listarTodos()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            console.log('✅ Partidos autenticados cargados:', response);
-            this.procesarPartidosCompletos(response);
-            this.cargandoPartidos = false;
-          },
-          error: (error) => {
-            console.error('❌ Error cargando partidos autenticados:', error);
-            this.cargarPartidosPublicos(); // Fallback
-          }
-        });
+      // Usuario autenticado: acceso completo - cargar todos los tipos de partidos
+      console.log('🔓 Usuario autenticado - Cargando partidos completos de Liga Colombiana');
+      this.cargarPartidosAutenticado();
     } else {
-      // Usuario no autenticado: contenido limitado
-      console.log('🔒 Usuario no autenticado - Cargando 6 partidos públicos');
+      // Usuario no autenticado: contenido limitado - solo partidos en vivo y próximos
+      console.log('🔒 Usuario no autenticado - Cargando partidos limitados de Liga Colombiana');
       this.cargarPartidosPublicos();
     }
   }
 
-  private cargarPartidosPublicos(): void {
-    // Usar endpoint público con límite de 6 partidos
-    this.partidosService.obtenerPartidosPublicos(this.LIMITE_PARTIDOS)
+  private cargarPartidosAutenticado(): void {
+    // Para usuarios autenticados: cargar una mezcla de partidos en vivo, próximos y resultados
+    this.partidosService.obtenerPartidosEnVivo()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          console.log('✅ Partidos públicos cargados:', response);
+        next: (partidosEnVivo) => {
+          console.log('✅ Partidos en vivo cargados:', partidosEnVivo.length);
           
-          let partidos = [];
-          if (response?.partidos) {
-            partidos = response.partidos;
-          } else if (Array.isArray(response)) {
-            partidos = response;
+          // Si hay partidos en vivo, mostrar esos principalmente
+          if (partidosEnVivo.length > 0) {
+            this.procesarPartidosCompletos(partidosEnVivo.slice(0, 6));
+            this.cargandoPartidos = false;
+          } else {
+            // Si no hay partidos en vivo, cargar próximos partidos
+            this.cargarProximosPartidosAutenticado();
           }
-          
-          console.log(`⚽ Procesando ${partidos.length} partidos públicos (límite: ${this.LIMITE_PARTIDOS})`);
-          
-          this.procesarPartidosLimitados(partidos);
+        },
+        error: (error) => {
+          console.error('❌ Error cargando partidos en vivo:', error);
+          this.cargarProximosPartidosAutenticado(); // Fallback
+        }
+      });
+  }
+
+  private cargarProximosPartidosAutenticado(): void {
+    this.partidosService.obtenerProximosPartidos()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (proximosPartidos) => {
+          console.log('✅ Próximos partidos cargados:', proximosPartidos.length);
+          this.procesarPartidosCompletos(proximosPartidos.slice(0, 6));
           this.cargandoPartidos = false;
         },
         error: (error) => {
-          console.error('❌ Error cargando partidos públicos:', error);
+          console.error('❌ Error cargando próximos partidos:', error);
+          this.cargarPartidosFallback();
+        }
+      });
+  }
+
+  private cargarPartidosPublicos(): void {
+    // Para usuarios no autenticados: cargar una mezcla de partidos en vivo y próximos
+    this.partidosService.obtenerPartidosEnVivo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (partidosEnVivo) => {
+          console.log('✅ Partidos en vivo públicos cargados:', partidosEnVivo.length);
+          
+          // Si hay partidos en vivo, mostrar esos principalmente
+          if (partidosEnVivo.length >= this.LIMITE_PARTIDOS) {
+            this.procesarPartidosLimitados(partidosEnVivo.slice(0, this.LIMITE_PARTIDOS));
+            this.cargandoPartidos = false;
+          } else {
+            // Complementar con próximos partidos
+            this.completarConProximosPartidos(partidosEnVivo);
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error cargando partidos en vivo públicos:', error);
+          this.cargarSoloProximosPartidos();
+        }
+      });
+  }
+
+  private completarConProximosPartidos(partidosEnVivo: any[]): void {
+    const partidosRestantes = this.LIMITE_PARTIDOS - partidosEnVivo.length;
+    
+    this.partidosService.obtenerProximosPartidos()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (proximosPartidos) => {
+          console.log(`✅ Próximos partidos cargados para completar: ${proximosPartidos.length}`);
+          
+          // Combinar partidos en vivo con próximos partidos
+          const partidosCombinados = [
+            ...partidosEnVivo,
+            ...proximosPartidos.slice(0, partidosRestantes)
+          ];
+          
+          console.log(`⚽ Combinando ${partidosEnVivo.length} en vivo + ${partidosRestantes} próximos = ${partidosCombinados.length} total`);
+          
+          this.procesarPartidosLimitados(partidosCombinados);
+          this.cargandoPartidos = false;
+        },
+        error: (error) => {
+          console.error('❌ Error cargando próximos partidos:', error);
+          // Si falla, mostrar solo los partidos en vivo que tenemos
+          this.procesarPartidosLimitados(partidosEnVivo);
+          this.cargandoPartidos = false;
+        }
+      });
+  }
+
+  private cargarSoloProximosPartidos(): void {
+    this.partidosService.obtenerProximosPartidos()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (proximosPartidos) => {
+          console.log('✅ Solo próximos partidos cargados:', proximosPartidos.length);
+          this.procesarPartidosLimitados(proximosPartidos.slice(0, this.LIMITE_PARTIDOS));
+          this.cargandoPartidos = false;
+        },
+        error: (error) => {
+          console.error('❌ Error cargando próximos partidos:', error);
           this.cargarPartidosFallback();
         }
       });
@@ -579,14 +652,17 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   private procesarListaPartidos(partidos: any[], esLimitado: boolean): void {
     this.partidosLimitados = partidos.map((partido: any) => ({
-      id: partido.id || 0,
-      equipoLocal: partido.equipoLocal,
-      equipoVisitante: partido.equipoVisitante,
-      fecha: partido.fecha,
-      liga: partido.liga || partido.competencia || 'Liga',
-      estado: partido.estado || 'Programado',
-      golesLocal: partido.golesLocal,
-      golesVisitante: partido.golesVisitante,
+      codigoApi: partido.codigoApi || `temp-${Date.now()}`,
+      nombreEquipoLocal: partido.nombreEquipoLocal || 'Equipo Local',
+      nombreEquipoVisitante: partido.nombreEquipoVisitante || 'Equipo Visitante',
+      escudoEquipoLocal: partido.escudoEquipoLocal || '',
+      escudoEquipoVisitante: partido.escudoEquipoVisitante || '',
+      fecha: partido.fecha || '',
+      estado: this.partidosService.obtenerEstadoLegible(partido.estado) || 'Por definir',
+      golesLocal: partido.golesLocal || 0,
+      golesVisitante: partido.golesVisitante || 0,
+      estadio: partido.estadio || 'Por definir',
+      minutoActual: partido.minutoActual || 0,
       bloqueado: false // ✅ Permitir ver contenido, solo limitar cantidad
     }));
     
@@ -637,7 +713,14 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   verPartido(partido: PartidoLimitado): void {
     // ✅ Permitir navegación a todos los usuarios - contenido público disponible
-    this.router.navigate(['/partidos'], { fragment: `partido-${partido.id}` });
+    this.router.navigate(['/partidos'], { fragment: `partido-${partido.codigoApi}` });
+  }
+
+  // Método utilitario para manejar errores de imágenes de escudos
+  onImagenEscudoError(event: any): void {
+    console.warn('🖼️ Error cargando imagen de escudo:', event.target.src);
+    event.target.src = 'assets/logo-tiempo.png';
+    event.target.alt = 'Escudo no disponible';
   }
 
   private mostrarMensajeRegistro(tipo: string): void {
