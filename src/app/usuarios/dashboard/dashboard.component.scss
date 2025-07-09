@@ -5,6 +5,9 @@
 :host {
   display: block;
   width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .usuario-container {
@@ -13,7 +16,19 @@
   font-family: 'League Spartan', sans-serif;
   position: relative;
   overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
   animation: fadeInContainer 0.6s ease-out;
+  
+  // Mejorar el scroll en móviles
+  -webkit-overflow-scrolling: touch;
+  
+  // Asegurar que el contenido no se corte
+  padding-bottom: 2rem;
+  
+  // Eliminar cualquier restricción de altura que pueda bloquear scroll
+  max-height: none;
+  height: auto;
 }
 
 @keyframes fadeInContainer {
@@ -1730,529 +1745,34 @@
 }
 
 // ===============================
-// 🎨 UTILIDADES
-// ===============================
-.mobile-only {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .mobile-only {
-    display: block;
-  }
-}
-
-.loading-mini {
-  margin-bottom: 1rem;
-}
-
-// ===============================
-// 🎭 ANIMACIONES AVANZADAS
+// 🚨 EMERGENCY SCROLL FIX
 // ===============================
 
-// Scroll reveal animations
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(50px);
-  transition: all 0.6s ease-out;
-
-  &.revealed {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Stagger delays para animaciones
-.noticia-card:nth-child(1) { --stagger-delay: 0.1s; }
-.noticia-card:nth-child(2) { --stagger-delay: 0.2s; }
-.noticia-card:nth-child(3) { --stagger-delay: 0.3s; }
-.noticia-card:nth-child(4) { --stagger-delay: 0.4s; }
-.noticia-card:nth-child(5) { --stagger-delay: 0.5s; }
-.noticia-card:nth-child(6) { --stagger-delay: 0.6s; }
-
-// Parallax effects
-.parallax-bg {
-  background-attachment: fixed;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-// Loading shimmer effect
-.shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-// Smooth scrolling
+// Asegurar que el scroll funcione siempre
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: smooth !important;
+  overflow-y: auto !important;
 }
 
-// Focus states for accessibility
-button:focus,
-.noticia-card:focus {
-  outline: 2px solid var(--verde-lima);
-  outline-offset: 2px;
+body {
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
 }
 
-// Hover effects for better UX
-.interactive-element {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    transform: translateY(0);
-    transition-duration: 0.1s;
-  }
+// Forzar scroll en el contenedor principal
+.usuario-container {
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+  height: auto !important;
+  max-height: none !important;
 }
 
-// Glass morphism effect
-.glass-effect {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-// Gradient text
-.gradient-text {
-  background: linear-gradient(135deg, var(--verde-selva), var(--verde-lima));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+// Asegurar que ningún elemento bloquee el scroll
+.main-content {
+  overflow-y: auto !important;
+  position: relative !important;
 }
 
 // ===============================
-// 🔄 ANIMACIONES DE CARGA
+// 🎨 VARIABLES Y TEMA
 // ===============================
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(59, 182, 99, 0.3);
-  border-top: 4px solid var(--verde-lima);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-// ===============================
-// 📱 TOUCH ENHANCEMENTS
-// ===============================
-@media (hover: none) and (pointer: coarse) {
-  .noticia-card:hover {
-    transform: none;
-  }
-
-  .noticia-card:active {
-    transform: scale(0.98);
-  }
-
-  button:hover {
-    transform: none;
-  }
-
-  button:active {
-    transform: scale(0.95);
-  }
-}
-
-// ===============================
-// 🌙 DARK MODE SUPPORT (preparación futura)
-// ===============================
-@media (prefers-color-scheme: dark) {
-  .usuario-container {
-    --bg-color: #121212;
-    --text-color: #ffffff;
-  }
-}
-
-// ===============================
-// ⚡ PERFORMANCE OPTIMIZATIONS
-// ===============================
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.will-change-transform {
-  will-change: transform;
-}
-
-.will-change-opacity {
-  will-change: opacity;
-}
-
-// GPU acceleration
-.gpu-accelerated {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
-
-// ===============================
-// 🎯 ACCESSIBILITY IMPROVEMENTS
-// ===============================
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-// High contrast mode
-@media (prefers-contrast: high) {
-  .noticia-card {
-    border: 2px solid currentColor;
-  }
-}
-
-// ===============================
-// 🎯 HIGHLIGHTING DE SECCIONES
-// ===============================
-.highlight-section {
-  position: relative;
-  animation: highlightPulse 2s ease-out;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    right: -10px;
-    bottom: -10px;
-    background: linear-gradient(45deg, var(--verde-lima), var(--verde-selva));
-    border-radius: var(--radius-lg);
-    opacity: 0.1;
-    z-index: -1;
-    animation: highlightGlow 2s ease-out;
-  }
-}
-
-@keyframes highlightPulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes highlightGlow {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  50% {
-    opacity: 0.2;
-    transform: scale(1.05);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1);
-  }
-}
-
-// ===============================
-// 🔗 SMOOTH SCROLL ENHANCEMENT
-// ===============================
-html {
-  scroll-behavior: smooth;
-}
-
-// Mejorar el scroll en navegadores webkit
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--verde-selva);
-  border-radius: 4px;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: var(--verde-bosque);
-  }
-}
-
-// ===============================
-// 🎭 MEJORAS DE INTERACCIÓN
-// ===============================
-.user-select-none {
-  user-select: none;
-}
-
-.pointer-events-none {
-  pointer-events: none;
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
-
-// Estados de focus mejorados
-*:focus {
-  outline: 2px solid var(--verde-lima);
-  outline-offset: 2px;
-}
-
-// ===============================
-// 🔔 AVISOS DE LÍMITE
-// ===============================
-.limite-aviso {
-  margin-top: 1rem;
-  
-  .aviso-card {
-    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-    border: 1px solid var(--accent-color);
-    
-    mat-card-content {
-      text-align: center;
-      padding: 1.5rem;
-      
-      .aviso-icon {
-        font-size: 2rem;
-        color: var(--accent-color);
-        margin-bottom: 0.5rem;
-      }
-      
-      h4 {
-        color: var(--gris-carbon);
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-      }
-      
-      p {
-        color: #666;
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-      }
-      
-      button {
-        border-radius: var(--radius-lg);
-        font-weight: 600;
-        animation: pulseButton 2s infinite;
-      }
-    }
-  }
-}
-
-@keyframes pulseButton {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.carousel-controls {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 1rem;
-    z-index: 10;
-    pointer-events: none;
-
-    .carousel-btn {
-      pointer-events: all;
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--verde-bosque);
-      width: 56px;
-      height: 56px;
-      border: none;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: blur(10px);
-
-      &:hover {
-        background: white;
-        transform: scale(1.1);
-        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
-
-      mat-icon {
-        font-size: 2rem;
-        width: 2rem;
-        height: 2rem;
-      }
-
-      @media (max-width: 768px) {
-        width: 48px;
-        height: 48px;
-        
-        mat-icon {
-          font-size: 1.5rem;
-          width: 1.5rem;
-          height: 1.5rem;
-        }
-      }
-    }
-
-    .carousel-btn-prev {
-      animation: slideInLeft 0.6s ease-out 1s backwards;
-    }
-
-    .carousel-btn-next {
-      animation: slideInRight 0.6s ease-out 1s backwards;
-    }
-  }
-
-  // ===============================
-  // 🔵 INDICADORES DEL CAROUSEL
-  // ===============================
-  .carousel-indicators {
-    position: absolute;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 0.5rem;
-    z-index: 10;
-    animation: fadeInUp 0.6s ease-out 1.2s backwards;
-
-    @media (max-width: 768px) {
-      bottom: 60px;
-    }
-
-    .indicator {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.5);
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        border-color: rgba(255, 255, 255, 0.8);
-        transform: scale(1.2);
-      }
-
-      &.active {
-        background: white;
-        border-color: white;
-        transform: scale(1.3);
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-      }
-    }
-  }
-
-  // ===============================
-  // 📊 BARRA DE PROGRESO
-  // ===============================
-  .progress-container {
-    position: absolute;
-    bottom: 20px;
-    left: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    z-index: 10;
-    animation: fadeInUp 0.6s ease-out 1.4s backwards;
-
-    @media (max-width: 768px) {
-      left: 1rem;
-      bottom: 15px;
-    }
-
-    .progress-bar {
-      width: 100px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 2px;
-      overflow: hidden;
-      backdrop-filter: blur(5px);
-
-      @media (max-width: 768px) {
-        width: 80px;
-        height: 3px;
-      }
-
-      .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--verde-lima), var(--verde-claro));
-        border-radius: 2px;
-        transition: width 0.05s linear;
-        box-shadow: 0 0 10px rgba(59, 182, 99, 0.5);
-      }
-    }
-
-    .progress-text {
-      color: white;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-      min-width: 40px;
-
-      @media (max-width: 768px) {
-        font-size: 0.75rem;
-        min-width: 35px;
-      }
-    }
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-50px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(50px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { PartidosService, PartidoDTO } from '../../../core/services/partidos.service';
+import { PartidosService, PartidoDTO } from '../../core/services/partidos.service';
 
 // Angular Material
 import { MatCardModule } from '@angular/material/card';

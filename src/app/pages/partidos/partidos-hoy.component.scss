@@ -1,0 +1,2064 @@
+// ===============================
+// 🎨 VARIABLES Y TEMA
+// ===============================
+
+// Variables SCSS para compatibilidad
+$color-texto: #212121;
+$color-fondo: #f5f5f5;
+$color-card: #ffffff;
+$color-acento: #1976d2;
+$color-secundario: #757575;
+$color-borde: #e0e0e0;
+
+:root {
+  --primary-color: #{$color-acento};
+  --primary-dark: #1565c0;
+  --accent-color: #4caf50;
+  --accent-dark: #388e3c;
+  --background-color: #{$color-fondo};
+  --surface-color: #{$color-card};
+  --text-primary: #{$color-texto};
+  --text-secondary: #{$color-secundario};
+  --border-color: #{$color-borde};
+  --shadow-light: 0 2px 8px rgba(0,0,0,0.1);
+  --shadow-medium: 0 4px 16px rgba(0,0,0,0.15);
+  --shadow-strong: 0 8px 24px rgba(0,0,0,0.2);
+  --border-radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ===============================
+// 🏗️ LAYOUT PRINCIPAL - SCROLL MEJORADO
+// ===============================
+.partidos-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-medium);
+  background: var(--surface-color);
+  
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    
+    mat-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+  
+  .spacer {
+    flex: 1 1 auto;
+  }
+  
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    
+    button {
+      transition: var(--transition);
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Contenedor principal con scroll controlado mejorado
+.partidos-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: var(--background-color);
+  min-height: calc(100vh - 120px);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  
+  // Scroll personalizado avanzado
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+    border-radius: 5px;
+    margin: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--accent-color));
+      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+      transform: scale(1.1);
+    }
+    
+    &:active {
+      background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+    }
+  }
+  
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  
+  // Scroll suave y performance
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) rgba(0,0,0,0.05);
+  
+  // Indicador de scroll (shadow)
+  &::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &.scrolled::before {
+    opacity: 1;
+  }
+}
+
+// ===============================
+// 🔍 PANEL DE BÚSQUEDA Y FILTROS AVANZADO
+// ===============================
+.filtros-card {
+  margin-bottom: 24px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  transition: var(--transition);
+  background: linear-gradient(135deg, var(--surface-color), #fafafa);
+  border: 1px solid var(--border-color);
+  
+  &:hover {
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+  }
+}
+
+.filtros-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+// Sección de búsqueda mejorada
+.busqueda-avanzada {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: end;
+  }
+  
+  .campo-busqueda {
+    flex: 1;
+    min-width: 250px;
+    
+    @media (max-width: 767px) {
+      width: 100%;
+      min-width: auto;
+    }
+    
+    mat-form-field {
+      width: 100%;
+      
+      mat-icon {
+        color: var(--primary-color);
+        transition: var(--transition);
+        
+        &:hover {
+          color: var(--accent-color);
+          transform: scale(1.1);
+        }
+      }
+      
+      input {
+        font-size: 1rem;
+        padding: 12px 0;
+        
+        &::placeholder {
+          color: var(--text-secondary);
+          opacity: 0.7;
+        }
+      }
+      
+      .mat-form-field-outline {
+        border-radius: 8px;
+        border-width: 2px;
+        transition: var(--transition);
+      }
+      
+      &.mat-focused {
+        .mat-form-field-outline-thick {
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+        }
+      }
+    }
+  }
+  
+  .campo-fecha {
+    min-width: 200px;
+    
+    @media (max-width: 767px) {
+      width: 100%;
+      min-width: auto;
+    }
+    
+    mat-form-field {
+      width: 100%;
+      
+      mat-datepicker-toggle {
+        color: var(--primary-color);
+        
+        &:hover {
+          color: var(--accent-color);
+        }
+      }
+      
+      input {
+        cursor: pointer;
+        
+        &:read-only {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  
+  .botones-busqueda {
+    display: flex;
+    gap: 12px;
+    align-items: end;
+    
+    @media (max-width: 767px) {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    button {
+      transition: var(--transition);
+      border-radius: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      
+      &.btn-buscar {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        min-width: 120px;
+        
+        &:hover {
+          background: linear-gradient(135deg, var(--primary-dark), var(--accent-color));
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+        }
+        
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+      
+      &.btn-limpiar {
+        background: #f5f5f5;
+        color: var(--text-secondary);
+        border: 2px solid var(--border-color);
+        
+        &:hover {
+          background: #eeeeee;
+          color: var(--text-primary);
+          border-color: var(--text-secondary);
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+}
+
+// ===============================
+// 📅 CALENDARIO PERSONALIZADO AVANZADO
+// ===============================
+::ng-deep .mat-datepicker-panel {
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  border: 2px solid var(--primary-color);
+  overflow: hidden;
+  transform: scale(0.95);
+  animation: calendarAppear 0.3s ease-out forwards;
+  
+  .mat-calendar {
+    border-radius: 16px;
+    font-family: inherit;
+    
+    .mat-calendar-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      border-radius: 16px 16px 0 0;
+      padding: 20px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      
+      .mat-calendar-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .mat-calendar-period-button {
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        background: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: rgba(255,255,255,0.2);
+          transform: scale(1.05);
+        }
+      }
+      
+      .mat-calendar-previous-button,
+      .mat-calendar-next-button {
+        color: white;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: rgba(255,255,255,0.2);
+          transform: scale(1.1);
+        }
+        
+        mat-icon {
+          font-size: 1.2rem;
+        }
+      }
+    }
+    
+    .mat-calendar-content {
+      padding: 20px 16px;
+      background: white;
+      
+      .mat-calendar-table {
+        width: 100%;
+        
+        .mat-calendar-table-header {
+          th {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 8px;
+            border-bottom: 2px solid var(--border-color);
+          }
+        }
+        
+        .mat-calendar-body {
+          .mat-calendar-body-row {
+            border: none;
+          }
+          
+          .mat-calendar-body-cell {
+            position: relative;
+            border-radius: 8px;
+            margin: 2px;
+            transition: all 0.3s ease;
+            
+            &:not(.mat-calendar-body-disabled) {
+              cursor: pointer;
+              
+              &:hover {
+                background: linear-gradient(135deg, rgba(25, 118, 210, 0.1), rgba(76, 175, 80, 0.1));
+                transform: scale(1.1);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+              }
+            }
+            
+            &.mat-calendar-body-selected {
+              background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+              color: white !important;
+              font-weight: 700;
+              box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+              transform: scale(1.05);
+              
+              &:hover {
+                background: linear-gradient(135deg, var(--primary-dark), var(--accent-color)) !important;
+              }
+            }
+            
+            &.mat-calendar-body-today {
+              border: 2px solid var(--accent-color);
+              font-weight: 700;
+              background: rgba(76, 175, 80, 0.1);
+              
+              &:not(.mat-calendar-body-selected) {
+                color: var(--accent-color);
+              }
+            }
+            
+            &.mat-calendar-body-disabled {
+              color: #ccc !important;
+              cursor: not-allowed;
+              opacity: 0.4;
+            }
+            
+            .mat-calendar-body-cell-content {
+              width: 100%;
+              height: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 6px;
+              font-weight: 600;
+              transition: all 0.3s ease;
+            }
+          }
+        }
+      }
+      
+      // Estilos para vista de año y mes
+      .mat-calendar-period-button {
+        background: rgba(25, 118, 210, 0.1);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: rgba(25, 118, 210, 0.2);
+          transform: scale(1.05);
+        }
+      }
+      
+      .mat-calendar-body-cell-content {
+        &.mat-calendar-body-selected {
+          background: var(--primary-color);
+          color: white;
+        }
+        
+        &.mat-calendar-body-today {
+          color: var(--accent-color);
+          font-weight: 700;
+        }
+      }
+    }
+  }
+}
+
+// Animación del calendario
+@keyframes calendarAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// Toggle del datepicker mejorado
+::ng-deep .mat-datepicker-toggle {
+  .mat-datepicker-toggle-default-icon {
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      color: var(--accent-color);
+      transform: scale(1.2);
+    }
+  }
+}
+
+// Input de fecha mejorado
+::ng-deep .mat-form-field {
+  &.mat-focused {
+    .mat-datepicker-toggle {
+      .mat-datepicker-toggle-default-icon {
+        color: var(--accent-color);
+        animation: dateIconPulse 1s ease-in-out;
+      }
+    }
+  }
+}
+
+@keyframes dateIconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+// ===============================
+// 🏟️ GRID DE PARTIDOS - SCROLL ANIMADO
+// ===============================
+.partidos-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 40px;
+  max-width: 800px;
+  margin: 0 auto 40px auto;
+  
+  // Animación de aparición gradual
+  opacity: 0;
+  animation: fadeInGrid 0.6s ease-out 0.3s forwards;
+  
+  // Para tablets y desktop, mantener formato vertical pero centrado
+  @media (min-width: 768px) {
+    gap: 20px;
+    max-width: 900px;
+  }
+  
+  @media (min-width: 1200px) {
+    gap: 24px;
+    max-width: 1000px;
+  }
+  
+  // Contenedor con scroll virtual
+  .partidos-scroll-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    margin-right: -8px;
+    
+    // Scroll personalizado para el grid
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.03);
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-dark));
+      border-radius: 3px;
+      
+      &:hover {
+        background: linear-gradient(135deg, var(--accent-dark), var(--primary-color));
+      }
+    }
+    
+    scroll-behavior: smooth;
+  }
+}
+
+@keyframes fadeInGrid {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Animaciones de scroll reveal para cada card
+.partido-card {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: slideInCard 0.6s ease-out forwards;
+  
+  // Delay progresivo para cada card
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+  &:nth-child(5) { animation-delay: 0.5s; }
+  &:nth-child(6) { animation-delay: 0.6s; }
+  &:nth-child(n+7) { animation-delay: 0.7s; }
+}
+
+@keyframes slideInCard {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ===============================
+// 🎫 CARD DE PARTIDO - MEJORADAS
+// ===============================
+.partido-card {
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e0e0e0;
+  position: relative;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    border-color: #1976d2;
+  }
+  
+  // Estados específicos para diferentes tipos de partido
+  &.en-vivo {
+    border-left: 4px solid #f44336;
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.02), white);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #f44336, #ff5722, #f44336);
+      animation: liveGlow 2s ease-in-out infinite;
+    }
+    
+    .estado-header mat-chip {
+      background: #f44336 !important;
+      color: white !important;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+  }
+  
+  &.finalizado {
+    border-left: 4px solid #4caf50;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.02), white);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #4caf50, #66bb6a, #4caf50);
+    }
+    
+    .estado-header mat-chip {
+      background: #4caf50 !important;
+      color: white !important;
+      font-weight: 600;
+    }
+  }
+  
+  &.proximo {
+    border-left: 4px solid #2196f3;
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.02), white);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #2196f3, #42a5f5, #2196f3);
+    }
+    
+    .estado-header mat-chip {
+      background: #2196f3 !important;
+      color: white !important;
+      font-weight: 600;
+    }
+  }
+  
+  // Header de la card
+  mat-card-header {
+    padding: 16px 20px 8px 20px;
+    background: rgba(0,0,0,0.02);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    
+    .estado-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      
+      mat-chip {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .minuto {
+        background: #ff9800;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        animation: pulse 1.5s infinite;
+      }
+    }
+  }
+  
+  // Contenido de la card
+  mat-card-content {
+    padding: 20px;
+    
+    .partido-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+      
+      .equipo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        text-align: center;
+        padding: 12px 8px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        
+        &.ganador {
+          background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(129, 199, 132, 0.05));
+          border: 2px solid rgba(76, 175, 80, 0.3);
+          transform: scale(1.02);
+          
+          .nombre-equipo {
+            color: #2e7d32;
+            font-weight: 700;
+          }
+        }
+        
+        .escudo {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          object-fit: contain;
+          margin-bottom: 8px;
+          border: 2px solid rgba(0,0,0,0.1);
+          padding: 4px;
+          background: white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          transition: all 0.3s ease;
+          
+          &:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          }
+        }
+        
+        .nombre-equipo {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #333;
+          line-height: 1.2;
+          text-align: center;
+        }
+      }
+      
+      // Resultado o VS
+      .resultado {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: rgba(0,0,0,0.03);
+        border-radius: 12px;
+        min-width: 80px;
+        justify-content: center;
+        
+        .goles-local,
+        .goles-visitante {
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: #333;
+          min-width: 24px;
+          text-align: center;
+          
+          &.ganador {
+            color: #2e7d32;
+            text-shadow: 0 1px 2px rgba(46, 125, 50, 0.3);
+          }
+        }
+        
+        .separador {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #666;
+        }
+      }
+      
+      .vs {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+        border-radius: 12px;
+        min-width: 80px;
+        
+        span {
+          font-size: 1rem;
+          font-weight: 700;
+          color: #1976d2;
+          text-shadow: 0 1px 2px rgba(25, 118, 210, 0.2);
+        }
+      }
+    }
+    
+    mat-divider {
+      margin: 16px 0;
+      background-color: rgba(0,0,0,0.08);
+    }
+    
+    .partido-detalles {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      
+      .detalle-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: rgba(0,0,0,0.02);
+        border-radius: 8px;
+        font-size: 0.85rem;
+        
+        mat-icon {
+          font-size: 1rem;
+          width: 1rem;
+          height: 1rem;
+          color: #666;
+        }
+        
+        span {
+          color: #555;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+@keyframes liveGlow {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.partido-header {
+  padding: 16px 20px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  .liga-info .liga-chip {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 16px;
+    
+    mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+      margin-right: 6px;
+    }
+  }
+  
+  .fecha-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    
+    mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+}
+
+.partido-content {
+  padding: 8px 20px 16px;
+}
+
+// ===============================
+// 🏆 CONTENIDO PRINCIPAL - TABS MEJORADAS
+// ===============================
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+// ===============================
+// 🎯 PESTAÑAS PRINCIPALES
+// ===============================
+.main-tabs {
+  margin-top: 20px;
+  
+  .mat-tab-group {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+}
+
+// ===============================
+// ⚡ VS CONTAINER
+// ===============================
+.vs-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 8px;
+  position: relative;
+}
+
+.vs-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-medium);
+  z-index: 2;
+  
+  .vs-text {
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+  }
+}
+
+.vs-line {
+  position: absolute;
+  top: 50%;
+  left: -20px;
+  right: -20px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+  z-index: 1;
+}
+
+// ===============================
+// 🏁 ESTADO DEL PARTIDO
+// ===============================
+.estado-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.estado-chip {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  &.estado-live {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    color: white;
+    
+    .live-icon {
+      animation: blink 1.5s infinite;
+    }
+  }
+  
+  &.estado-finished {
+    background: linear-gradient(135deg, #4caf50, #388e3c);
+    color: white;
+  }
+  
+  &.estado-upcoming {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+  }
+  
+  mat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+// ===============================
+// 🎬 ACCIONES DEL PARTIDO
+// ===============================
+.partido-actions {
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.02);
+  display: flex;
+  justify-content: space-between;
+  
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    
+    mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+}
+
+// ===============================
+// 📱 ESTADOS ESPECIALES
+// ===============================
+.empty-state {
+  grid-column: 1 / -1;
+  
+  .empty-card {
+    text-align: center;
+    padding: 48px 24px;
+    border-radius: var(--border-radius);
+    
+    mat-icon {
+      font-size: 4rem;
+      width: 4rem;
+      height: 4rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      margin: 16px 0 8px;
+      color: var(--text-primary);
+    }
+    
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+  }
+}
+
+.loading-container {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  
+  .loading-card {
+    text-align: center;
+    padding: 48px 24px;
+    border-radius: var(--border-radius);
+    min-width: 300px;
+    
+    mat-spinner {
+      margin: 0 auto 24px;
+    }
+    
+    h3 {
+      margin: 16px 0 8px;
+      color: var(--text-primary);
+    }
+    
+    p {
+      color: var(--text-secondary);
+    }
+  }
+}
+
+// ===============================
+// 📱 RESPONSIVE DESIGN
+// ===============================
+
+// MÓVIL (< 768px)
+@media (max-width: 767px) {
+  .partidos-container {
+    padding: 16px;
+  }
+  
+  .filtros-section {
+    gap: 16px;
+  }
+  
+  .stats-chips mat-chip-set {
+    justify-content: center;
+  }
+  
+  .equipos-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .equipo {
+    width: 100%;
+    justify-content: space-between;
+    
+    &.equipo-visitante {
+      flex-direction: row;
+      text-align: left;
+    }
+  }
+  
+  .vs-container {
+    order: -1;
+    margin: 8px 0;
+    
+    .vs-line {
+      display: none;
+    }
+  }
+  
+  .equipo-info .equipo-nombre {
+    font-size: 1rem;
+  }
+}
+
+// TABLET (768px - 1023px)
+@media (min-width: 768px) and (max-width: 1023px) {
+  .partidos-container {
+    padding: 20px;
+  }
+  
+  .partidos-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+}
+
+// LAPTOP (1024px - 1439px)
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .partidos-container {
+    padding: 24px;
+  }
+  
+  .partidos-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
+// ESCRITORIO (≥ 1440px)
+@media (min-width: 1440px) {
+  .partidos-container {
+    padding: 32px;
+  }
+  
+  .partidos-grid {
+    grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+    gap: 32px;
+  }
+  
+  .partido-card {
+    &:hover {
+      transform: translateY(-6px);
+    }
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 60%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  80% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Transiciones */
+@mixin transicion-suave {
+  transition: all 0.3s ease-in-out;
+}
+
+.partidos-container {
+  padding: 2rem;
+  color: $color-texto;
+  background-color: $color-fondo;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .header {
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .titulo {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-align: center;
+      color: $color-texto;
+      @include transicion-suave;
+    }
+
+    .buscador {
+  width: 100%;
+
+  mat-form-field {
+    width: 100%;
+    background-color: $color-card;
+    border-radius: 0.5rem;
+    color: $color-texto;
+
+    input {
+      color: $color-texto !important;
+      font-weight: 500;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
+      }
+
+      &:focus {
+        border-color: $color-acento;
+        box-shadow: 0 0 5px $color-acento;
+        color: $color-texto !important;
+      }
+    }
+
+    // Estilos para labels de Angular Material
+    .mat-form-field-label {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    &.mat-focused .mat-form-field-label {
+      color: $color-acento !important;
+    }
+
+    .mat-form-field-outline {
+      border-color: $color-borde;
+    }
+
+    &.mat-focused .mat-form-field-outline-thick {
+      border-color: $color-acento;
+    }
+
+    .mat-icon-button:hover {
+      color: $color-acento;
+    }
+
+    .mat-icon {
+      color: $color-acento;
+    }
+  }
+  }
+
+  .partidos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .partido-card {
+    background-color: $color-card;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeInUp 0.5s ease-in-out;
+    @include transicion-suave;
+
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    &.ganador-local .local .goles,
+    &.ganador-visitante .visitante .goles {
+      color: $color-acento;
+      font-weight: bold;
+    }
+
+    .partido-info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: $color-secundario;
+
+      .liga {
+        font-style: italic;
+      }
+
+      .fecha {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+    }
+
+    .equipos {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      align-items: center;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+
+      .equipo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        @include transicion-suave;
+
+        .escudo-equipo {
+          width: 36px;
+          height: 36px;
+          object-fit: contain;
+          border-radius: 50%;
+          background: white;
+          padding: 2px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          margin-bottom: 0.5rem;
+          transition: var(--transition);
+
+          &:hover {
+            transform: scale(1.1);
+          }
+
+          &:error {
+            display: none;
+          }
+        }
+
+        .nombre {
+          font-weight: 600;
+          text-align: center;
+        }
+
+        .goles {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-top: 0.25rem;
+        }
+
+        &:hover {
+          color: lighten($color-acento, 10%);
+          transform: scale(1.05);
+        }
+      }
+
+      .versus {
+        font-size: 1rem;
+        font-weight: bold;
+        color: $color-secundario;
+      }
+    }
+
+    .estado {
+      text-align: center;
+      color: $color-secundario;
+      @include transicion-suave;
+
+      &.activo {
+        color: $color-acento;
+        font-weight: bold;
+        animation: glow 2s infinite ease-in-out;
+      }
+    }
+  }
+
+  .spinner-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+    color: $color-texto;
+    p {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+/* Responsive: Desktop >1024px ya cubierto arriba */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .partidos-container {
+    .partidos-grid {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .header {
+      .titulo {
+        font-size: 1.8rem;
+      }
+    }
+  }
+}
+
+/* Móvil Mediano */
+@media (max-width: 768px) {
+  .partidos-container {
+    padding: 1rem;
+
+    .header {
+      .titulo {
+        font-size: 1.5rem;
+      }
+    }
+
+    .partido-card {
+      padding: 1rem;
+    }
+  }
+
+  .boton-vuelta-container {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .boton-vuelta-dashboard {
+    width: 48px !important;
+    height: 48px !important;
+    
+    mat-icon {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+/* Móvil Pequeño */
+@media (max-width: 480px) {
+  .partidos-container {
+    .header {
+      .titulo {
+        font-size: 1.3rem;
+      }
+    }
+
+    .partidos-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .partido-card {
+      padding: 0.75rem;
+    }
+  }
+}
+
+// ===============================
+// 🏆 TABLA DE POSICIONES - SCROLL CONTROLADO
+// ===============================
+// 🏆 TABLA DE POSICIONES - MEJORADA Y REALISTA
+// ===============================
+.tabla-posiciones {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  overflow: hidden;
+  margin: 24px 0;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #dee2e6;
+  position: relative;
+  
+  .tabla-header {
+    background: linear-gradient(135deg, #0d47a1, #1976d2) !important;
+    color: white !important;
+    display: grid;
+    grid-template-columns: 50px 50px 1fr 50px 50px 50px 50px 60px 60px 70px;
+    align-items: center;
+    padding: 20px 12px;
+    font-weight: 900;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    margin: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(13, 71, 161, 0.4);
+    gap: 8px;
+    
+    // Todos los headers con estilos forzados para visibilidad
+    div {
+      color: white !important;
+      font-weight: 900 !important;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    .pos-header {
+      text-align: center;
+      font-weight: 900 !important;
+      color: white !important;
+      font-size: 1rem;
+    }
+    
+    .escudo-header {
+      text-align: center;
+      font-weight: 900 !important;
+      color: white !important;
+      font-size: 1rem;
+    }
+    
+    .equipo-header {
+      text-align: left;
+      padding-left: 8px;
+      font-weight: 900 !important;
+      color: white !important;
+      font-size: 1rem;
+    }
+    
+    .stat-header {
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 900 !important;
+      color: white !important;
+      
+      &.puntos-header {
+        background: linear-gradient(135deg, #2e7d32, #4caf50) !important;
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-weight: 900 !important;
+        color: white !important;
+        box-shadow: 0 3px 10px rgba(46, 125, 50, 0.5);
+        font-size: 1rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+      }
+    }
+  }
+  
+  // Contenedor con scroll para las filas
+  .tabla-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    
+    // Scroll personalizado para la tabla
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.05);
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #1976d2, #4caf50);
+      border-radius: 4px;
+      
+      &:hover {
+        background: linear-gradient(135deg, #1565c0, #388e3c);
+      }
+    }
+    
+    scroll-behavior: smooth;
+  }
+  
+  .equipo-fila {
+    display: grid;
+    grid-template-columns: 50px 50px 1fr 50px 50px 50px 50px 60px 60px 70px;
+    align-items: center;
+    padding: 16px 12px;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #dee2e6;
+    background: white;
+    gap: 8px;
+    
+    // Animación de aparición
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInRow 0.5s ease-out forwards;
+    
+    // Delay progresivo para cada fila
+    &:nth-child(1) { animation-delay: 0.1s; }
+    &:nth-child(2) { animation-delay: 0.15s; }
+    &:nth-child(3) { animation-delay: 0.2s; }
+    &:nth-child(4) { animation-delay: 0.25s; }
+    &:nth-child(5) { animation-delay: 0.3s; }
+    &:nth-child(n+6) { animation-delay: 0.35s; }
+    
+    &:nth-child(even) {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    }
+    
+    &:hover {
+      background: linear-gradient(135deg, rgba(25, 118, 210, 0.1), rgba(76, 175, 80, 0.1)) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      border-left: 4px solid #1976d2;
+    }
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .posicion {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #333;
+      background: #e0e0e0;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      transition: all 0.3s ease;
+      
+      // Posiciones de Champions League (1-4)
+      &.champions {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        box-shadow: 0 2px 8px rgba(30, 60, 114, 0.4);
+      }
+      
+      // Posición de Libertadores (5-6)
+      &.libertadores {
+        background: linear-gradient(135deg, #FFD700, #FFA500);
+        color: #333;
+        box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+      }
+      
+      // Posiciones de Sudamericana (7-12)
+      &.sudamericana {
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+      }
+      
+      // Zona de descenso (últimas 3)
+      &.descenso {
+        background: linear-gradient(135deg, #d32f2f, #b71c1c);
+        color: white;
+        box-shadow: 0 2px 8px rgba(211, 47, 47, 0.4);
+        animation: danger-pulse 2s infinite;
+      }
+    }
+    
+    .escudo-tabla {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        border-radius: 4px;
+        background: white;
+        padding: 2px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        
+        &:hover {
+          transform: scale(1.1);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+      }
+    }
+    
+    .equipo-nombre {
+      font-weight: 700;
+      color: #212121;
+      font-size: 0.95rem;
+      text-align: left;
+      padding-left: 8px;
+      transition: all 0.3s ease;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      
+      &:hover {
+        color: #1976d2;
+        transform: translateX(4px);
+      }
+    }
+    
+    // Estadísticas individuales en grid
+    .stat {
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      color: #333;
+      
+      &:hover {
+        transform: scale(1.08);
+      }
+      
+      &.puntos {
+        background: linear-gradient(135deg, #2e7d32, #4caf50) !important;
+        color: white !important;
+        font-weight: 900;
+        font-size: 1rem;
+        box-shadow: 0 3px 10px rgba(46, 125, 50, 0.4);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      }
+      
+      &.pj {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        color: #0d47a1;
+        font-weight: 700;
+      }
+      
+      &.pg {
+        background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+        color: #1b5e20;
+        font-weight: 700;
+      }
+      
+      &.pe {
+        background: linear-gradient(135deg, #fff3e0, #ffcc02);
+        color: #e65100;
+        font-weight: 700;
+      }
+      
+      &.pp {
+        background: linear-gradient(135deg, #ffebee, #ffcdd2);
+        color: #b71c1c;
+        font-weight: 700;
+      }
+      
+      &.gf {
+        background: linear-gradient(135deg, #2e7d32, #4caf50);
+        color: white;
+        font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      }
+      
+      &.gc {
+        background: linear-gradient(135deg, #c62828, #f44336);
+        color: white;
+        font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      }
+      
+      &.dg {
+        background: #1976d2;
+        color: white;
+        font-weight: 700;
+        
+        &.positivo {
+          background: linear-gradient(135deg, #4caf50, #388e3c);
+        }
+        
+        &.negativo {
+          background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+        
+        &.pe {
+          background: #fff3e0;
+          color: #f57c00;
+        }
+        
+        &.pp {
+          background: #ffebee;
+          color: #d32f2f;
+        }
+        
+        &.gf {
+          background: linear-gradient(135deg, #4caf50, #388e3c);
+          color: white;
+        }
+        
+        &.gc {
+          background: linear-gradient(135deg, #f44336, #d32f2f);
+          color: white;
+        }
+        
+        &.dg {
+          background: var(--primary-color);
+          color: white;
+          font-weight: 700;
+          
+          &.positivo {
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-dark));
+          }
+          
+          &.negativo {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideInRow {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes danger-pulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 12px rgba(211, 47, 47, 0.6);
+    transform: scale(1.02);
+  }
+}
+
+// ===============================
+// 📱 RESPONSIVE ENHANCEMENTS - SCROLL OPTIMIZADO
+// ===============================
+@media (max-width: 768px) {
+  .partidos-container {
+    padding: 16px;
+    min-height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px);
+    
+    // Scroll más suave en móvil
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  .partidos-grid {
+    gap: 16px;
+    
+    .partidos-scroll-container {
+      max-height: 60vh;
+    }
+  }
+}
+
+// ===============================
+// 🎭 EFECTOS AVANZADOS DE SCROLL
+// ===============================
+
+// Efecto parallax sutil en el header
+.partidos-header {
+  transform: translateZ(0);
+  will-change: transform;
+  transition: transform 0.1s ease-out;
+}
+
+// Scroll reveal para secciones
+.busqueda-avanzada,
+.filtros-card {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInSection 0.6s ease-out forwards;
+  
+  &:nth-of-type(1) { animation-delay: 0.1s; }
+  &:nth-of-type(2) { animation-delay: 0.2s; }
+}
+
+@keyframes fadeInSection {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Indicador visual de scroll activo
+.partidos-container.scrolling {
+  .partidos-header {
+    box-shadow: var(--shadow-strong);
+  }
+  
+  &::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    right: 10px;
+    width: 4px;
+    height: 100vh;
+    background: linear-gradient(
+      180deg, 
+      transparent, 
+      var(--primary-color) 20%, 
+      var(--accent-color) 80%, 
+      transparent
+    );
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 1000;
+    animation: scrollIndicator 0.3s ease-in;
+  }
+}
+
+@keyframes scrollIndicator {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 0.6;
+    transform: scaleY(1);
+  }
+}
+
+// Performance optimizations
+.partido-card,
+.equipo-fila {
+  will-change: transform, opacity;
+  contain: layout style paint;
+}
+
+// Transiciones suaves para el datepicker
+::ng-deep .mat-datepicker-toggle {
+  transition: var(--transition);
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+::ng-deep .mat-datepicker-content {
+  animation: fadeInCalendar 0.3s ease-out;
+}
+
+@keyframes fadeInCalendar {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// ===============================
+// 🏷️ LEYENDA DE LA TABLA
+// ===============================
+.tabla-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  
+  .leyenda-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+    
+    .indicador {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    
+    &.copa-libertadores .indicador {
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+    }
+    
+    &.copa-sudamericana .indicador {
+      background: linear-gradient(135deg, #4caf50, #388e3c);
+    }
+    
+    &.descenso .indicador {
+      background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    }
+  }
+}
+
+// Responsive para la leyenda
+@media (max-width: 768px) {
+  .tabla-leyenda {
+    justify-content: center;
+    
+    .leyenda-item {
+      font-size: 0.8rem;
+    }
+  }
+}
+}

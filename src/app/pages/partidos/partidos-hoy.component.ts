@@ -25,7 +25,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
 
 // Services
-import { PartidosService, PartidoDTO, TablaEquipo, EstadoPartido } from '../../../core/services/partidos.service';
+import { PartidosService, PartidoDTO, TablaEquipo, EstadoPartido, TablasCompletas, GrupoInfo } from '../../core/services/partidos.service';
 
 @Component({
   selector: 'app-partidos-hoy',
@@ -74,6 +74,12 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
   todosLosPartidos: PartidoDTO[] = [];
   tablaLigaColombiana: TablaEquipo[] = [];
   
+  // 🆕 Nuevos datos de cuadrangulares
+  tablasCompletas: TablasCompletas | null = null;
+  cuadrangularA: TablaEquipo[] = [];
+  cuadrangularB: TablaEquipo[] = [];
+  vistaTablaActiva: 'completa' | 'cuadrangular-a' | 'cuadrangular-b' = 'completa';
+  
   // Control de pestañas
   tabSeleccionada = 0;
   
@@ -112,29 +118,45 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
     this.cargando = true;
     this.errorCarga = false;
     
-    console.log('🔄 Cargando datos de partidos...');
+    console.log('🔄 Cargando datos de partidos y cuadrangulares...');
     
-    // Cargar todos los datos en paralelo
+    // Cargar todos los datos en paralelo con los nuevos endpoints
     forkJoin({
       enVivo: this.partidosService.obtenerPartidosEnVivo(),
       proximos: this.partidosService.obtenerProximosPartidos(),
       resultados: this.partidosService.obtenerUltimosResultados(),
-      tabla: this.partidosService.obtenerTablaLigaColombiana(),
-      todos: this.partidosService.obtenerTodosLosPartidos()
+      tabla: this.partidosService.obtenerTablaLigaColombiana(), // Ahora incluye TODOS los equipos
+      todos: this.partidosService.obtenerTodosLosPartidos(),
+      // 🆕 Nuevos endpoints de cuadrangulares
+      tablasCompletas: this.partidosService.obtenerTodasLasTablas(),
+      cuadrangularA: this.partidosService.obtenerCuadrangularA(),
+      cuadrangularB: this.partidosService.obtenerCuadrangularB()
     })
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (datos) => {
         console.log('✅ Datos cargados exitosamente:', datos);
         
+        // Datos originales
         this.partidosEnVivo = datos.enVivo || [];
         this.proximosPartidos = datos.proximos || [];
         this.ultimosResultados = datos.resultados || [];
-        this.tablaLigaColombiana = datos.tabla || [];
+        this.tablaLigaColombiana = datos.tabla || []; // Ahora incluye todos los equipos
         this.todosLosPartidos = datos.todos || [];
+        
+        // 🆕 Nuevos datos de cuadrangulares
+        this.tablasCompletas = datos.tablasCompletas || null;
+        this.cuadrangularA = datos.cuadrangularA || [];
+        this.cuadrangularB = datos.cuadrangularB || [];
         
         this.cargando = false;
         this.mostrarNotificacion('✅ Datos actualizados');
+        
+        // Log de estadísticas de cuadrangulares
+        if (this.tablasCompletas) {
+          const stats = this.partidosService.obtenerEstadisticasCuadrangulares(this.tablasCompletas);
+          console.log('📊 Estadísticas de cuadrangulares:', stats);
+        }
       },
       error: (error) => {
         console.error('❌ Error cargando datos:', error);
@@ -317,7 +339,7 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
   // ================================
 
   volverAlDashboard(): void {
-    this.router.navigate(['/admin']);
+    this.router.navigate(['/']);
   }
 
   verDetallesPartido(partido: PartidoDTO): void {
@@ -345,6 +367,110 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
 
   trackByEquipoTabla(index: number, equipo: TablaEquipo): number {
     return equipo.team.id;
+  }
+
+  // ================================
+  // 🆕 MÉTODOS PARA CUADRANGULARES
+  // ================================
+
+  /**
+   * Cambia la vista activa de la tabla de posiciones
+   */
+  cambiarVistaTabla(vista: 'completa' | 'cuadrangular-a' | 'cuadrangular-b'): void {
+    this.vistaTablaActiva = vista;
+    console.log(`🔄 Vista de tabla cambiada a: ${vista}`);
+  }
+
+  /**
+   * Obtiene los equipos según la vista activa
+   */
+  obtenerEquiposVistaActiva(): TablaEquipo[] {
+    switch (this.vistaTablaActiva) {
+      case 'cuadrangular-a':
+        return this.cuadrangularA;
+      case 'cuadrangular-b':
+        return this.cuadrangularB;
+      case 'completa':
+      default:
+        return this.tablaLigaColombiana;
+    }
+  }
+
+  /**
+   * Obtiene el título de la vista activa
+   */
+  obtenerTituloVistaActiva(): string {
+    switch (this.vistaTablaActiva) {
+      case 'cuadrangular-a':
+        return `🔵 Cuadrangular A (${this.cuadrangularA.length} equipos)`;
+      case 'cuadrangular-b':
+        return `🔴 Cuadrangular B (${this.cuadrangularB.length} equipos)`;
+      case 'completa':
+      default:
+        return `🏆 Tabla Completa (${this.tablaLigaColombiana.length} equipos)`;
+    }
+  }
+
+  /**
+   * Obtiene estadísticas rápidas de los cuadrangulares
+   */
+  obtenerEstadisticasCuadrangulares() {
+    if (!this.tablasCompletas) {
+      return null;
+    }
+    return this.partidosService.obtenerEstadisticasCuadrangulares(this.tablasCompletas);
+  }
+
+  /**
+   * Busca un equipo en todos los cuadrangulares
+   */
+  buscarEquipoEnCuadrangulares(nombreEquipo: string) {
+    if (!this.tablasCompletas) {
+      return { equipo: null, grupo: null };
+    }
+    return this.partidosService.buscarEquipoEnCuadrangulares(this.tablasCompletas, nombreEquipo);
+  }
+
+  // ================================
+  // 🆕 MÉTODOS PARA CLASIFICACIÓN DE EQUIPOS EN CUADRANGULARES
+  // ================================
+
+  /**
+   * Verifica si un equipo pertenece al Cuadrangular A
+   */
+  esCuadrangularA(equipo: TablaEquipo): boolean {
+    return this.cuadrangularA.some(equipoA => equipoA.team.id === equipo.team.id);
+  }
+
+  /**
+   * Verifica si un equipo pertenece al Cuadrangular B
+   */
+  esCuadrangularB(equipo: TablaEquipo): boolean {
+    return this.cuadrangularB.some(equipoB => equipoB.team.id === equipo.team.id);
+  }
+
+  /**
+   * Obtiene el nombre del grupo al que pertenece un equipo
+   */
+  obtenerGrupoEquipo(equipo: TablaEquipo): string {
+    if (this.esCuadrangularA(equipo)) {
+      return 'A';
+    } else if (this.esCuadrangularB(equipo)) {
+      return 'B';
+    }
+    return equipo.group || 'N/A';
+  }
+
+  /**
+   * Obtiene el color del chip según el cuadrangular
+   */
+  obtenerColorChipCuadrangular(equipo: TablaEquipo): string {
+    if (this.esCuadrangularA(equipo)) {
+      return '#1976d2'; // Azul
+    } else if (this.esCuadrangularB(equipo)) {
+      return '#d32f2f'; // Rojo
+    }
+    return '#757575'; // Gris por defecto
   }
 
   // ================================

@@ -95,6 +95,24 @@ export interface TablaEquipo {
   };
 }
 
+// ================================
+// 🏆 NUEVAS INTERFACES PARA CUADRANGULARES
+// ================================
+
+export interface GrupoInfo {
+  nombreGrupo: string;        // "Cuadrangular A", "Cuadrangular B"
+  equipos: TablaEquipo[];     // Array de equipos del grupo
+  totalEquipos: number;       // Cantidad de equipos en el grupo
+}
+
+export interface TablasCompletas {
+  grupos: GrupoInfo[];        // Array de todos los grupos
+  tablaCompleta: TablaEquipo[]; // Todos los equipos unidos
+  totalEquipos: number;       // Total de equipos en todos los grupos
+  totalGrupos: number;        // Cantidad de grupos/cuadrangulares
+  temporada: string;          // Temporada actual
+}
+
 // Estados posibles del partido
 export type EstadoPartido = 
   | "Not Started"
@@ -175,14 +193,59 @@ export class PartidosService {
 
   /**
    * Obtiene la tabla de posiciones actualizada de la Liga Colombiana
+   * ACTUALIZADO: Ahora devuelve TODOS los equipos de TODOS los cuadrangulares unidos
    */
   obtenerTablaLigaColombiana(): Observable<TablaEquipo[]> {
-    console.log('🏆 Obteniendo tabla de posiciones...');
+    console.log('🏆 Obteniendo tabla de posiciones completa...');
     
     return this.http.get<TablaEquipo[]>(`${this.apiUrl}/tabla`)
       .pipe(
-        tap(tabla => console.log(`✅ Tabla obtenida con ${tabla.length} equipos`)),
+        tap(tabla => console.log(`✅ Tabla completa obtenida con ${tabla.length} equipos`)),
         catchError(this.handleError<TablaEquipo[]>('obtenerTablaLigaColombiana', []))
+      );
+  }
+
+  // ================================
+  // 🏆 NUEVOS ENDPOINTS DE CUADRANGULARES
+  // ================================
+
+  /**
+   * 🆕 Obtiene información completa de todos los cuadrangulares/grupos
+   * Incluye metadatos y estructura detallada
+   */
+  obtenerTodasLasTablas(): Observable<TablasCompletas> {
+    console.log('🏆 Obteniendo información completa de cuadrangulares...');
+    
+    return this.http.get<TablasCompletas>(`${this.apiUrl}/tablas-completas`)
+      .pipe(
+        tap(data => console.log(`✅ Cuadrangulares obtenidos: ${data.totalGrupos} grupos, ${data.totalEquipos} equipos`)),
+        catchError(this.handleError<TablasCompletas>('obtenerTodasLasTablas'))
+      );
+  }
+
+  /**
+   * 🆕 Obtiene solo los equipos del Cuadrangular A
+   */
+  obtenerCuadrangularA(): Observable<TablaEquipo[]> {
+    console.log('🔵 Obteniendo Cuadrangular A...');
+    
+    return this.http.get<TablaEquipo[]>(`${this.apiUrl}/cuadrangular-a`)
+      .pipe(
+        tap(equipos => console.log(`✅ Cuadrangular A obtenido con ${equipos.length} equipos`)),
+        catchError(this.handleError<TablaEquipo[]>('obtenerCuadrangularA', []))
+      );
+  }
+
+  /**
+   * 🆕 Obtiene solo los equipos del Cuadrangular B
+   */
+  obtenerCuadrangularB(): Observable<TablaEquipo[]> {
+    console.log('🔴 Obteniendo Cuadrangular B...');
+    
+    return this.http.get<TablaEquipo[]>(`${this.apiUrl}/cuadrangular-b`)
+      .pipe(
+        tap(equipos => console.log(`✅ Cuadrangular B obtenido con ${equipos.length} equipos`)),
+        catchError(this.handleError<TablaEquipo[]>('obtenerCuadrangularB', []))
       );
   }
 
@@ -305,6 +368,65 @@ export class PartidosService {
    */
   obtenerFechaHoy(): string {
     return new Date().toISOString().split('T')[0];
+  }
+
+  // ================================
+  // 🆕 MÉTODOS AUXILIARES PARA CUADRANGULARES
+  // ================================
+
+  /**
+   * Extrae solo los equipos del Cuadrangular A desde TablasCompletas
+   */
+  extraerCuadrangularA(tablasCompletas: TablasCompletas): TablaEquipo[] {
+    const grupoA = tablasCompletas.grupos.find(g => 
+      g.nombreGrupo.toLowerCase().includes('a') || 
+      g.nombreGrupo.toLowerCase().includes('cuadrangular a')
+    );
+    return grupoA ? grupoA.equipos : [];
+  }
+
+  /**
+   * Extrae solo los equipos del Cuadrangular B desde TablasCompletas
+   */
+  extraerCuadrangularB(tablasCompletas: TablasCompletas): TablaEquipo[] {
+    const grupoB = tablasCompletas.grupos.find(g => 
+      g.nombreGrupo.toLowerCase().includes('b') || 
+      g.nombreGrupo.toLowerCase().includes('cuadrangular b')
+    );
+    return grupoB ? grupoB.equipos : [];
+  }
+
+  /**
+   * Obtiene estadísticas rápidas de los cuadrangulares
+   */
+  obtenerEstadisticasCuadrangulares(tablasCompletas: TablasCompletas) {
+    return {
+      totalGrupos: tablasCompletas.totalGrupos,
+      totalEquipos: tablasCompletas.totalEquipos,
+      equiposA: this.extraerCuadrangularA(tablasCompletas).length,
+      equiposB: this.extraerCuadrangularB(tablasCompletas).length,
+      temporada: tablasCompletas.temporada,
+      liderA: this.extraerCuadrangularA(tablasCompletas)[0]?.team.name || 'No disponible',
+      liderB: this.extraerCuadrangularB(tablasCompletas)[0]?.team.name || 'No disponible'
+    };
+  }
+
+  /**
+   * Busca un equipo específico en todos los cuadrangulares
+   */
+  buscarEquipoEnCuadrangulares(tablasCompletas: TablasCompletas, nombreEquipo: string): {
+    equipo: TablaEquipo | null;
+    grupo: string | null;
+  } {
+    for (const grupo of tablasCompletas.grupos) {
+      const equipo = grupo.equipos.find(e => 
+        e.team.name.toLowerCase().includes(nombreEquipo.toLowerCase())
+      );
+      if (equipo) {
+        return { equipo, grupo: grupo.nombreGrupo };
+      }
+    }
+    return { equipo: null, grupo: null };
   }
 
   /**

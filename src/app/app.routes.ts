@@ -41,7 +41,7 @@ export const routes: Routes = [
   {
     path: 'partidos',
     loadComponent: () =>
-      import('./admin/eventos/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
+      import('./pages/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
   },
   {
     path: 'noticias',
@@ -79,7 +79,7 @@ export const routes: Routes = [
       {
         path: 'partidos',
         loadComponent: () =>
-          import('./admin/eventos/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
+          import('./pages/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
       }
     ]
   },
@@ -143,12 +143,12 @@ export const routes: Routes = [
       {
         path: 'eventos/partidos',
         loadComponent: () =>
-          import('./admin/eventos/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
+          import('./pages/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
       },
       {
         path: 'eventos/gestionar-partidos',
         loadComponent: () =>
-          import('./admin/eventos/gestionar-partidos/gestionar-partidos.component').then(m => m.GestionarPartidosComponent)
+          import('./pages/gestionar-partidos/gestionar-partidos.component').then(m => m.GestionarPartidosComponent)
       },
       // SECCIONES
       {
