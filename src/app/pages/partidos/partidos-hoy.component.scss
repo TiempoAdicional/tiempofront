@@ -2061,4 +2061,141 @@ $color-borde: #e0e0e0;
     }
   }
 }
+
+// ===============================
+// 🏆 NUEVOS ESTILOS PARA TABLAS SEPARADAS
+// ===============================
+
+.tablas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+// Estilos específicos para cada tabla
+.tabla-card {
+  &.cuadrangular-a-card {
+    border-left: 4px solid #2196F3;
+    
+    .mat-mdc-card-header {
+      background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
+    }
+    
+    .tabla-posiciones.cuadrangular-a {
+      .tabla-header {
+        background: linear-gradient(135deg, #1976d2, #2196F3) !important;
+      }
+      
+      .equipo-fila.clasificado {
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
+        border-left: 3px solid #2196F3;
+      }
+      
+      .posicion.clasificado {
+        background: linear-gradient(135deg, #1976d2, #2196F3);
+        color: white;
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.4);
+      }
+      
+      .posicion.eliminado {
+        background: linear-gradient(135deg, #757575, #9e9e9e);
+        color: white;
+      }
+    }
+  }
+  
+  &.cuadrangular-b-card {
+    border-left: 4px solid #F44336;
+    
+    .mat-mdc-card-header {
+      background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(244, 67, 54, 0.05));
+    }
+    
+    .tabla-posiciones.cuadrangular-b {
+      .tabla-header {
+        background: linear-gradient(135deg, #d32f2f, #F44336) !important;
+      }
+      
+      .equipo-fila.clasificado {
+        background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(244, 67, 54, 0.05));
+        border-left: 3px solid #F44336;
+      }
+      
+      .posicion.clasificado {
+        background: linear-gradient(135deg, #d32f2f, #F44336);
+        color: white;
+        box-shadow: 0 2px 8px rgba(244, 67, 54, 0.4);
+      }
+      
+      .posicion.eliminado {
+        background: linear-gradient(135deg, #757575, #9e9e9e);
+        color: white;
+      }
+    }
+  }
+  
+  &.tabla-general-card {
+    border-left: 4px solid #4CAF50;
+    
+    .mat-mdc-card-header {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+    }
+    
+    .tabla-posiciones.tabla-general {
+      .tabla-header {
+        background: linear-gradient(135deg, #2e7d32, #4CAF50) !important;
+      }
+    }
+  }
+}
+
+// Nuevas clases para leyendas de cuadrangulares
+.tabla-leyenda {
+  .leyenda-item {
+    &.clasificado {
+      .indicador {
+        background: linear-gradient(135deg, #4CAF50, #66BB6A);
+      }
+    }
+    
+    &.eliminado {
+      .indicador {
+        background: linear-gradient(135deg, #757575, #9e9e9e);
+      }
+    }
+  }
+}
+
+// Responsive para las tablas separadas
+@media (max-width: 1024px) {
+  .tablas-container {
+    gap: 1.5rem;
+  }
+  
+  .tabla-card {
+    margin: 0 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .tablas-container {
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+  
+  .tabla-card {
+    margin: 0;
+    
+    &.cuadrangular-a-card,
+    &.cuadrangular-b-card,
+    &.tabla-general-card {
+      border-left-width: 3px;
+    }
+  }
+  
+  .tabla-posiciones {
+    max-height: 50vh;
+  }
+}
 }

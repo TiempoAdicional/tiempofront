@@ -26,6 +26,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 
 // Services
 import { PartidosService, PartidoDTO, TablaEquipo, EstadoPartido, TablasCompletas, GrupoInfo } from '../../core/services/partidos.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 @Component({
   selector: 'app-partidos-hoy',
@@ -96,7 +97,8 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private partidosService: PartidosService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -339,7 +341,45 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
   // ================================
 
   volverAlDashboard(): void {
-    this.router.navigate(['/']);
+    // Verificar si el usuario está autenticado
+    if (!this.authService.estaAutenticado()) {
+      // Usuario no autenticado: ir al dashboard público
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
+    // Usuario autenticado: verificar rol
+    const userData = this.authService.obtenerUsuario();
+    
+    if (!userData || !userData.rol) {
+      // Si no hay datos de usuario, ir al dashboard público
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
+    // Navegar según el rol del usuario
+    switch (userData.rol.toUpperCase()) {
+      case 'ADMIN':
+     
+        this.router.navigate(['/admin']);
+        break;
+        
+      case 'EDITOR_JEFE':
+    
+        this.router.navigate(['/admin']);
+        break;
+        
+      case 'USUARIO':
+ 
+        this.router.navigate(['/usuarios']);
+        break;
+        
+      default:
+        // Rol no reconocido: ir al dashboard público
+        console.warn('Rol no reconocido:', userData.rol);
+        this.router.navigate(['/dashboard']);
+        break;
+    }
   }
 
   verDetallesPartido(partido: PartidoDTO): void {
@@ -432,45 +472,65 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
   }
 
   // ================================
-  // 🆕 MÉTODOS PARA CLASIFICACIÓN DE EQUIPOS EN CUADRANGULARES
+  // 🏆 MÉTODOS PARA TABLAS SEPARADAS
   // ================================
 
   /**
    * Verifica si un equipo pertenece al Cuadrangular A
    */
   esCuadrangularA(equipo: TablaEquipo): boolean {
-    return this.cuadrangularA.some(equipoA => equipoA.team.id === equipo.team.id);
+    return this.cuadrangularA.some(e => e.team.id === equipo.team.id);
   }
 
   /**
    * Verifica si un equipo pertenece al Cuadrangular B
    */
   esCuadrangularB(equipo: TablaEquipo): boolean {
-    return this.cuadrangularB.some(equipoB => equipoB.team.id === equipo.team.id);
+    return this.cuadrangularB.some(e => e.team.id === equipo.team.id);
   }
 
   /**
-   * Obtiene el nombre del grupo al que pertenece un equipo
+   * Obtiene las clases CSS para la posición del equipo en cuadrangular
    */
-  obtenerGrupoEquipo(equipo: TablaEquipo): string {
-    if (this.esCuadrangularA(equipo)) {
-      return 'A';
-    } else if (this.esCuadrangularB(equipo)) {
-      return 'B';
+  obtenerClasesPosicion(equipo: TablaEquipo, index: number): string {
+    let clases = '';
+    
+    if (this.esCuadrangularA(equipo) || this.esCuadrangularB(equipo)) {
+      // En cuadrangulares: solo primeros 2 clasifican
+      if (index < 2) {
+        clases += 'clasificado ';
+      } else {
+        clases += 'eliminado ';
+      }
+    } else {
+      // En tabla general: diferentes zonas
+      if (index < 4) {
+        clases += 'champions ';
+      } else if (index >= 4 && index < 8) {
+        clases += 'libertadores ';
+      } else if (index >= 8 && index < 12) {
+        clases += 'sudamericana ';
+      } else {
+        clases += 'descenso ';
+      }
     }
-    return equipo.group || 'N/A';
+    
+    return clases.trim();
   }
 
   /**
-   * Obtiene el color del chip según el cuadrangular
+   * Obtiene el título apropiado para cada tabla
    */
-  obtenerColorChipCuadrangular(equipo: TablaEquipo): string {
-    if (this.esCuadrangularA(equipo)) {
-      return '#1976d2'; // Azul
-    } else if (this.esCuadrangularB(equipo)) {
-      return '#d32f2f'; // Rojo
+  obtenerTituloTabla(tipo: 'cuadrangular-a' | 'cuadrangular-b' | 'completa'): string {
+    switch (tipo) {
+      case 'cuadrangular-a':
+        return `🔵 Cuadrangular A - ${this.cuadrangularA.length} equipos`;
+      case 'cuadrangular-b':
+        return `🔴 Cuadrangular B - ${this.cuadrangularB.length} equipos`;
+      case 'completa':
+      default:
+        return `🏆 Tabla General Liga Colombiana - ${this.tablaLigaColombiana.length} equipos`;
     }
-    return '#757575'; // Gris por defecto
   }
 
   // ================================

@@ -5,30 +5,24 @@
 :host {
   display: block;
   width: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scroll-behavior: smooth;
+  height: 100%;
 }
 
 .usuario-container {
   min-height: 100vh;
-  background: var(--bg-color);
+  background: var(--bg-gradient);
   font-family: 'League Spartan', sans-serif;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  scroll-behavior: smooth;
   animation: fadeInContainer 0.6s ease-out;
   
   // Mejorar el scroll en móviles
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
   
   // Asegurar que el contenido no se corte
   padding-bottom: 2rem;
-  
-  // Eliminar cualquier restricción de altura que pueda bloquear scroll
-  max-height: none;
-  height: auto;
 }
 
 @keyframes fadeInContainer {
@@ -1035,6 +1029,28 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  max-height: 80vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  
+  // Scroll styling
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--verde-selva);
+    border-radius: 10px;
+    
+    &:hover {
+      background: var(--verde-bosque);
+    }
+  }
 
   .section-header {
     display: flex;
@@ -1070,6 +1086,29 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    max-height: 50vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding-right: 8px;
+    
+    // Scroll styling
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--verde-lima);
+      border-radius: 10px;
+      
+      &:hover {
+        background: var(--verde-selva);
+      }
+    }
   }
 
   .evento-card {
@@ -1191,13 +1230,38 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding-right: 8px;
+    
+    // Scroll styling
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--verde-lima);
+      border-radius: 10px;
+      
+      &:hover {
+        background: var(--verde-selva);
+      }
+    }
   }
 
   .partido-card {
     transition: all var(--transition-fast);
     border-radius: var(--radius-lg);
-    overflow: hidden;
+    overflow: visible; // Cambiar de hidden a visible
     position: relative;
+    min-height: fit-content;
+    max-height: none; // Permitir que la card crezca según contenido
 
     &:hover {
       transform: translateY(-2px);
@@ -1713,7 +1777,11 @@
   }
 
   .eventos-sidebar {
-    display: none; // Ocultar en móvil, mostrar en tabs
+    display: flex; // Mostrar en móvil también
+    grid-template-columns: 1fr; // Una sola columna en móvil
+    gap: 1.5rem;
+    max-height: 50vh; // Altura reducida en móvil
+    overflow-y: auto;
   }
 
   .mobile-only {
@@ -1742,35 +1810,6 @@
   .noticias-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-}
-
-// ===============================
-// 🚨 EMERGENCY SCROLL FIX
-// ===============================
-
-// Asegurar que el scroll funcione siempre
-html {
-  scroll-behavior: smooth !important;
-  overflow-y: auto !important;
-}
-
-body {
-  overflow-y: auto !important;
-  scroll-behavior: smooth !important;
-}
-
-// Forzar scroll en el contenedor principal
-.usuario-container {
-  overflow-y: auto !important;
-  scroll-behavior: smooth !important;
-  height: auto !important;
-  max-height: none !important;
-}
-
-// Asegurar que ningún elemento bloquee el scroll
-.main-content {
-  overflow-y: auto !important;
-  position: relative !important;
 }
 
 // ===============================

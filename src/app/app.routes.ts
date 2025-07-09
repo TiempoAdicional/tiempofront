@@ -21,7 +21,7 @@ export const routes: Routes = [
       import('./usuarios/dashboard/dashboard.component').then(m => m.UsuarioDashboardComponent)
   },
   
-  // Public detail routes - URLs para compartir noticias
+  // Public detail routes - URLs para compartir noticias y contenido público
   {
     path: 'noticia/:id',
     canActivate: [noticiaPublicaGuard],
@@ -38,11 +38,24 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/equipo-publico/equipo-publico.component').then(m => m.EquipoPublicoComponent)
   },
+  
+  // Rutas públicas de partidos - accesibles para todos los usuarios
   {
     path: 'partidos',
     loadComponent: () =>
       import('./pages/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
   },
+  {
+    path: 'partidos/tabla',
+    loadComponent: () =>
+      import('./pages/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
+  },
+  {
+    path: 'partidos/hoy',
+    loadComponent: () =>
+      import('./pages/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
+  },
+  
   {
     path: 'noticias',
     loadComponent: () =>
@@ -75,11 +88,6 @@ export const routes: Routes = [
         path: 'noticias',
         loadComponent: () =>
           import('./usuarios/noticias-lista/noticias-lista.component').then(m => m.NoticiasListaComponent)
-      },
-      {
-        path: 'partidos',
-        loadComponent: () =>
-          import('./pages/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
       }
     ]
   },
@@ -139,12 +147,7 @@ export const routes: Routes = [
           import('./admin/eventos/editar/editar.component').then(m => m.EditarComponent)
       },
 
-      // PARTIDOS (dentro de eventos)
-      {
-        path: 'eventos/partidos',
-        loadComponent: () =>
-          import('./pages/partidos/partidos-hoy.component').then(m => m.PartidosHoyComponent)
-      },
+      // PARTIDOS (Gestión administrativa solamente)
       {
         path: 'eventos/gestionar-partidos',
         loadComponent: () =>
