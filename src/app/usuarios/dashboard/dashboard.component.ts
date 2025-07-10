@@ -681,7 +681,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     );
   }
 
-  private scrollToSection(section: string): void {
+  scrollToSection(section: string): void {
     setTimeout(() => {
       const element = document.getElementById(section);
       if (element) {

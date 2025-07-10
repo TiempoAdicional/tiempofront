@@ -6,6 +6,7 @@
     --verde-bosque: #045204;
     --verde-selva: #1a8000;
     --verde-lima: #b4ff15;
+    --verde-claro: #c4ff45;
     --gris-fondo: #1b1f24; // nuevo fondo más suave que el negro puro
     --gris-card: #262b32;
     --purpura-profundo: #3b0452;
@@ -16,7 +17,15 @@
     --negro: #000000;
     --gris-carbon: #303030;
     --ta-verde-oscuro: #003e29;
-  --ta-verde-oliva-claro: #81b29a;
+    --ta-verde-oliva-claro: #81b29a;
+
+    // Nuevas variables agregadas
+    --azul-cielo: #2196F3;
+    --azul-profundo: #1976D2;
+    --naranja-energia: #FF9800;
+    --naranja-intenso: #F57C00;
+    --dorado-tiempo: #FFD700;
+    --border-light: rgba(255, 255, 255, 0.1);
 
     --primary-color: var(--verde-selva);
     --secondary-color: var(--purpura-real);
@@ -24,8 +33,6 @@
     --bg-color: var(--blanco-suave);
     --bg-gradient: linear-gradient(135deg, var(--gris-fondo) 0%, var(--gris-card) 100%);
     --accent-color: var(--verde-lima);
-
-
 
     // ===============================
     // 📱 BREAKPOINTS
@@ -39,9 +46,28 @@
     // ===============================
     --radius-xl: 2rem;
     --radius-lg: 1rem;
+    --radius-md: 0.75rem;
+    --radius-sm: 0.5rem;
     --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-elevated: 0 8px 25px rgba(0, 0, 0, 0.15);
     --transition-fast: 0.2s ease-in-out;
+}
 
+// ===============================
+// 🔄 RESET GLOBAL
+// ===============================
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-gradient);
+    font-family: 'League Spartan', sans-serif;
 }
 
 // ===============================

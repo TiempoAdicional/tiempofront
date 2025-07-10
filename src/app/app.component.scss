@@ -1,0 +1,35 @@
+// ===============================
+// 🎨 ESTILOS GLOBALES DE LA APP
+// ===============================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-gradient);
+  font-family: 'League Spartan', sans-serif;
+}
+
+.main-content {
+  min-height: 100vh;
+  padding-top: 70px; // Espacio para el header fijo
+  
+  &.admin-layout {
+    padding-top: 0; // Sin padding en admin porque no hay header
+  }
+}
+
+// ===============================
+// 📱 RESPONSIVE ADJUSTMENTS
+// ===============================
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 60px; // Header más pequeño en móvil
+  }
+}

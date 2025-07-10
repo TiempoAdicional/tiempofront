@@ -6,23 +6,24 @@
   display: block;
   width: 100%;
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .usuario-container {
-  min-height: 100vh;
+  min-height: calc(100vh - 70px); // Ajustar para el header
   background: var(--bg-gradient);
   font-family: 'League Spartan', sans-serif;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
   animation: fadeInContainer 0.6s ease-out;
+  margin: 0;
+  padding: 0 0 2rem 0; // Solo padding inferior
   
   // Mejorar el scroll en móviles
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
-  
-  // Asegurar que el contenido no se corte
-  padding-bottom: 2rem;
 }
 
 @keyframes fadeInContainer {
@@ -39,14 +40,17 @@
 // ===============================
 // 🎨 HEADER USUARIO - RESPONSIVE
 // ===============================
+// NOTA: Este header de usuario parece no estar en uso en el HTML
+// Se mantiene comentado para referencia futura
+/*
 .usuario-header {
   background: linear-gradient(135deg, var(--verde-selva), var(--verde-bosque));
   color: white;
   box-shadow: var(--shadow-soft);
   margin-bottom: 2rem;
   position: sticky;
-  top: 0;
-  z-index: 100;
+  top: 70px; // Ajustar para no chocar con el header principal
+  z-index: 90; // Menor que el header principal
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 
@@ -189,6 +193,7 @@
     }
   }
 }
+*/
 
 // ===============================
 // 🎠 HERO CAROUSEL - NOTICIAS DESTACADAS
@@ -198,9 +203,13 @@
   height: clamp(300px, 60vh, 600px);
   background: linear-gradient(135deg, var(--verde-selva), var(--verde-bosque));
   overflow: hidden;
-  margin-bottom: 2rem;
+  margin: 0 1rem 2rem 1rem; // Márgenes laterales consistentes
   border-radius: var(--radius-lg);
   animation: slideInUp 0.8s ease-out;
+
+  @media (max-width: 768px) {
+    margin: 0 0.5rem 1rem 0.5rem; // Márgenes más pequeños en móvil
+  }
 
   @keyframes slideInUp {
     from {
@@ -493,12 +502,17 @@
 .sports-nav {
   background: var(--blanco);
   box-shadow: var(--shadow-soft);
-  margin-bottom: 2rem;
+  margin: 0 1rem 2rem 1rem; // Márgenes consistentes
   border-radius: var(--radius-lg);
   animation: slideInUp 0.6s ease-out 0.3s backwards;
   position: sticky;
-  top: 80px;
+  top: 80px; // Ajustar para el header principal
   z-index: 50;
+
+  @media (max-width: 768px) {
+    margin: 0 0.5rem 1rem 0.5rem; // Márgenes más pequeños en móvil
+    top: 70px; // Header más pequeño en móvil
+  }
 
   .sports-tabs {
     max-width: 1400px;
@@ -591,7 +605,12 @@
 // 📰 SECCIÓN NOTICIAS - RESPONSIVE
 // ===============================
 .noticias-section {
+  margin: 0 1rem 2rem 1rem; // Márgenes consistentes
   animation: slideInLeft 0.8s ease-out 0.7s backwards;
+
+  @media (max-width: 768px) {
+    margin: 0 0.5rem 1rem 0.5rem; // Márgenes más pequeños en móvil
+  }
 
   .section-header {
     display: flex;
@@ -927,10 +946,15 @@
 // � SIDEBAR - RESPONSIVE
 // ===============================
 .sidebar {
+  margin: 0 1rem; // Márgenes consistentes
   animation: slideInRight 0.8s ease-out 0.9s backwards;
 
   @media (max-width: 1024px) {
-    margin-top: 2rem;
+    margin: 2rem 1rem 0 1rem;
+  }
+
+  @media (max-width: 768px) {
+    margin: 1rem 0.5rem 0 0.5rem; // Márgenes más pequeños en móvil
   }
 }
 
@@ -938,11 +962,11 @@
 // �📞 CALL TO ACTION - RESPONSIVE
 // ===============================
 .cta-section {
-  margin-top: 3rem;
+  margin: 3rem 1rem 2rem 1rem; // Márgenes consistentes
   animation: fadeInUp 0.8s ease-out 1.1s backwards;
 
   @media (max-width: 768px) {
-    margin-top: 2rem;
+    margin: 2rem 0.5rem 1rem 0.5rem; // Márgenes más pequeños en móvil
   }
 
   .cta-card {
@@ -1082,6 +1106,11 @@
 // 🎪 EVENTOS
 // ===============================
 .eventos-section {
+  margin: 0 1rem 2rem 1rem; // Márgenes consistentes
+
+  @media (max-width: 768px) {
+    margin: 0 0.5rem 1rem 0.5rem; // Márgenes más pequeños en móvil
+  }
   .eventos-lista {
     display: flex;
     flex-direction: column;
@@ -1218,6 +1247,11 @@
 // ⚽ PARTIDOS DE FÚTBOL - MEJORADO
 // ===============================
 .partidos-section {
+  margin: 0 1rem 2rem 1rem; // Márgenes consistentes
+
+  @media (max-width: 768px) {
+    margin: 0 0.5rem 1rem 0.5rem; // Márgenes más pequeños en móvil
+  }
   .section-titulo {
     .contador {
       font-size: 0.8rem;
@@ -1428,33 +1462,69 @@
     }
   }
 
-  // Banner de registro para más partidos
-  .registro-banner {
+  // Banner CTA específico para partidos
+  .partidos-cta {
     margin-top: 1rem;
     
-    .banner-card {
-      background: linear-gradient(135deg, var(--verde-selva), var(--verde-bosque));
+    .cta-card {
+      background: linear-gradient(135deg, var(--azul-cielo), var(--azul-profundo));
       color: white;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 16px rgba(33, 150, 243, 0.2);
       
       mat-card-content {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
         padding: 1rem;
         
-        mat-icon {
-          font-size: 1.5rem;
-          color: var(--dorado-tiempo);
-        }
-        
-        p {
-          flex: 1;
-          margin: 0;
-          font-size: 0.9rem;
-        }
-        
-        button {
-          flex-shrink: 0;
+        .cta-content {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          
+          @media (max-width: 480px) {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+          }
+          
+          mat-icon {
+            font-size: 1.8rem;
+            color: var(--dorado-tiempo);
+            flex-shrink: 0;
+          }
+          
+          .cta-text {
+            flex: 1;
+            
+            p {
+              margin: 0 0 0.25rem 0;
+              font-size: 0.95rem;
+              font-weight: 600;
+            }
+            
+            small {
+              color: rgba(255, 255, 255, 0.8);
+              font-size: 0.8rem;
+            }
+          }
+          
+          .cta-btn {
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: 600;
+            border-radius: 20px;
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.2);
+              border-color: rgba(255, 255, 255, 0.5);
+              transform: translateY(-2px);
+            }
+            
+            @media (max-width: 480px) {
+              width: 100%;
+            }
+          }
         }
       }
     }
@@ -1618,67 +1688,155 @@
 }
 
 // ===============================
-// 🎭 BANNER DE DEMOSTRACIÓN
+// � BANNER DE BIENVENIDA - USUARIOS NO REGISTRADOS
 // ===============================
-.demo-banner {
-  margin-bottom: 2rem;
+.welcome-banner {
+  margin: 1rem 1rem 2rem 1rem; // Agregar margen superior y lateral
   animation: slideInDown 0.6s ease-out;
 
   @media (max-width: 768px) {
-    margin-bottom: 1rem;
+    margin: 0.5rem 0.5rem 1rem 0.5rem; // Márgenes más pequeños en móvil
   }
 
-  .demo-card {
-    background: linear-gradient(135deg, #fff3e0, #ffecb3);
-    border: 2px solid #ff9800;
+  .welcome-card {
+    background: linear-gradient(135deg, #e8f5e8, #f1f8ff);
+    border: 2px solid var(--verde-selva);
     border-radius: var(--radius-lg);
-    box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2);
+    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.15);
+    overflow: hidden;
 
-    .demo-content {
-      display: flex;
+    .welcome-content {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
       align-items: center;
-      gap: 1rem;
+      gap: 1.5rem;
       padding: 0.5rem;
 
-      @media (max-width: 768px) {
-        flex-direction: column;
+      @media (max-width: 968px) {
+        grid-template-columns: 1fr;
         text-align: center;
-        gap: 0.75rem;
+        gap: 1rem;
       }
 
-      .demo-icon {
-        color: #ff9800;
-        font-size: 2rem;
+      .welcome-icon {
+        background: var(--verde-selva);
+        color: white;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         
-        @media (max-width: 768px) {
-          font-size: 1.5rem;
+        mat-icon {
+          font-size: 2rem;
+          width: 2rem;
+          height: 2rem;
+        }
+
+        @media (max-width: 968px) {
+          width: 50px;
+          height: 50px;
+          margin: 0 auto;
+          
+          mat-icon {
+            font-size: 1.5rem;
+            width: 1.5rem;
+            height: 1.5rem;
+          }
         }
       }
 
-      .demo-text {
+      .welcome-text {
         flex: 1;
 
-        h4 {
+        h3 {
           margin: 0 0 0.5rem 0;
-          color: #e65100;
+          color: var(--verde-bosque);
           font-family: 'Anton', sans-serif;
-          font-size: clamp(1rem, 2.5vw, 1.2rem);
+          font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+          font-weight: 700;
         }
 
         p {
+          margin: 0 0 0.75rem 0;
+          color: #2e7d32;
+          font-size: clamp(0.9rem, 2vw, 1rem);
+          line-height: 1.5;
+        }
+
+        .benefits-list {
+          list-style: none;
+          padding: 0;
           margin: 0;
-          color: #bf360c;
-          font-size: clamp(0.85rem, 2vw, 0.95rem);
-          line-height: 1.4;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 0.5rem;
+
+          @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+          }
+
+          li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #1b5e20;
+            font-size: 0.875rem;
+            font-weight: 500;
+
+            mat-icon {
+              color: var(--verde-selva);
+              font-size: 1.2rem;
+              width: 1.2rem;
+              height: 1.2rem;
+            }
+          }
         }
       }
 
-      .demo-btn {
-        font-weight: 700;
-        font-size: clamp(0.8rem, 2vw, 0.9rem);
-        
-        @media (max-width: 768px) {
+      .welcome-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        @media (max-width: 968px) {
+          flex-direction: row;
+          justify-content: center;
           width: 100%;
+        }
+
+        @media (max-width: 480px) {
+          flex-direction: column;
+        }
+
+        .register-btn {
+          font-weight: 700;
+          font-size: clamp(0.8rem, 2vw, 0.9rem);
+          padding: 0.75rem 1.5rem;
+          border-radius: 25px;
+          background: linear-gradient(45deg, var(--verde-selva), var(--verde-bosque));
+          
+          &:hover {
+            background: linear-gradient(45deg, var(--verde-bosque), var(--verde-selva));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+          }
+        }
+
+        .login-btn {
+          font-weight: 600;
+          font-size: clamp(0.8rem, 2vw, 0.9rem);
+          padding: 0.6rem 1.5rem;
+          border-radius: 25px;
+          border: 2px solid var(--azul-cielo);
+          color: var(--azul-profundo);
+          
+          &:hover {
+            background: var(--azul-cielo);
+            color: white;
+            transform: translateY(-1px);
+          }
         }
       }
     }
@@ -1809,6 +1967,83 @@
 
   .noticias-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// ===============================
+// 📱 ACCIONES MÓVILES
+// ===============================
+.mobile-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-light);
+  padding: 1rem;
+  z-index: 1000;
+  display: none; // Por defecto oculto
+  
+  // Solo mostrar en móviles
+  @media (max-width: 768px) {
+    display: block;
+  }
+  
+  .quick-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    max-width: 100%;
+    
+    .action-btn {
+      flex: 1;
+      min-height: 48px;
+      font-size: 0.875rem;
+      border-radius: 12px;
+      
+      mat-icon {
+        margin-right: 0.25rem;
+        font-size: 1.2rem;
+      }
+      
+      // Botón primario (registro)
+      &[color="primary"] {
+        background: var(--verde-selva);
+        color: white;
+        
+        &:hover {
+          background: var(--verde-bosque);
+        }
+      }
+      
+      // Botón accent (noticias)
+      &[color="accent"] {
+        background: var(--azul-cielo);
+        color: white;
+        
+        &:hover {
+          background: var(--azul-profundo);
+        }
+      }
+      
+      // Botón warn (eventos)
+      &[color="warn"] {
+        background: var(--naranja-energia);
+        color: white;
+        
+        &:hover {
+          background: var(--naranja-intenso);
+        }
+      }
+    }
+  }
+}
+
+// Agregar padding al contenido para que no se oculte debajo de las acciones móviles
+@media (max-width: 768px) {
+  .usuario-container {
+    padding-bottom: 6rem; // Espacio para las acciones móviles
   }
 }
 

@@ -4,21 +4,35 @@
 <div class="usuario-container">
 
   <!-- ===============================
-       ⚠️ BANNER DE ESTADO BACKEND
+       🎯 BANNER DE BIENVENIDA - USUARIOS NO REGISTRADOS
        =============================== -->
-  <div class="demo-banner" *ngIf="!estaAutenticado">
-    <mat-card class="demo-card">
+  <div class="welcome-banner" *ngIf="!estaAutenticado">
+    <mat-card class="welcome-card">
       <mat-card-content>
-        <div class="demo-content">
-          <mat-icon class="demo-icon">info</mat-icon>
-          <div class="demo-text">
-            <h4>🏠 Dashboard de Usuario - Vista Pública</h4>
-            <p>Estás viendo contenido limitado: <strong>10 noticias</strong>, <strong>8 eventos</strong> y <strong>6 partidos</strong> más recientes. <strong>Regístrate gratis</strong> para acceder a todo el contenido deportivo sin restricciones y poder comentar.</p>
+        <div class="welcome-content">
+          <div class="welcome-icon">
+            <mat-icon>sports</mat-icon>
           </div>
-          <button mat-raised-button color="primary" (click)="irARegistro()" class="demo-btn">
-            <mat-icon>person_add</mat-icon>
-            Registrarse Gratis
-          </button>
+          <div class="welcome-text">
+            <h3>¡Bienvenido a Tiempo Adicional!</h3>
+            <p>Estás viendo <strong>contenido limitado</strong>. Regístrate <strong>gratis</strong> para acceder a:</p>
+            <ul class="benefits-list">
+              <li><mat-icon>article</mat-icon> Todas las noticias deportivas</li>
+              <li><mat-icon>event</mat-icon> Eventos y coberturas completas</li>
+              <li><mat-icon>sports_soccer</mat-icon> Estadísticas detalladas de partidos</li>
+              <li><mat-icon>comment</mat-icon> Poder comentar y participar</li>
+            </ul>
+          </div>
+          <div class="welcome-actions">
+            <button mat-raised-button color="primary" (click)="irARegistro()" class="register-btn">
+              <mat-icon>person_add</mat-icon>
+              Registrarse Gratis
+            </button>
+            <button mat-stroked-button color="accent" (click)="irALogin()" class="login-btn">
+              <mat-icon>login</mat-icon>
+              Iniciar Sesión
+            </button>
+          </div>
         </div>
       </mat-card-content>
     </mat-card>
@@ -121,10 +135,10 @@
         </h2>
         
         <!-- Límite para no registrados -->
-        <div class="limite-badge" *ngIf="mostrarLimites">
+        <div class="limite-badge" *ngIf="mostrarLimites && noticiasLimitadas.length >= LIMITE_NOTICIAS">
           <mat-chip color="warn">
             <mat-icon matChipAvatar>visibility_off</mat-icon>
-            {{ noticiasRestantes }} más disponibles
+            Más disponibles registrándote
           </mat-chip>
         </div>
       </div>
@@ -345,15 +359,21 @@
           <p>No hay partidos disponibles en este momento</p>
         </div>
 
-        <!-- Banner de registro para más partidos -->
-        <div class="registro-banner" *ngIf="!estaAutenticado && partidosLimitados.length > 0">
-          <mat-card class="banner-card">
+        <!-- Banner específico para ver más partidos -->
+        <div class="partidos-cta" *ngIf="!estaAutenticado && partidosLimitados.length > 0">
+          <mat-card class="cta-card">
             <mat-card-content>
-              <mat-icon>sports_soccer</mat-icon>
-              <p>¿Quieres ver más partidos y estadísticas completas?</p>
-              <button mat-raised-button color="accent" (click)="irARegistro()">
-                Registrarse Gratis
-              </button>
+              <div class="cta-content">
+                <mat-icon>sports_soccer</mat-icon>
+                <div class="cta-text">
+                  <p><strong>¡Hay más partidos disponibles!</strong></p>
+                  <small>Estadísticas completas, análisis y cobertura en vivo</small>
+                </div>
+                <button mat-stroked-button color="accent" routerLink="/partidos" class="cta-btn">
+                  <mat-icon>visibility</mat-icon>
+                  Ver Todos
+                </button>
+              </div>
             </mat-card-content>
           </mat-card>
         </div>
@@ -362,91 +382,22 @@
   </div>
 
   <!-- ===============================
-       📱 SECCIÓN MÓVIL ADAPTATIVA
+       🎯 ACCESOS RÁPIDOS MÓVIL
        =============================== -->
-  <section class="mobile-tabs" class="mobile-only">
-    <mat-tab-group backgroundColor="primary">
-      <mat-tab label="Noticias">
-        <div class="mobile-noticias">
-          <!-- Noticias adaptadas para móvil -->
-        </div>
-      </mat-tab>
-      
-      <mat-tab label="Eventos">
-        <div class="mobile-eventos">
-          <!-- Eventos adaptados para móvil -->
-        </div>
-      </mat-tab>
-      
-      <mat-tab label="Partidos">
-        <div class="mobile-partidos">
-          <!-- Loading de partidos -->
-          <div *ngIf="cargandoPartidos" class="loading-container">
-            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-            <p>Cargando partidos...</p>
-          </div>
-
-          <!-- Lista de partidos para móvil -->
-          <div class="partidos-mobile-lista" *ngIf="!cargandoPartidos && partidosLimitados.length > 0">
-            <mat-card 
-              class="partido-mobile-card" 
-              [class.bloqueado]="partido.bloqueado"
-              *ngFor="let partido of partidosLimitados; let i = index"
-              (click)="verPartido(partido)">
-              
-              <mat-card-content>
-                <div class="partido-mobile-header">
-                  <mat-chip class="liga-chip">Liga Colombiana</mat-chip>
-                  <span class="fecha-mobile">{{ partido.fecha | date:'dd/MM HH:mm' }}</span>
-                </div>
-                
-                <div class="equipos-mobile">
-                  <div class="equipo-mobile">
-                    <img 
-                      [src]="partido.escudoEquipoLocal" 
-                      [alt]="'Escudo ' + partido.nombreEquipoLocal"
-                      class="escudo-mobile"
-                      (error)="onImagenEscudoError($event)">
-                    <span class="nombre">{{ partido.nombreEquipoLocal }}</span>
-                    <span class="score" *ngIf="partido.estado !== 'Por jugar'">{{ partido.golesLocal }}</span>
-                  </div>
-                  <div class="vs-mobile">VS</div>
-                  <div class="equipo-mobile">
-                    <img 
-                      [src]="partido.escudoEquipoVisitante" 
-                      [alt]="'Escudo ' + partido.nombreEquipoVisitante"
-                      class="escudo-mobile"
-                      (error)="onImagenEscudoError($event)">
-                    <span class="nombre">{{ partido.nombreEquipoVisitante }}</span>
-                    <span class="score" *ngIf="partido.estado !== 'Por jugar'">{{ partido.golesVisitante }}</span>
-                  </div>
-                </div>
-                
-                <div class="estado-mobile">
-                  <mat-chip [color]="partido.estado === 'En vivo' ? 'accent' : 'primary'">
-                    {{ partido.estado }}
-                    <span *ngIf="partido.minutoActual > 0 && partido.estado === 'En vivo'">
-                      - {{ partido.minutoActual }}'
-                    </span>
-                  </mat-chip>
-                </div>
-
-                <!-- Overlay para usuarios no registrados -->
-                <div class="content-overlay" *ngIf="partido.bloqueado">
-                  <mat-icon>lock</mat-icon>
-                  <p>Regístrate para ver más</p>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-
-          <!-- Mensaje si no hay partidos -->
-          <div *ngIf="!cargandoPartidos && partidosLimitados.length === 0" class="no-content-mobile">
-            <mat-icon>sports_soccer</mat-icon>
-            <p>No hay partidos disponibles</p>
-          </div>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
+  <section class="mobile-actions" *ngIf="!estaAutenticado">
+    <div class="quick-actions">
+      <button mat-raised-button color="primary" (click)="irARegistro()" class="action-btn">
+        <mat-icon>person_add</mat-icon>
+        Registrarse
+      </button>
+      <button mat-raised-button color="accent" routerLink="/partidos" class="action-btn">
+        <mat-icon>sports_soccer</mat-icon>
+        Ver Partidos
+      </button>
+      <button mat-raised-button color="warn" routerLink="/equipo" class="action-btn">
+        <mat-icon>groups</mat-icon>
+        Nuestro Equipo
+      </button>
+    </div>
   </section>
 </div>
