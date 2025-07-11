@@ -43,7 +43,7 @@
   </div>
 
     <!-- Estadísticas rápidas -->
-    <div class="stats-cards" *ngIf="estadisticas() as stats">
+    <div class="stats-section" *ngIf="estadisticas() as stats">
       <mat-card class="stat-card">
         <mat-card-content>
           <div class="stat-icon">
@@ -95,10 +95,10 @@
   </div>
 
   <!-- Controles de filtrado y búsqueda -->
-  <div class="controls-section">
+  <div class="controls-section filters-centered">
     <mat-card class="filters-card">
       <mat-card-content>
-        <div class="filters-row">
+        <div class="filters-row filters-spaced">
           <!-- Búsqueda -->
           <mat-form-field appearance="outline" class="search-field">
             <mat-label>Buscar miembros...</mat-label>
@@ -304,16 +304,16 @@
       </button>
     </div>
 
-    <form [formGroup]="miembroForm" (ngSubmit)="saveMiembro()" class="member-form">
-      
+    <form [formGroup]="miembroForm" (ngSubmit)="saveMiembro()" class="member-form modern-form">
       <!-- Foto del miembro -->
-      <div class="photo-section">
-        <div class="photo-preview">
+      <div class="photo-section modern-photo-section">
+        <div class="photo-preview modern-photo-preview">
           <img [src]="imagePreview || '/assets/user.png'" 
                alt="Vista previa"
+               class="profile-img"
                onerror="this.src='/assets/user.png'">
         </div>
-        <div class="photo-upload">
+        <div class="photo-upload modern-photo-upload">
           <input type="file" 
                  #fileInput 
                  accept="image/*" 
@@ -330,8 +330,8 @@
       </div>
 
       <!-- Información básica -->
-      <div class="form-row">
-        <mat-form-field appearance="outline">
+      <div class="form-row modern-form-row">
+        <mat-form-field appearance="outline" class="modern-field">
           <mat-label>Nombre *</mat-label>
           <input matInput formControlName="nombre" placeholder="Ej: Juan">
           <mat-error *ngIf="miembroForm.get('nombre')?.hasError('required')">
@@ -342,7 +342,7 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="modern-field">
           <mat-label>Apellido *</mat-label>
           <input matInput formControlName="apellido" placeholder="Ej: Pérez">
           <mat-error *ngIf="miembroForm.get('apellido')?.hasError('required')">
@@ -354,8 +354,8 @@
         </mat-form-field>
       </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline">
+      <div class="form-row modern-form-row">
+        <mat-form-field appearance="outline" class="modern-field">
           <mat-label>Email *</mat-label>
           <input matInput formControlName="correo" type="email" placeholder="juan@ejemplo.com">
           <mat-error *ngIf="miembroForm.get('correo')?.hasError('required')">
@@ -366,14 +366,14 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="modern-field">
           <mat-label>Teléfono</mat-label>
           <input matInput formControlName="telefono" placeholder="Ej: +57 300 123 4567">
         </mat-form-field>
       </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline">
+      <div class="form-row modern-form-row">
+        <mat-form-field appearance="outline" class="modern-field">
           <mat-label>Rol *</mat-label>
           <mat-select formControlName="rol">
             <mat-option *ngFor="let rol of roles" [value]="rol">
@@ -385,14 +385,14 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="modern-field">
           <mat-label>Cargo</mat-label>
           <input matInput formControlName="cargo" placeholder="Ej: Editor Deportivo, Fotógrafo Principal">
         </mat-form-field>
       </div>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline">
+      <div class="form-row modern-form-row">
+        <mat-form-field appearance="outline" class="modern-field">
           <mat-label>Orden de Visualización *</mat-label>
           <input matInput formControlName="ordenVisualizacion" type="number" placeholder="0">
           <mat-hint>Orden en que aparecerá en la página pública (0 = primero)</mat-hint>
@@ -404,7 +404,7 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="modern-field">
           <mat-label>Estado</mat-label>
           <mat-select formControlName="activo">
             <mat-option [value]="true">Activo</mat-option>
@@ -414,7 +414,7 @@
       </div>
 
       <!-- Biografía -->
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="outline" class="full-width modern-field">
         <mat-label>Biografía</mat-label>
         <textarea matInput 
                   formControlName="biografia" 
@@ -423,7 +423,7 @@
       </mat-form-field>
 
       <!-- Botones de acción -->
-      <div class="form-actions">
+      <div class="form-actions modern-form-actions">
         <button type="button" 
                 mat-button 
                 (click)="cancelForm()">
