@@ -21,7 +21,7 @@ $breakpoint-sm: 768px;
 $breakpoint-md: 1024px;
 $breakpoint-lg: 1200px;
 $breakpoint-xl: 1440px;
-
+$breakpoint-xxl: 2560px;
 @mixin mobile-xs {
   @media (max-width: #{$breakpoint-xs - 1px}) { @content; }
 }
@@ -40,7 +40,9 @@ $breakpoint-xl: 1440px;
 @mixin desktop-xl {
   @media (min-width: $breakpoint-xl) { @content; }
 }
-
+@mixin desktop-xxl {
+  @media (min-width: $breakpoint-xxl) { @content; }
+}
 // ==========================================
 // 🏠 CONTENEDOR PRINCIPAL
 // ==========================================
