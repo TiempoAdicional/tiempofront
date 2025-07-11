@@ -1,459 +1,935 @@
-// ===============================
-// 🎨 PALETA DE COLORES CÁLIDOS CON VERDE NEÓN - DASHBOARD ADMIN
-// ===============================
-
-// Forzar fondo blanco globalmente
-body, html {
-  background: #f4f6fa !important; // Fondo gris claro para contraste
-}
-
+// ==========================================
+// 🎨 VARIABLES CSS PERSONALIZADAS (NUEVA PALETA)
+// ==========================================
 :root {
-  // Colores principales cálidos
-  --admin-primary: #ff7043;        // Naranja coral elegante
-  --admin-secondary: #ff9800;      // Naranja vibrante
-  --admin-warm: #ffab40;           // Naranja dorado
-  --admin-accent: #ffc107;         // Amarillo dorado
-  
-  // Verde neón para números y bordes especiales
-  --admin-neon-green: #00ff88;     // Verde neón brillante
-  --admin-green-glow: #00e676;     // Verde neón suave
-  --admin-green-dark: #00c853;     // Verde neón oscuro
-  --admin-green-ultra: #39ff14;    // Verde neón ultra brillante
-  --admin-green-olive: #8bc34a;    // Verde oliva para hover
-  --admin-green-olive-light: #aed581; // Verde oliva claro
-  
-  // Fondos limpios
-  --admin-bg: #f4f6fa;  // Fondo gris claro
-  --admin-surface: #23272f; // Superficie oscura para paneles
-  --admin-card: #23272f; // Cards oscuras
-  --admin-card-hover: #2d5a3d; // Hover verde institucional
-  
-  // Bordes y divisores
-  --admin-border: #222831; // Borde oscuro
-  --admin-border-light: #393e46; // Borde más claro
-  --admin-border-neon: var(--admin-neon-green); // Borde verde neón
-  
-  // Textos
-  --admin-text-primary: #fff; // Texto blanco
-  --admin-text-secondary: #b0bec5; // Gris claro
-  --admin-text-muted: #90a4ae; // Gris más claro
-  
-  // Estados
-  --admin-success: var(--admin-neon-green);
-  --admin-warning: #ff9800;
-  --admin-error: #f44336;
-  --admin-info: #2196f3;
-  
-  // Sombras limpias y efectos neón
-  --admin-shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --admin-shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
-  --admin-shadow-deep: 0 8px 24px rgba(0, 0, 0, 0.16);
-  --admin-shadow-neon: 0 0 20px rgba(0, 255, 136, 0.4);
-  --admin-shadow-neon-strong: 0 0 30px rgba(0, 255, 136, 0.6);
-  
-  // Utilidades
-  --admin-radius: 12px;
-  --admin-radius-sm: 6px;
-  --admin-radius-lg: 20px;
-  --admin-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --primary-color: #2e7d32;
+  --accent-color: #00e676;
+  --surface-color: #1e1e1e;
+  --card-color: #2c2c2c;
+  --text-color: #ffffff;
+  --text-secondary: #b0b0b0;
+  --border-color: #404040;
+  --shadow-elevation: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --border-radius: 12px;
 }
 
-// ===============================
-// 🏠 DASHBOARD PRINCIPAL
-// ===============================
-.admin-dashboard {
-  background: var(--admin-bg) !important;
-  color: var(--admin-text-primary);
-  min-height: 100vh;
-  font-family: 'League Spartan', sans-serif;
-  
-  // ===============================
-  // 🎯 HEADER ADMINISTRADOR - SIEMPRE VERDE INSTITUCIONAL
-  // ===============================
-  .admin-header {
-    background: #2d5a3d !important;
-    // Refuerzo de color verde institucional en todas las variantes
-    &.mat-toolbar,
-    &.mat-primary,
-    &[color="primary"] {
-      background: #2d5a3d !important;
-      color: #fff !important;
-      box-shadow: var(--admin-shadow-elevated);
-    }
+// ==========================================
+// 📱 BREAKPOINTS RESPONSIVE
+// ==========================================
+$breakpoint-xs: 480px;
+$breakpoint-sm: 768px;
+$breakpoint-md: 1024px;
+$breakpoint-lg: 1200px;
+$breakpoint-xl: 1440px;
 
-    mat-toolbar-row {
-      padding: 0 2rem;
-      min-height: 80px;
-      
-      @media (max-width: 768px) {
-        padding: 0 1rem;
-        min-height: 64px;
+@mixin mobile-xs {
+  @media (max-width: #{$breakpoint-xs - 1px}) { @content; }
+}
+@mixin mobile-sm {
+  @media (max-width: #{$breakpoint-sm - 1px}) { @content; }
+}
+@mixin tablet {
+  @media (min-width: $breakpoint-sm) and (max-width: #{$breakpoint-md - 1px}) { @content; }
+}
+@mixin laptop {
+  @media (min-width: $breakpoint-md) and (max-width: #{$breakpoint-lg - 1px}) { @content; }
+}
+@mixin desktop {
+  @media (min-width: $breakpoint-lg) { @content; }
+}
+@mixin desktop-xl {
+  @media (min-width: $breakpoint-xl) { @content; }
+}
+
+// ==========================================
+// 🏠 CONTENEDOR PRINCIPAL
+// ==========================================
+.admin-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--surface-color) 0%, #121212 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 24px;
+  position: relative;
+  overflow-x: hidden;
+
+  // Responsive padding
+  @include mobile-sm { padding: 16px; }
+  @include mobile-xs { padding: 12px; }
+  @include tablet { padding: 20px; }
+  @include desktop { padding: 32px; max-width: 1400px; margin: 0 auto; }
+  @include desktop-xl { padding: 40px; max-width: 1600px; }
+
+  // Efecto de partículas de fondo
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="smallGrid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23smallGrid)"/></svg>');
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// ==========================================
+// 📋 HEADER DE LA PÁGINA
+// ==========================================
+.admin-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #1b5e20 100%);
+  color: var(--text-color);
+  padding: 32px;
+  border-radius: var(--border-radius);
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-elevation);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  overflow: hidden;
+
+  // Responsive padding
+  @include mobile-xs { padding: 20px 16px; margin-bottom: 20px; border-radius: var(--border-radius); }
+  @include mobile-sm { padding: 24px 20px; margin-bottom: 24px; }
+  @include tablet { padding: 28px 24px; margin-bottom: 28px; }
+  @include desktop { padding: 40px; margin-bottom: 40px; }
+
+  .admin-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    mat-icon {
+      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
+      color: var(--accent-color);
+    }
+  }
+
+  .spacer { flex: 1 1 auto; }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    @include mobile-sm { gap: 0.5rem; }
+
+    mat-chip-set {
+      mat-chip {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        font-weight: 500;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        mat-icon {
+          color: var(--accent-color);
+        }
       }
     }
 
-    .admin-title {
+    .logout-button {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      &:hover {
+        background-color: rgba(244, 67, 54, 0.2);
+        border-color: #f44336;
+        transform: scale(1.05);
+      }
+      mat-icon {
+        color: #ff5722;
+      }
+    }
+  }
+}
+
+// ==========================================
+// 📈 GRID DE ESTADÍSTICAS
+// ==========================================
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  @include mobile-xs { grid-template-columns: 1fr; gap: 1rem; }
+  @include mobile-sm { grid-template-columns: 1fr; gap: 1.5rem; }
+  @include desktop-xl { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2.5rem; }
+
+  .stat-card {
+    background: var(--card-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-elevation);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      border-color: var(--accent-color);
+    }
+    mat-card-header {
+      padding: 1.5rem 1.5rem 1rem;
+      .mat-icon {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        color: white;
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+      }
+      mat-card-title {
+        color: var(--text-color);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+      }
+      mat-card-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin: 0.25rem 0 0;
+      }
+    }
+    mat-card-content {
+      padding: 0 1.5rem 1.5rem;
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--accent-color);
+        text-align: center;
+        text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+        margin-bottom: 0.5rem;
+      }
+      .stat-detail {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        .detail-icon {
+          font-size: 1rem;
+          width: 1rem;
+          height: 1rem;
+          color: var(--accent-color);
+        }
+      }
+    }
+  }
+}
+
+// ==========================================
+// 📋 PANELES DE EXPANSIÓN
+// ==========================================
+.admin-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 2.2rem;
+  margin-top: 1.2rem;
+
+  .admin-panel {
+    background: var(--card-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-elevation);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    &:hover {
+      border-color: var(--accent-color);
+    }
+    mat-expansion-panel-header {
+      background: var(--card-color);
+      color: var(--text-color);
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      &:hover {
+        background: rgba(46, 125, 50, 0.1);
+      }
+      .mat-expansion-panel-header-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        .panel-icon {
+          color: var(--accent-color);
+          font-size: 1.5rem;
+          width: 1.5rem;
+          height: 1.5rem;
+        }
+      }
+      .mat-expansion-panel-header-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+      }
+    }
+    .panel-actions {
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      .action-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 200px;
+        .group-label {
+          font-size: 0.9rem;
+          color: var(--accent-color);
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+      button {
+        min-width: 140px;
+        height: 40px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        &.mat-raised-button {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          }
+        }
+        &.mat-stroked-button {
+          border-width: 2px;
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+          }
+        }
+        mat-icon {
+          margin-right: 0.5rem;
+        }
+      }
+      .preview-button {
+        background: linear-gradient(135deg, var(--accent-color), #00c853);
+        color: #000;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0, 230, 118, 0.4);
+        }
+      }
+      mat-divider {
+        margin: 1rem 0;
+        background-color: var(--border-color);
+      }
+    }
+  }
+}
+
+// ==========================================
+// 🔍 FILTROS Y BÚSQUEDA
+// ==========================================
+.filters-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  padding: 28px;
+  border-radius: var(--border-radius-large);
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: var(--transition);
+
+  @include mobile-xs {
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: var(--border-radius);
+  }
+
+  @include mobile-sm {
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  @include tablet {
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  @include desktop {
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+
+  &:hover {
+    box-shadow: var(--shadow-heavy);
+    transform: translateY(-2px);
+  }
+
+  .filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    @include mobile-sm {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
+
+    h3 {
+      margin: 0;
+      color: var(--primary-color);
+      font-weight: 700;
+      font-size: 1.5rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
-      font-size: clamp(1.2rem, 3vw, 1.8rem);
-      font-weight: 700;
-      color: #fff;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      gap: 12px;
+
+      @include mobile-xs {
+        font-size: 1.2rem;
+        gap: 8px;
+      }
+
+      @include mobile-sm {
+        font-size: 1.3rem;
+        gap: 10px;
+      }
+
+      @include desktop {
+        font-size: 1.6rem;
+        gap: 14px;
+      }
 
       mat-icon {
-        font-size: clamp(1.8rem, 4vw, 2.5rem);
-        width: auto;
-        height: auto;
-        color: var(--admin-neon-green);
-        filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.6));
+        color: var(--secondary-color);
+        font-size: 1.8rem;
+
+        @include mobile-xs {
+          font-size: 1.4rem;
+        }
+
+        @include mobile-sm {
+          font-size: 1.6rem;
+        }
       }
     }
 
-    .spacer {
-      flex: 1 1 auto;
+    .clear-filters-btn {
+      background: var(--gradient-secondary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: var(--transition);
+      white-space: nowrap;
+
+      @include mobile-xs {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+        border-radius: 20px;
+      }
+
+      @include desktop {
+        padding: 12px 24px;
+        font-size: 1rem;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-light);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 20px;
+    align-items: end;
+
+    @include mobile-xs {
+      grid-template-columns: 1fr;
+      gap: 12px;
     }
 
-    .user-info {
+    @include mobile-sm {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @include tablet {
+      grid-template-columns: 2fr 1fr;
+      gap: 18px;
+
+      .search-btn {
+        grid-column: 1 / -1;
+        justify-self: center;
+      }
+    }
+
+    @include desktop {
+      gap: 24px;
+    }
+
+    .search-field {
+      .mat-mdc-form-field {
+        width: 100%;
+
+        .mat-mdc-text-field-wrapper {
+          border-radius: var(--border-radius);
+          transition: var(--transition);
+          background: rgba(255, 255, 255, 0.8);
+          border: 2px solid transparent;
+
+          &:hover {
+            background: white;
+            box-shadow: var(--shadow-light);
+            border-color: rgba(52, 152, 219, 0.2);
+          }
+
+          &.mdc-text-field--focused {
+            background: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+          }
+        }
+
+        .mat-mdc-form-field-subscript-wrapper {
+          display: none; // Ocultar helper text en móvil
+          
+          @include tablet {
+            display: block;
+          }
+        }
+      }
+    }
+
+    .role-select {
+      .mat-mdc-form-field {
+        width: 100%;
+
+        .mat-mdc-text-field-wrapper {
+          border-radius: var(--border-radius);
+          background: rgba(255, 255, 255, 0.8);
+          border: 2px solid transparent;
+          transition: var(--transition);
+
+          &:hover {
+            background: white;
+            border-color: rgba(52, 152, 219, 0.2);
+          }
+
+          &.mdc-text-field--focused {
+            background: white;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+          }
+        }
+      }
+    }
+
+    .search-btn {
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
-      gap: 1rem;
-      
-      @media (max-width: 768px) {
-        gap: 0.5rem;
+      justify-content: center;
+      transition: var(--transition);
+      box-shadow: var(--shadow-light);
+
+      @include mobile-xs {
+        width: 100%;
+        height: 48px;
+        border-radius: var(--border-radius);
       }
 
-      mat-chip-set {
-        mat-chip {
-          background: white;
-          color: var(--admin-primary);
-          font-weight: 700;
-          border: 2px solid var(--admin-neon-green);
-          transition: var(--admin-transition);
-          
-          &:hover {
-            background: var(--admin-neon-green);
-            color: white;
-            transform: scale(1.05);
-            box-shadow: var(--admin-shadow-neon);
-          }
+      @include mobile-sm {
+        width: 100%;
+        height: 50px;
+        border-radius: var(--border-radius);
+      }
 
-          mat-icon {
-            color: var(--admin-neon-green);
-          }
+      @include tablet {
+        width: 120px;
+        height: 48px;
+        border-radius: var(--border-radius);
+      }
+
+      @include desktop {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+      }
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-medium);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+
+      mat-icon {
+        transition: var(--transition);
+        
+        @include mobile-xs {
+          margin-right: 8px;
+        }
+
+        @include mobile-sm {
+          margin-right: 8px;
+        }
+
+        @include tablet {
+          margin-right: 8px;
+        }
+
+        @include desktop {
+          margin-right: 0;
         }
       }
 
-      .logout-button {
-        background: #fff !important;
-        border: 3px solid #ff2222 !important; // Bordes rojos más notorios
-        color: #ff2222 !important;
-        font-weight: 800;
-        box-shadow: 0 2px 8px rgba(255,34,34,0.08);
-        transition: var(--admin-transition);
-        &:hover {
-          background: #ff2222 !important;
-          color: #fff !important;
-          border-color: #ff2222 !important;
-          box-shadow: 0 4px 16px rgba(255,34,34,0.18);
-          transform: scale(1.12);
+      // Texto solo en móvil/tablet
+      .btn-text {
+        display: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+
+        @include mobile-xs {
+          display: inline;
+        }
+
+        @include mobile-sm {
+          display: inline;
+        }
+
+        @include tablet {
+          display: inline;
         }
       }
     }
   }
+}
 
-  // ===============================
-  // 📊 CONTENIDO PRINCIPAL
-  // ===============================
-  .dashboard-content {
-    background: var(--admin-bg) !important;
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    min-height: calc(100vh - 80px); // Asegurar altura completa
-    
-    @media (max-width: 768px) {
-      padding: 1rem;
-    }
-  }
-
-  // ===============================
-  // ⚠️ CARD DE ERROR
-  // ===============================
-  .error-card {
-    background: var(--admin-surface);
-    border: 3px solid var(--admin-error);
-    border-radius: var(--admin-radius);
-    margin-bottom: 2rem;
-    box-shadow: var(--admin-shadow-elevated);
-
-    .error-content {
+// ==========================================
+// 🔄 LOADING Y ERROR STATES MEJORADOS
+// ==========================================
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--surface-color);
+  .loading-card {
+    background: var(--card-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-elevation);
+    border: 1px solid var(--border-color);
+    .loading-content {
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
-      gap: 1rem;
+      gap: 1.5rem;
       padding: 2rem;
+      mat-spinner {
+        --mdc-circular-progress-active-indicator-color: var(--accent-color);
+      }
+      .loading-text {
+        color: var(--text-color);
+        font-size: 1.1rem;
+        margin: 0;
+        text-align: center;
+      }
+    }
+  }
+}
 
-      .error-icon {
+// ==========================================
+// 🎭 MODAL/OVERLAY STYLES
+// ==========================================
+.form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+
+  @include mobile-xs {
+    padding: 12px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+.form-modal {
+  background: white;
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-heavy);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+
+  @include mobile-xs {
+    max-width: calc(100vw - 24px);
+    border-radius: var(--border-radius);
+  }
+
+  @include desktop {
+    max-width: 700px;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.form-header {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 24px 28px;
+  border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @include mobile-xs {
+    padding: 20px;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+
+    @include mobile-xs {
+      font-size: 1.3rem;
+    }
+
+    @include desktop {
+      font-size: 1.6rem;
+    }
+  }
+
+  .close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+  }
+}
+
+// ==========================================
+// 📋 ALERTA DE PERFIL (Para editor jefe)
+// ==========================================
+.perfil-alert {
+  margin-bottom: 24px;
+  animation: slideDown 0.5s ease;
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .welcome-card {
+    background: var(--gradient-warning);
+    color: white;
+    border-radius: var(--border-radius-large);
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+
+    @include mobile-xs {
+      border-radius: var(--border-radius);
+    }
+
+    .welcome-content {
+      padding: 28px;
+      text-align: center;
+
+      @include mobile-xs {
+        padding: 20px;
+      }
+
+      @include desktop {
+        padding: 32px;
+      }
+
+      .welcome-icon {
         font-size: 3rem;
-        color: var(--admin-error);
+        margin-bottom: 16px;
+        animation: pulse 2s ease-in-out infinite;
+
+        @include mobile-xs {
+          font-size: 2.5rem;
+          margin-bottom: 12px;
+        }
+      }
+
+      h2 {
+        margin: 0 0 12px 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+
+        @include mobile-xs {
+          font-size: 1.5rem;
+          margin-bottom: 10px;
+        }
+
+        @include desktop {
+          font-size: 2rem;
+          margin-bottom: 16px;
+        }
       }
 
       p {
-        color: var(--admin-text-primary);
-        font-size: 1.1rem;
-        margin: 0;
-      }
+        margin: 0 0 8px 0;
+        opacity: 0.9;
+        line-height: 1.5;
 
-      button {
-        background: var(--admin-error);
-        color: white;
-        border-radius: var(--admin-radius-sm);
-        font-weight: 600;
-        
-        &:hover {
-          background: #d32f2f;
-          transform: translateY(-2px);
-        }
-      }
-    }
-  }
-
-  // ===============================
-  // 📈 GRID DE ESTADÍSTICAS - TODAS LAS CARDS IGUALES
-  // ===============================
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
-    
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-
-    .stat-card {
-      background: var(--admin-surface) !important;
-      border: 2.5px solid var(--admin-border-light);
-      color: var(--admin-text-primary);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-      min-height: 180px;
-
-      &:hover {
-        background: var(--admin-card-hover) !important;
-        border-color: var(--admin-neon-green);
-        color: #fff;
-      }
-
-      // Todas las cards tienen el mismo diseño
-      mat-card-header {
-        background: transparent;
-
-        .stat-icon, .equipo-icon {
-          background: var(--admin-green-olive);
-          color: #fff;
+        @include mobile-xs {
+          font-size: 0.9rem;
         }
 
-        mat-card-title {
-          color: #fff;
+        @include desktop {
+          font-size: 1.1rem;
         }
 
-        mat-card-subtitle {
-          color: var(--admin-text-secondary);
-        }
-      }
-
-      mat-card-content {
-        background: transparent;
-
-        .stat-number {
-          color: var(--admin-neon-green);
-          text-shadow: 0 0 10px #00ff88;
-        }
-
-        .stat-detail {
-          background: #1a1d22;
-          color: var(--admin-text-secondary);
-          border: 1.5px solid var(--admin-border-light);
-        }
-      }
-    }
-  }
-
-  // ===============================
-  // 📋 PANELES DE EXPANSIÓN - MEJOR ESPACIADO
-  // ===============================
-  .admin-panels {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 1.2rem;
-    .admin-panel {
-      background: var(--admin-surface);
-      border: 2.5px solid var(--admin-border-light);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-      margin-bottom: 0.7rem;
-
-      &:hover {
-        border-color: var(--admin-neon-green);
-        box-shadow: 0 4px 18px #00ff8855;
-      }
-
-      // Header del panel mejorado
-      mat-expansion-panel_header {
-        background: #23272f;
-        border-bottom: 2px solid var(--admin-neon-green);
-        color: #fff;
-        padding: 1.2rem 1.2rem 1rem 1.2rem;
-        min-height: 70px;
-        margin-bottom: 0.2rem;
-
-        &:hover {
-          background: var(--admin-green-olive);
-          color: #fff;
-        }
-
-        mat-panel-title {
-          color: #fff;
-
-          .panel-icon {
-            background: var(--admin-neon-green);
-            color: #23272f;
-          }
-
-          .exclusive-chip {
-            background: var(--admin-green-olive);
-            color: #fff;
-          }
-        }
-
-        mat-panel-description {
-          color: var(--admin-text-secondary);
-        }
-      }
-
-      // Contenido del panel - ESPACIADO MEJORADO PARA EQUIPO
-      .panel-actions {
-        padding: 1.2rem 1rem;
-        background: #1a1d22;
-        gap: 1.2rem;
-
-        button {
-          background: #2d5a3d;
-          color: #fff;
-          border: 2px solid var(--admin-neon-green);
-          font-weight: 700;
-          font-size: 1.05rem;
-          min-height: 48px;
-          padding: 0.7rem 1.2rem;
-          border-radius: var(--admin-radius);
-          box-shadow: 0 1px 4px #00ff8822;
-          transition: var(--admin-transition);
-
-          &:hover {
-            background: var(--admin-neon-green);
-            color: #23272f;
-            border-color: #fff;
-            box-shadow: 0 2px 12px #00ff8855;
-          }
-
-          mat-icon {
-            color: #fff;
-          }
-        }
-      }
-    }
-  }
-
-  // ===============================
-  // 🔄 ESTADO DE CARGA
-  // ===============================
-  .loading-container {
-    background: var(--admin-bg) !important;
-
-    .loading-card {
-      background: var(--admin-surface);
-      color: #fff;
-      border: 2px solid var(--admin-border-light);
-    }
-  }
-}
-
-// ===============================
-// 📱 RESPONSIVE DESIGN
-// ===============================
-@media (max-width: 768px) {
-  .admin-dashboard {
-    .stats-grid {
-      .stat-card {
-        min-height: 120px;
-        mat-card-header {
-          padding: 0.7rem 0.5rem 0.3rem;
-        }
-        mat-card-content {
-          padding: 0 0.5rem 0.5rem;
-        }
-      }
-    }
-    .admin-panels {
-      gap: 0.7rem;
-      .admin-panel {
-        margin-bottom: 0.5rem;
-        mat-expansion-panel-header {
-          min-height: 48px;
-          padding: 0.5rem;
-        }
-        .panel-actions {
-          padding: 0.7rem 0.5rem;
-          gap: 0.7rem;
+        &:last-child {
+          margin-bottom: 0;
+          font-weight: 600;
         }
       }
     }
   }
 }
 
-// ===============================
-// ✨ ANIMACIONES MEJORADAS
-// ===============================
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+// ==========================================
+// 🎨 UTILIDADES RESPONSIVE
+// ==========================================
+.hide-mobile {
+  @include mobile-sm {
+    display: none !important;
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.hide-desktop {
+  @include desktop {
+    display: none !important;
   }
 }
 
-@keyframes glow {
-  0%, 100% {
-    box-shadow: var(--admin-shadow-soft);
-  }
-  50% {
-    box-shadow: var(--admin-shadow-elevated);
-  }
-}
-
-.stat-card {
-  animation: slideInUp 0.6s ease-out var(--stagger-delay, 0s) backwards;
+.show-mobile-only {
+  display: none;
   
-  &.equipo-card {
-    animation: slideInUp 0.6s ease-out 0.3s backwards, glow 3s ease-in-out infinite;
+  @include mobile-sm {
+    display: block !important;
   }
 }
 
-.admin-panel {
-  animation: fadeIn 0.8s ease-out var(--stagger-delay, 0s) backwards;
+.show-desktop-only {
+  display: none;
+  
+  @include desktop {
+    display: block !important;
+  }
+}
+
+// Espaciado responsive
+.mb-responsive {
+  margin-bottom: 16px;
+  
+  @include mobile-sm {
+    margin-bottom: 12px;
+  }
+  
+  @include desktop {
+    margin-bottom: 24px;
+  }
+}
+
+.p-responsive {
+  padding: 16px;
+  
+  @include mobile-sm {
+    padding: 12px;
+  }
+  
+  @include desktop {
+    padding: 24px;
+  }
 }
