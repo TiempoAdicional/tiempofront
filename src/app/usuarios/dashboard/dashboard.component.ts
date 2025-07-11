@@ -23,6 +23,7 @@ import { NoticiasService } from '../../core/services/noticias.service';
 import { EventosService } from '../../core/services/eventos.service';
 import { PartidosService } from '../../core/services/partidos.service';
 import { UsuariosService } from '../../core/services/usuarios.service';
+import { SeccionesService, SeccionResponse, SeccionConContenidoResponse } from '../../core/services/secciones.service';
 
 interface NoticiaLimitada {
   id: number;
@@ -91,11 +92,21 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   cargandoNoticias = true;
   cargandoEventos = true;
   cargandoPartidos = true;
+  cargandoSecciones = true;
   
   // Datos limitados para usuarios no registrados
   noticiasLimitadas: NoticiaLimitada[] = [];
   eventosLimitados: EventoLimitado[] = [];
   partidosLimitados: PartidoLimitado[] = [];
+  
+  // 🆕 Secciones dinámicas
+  seccionesActivas: SeccionResponse[] = [];
+  seccionesConContenido: SeccionConContenidoResponse[] = [];
+  seccionesPorTipo: { [key: string]: SeccionConContenidoResponse[] } = {
+    'NOTICIAS': [],
+    'EVENTOS': [],
+    'PARTIDOS': []
+  };
   
   // Noticia destacada para hero section (carousel)
   noticiasDestacadas: NoticiaLimitada[] = [];
@@ -135,6 +146,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     private eventosService: EventosService,
     private partidosService: PartidosService,
     private usuariosService: UsuariosService,
+    private seccionesService: SeccionesService, // 🆕 Servicio de secciones
     private snackBar: MatSnackBar
   ) {}
 
@@ -180,9 +192,94 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   private cargarDatos(): void {
+    this.cargarSecciones(); // 🆕 Cargar secciones primero
     this.cargarNoticias();
     this.cargarEventos();
     this.cargarPartidos();
+  }
+
+  private cargarSecciones(): void {
+    this.cargandoSecciones = true;
+    
+    console.log('🏷️ Cargando secciones activas...');
+    
+    this.seccionesService.obtenerSeccionesActivasConContenido()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (seccionesConContenido) => {
+          console.log('✅ Secciones con contenido cargadas:', seccionesConContenido);
+          
+          this.seccionesConContenido = seccionesConContenido;
+          this.organizarSeccionesPorTipo(seccionesConContenido);
+          this.cargandoSecciones = false;
+        },
+        error: (error) => {
+          console.error('❌ Error cargando secciones:', error);
+          this.cargandoSecciones = false;
+          // Cargar secciones predeterminadas como fallback
+          this.cargarSeccionesFallback();
+        }
+      });
+  }
+
+  private organizarSeccionesPorTipo(secciones: SeccionConContenidoResponse[]): void {
+    // Reiniciar agrupación
+    this.seccionesPorTipo = {
+      'NOTICIAS': [],
+      'EVENTOS': [],
+      'PARTIDOS': []
+    };
+
+    // Agrupar secciones por tipo
+    secciones.forEach(seccionConContenido => {
+      const tipo = seccionConContenido.seccion.tipo;
+      if (this.seccionesPorTipo[tipo]) {
+        this.seccionesPorTipo[tipo].push(seccionConContenido);
+      }
+    });
+
+    console.log('🗂️ Secciones organizadas por tipo:', this.seccionesPorTipo);
+  }
+
+  private cargarSeccionesFallback(): void {
+    console.log('🔄 Cargando secciones predeterminadas como fallback...');
+    
+    // Crear secciones básicas como fallback
+    this.seccionesPorTipo = {
+      'NOTICIAS': [{
+        seccion: {
+          id: 1,
+          titulo: 'Noticias Principales',
+          tipo: 'NOTICIAS',
+          orden: 1,
+          activa: true,
+          visible: true
+        },
+        contenido: []
+      }],
+      'EVENTOS': [{
+        seccion: {
+          id: 2,
+          titulo: 'Eventos Deportivos',
+          tipo: 'EVENTOS',
+          orden: 2,
+          activa: true,
+          visible: true
+        },
+        contenido: []
+      }],
+      'PARTIDOS': [{
+        seccion: {
+          id: 3,
+          titulo: 'Partidos',
+          tipo: 'PARTIDOS',
+          orden: 3,
+          activa: true,
+          visible: true
+        },
+        contenido: []
+      }]
+    };
   }
 
   private cargarNoticias(): void {
@@ -255,7 +352,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
               this.noticiasDestacadas = destacadas.map(noticia => ({
                 id: noticia.id,
                 titulo: noticia.titulo,
-                resumen: this.limitarTexto(noticia.resumen || noticia.contenidoHtml, 150),
+                resumen: this.limitarTexto((noticia.resumen || noticia.contenidoHtml || ''), 150),
                 fechaPublicacion: noticia.fechaPublicacion,
                 seccion: 'Destacada',
                 imagenUrl: noticia.imagenDestacada,
@@ -301,7 +398,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
         return {
           id: noticiaRaw.id,
           titulo: noticiaRaw.titulo,
-          resumen: noticiaRaw.resumen || this.limitarTexto(noticiaRaw.contenidoHtml, 150),
+          resumen: noticiaRaw.resumen || this.limitarTexto((noticiaRaw.contenidoHtml || ''), 150),
           fechaPublicacion: noticiaRaw.fechaPublicacion,
           seccion: 'Destacada',
           imagenUrl: noticiaRaw.imagenDestacada,
@@ -356,7 +453,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
         return {
           id: noticia.id,
           titulo: noticia.titulo,
-          resumen: this.limitarTexto(noticia.resumen || noticia.contenidoHtml, 120),
+          resumen: this.limitarTexto((noticia.resumen || noticia.contenidoHtml || ''), 120),
           fechaPublicacion: noticia.fechaPublicacion,
           seccion: this.determinarSeccion(noticia),
           imagenUrl: noticia.imagenDestacada || '/assets/logo-tiempo.png',
@@ -853,234 +950,131 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     this.iniciarCarousel();
   }
   
-  // === MÉTODOS AUXILIARES ===
-  
-  private async obtenerNombreUsuario(creadorId: number | undefined): Promise<string> {
-    if (!creadorId) return 'Anónimo';
-    
-    // Verificar cache primero
-    if (this.usuariosCache.has(creadorId)) {
-      return this.usuariosCache.get(creadorId)!;
-    }
-    
-    try {
-      const usuario = await this.usuariosService.obtenerPorId(creadorId).toPromise();
-      const nombre = usuario?.nombre || 'Usuario';
-      this.usuariosCache.set(creadorId, nombre);
-      return nombre;
-    } catch (error: any) {
-      console.warn(`⚠️ No se pudo obtener usuario con ID ${creadorId}:`, error);
-      
-      // Si es un error 403, el usuario no tiene permisos para ver otros usuarios
-      if (error.status === 403) {
-        console.log('🔒 Error 403 - Sin permisos para obtener información de usuarios');
-        this.usuariosCache.set(creadorId, 'Redactor');
-        return 'Redactor';
-      }
-      
-      // Para otros errores, usar "Usuario" como fallback
-      this.usuariosCache.set(creadorId, 'Usuario');
-      return 'Usuario';
-    }
+  // ===============================
+  // 🔧 MÉTODOS AUXILIARES
+  // ===============================
+
+  private manejarFiltros(params: any): void {
+    // Manejar parámetros de consulta para filtros específicos
+    console.log('🔍 Manejando filtros:', params);
   }
 
-  // === MÉTODOS AUXILIARES ===
-  
-  private limitarTexto(texto: string | undefined, limite: number): string {
+  private limitarTexto(texto: string, limite: number): string {
     if (!texto) return '';
     return texto.length > limite ? texto.substring(0, limite) + '...' : texto;
   }
 
+  private async obtenerNombreUsuario(userId: number): Promise<string> {
+    if (this.usuariosCache.has(userId)) {
+      return this.usuariosCache.get(userId)!;
+    }
+
+    try {
+      const usuario = await this.usuariosService.obtenerPorId(userId).toPromise();
+      const nombre = usuario?.nombre || 'Usuario Anónimo';
+      this.usuariosCache.set(userId, nombre);
+      return nombre;
+    } catch (error) {
+      console.warn('⚠️ No se pudo obtener el nombre del usuario:', userId, error);
+      return 'Redacción';
+    }
+  }
+
   private determinarSeccion(noticia: any): string {
+    // Buscar en las secciones dinámicas primero
+    if (noticia.seccion_id) {
+      const seccionEncontrada = this.seccionesConContenido.find(s => s.seccion.id === noticia.seccion_id);
+      if (seccionEncontrada) {
+        return seccionEncontrada.seccion.titulo;
+      }
+    }
+
+    // Fallback a secciones predeterminadas
     if (noticia.seccion) return noticia.seccion;
-    if (noticia.seccion_id) return `Sección ${noticia.seccion_id}`;
     if (noticia.tags && noticia.tags.length > 0) return noticia.tags[0];
-    return 'Noticias';
+    return 'General';
   }
 
-  private manejarFiltros(params: any): void {
-    const seccion = params['seccion'];
-    const filtro = params['filtro'];
-    const limite = params['limite'] ? parseInt(params['limite']) : undefined;
+  // ===============================
+  // 🔧 MÉTODOS PÚBLICOS PARA SECCIONES DINÁMICAS
+  // ===============================
 
-    console.log('🔍 Aplicando filtros:', { seccion, filtro, limite });
-
-    if (seccion === 'noticias') {
-      this.aplicarFiltroNoticias(filtro, limite);
-    } else if (seccion === 'eventos') {
-      this.aplicarFiltroEventos(filtro, limite);
-    }
+  // Obtener secciones de noticias activas
+  obtenerSeccionesNoticias(): SeccionConContenidoResponse[] {
+    return this.seccionesPorTipo['NOTICIAS'] || [];
   }
 
-  private aplicarFiltroNoticias(filtro: string, limite?: number): void {
-    switch (filtro) {
-      case 'recientes':
-        this.cargarNoticiasRecientes(limite || 10);
+  // Obtener secciones de eventos activas
+  obtenerSeccionesEventos(): SeccionConContenidoResponse[] {
+    return this.seccionesPorTipo['EVENTOS'] || [];
+  }
+
+  // Obtener secciones de partidos activas
+  obtenerSeccionesPartidos(): SeccionConContenidoResponse[] {
+    return this.seccionesPorTipo['PARTIDOS'] || [];
+  }
+
+  // Obtener todas las secciones activas ordenadas
+  obtenerTodasLasSecciones(): SeccionConContenidoResponse[] {
+    return this.seccionesConContenido.sort((a, b) => a.seccion.orden - b.seccion.orden);
+  }
+
+  // Verificar si una sección específica está activa
+  estaSeccionActiva(titulo: string): boolean {
+    return this.seccionesConContenido.some(s => 
+      s.seccion.titulo.toLowerCase().includes(titulo.toLowerCase()) && s.seccion.activa
+    );
+  }
+
+  // Obtener sección específica por título
+  obtenerSeccionPorTitulo(titulo: string): SeccionConContenidoResponse | null {
+    return this.seccionesConContenido.find(s => 
+      s.seccion.titulo.toLowerCase().includes(titulo.toLowerCase())
+    ) || null;
+  }
+
+  // Navegar a una sección específica
+  navegarASeccion(seccionId: number, tipo: string): void {
+    switch (tipo) {
+      case 'NOTICIAS':
+        this.router.navigate(['/noticias'], { queryParams: { seccion: seccionId } });
         break;
-      case 'destacadas':
-        this.cargarNoticiasDestacadas();
+      case 'EVENTOS':
+        this.router.navigate(['/eventos'], { queryParams: { seccion: seccionId } });
+        break;
+      case 'PARTIDOS':
+        this.router.navigate(['/partidos'], { queryParams: { seccion: seccionId } });
         break;
       default:
-        this.cargarNoticias();
-        break;
+        console.warn('Tipo de sección no reconocido:', tipo);
     }
   }
 
-  private aplicarFiltroEventos(filtro: string, limite?: number): void {
-    switch (filtro) {
-      case 'proximos':
-        this.cargarEventosProximos(limite || 10);
-        break;
-      default:
-        this.cargarEventos();
-        break;
+  // Obtener icono para el tipo de sección
+  obtenerIconoSeccion(tipo: string): string {
+    switch (tipo) {
+      case 'NOTICIAS': return 'article';
+      case 'EVENTOS': return 'event';
+      case 'PARTIDOS': return 'sports_soccer';
+      default: return 'info';
     }
   }
 
-  private cargarNoticiasRecientes(limite: number): void {
-    console.log(`📰 Cargando ${limite} noticias recientes...`);
-    this.cargandoNoticias = true;
-    
-    // Usar el servicio existente pero con parámetros específicos
-    if (this.estaAutenticado) {
-      this.noticiasService.listarTodasAutenticado(1, limite)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            console.log('✅ Noticias recientes cargadas:', response);
-            const noticias = response.noticias || [];
-            // Ordenar por fecha más reciente
-            const noticiasOrdenadas = noticias.sort((a: any, b: any) => 
-              new Date(b.fechaPublicacion).getTime() - new Date(a.fechaPublicacion).getTime()
-            );
-            this.procesarNoticiasCompletas(noticiasOrdenadas);
-            this.cargandoNoticias = false;
-          },
-          error: (error) => {
-            console.error('❌ Error cargando noticias recientes:', error);
-            this.cargandoNoticias = false;
-          }
-        });
-    } else {
-      this.noticiasService.listarNoticiasPublicas(limite)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            let noticias = [];
-            if (response?.noticias) {
-              noticias = response.noticias;
-            } else if (Array.isArray(response)) {
-              noticias = response;
-            }
-            
-            // Ordenar por fecha más reciente
-            noticias.sort((a: any, b: any) => new Date(b.fechaPublicacion).getTime() - new Date(a.fechaPublicacion).getTime());
-            
-            this.procesarListaNoticias(noticias.slice(0, limite), true);
-            this.cargandoNoticias = false;
-          },
-          error: (error) => {
-            console.error('❌ Error cargando noticias recientes públicas:', error);
-            this.cargandoNoticias = false;
-          }
-        });
+  // Obtener color para el tipo de sección
+  obtenerColorSeccion(tipo: string): string {
+    switch (tipo) {
+      case 'NOTICIAS': return 'var(--verde-selva)';
+      case 'EVENTOS': return 'var(--purpura-real)';
+      case 'PARTIDOS': return 'var(--azul-profundo)';
+      default: return 'var(--gris-carbon)';
     }
   }
 
-  private cargarNoticiasDestacadas(): void {
-    console.log('⭐ Cargando noticias destacadas...');
-    this.cargandoNoticias = true;
-    
-    if (this.estaAutenticado) {
-      this.noticiasService.listarTodasAutenticado(1, 50)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            const noticias = response.noticias || [];
-            // Filtrar solo las destacadas
-            const destacadas = noticias.filter((n: any) => n.destacada === true);
-            console.log('✅ Noticias destacadas encontradas:', destacadas.length);
-            this.procesarNoticiasCompletas(destacadas);
-            this.cargandoNoticias = false;
-          },
-          error: (error) => {
-            console.error('❌ Error cargando noticias destacadas:', error);
-            this.cargandoNoticias = false;
-          }
-        });
-    } else {
-      // Para usuarios no autenticados, usar endpoint público
-      this.noticiasService.listarNoticiasPublicas(50)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            let noticias = [];
-            if (response?.noticias) {
-              noticias = response.noticias;
-            } else if (Array.isArray(response)) {
-              noticias = response;
-            }
-            
-            // Filtrar destacadas
-            const destacadas = noticias.filter((n: any) => n.destacada === true);
-            this.procesarListaNoticias(destacadas, true);
-            this.cargandoNoticias = false;
-          },
-          error: (error) => {
-            console.error('❌ Error cargando noticias destacadas públicas:', error);
-            this.cargandoNoticias = false;
-          }
-        });
-    }
-  }
+  // ===============================
+  // 🔧 TRACKBY FUNCTIONS
+  // ===============================
 
-  private cargarEventosProximos(limite: number): void {
-    console.log(`🏆 Cargando ${limite} eventos próximos...`);
-    this.cargandoEventos = true;
-    
-    if (this.estaAutenticado) {
-      this.eventosService.listarTodos()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            const eventos = Array.isArray(response) ? response : (response as any).eventos || [];
-            // Filtrar eventos futuros y ordenar por fecha
-            const ahora = new Date();
-            const eventosFuturos = eventos
-              .filter((evento: any) => new Date(evento.fecha) > ahora)
-              .sort((a: any, b: any) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
-              .slice(0, limite);
-            
-            console.log('✅ Eventos próximos encontrados:', eventosFuturos.length);
-            this.procesarListaEventos(eventosFuturos, true);
-            this.cargandoEventos = false;
-          },
-          error: (error) => {
-            console.error('❌ Error cargando eventos próximos:', error);
-            this.cargandoEventos = false;
-          }
-        });
-    } else {
-      this.eventosService.listarEventosPublicos(50)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            const eventos = (response as any).eventos || response;
-            // Filtrar eventos futuros y ordenar por fecha
-            const ahora = new Date();
-            const eventosFuturos = eventos
-              .filter((evento: any) => new Date(evento.fecha) > ahora)
-              .sort((a: any, b: any) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
-              .slice(0, limite);
-            
-            this.procesarListaEventos(eventosFuturos, true);
-            this.cargandoEventos = false;
-          },
-          error: (error) => {
-            console.error('❌ Error cargando eventos próximos públicos:', error);
-            this.cargandoEventos = false;
-          }
-        });
-    }
+  trackBySeccionId(index: number, item: SeccionConContenidoResponse): number {
+    return item.seccion.id;
   }
 }

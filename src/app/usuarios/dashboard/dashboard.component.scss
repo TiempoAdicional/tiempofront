@@ -1855,6 +1855,89 @@
 }
 
 // ===============================
+// 🗞️ SECCIONES DINÁMICAS
+// ===============================
+.secciones-noticias {
+  width: 100%;
+  
+  .seccion-dinamica {
+    margin-bottom: 3rem;
+    animation: fadeInStagger 0.8s ease-out;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 2rem;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid var(--verde-selva);
+      position: relative;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .section-titulo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: 'Anton', sans-serif;
+        font-size: clamp(1.3rem, 3vw, 1.8rem);
+        color: var(--verde-selva);
+        margin: 0;
+        flex: 1;
+
+        mat-icon {
+          font-size: 1.5rem;
+          width: 1.5rem;
+          height: 1.5rem;
+        }
+      }
+
+      .ver-todas-btn {
+        border-radius: 20px;
+        font-weight: 600;
+        
+        mat-icon {
+          font-size: 1rem;
+        }
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: var(--verde-lima);
+        animation: expandLine 0.8s ease-out 1s backwards;
+      }
+    }
+
+    .seccion-divider {
+      margin: 3rem 0;
+      background: linear-gradient(to right, transparent, var(--verde-selva), transparent);
+      height: 2px;
+      border: none;
+    }
+  }
+}
+
+// ===============================
 // 📱 RESPONSIVE DESIGN
 // ===============================
 

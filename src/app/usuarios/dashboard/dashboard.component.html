@@ -122,66 +122,150 @@
   </section>
 
   <!-- ===============================
-        GRID PRINCIPAL DE CONTENIDO
+        🎯 SECCIONES DINÁMICAS DE CONTENIDO
        =============================== -->
   <div class="contenido-grid">
     
-    <!-- COLUMNA IZQUIERDA: NOTICIAS -->
-    <section id="noticias" class="noticias-section">
-      <div class="section-header">
-        <h2 class="section-titulo">
-          <mat-icon>article</mat-icon>
-          Últimas Noticias
-        </h2>
-        
-        <!-- Límite para no registrados -->
-        <div class="limite-badge" *ngIf="mostrarLimites && noticiasLimitadas.length >= LIMITE_NOTICIAS">
-          <mat-chip color="warn">
-            <mat-icon matChipAvatar>visibility_off</mat-icon>
-            Más disponibles registrándote
-          </mat-chip>
-        </div>
-      </div>
-
-      <!-- Loading de noticias -->
-      <div class="loading-container" *ngIf="cargandoNoticias">
+    <!-- ===============================
+         🗞️ SECCIONES DE NOTICIAS DINÁMICAS
+         =============================== -->
+    <section class="secciones-noticias">
+      
+      <!-- Loading de secciones -->
+      <div class="loading-container" *ngIf="cargandoSecciones">
         <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
-        <p>Cargando noticias deportivas...</p>
+        <p>Cargando secciones...</p>
       </div>
 
-      <!-- Grid de noticias -->
-      <div class="noticias-grid" *ngIf="!cargandoNoticias">
-        <mat-card class="noticia-card" 
-                  *ngFor="let noticia of noticiasLimitadas"
-                  [class.bloqueada]="noticia.bloqueada"
-                  (click)="verNoticia(noticia)">
+      <!-- Mostrar cada sección de noticias dinámicamente -->
+      <div *ngFor="let seccionConContenido of obtenerSeccionesNoticias(); let last = last; trackBy: trackBySeccionId" 
+           class="seccion-dinamica">
+        
+        <div class="section-header">
+          <h2 class="section-titulo">
+            <mat-icon [style.color]="obtenerColorSeccion(seccionConContenido.seccion.tipo)">
+              {{ obtenerIconoSeccion(seccionConContenido.seccion.tipo) }}
+            </mat-icon>
+            {{ seccionConContenido.seccion.titulo }}
+          </h2>
           
-          <div class="card-image">
-            <img [src]="noticia.imagenUrl || '/assets/default-news.jpg'" 
-                 [alt]="noticia.titulo">
-            
-            <!-- Overlay para contenido bloqueado -->
-            <div class="block-overlay" *ngIf="noticia.bloqueada">
-              <mat-icon class="lock-icon">lock</mat-icon>
-              <span>Regístrate para ver más</span>
-            </div>
+          <!-- Límite para no registrados -->
+          <div class="limite-badge" *ngIf="mostrarLimites && noticiasLimitadas.length >= LIMITE_NOTICIAS">
+            <mat-chip color="warn">
+              <mat-icon matChipAvatar>visibility_off</mat-icon>
+              Más disponibles registrándote
+            </mat-chip>
           </div>
           
-          <mat-card-header>
-            <mat-chip class="seccion-mini">{{ noticia.seccion }}</mat-chip>
-            <mat-card-title class="noticia-titulo">{{ noticia.titulo }}</mat-card-title>
-          </mat-card-header>
-          
-          <mat-card-content>
-            <p class="noticia-resumen">{{ noticia.resumen }}</p>
-            <div class="noticia-meta">
-              <span class="fecha-mini">{{ noticia.fechaPublicacion | date:'dd/MM' }}</span>
-              <span class="autor-mini" *ngIf="noticia.autorNombre">Por {{ noticia.autorNombre }}</span>
-              <mat-icon class="read-icon">chevron_right</mat-icon>
+          <!-- Botón ver todas -->
+          <button mat-stroked-button 
+                  color="accent" 
+                  class="ver-todas-btn"
+                  (click)="navegarASeccion(seccionConContenido.seccion.id, seccionConContenido.seccion.tipo)">
+            <mat-icon>open_in_new</mat-icon>
+            Ver todas
+          </button>
+        </div>
+
+        <!-- Grid de noticias para esta sección -->
+        <div class="noticias-grid" *ngIf="!cargandoNoticias">
+          <mat-card class="noticia-card" 
+                    *ngFor="let noticia of noticiasLimitadas | slice:0:6"
+                    [class.bloqueada]="noticia.bloqueada"
+                    (click)="verNoticia(noticia)">
+            
+            <div class="card-image">
+              <img [src]="noticia.imagenUrl || '/assets/default-news.jpg'" 
+                   [alt]="noticia.titulo">
+              
+              <!-- Overlay para contenido bloqueado -->
+              <div class="block-overlay" *ngIf="noticia.bloqueada">
+                <mat-icon class="lock-icon">lock</mat-icon>
+                <span>Regístrate para ver más</span>
+              </div>
             </div>
-          </mat-card-content>
-        </mat-card>
+            
+            <mat-card-header>
+              <mat-chip class="seccion-mini" 
+                        [style.background-color]="obtenerColorSeccion(seccionConContenido.seccion.tipo)"
+                        [style.color]="'white'">
+                {{ seccionConContenido.seccion.titulo }}
+              </mat-chip>
+              <mat-card-title class="noticia-titulo">{{ noticia.titulo }}</mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <p class="noticia-resumen">{{ noticia.resumen }}</p>
+              <div class="noticia-meta">
+                <span class="fecha-mini">{{ noticia.fechaPublicacion | date:'dd/MM' }}</span>
+                <span class="autor-mini" *ngIf="noticia.autorNombre">Por {{ noticia.autorNombre }}</span>
+                <mat-icon class="read-icon">chevron_right</mat-icon>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Separador entre secciones -->
+        <mat-divider class="seccion-divider" *ngIf="!last"></mat-divider>
       </div>
+
+      <!-- Fallback: Sección tradicional si no hay secciones dinámicas -->
+      <section id="noticias" class="noticias-section" *ngIf="obtenerSeccionesNoticias().length === 0 && !cargandoSecciones">
+        <div class="section-header">
+          <h2 class="section-titulo">
+            <mat-icon>article</mat-icon>
+            Últimas Noticias
+          </h2>
+          
+          <!-- Límite para no registrados -->
+          <div class="limite-badge" *ngIf="mostrarLimites && noticiasLimitadas.length >= LIMITE_NOTICIAS">
+            <mat-chip color="warn">
+              <mat-icon matChipAvatar>visibility_off</mat-icon>
+              Más disponibles registrándote
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Loading de noticias -->
+        <div class="loading-container" *ngIf="cargandoNoticias">
+          <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+          <p>Cargando noticias deportivas...</p>
+        </div>
+
+        <!-- Grid de noticias tradicional -->
+        <div class="noticias-grid" *ngIf="!cargandoNoticias">
+          <mat-card class="noticia-card" 
+                    *ngFor="let noticia of noticiasLimitadas"
+                    [class.bloqueada]="noticia.bloqueada"
+                    (click)="verNoticia(noticia)">
+            
+            <div class="card-image">
+              <img [src]="noticia.imagenUrl || '/assets/default-news.jpg'" 
+                   [alt]="noticia.titulo">
+              
+              <!-- Overlay para contenido bloqueado -->
+              <div class="block-overlay" *ngIf="noticia.bloqueada">
+                <mat-icon class="lock-icon">lock</mat-icon>
+                <span>Regístrate para ver más</span>
+              </div>
+            </div>
+            
+            <mat-card-header>
+              <mat-chip class="seccion-mini">{{ noticia.seccion }}</mat-chip>
+              <mat-card-title class="noticia-titulo">{{ noticia.titulo }}</mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <p class="noticia-resumen">{{ noticia.resumen }}</p>
+              <div class="noticia-meta">
+                <span class="fecha-mini">{{ noticia.fechaPublicacion | date:'dd/MM' }}</span>
+                <span class="autor-mini" *ngIf="noticia.autorNombre">Por {{ noticia.autorNombre }}</span>
+                <mat-icon class="read-icon">chevron_right</mat-icon>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </section>
 
       <!-- Aviso de límite de noticias -->
       <div class="limite-aviso" *ngIf="mostrarAvisoLimiteNoticias">

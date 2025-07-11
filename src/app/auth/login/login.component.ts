@@ -52,7 +52,7 @@ export class LoginComponent {
           // Redirigir según el rol del usuario
           if (res.rol === 'SUPER_ADMIN') {
             this.router.navigate(['/super-admin']);
-          } else if (res.rol === 'ADMIN') {
+          } else if (res.rol === 'ADMIN' || res.rol === 'EDITOR_JEFE') {
             this.router.navigate(['/admin']);
           } else {
             this.router.navigate(['/usuarios']); // Redirigir al dashboard del usuario

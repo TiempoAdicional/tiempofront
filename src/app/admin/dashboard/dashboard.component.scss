@@ -1,46 +1,116 @@
-// Variables CSS personalizadas
-:root {
-  --primary-color: #2e7d32;
-  --accent-color: #00e676;
-  --surface-color: #1e1e1e;
-  --card-color: #2c2c2c;
-  --text-color: #ffffff;
-  --text-secondary: #b0b0b0;
-  --border-color: #404040;
-  --shadow-elevation: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --border-radius: 12px;
+// ===============================
+// 🎨 PALETA DE COLORES CÁLIDOS CON VERDE NEÓN - DASHBOARD ADMIN
+// ===============================
+
+// Forzar fondo blanco globalmente
+body, html {
+  background: #ffffff !important;
 }
 
+:root {
+  // Colores principales cálidos
+  --admin-primary: #ff7043;        // Naranja coral elegante
+  --admin-secondary: #ff9800;      // Naranja vibrante
+  --admin-warm: #ffab40;           // Naranja dorado
+  --admin-accent: #ffc107;         // Amarillo dorado
+  
+  // Verde neón para números y bordes especiales
+  --admin-neon-green: #00ff88;     // Verde neón brillante
+  --admin-green-glow: #00e676;     // Verde neón suave
+  --admin-green-dark: #00c853;     // Verde neón oscuro
+  --admin-green-ultra: #39ff14;    // Verde neón ultra brillante
+  --admin-green-olive: #8bc34a;    // Verde oliva para hover
+  --admin-green-olive-light: #aed581; // Verde oliva claro
+  
+  // Fondos limpios
+  --admin-bg: #ffffff ;  // Fondo blanco puro forzado
+  --admin-surface: #ffffff;        // Superficie blanca
+  --admin-card: #ffffff;           // Cards blancas
+  --admin-card-hover: #f9f9f9;     // Hover de cards más suave
+  
+  // Bordes y divisores
+  --admin-border: #e0e0e0;         // Borde neutro
+  --admin-border-light: #f5f5f5;   // Borde muy suave
+  --admin-border-neon: var(--admin-neon-green); // Borde verde neón
+  
+  // Textos
+  --admin-text-primary: #2c2c2c;   // Gris oscuro
+  --admin-text-secondary: #616161; // Gris medio
+  --admin-text-muted: #9e9e9e;     // Gris claro
+  
+  // Estados
+  --admin-success: var(--admin-neon-green);
+  --admin-warning: #ff9800;
+  --admin-error: #f44336;
+  --admin-info: #2196f3;
+  
+  // Sombras limpias y efectos neón
+  --admin-shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --admin-shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --admin-shadow-deep: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --admin-shadow-neon: 0 0 20px rgba(0, 255, 136, 0.4);
+  --admin-shadow-neon-strong: 0 0 30px rgba(0, 255, 136, 0.6);
+  
+  // Utilidades
+  --admin-radius: 12px;
+  --admin-radius-sm: 6px;
+  --admin-radius-lg: 20px;
+  --admin-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ===============================
+// 🏠 DASHBOARD PRINCIPAL
+// ===============================
 .admin-dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--surface-color) 0%, #121212 100%);
+  background: #ffffff !important; // Forzar fondo blanco
+  font-family: 'League Spartan', sans-serif;
+  color: var(--admin-text-primary);
   
-  // Header mejorado con Material Toolbar
+  // ===============================
+  // 🎯 HEADER ADMINISTRADOR - SIEMPRE VERDE INSTITUCIONAL
+  // ===============================
   .admin-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #1b5e20 100%);
-    box-shadow: var(--shadow-elevation);
+    background: #2d5a3d !important; // Verde institucional sólido - SIN DEGRADADO NARANJA
+    box-shadow: var(--admin-shadow-elevated);
     position: sticky;
     top: 0;
     z-index: 1000;
+    border-bottom: 4px solid var(--admin-neon-green);
+    
+    // Forzar el color verde en todas las clases de Material
+    &.mat-toolbar,
+    &.mat-primary,
+    &[color="primary"] {
+      background: #2d5a3d !important;
+      color: white !important;
+    }
 
     mat-toolbar-row {
       padding: 0 2rem;
       min-height: 80px;
+      
+      @media (max-width: 768px) {
+        padding: 0 1rem;
+        min-height: 64px;
+      }
     }
 
     .admin-title {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--text-color);
+      gap: 1rem;
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
       mat-icon {
-        font-size: 2rem;
-        width: 2rem;
-        height: 2rem;
-        color: var(--accent-color);
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        width: auto;
+        height: auto;
+        color: var(--admin-neon-green);
+        filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.6));
       }
     }
 
@@ -52,444 +122,553 @@
       display: flex;
       align-items: center;
       gap: 1rem;
-
-      .debug-button {
-        background-color: rgba(255, 152, 0, 0.1);
-        border: 1px solid rgba(255, 152, 0, 0.3);
-        transition: all 0.3s ease;
-
-        &:hover {
-          background-color: rgba(255, 152, 0, 0.2);
-          border-color: #ff9800;
-          transform: scale(1.05);
-        }
-
-        mat-icon {
-          color: #ff9800;
-        }
+      
+      @media (max-width: 768px) {
+        gap: 0.5rem;
       }
 
       mat-chip-set {
         mat-chip {
-          background-color: rgba(255, 255, 255, 0.1);
-          color: var(--text-color);
-          font-weight: 500;
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: white;
+          color: var(--admin-primary);
+          font-weight: 700;
+          border: 2px solid var(--admin-neon-green);
+          transition: var(--admin-transition);
+          
+          &:hover {
+            background: var(--admin-neon-green);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: var(--admin-shadow-neon);
+          }
 
           mat-icon {
-            color: var(--accent-color);
+            color: var(--admin-neon-green);
           }
         }
       }
 
       .logout-button {
-        background-color: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        border: 3px solid #ff4444 !important; // Bordes rojos prominentes
+        color: #ff4444;
+        border-radius: var(--admin-radius-sm);
+        transition: var(--admin-transition);
+        font-weight: 700;
+        min-width: 44px;
+        min-height: 44px;
 
         &:hover {
-          background-color: rgba(244, 67, 54, 0.2);
-          border-color: #f44336;
-          transform: scale(1.05);
+          background: #ff4444 !important; // Fondo rojo en hover
+          border-color: #ff4444 !important;
+          color: white !important;
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);
         }
 
         mat-icon {
-          color: #ff5722;
+          color: inherit;
         }
       }
     }
   }
 
-  // Contenido principal
+  // ===============================
+  // 📊 CONTENIDO PRINCIPAL
+  // ===============================
   .dashboard-content {
     padding: 2rem;
     max-width: 1400px;
     margin: 0 auto;
+    background: #ffffff; // Forzar fondo blanco también aquí
+    min-height: calc(100vh - 80px); // Asegurar altura completa
+    
+    @media (max-width: 768px) {
+      padding: 1rem;
+    }
   }
 
-  // Grid de estadísticas
+  // ===============================
+  // ⚠️ CARD DE ERROR
+  // ===============================
+  .error-card {
+    background: var(--admin-surface);
+    border: 3px solid var(--admin-error);
+    border-radius: var(--admin-radius);
+    margin-bottom: 2rem;
+    box-shadow: var(--admin-shadow-elevated);
+
+    .error-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+      padding: 2rem;
+
+      .error-icon {
+        font-size: 3rem;
+        color: var(--admin-error);
+      }
+
+      p {
+        color: var(--admin-text-primary);
+        font-size: 1.1rem;
+        margin: 0;
+      }
+
+      button {
+        background: var(--admin-error);
+        color: white;
+        border-radius: var(--admin-radius-sm);
+        font-weight: 600;
+        
+        &:hover {
+          background: #d32f2f;
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+
+  // ===============================
+  // 📈 GRID DE ESTADÍSTICAS - TODAS LAS CARDS IGUALES
+  // ===============================
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
     margin-bottom: 3rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
 
     .stat-card {
-      background: var(--card-color);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-elevation);
-      transition: all 0.3s ease;
-      border: 1px solid var(--border-color);
+      background: var(--admin-surface);
+      border-radius: var(--admin-radius);
+      box-shadow: var(--admin-shadow-soft);
+      transition: var(--admin-transition);
+      border: 3px solid var(--admin-border-neon); // Borde verde neón para todas
       overflow: hidden;
       position: relative;
-
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-      }
+      min-height: 220px;
 
       &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-        border-color: var(--accent-color);
+        transform: translateY(-8px);
+        box-shadow: var(--admin-shadow-neon-strong);
+        border-color: var(--admin-green-ultra);
+        background: var(--admin-green-olive-light); // Verde oliva claro para hover
       }
 
+      // Todas las cards tienen el mismo diseño
       mat-card-header {
-        padding: 1.5rem 1.5rem 1rem;
+        padding: 2rem 1.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--admin-surface);
 
-        .mat-icon {
-          background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        .stat-icon, .equipo-icon {
+          background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
           color: white;
-          width: 48px;
-          height: 48px;
-          font-size: 24px;
+          width: 64px;
+          height: 64px;
+          font-size: 32px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 12px;
+          border-radius: var(--admin-radius-sm);
+          box-shadow: var(--admin-shadow-soft);
+          flex-shrink: 0;
+        }
+
+        .mat-mdc-card-header-text {
+          flex: 1;
         }
 
         mat-card-title {
-          color: var(--text-color);
-          font-size: 1.2rem;
-          font-weight: 600;
-          margin: 0;
+          color: var(--admin-text-primary);
+          font-size: 1.4rem;
+          font-weight: 700;
+          margin: 0 0 0.5rem 0;
+          font-family: 'Anton', sans-serif;
+          line-height: 1.2;
         }
 
         mat-card-subtitle {
-          color: var(--text-secondary);
-          font-size: 0.9rem;
-          margin: 0.25rem 0 0;
+          color: var(--admin-text-secondary);
+          font-size: 1rem;
+          margin: 0;
+          font-weight: 500;
+          line-height: 1.3;
         }
       }
 
       mat-card-content {
         padding: 0 1.5rem 1.5rem;
+        background: var(--admin-surface);
 
         .stat-number {
-          font-size: 2.5rem;
-          font-weight: 700;
-          color: var(--accent-color);
+          font-size: 3.5rem;
+          font-weight: 900;
+          color: var(--admin-green-ultra); // Verde neón ultra brillante para mayor contraste
           text-align: center;
-          text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
-          margin-bottom: 0.5rem;
+          margin-bottom: 1rem;
+          font-family: 'Anton', sans-serif;
+          text-shadow: 0 0 15px rgba(57, 255, 20, 0.8); // Efecto de brillo más intenso
+          line-height: 1;
+          filter: drop-shadow(0 0 5px rgba(57, 255, 20, 0.5));
         }
 
         .stat-detail {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.5rem;
-          font-size: 0.85rem;
-          color: var(--text-secondary);
-          font-weight: 500;
+          gap: 0.75rem;
+          font-size: 1rem;
+          color: var(--admin-text-secondary);
+          font-weight: 600;
+          background: var(--admin-card-hover);
+          padding: 0.75rem 1rem;
+          border-radius: var(--admin-radius-sm);
+          border: 2px solid var(--admin-border);
 
           .detail-icon {
-            font-size: 1rem;
-            width: 1rem;
-            height: 1rem;
-            color: var(--accent-color);
+            font-size: 1.2rem;
+            color: var(--admin-primary);
           }
-        }
-      }
-    }
-
-    // Stats grid adjustments for Liga Colombiana
-    .liga-card {
-      .liga-icon {
-        background: linear-gradient(45deg, #FFD700, #FFA500);
-        color: #1a1a1a;
-      }
-
-      .stat-number {
-        color: #FFD700;
-        text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-      }
-
-      .stat-detail {
-        .detail-icon {
-          color: #FFD700;
-        }
-      }
-    }
-
-    // Stats grid adjustments para Gestión de Equipo
-    .equipo-card {
-      .equipo-icon {
-        background: linear-gradient(45deg, #673ab7, #9c27b0);
-        color: #ffffff;
-      }
-
-      .stat-number {
-        color: #9c27b0;
-        text-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
-      }
-
-      .stat-detail {
-        .detail-icon {
-          color: #9c27b0;
         }
       }
     }
   }
 
-  // Secciones de administración
-  .admin-sections {
+  // ===============================
+  // 📋 PANELES DE EXPANSIÓN - MEJOR ESPACIADO
+  // ===============================
+  .admin-panels {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 3rem; // Más espacio entre paneles
+    margin-top: 2rem;
 
     .admin-panel {
-      background: var(--card-color);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-elevation);
-      border: 1px solid var(--border-color);
-      overflow: hidden;
+      background: var(--admin-surface);
+      border-radius: var(--admin-radius);
+      box-shadow: var(--admin-shadow-soft);
+      border: 2px solid var(--admin-border);
+      overflow: visible; // Cambiar de hidden a visible para evitar cortes
+      transition: var(--admin-transition);
+      margin-bottom: 1rem; // Espacio adicional entre paneles
 
       &:hover {
-        border-color: var(--accent-color);
+        border-color: var(--admin-primary);
+        box-shadow: var(--admin-shadow-elevated);
+        z-index: 10; // Elevar en hover para evitar solapamiento
       }
 
+      // Header del panel mejorado
       mat-expansion-panel-header {
-        background: var(--card-color);
-        color: var(--text-color);
-        padding: 1.5rem;
-        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #fafafa, #f5f5f5);
+        border-bottom: 3px solid var(--admin-neon-green);
+        transition: var(--admin-transition);
+        padding: 2rem;
+        min-height: 100px; // Mayor altura para evitar amontonamiento
+        margin-bottom: 0.5rem; // Espacio con el contenido
 
         &:hover {
-          background: rgba(46, 125, 50, 0.1);
+          background: linear-gradient(135deg, var(--admin-green-olive-light), #e8f5e8);
+          border-bottom-color: var(--admin-green-ultra);
         }
 
-        .mat-expansion-panel-header-title {
-          font-weight: 600;
-          font-size: 1.1rem;
+        mat-panel-title {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 1.5rem;
+          color: var(--admin-text-primary);
+          font-weight: 800;
+          font-size: 1.4rem;
+          flex-wrap: wrap;
 
           .panel-icon {
-            color: var(--accent-color);
-            font-size: 1.5rem;
-            width: 1.5rem;
-            height: 1.5rem;
+            color: var(--admin-primary);
+            font-size: 2rem;
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--admin-shadow-soft);
+          }
+
+          .exclusive-chip {
+            background: linear-gradient(135deg, var(--admin-neon-green), var(--admin-green-glow));
+            color: white;
+            font-weight: 800;
+            margin-left: auto;
+            border-radius: var(--admin-radius);
+            padding: 0.75rem 1.25rem;
+            font-size: 0.9rem;
+            box-shadow: var(--admin-shadow-neon);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+
+            mat-icon {
+              color: white;
+              margin-right: 0.5rem;
+              font-size: 1.2rem;
+            }
           }
         }
 
-        .mat-expansion-panel-header-description {
-          color: var(--text-secondary);
-          font-size: 0.9rem;
-          margin-top: 0.25rem;
+        mat-panel-description {
+          color: var(--admin-text-secondary);
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin-top: 0.75rem;
         }
       }
 
+      // Contenido del panel - ESPACIADO MEJORADO PARA EQUIPO
       .panel-actions {
-        padding: 2rem;
-        background: rgba(255, 255, 255, 0.02);
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        align-items: center;
-
-        .action-group {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          min-width: 200px;
-
-          .group-label {
-            font-size: 0.9rem;
-            color: var(--accent-color);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
+        padding: 3rem;
+        background: var(--admin-surface);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2.5rem; // Mayor gap entre botones
+        margin-top: 1rem; // Separación del header
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          padding: 2rem;
+          gap: 2rem; // Mayor gap en móvil también
         }
 
         button {
-          min-width: 140px;
-          height: 40px;
-          border-radius: 8px;
-          font-weight: 500;
-          transition: all 0.3s ease;
+          padding: 2rem 1.5rem;
+          border-radius: var(--admin-radius);
+          font-weight: 700;
+          font-size: 1.1rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1rem;
+          transition: var(--admin-transition);
+          min-height: 100px;
+          text-transform: none;
+          position: relative;
+          overflow: hidden;
+          box-shadow: var(--admin-shadow-soft);
 
-          &.mat-raised-button {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-
-            &:hover {
-              transform: translateY(-2px);
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            }
+          // Efecto hover universal mejorado
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
           }
 
-          &.mat-stroked-button {
-            border-width: 2px;
-            
-            &:hover {
-              background-color: rgba(255, 255, 255, 0.05);
-            }
+          &:hover::before {
+            left: 100%;
           }
 
           mat-icon {
-            margin-right: 0.5rem;
+            font-size: 2rem;
+            width: 2rem;
+            height: 2rem;
+            margin-bottom: 0.5rem;
+          }
+
+          // Texto descriptivo en botones
+          .button-text {
+            text-align: center;
+            line-height: 1.3;
+            
+            .button-title {
+              font-weight: 700;
+              font-size: 1.1rem;
+              margin-bottom: 0.25rem;
+            }
+            
+            .button-desc {
+              font-size: 0.9rem;
+              opacity: 0.8;
+              font-weight: 500;
+            }
+          }
+
+          // Botón primario - Gestionar Miembros
+          &[color="primary"] {
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+            color: white;
+            border: 3px solid var(--admin-neon-green);
+            box-shadow: var(--admin-shadow-elevated);
+
+            &:hover {
+              background: linear-gradient(135deg, var(--admin-secondary), var(--admin-primary));
+              transform: translateY(-6px);
+              box-shadow: var(--admin-shadow-neon);
+              border-color: var(--admin-green-ultra);
+            }
+          }
+
+          // Botón accent - Vista Pública
+          &[color="accent"] {
+            background: var(--admin-surface);
+            color: var(--admin-secondary);
+            border: 3px solid var(--admin-secondary);
+
+            &:hover {
+              background: var(--admin-secondary);
+              color: white;
+              transform: translateY(-6px);
+              box-shadow: var(--admin-shadow-elevated);
+              border-color: var(--admin-neon-green);
+            }
+          }
+
+          // Botón warn - Estadísticas
+          &[color="warn"] {
+            background: var(--admin-surface);
+            color: var(--admin-warning);
+            border: 3px solid var(--admin-warning);
+
+            &:hover {
+              background: var(--admin-warning);
+              color: white;
+              transform: translateY(-6px);
+              box-shadow: var(--admin-shadow-elevated);
+              border-color: var(--admin-neon-green);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ===============================
+  // 🔄 ESTADO DE CARGA
+  // ===============================
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #ffffff !important; // Forzar fondo blanco también aquí
+
+    .loading-card {
+      background: var(--admin-surface);
+      border-radius: var(--admin-radius);
+      box-shadow: var(--admin-shadow-elevated);
+      border: 2px solid var(--admin-border);
+      min-width: 350px;
+
+      mat-card-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        padding: 3rem;
+
+        .loading-spinner {
+          color: var(--admin-primary);
+          
+          ::ng-deep circle {
+            stroke: var(--admin-primary);
           }
         }
 
-        .preview-button {
-          background: linear-gradient(135deg, var(--accent-color), #00c853);
-          color: #000;
+        p {
+          color: var(--admin-text-primary);
+          font-size: 1.2rem;
           font-weight: 600;
-          box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
-
-          &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 230, 118, 0.4);
-          }
-        }
-
-        mat-divider {
-          margin: 1rem 0;
-          background-color: var(--border-color);
-        }
-      }
-    }
-  }
-
-  // Error card styles
-  .error-card {
-    background: #d32f2f;
-    color: white;
-    margin-bottom: 1rem;
-    box-shadow: var(--shadow-elevation);
-
-    .error-content {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-
-      .error-icon {
-        font-size: 2rem;
-        width: 2rem;
-        height: 2rem;
-        color: #ffeb3b;
-      }
-
-      p {
-        flex: 1;
-        margin: 0;
-        font-weight: 500;
-      }
-
-      button {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.3);
+          margin: 0;
+          text-align: center;
         }
       }
     }
   }
 }
 
-// Loading state
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: var(--surface-color);
-
-  .loading-card {
-    background: var(--card-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-elevation);
-    border: 1px solid var(--border-color);
-
-    .loading-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-      padding: 2rem;
-
-      mat-spinner {
-        --mdc-circular-progress-active-indicator-color: var(--accent-color);
-      }
-
-      .loading-text {
-        color: var(--text-color);
-        font-size: 1.1rem;
-        margin: 0;
-        text-align: center;
-      }
-    }
-  }
-}
-
-// Responsive Design
+// ===============================
+// 📱 RESPONSIVE DESIGN
+// ===============================
 @media (max-width: 768px) {
   .admin-dashboard {
-    .dashboard-content {
-      padding: 1rem;
-    }
-
     .stats-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
+      .stat-card {
+        min-height: 180px;
 
-    .admin-header {
-      mat-toolbar-row {
-        padding: 0 1rem;
-        min-height: 64px;
-      }
+        mat-card-header {
+          padding: 1.5rem 1rem 0.5rem;
+          
+          .stat-icon, .equipo-icon {
+            width: 52px;
+            height: 52px;
+            font-size: 26px;
+          }
 
-      .admin-title {
-        font-size: 1.2rem;
-      }
+          mat-card-title {
+            font-size: 1.2rem;
+          }
 
-      .user-info {
-        gap: 0.5rem;
+          mat-card-subtitle {
+            font-size: 0.9rem;
+          }
+        }
 
-        mat-chip-set {
-          display: none;
+        mat-card-content {
+          padding: 0 1rem 1rem;
+
+          .stat-number {
+            font-size: 2.8rem;
+          }
         }
       }
     }
 
-    .admin-sections {
-      .panel-actions {
-        padding: 1rem;
-        flex-direction: column;
-        align-items: stretch;
+    .admin-panels {
+      .admin-panel {
+        mat-expansion-panel-header {
+          padding: 1rem;
+          min-height: 64px;
 
-        .action-group {
-          min-width: auto;
-          width: 100%;
-        }
+          mat-panel-title {
+            font-size: 1.1rem;
+            
+            .panel-icon {
+              font-size: 1.5rem;
+              width: 1.5rem;
+              height: 1.5rem;
+            }
 
-        button {
-          width: 100%;
-          min-width: auto;
+            .exclusive-chip {
+              font-size: 0.75rem;
+              padding: 0.4rem 0.8rem;
+            }
+          }
         }
       }
     }
   }
 }
 
-// Animaciones
-@keyframes fadeInUp {
+// ===============================
+// ✨ ANIMACIONES MEJORADAS
+// ===============================
+@keyframes slideInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -497,54 +676,33 @@
   }
 }
 
-.admin-sections .admin-panel {
-  animation: fadeInUp 0.6s ease-out;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.stats-grid .stat-card {
-  animation: fadeInUp 0.4s ease-out;
+@keyframes glow {
+  0%, 100% {
+    box-shadow: var(--admin-shadow-soft);
+  }
+  50% {
+    box-shadow: var(--admin-shadow-elevated);
+  }
 }
 
-// Estados de los iconos por categoría
-.noticias-icon {
-  background: linear-gradient(135deg, #1976d2, #42a5f5) !important;
-}
-
-.eventos-icon {
-  background: linear-gradient(135deg, #7b1fa2, #ba68c8) !important;
-}
-
-.secciones-icon {
-  background: linear-gradient(135deg, #f57c00, #ffb74d) !important;
-}
-
-// Chip exclusivo para Editor Jefe
-.exclusive-chip {
-  background: linear-gradient(135deg, #ff6f00, #ff8f00) !important;
-  color: white !important;
-  margin-left: 8px !important;
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
+.stat-card {
+  animation: slideInUp 0.6s ease-out var(--stagger-delay, 0s) backwards;
   
-  mat-icon {
-    color: white !important;
-    font-size: 16px !important;
+  &.equipo-card {
+    animation: slideInUp 0.6s ease-out 0.3s backwards, glow 3s ease-in-out infinite;
   }
 }
 
-// Estilos adicionales para roles en el header
-.user-info {
-  mat-chip-set {
-    gap: 8px;
-    
-    mat-chip[color="accent"] {
-      background: linear-gradient(135deg, #00e676, #4caf50) !important;
-      color: white !important;
-      font-weight: 600 !important;
-      
-      mat-icon {
-        color: #ffd700 !important; // Dorado para el icono de estrella
-      }
-    }
-  }
+.admin-panel {
+  animation: fadeIn 0.8s ease-out var(--stagger-delay, 0s) backwards;
 }
