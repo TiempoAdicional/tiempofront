@@ -537,8 +537,9 @@ $transition-smooth: all 0.5s ease;
 
   .miembros-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    justify-content: center;
+    gap: 32px;
     max-width: 1200px;
     margin: 0 auto;
     animation: fadeInUp 0.8s ease-out 0.8s both;
@@ -550,24 +551,31 @@ $transition-smooth: all 0.5s ease;
 
     @include mobile {
       grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
+      gap: 24px;
     }
 
     @include tablet {
       grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
+      gap: 28px;
     }
 
     @include desktop {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 28px;
+      gap: 36px;
     }
 
     // Animación escalonada para las cards
     .app-miembro-card {
+      max-width: 380px;
+      margin: 0 auto;
       opacity: 0;
       animation: slideInUp 0.6s ease-out forwards;
       animation-delay: calc(0.1s * var(--index, 0));
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      }
 
       @for $i from 1 through 12 {
         &:nth-child(#{$i}) {
@@ -680,7 +688,23 @@ $transition-smooth: all 0.5s ease;
     transform: translateY(0);
   }
 }
+// Animaciones
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
 // Estilos para las cards de miembros (aplicados globalmente)
 ::ng-deep app-miembro-card {
   .miembro-card {
