@@ -262,6 +262,18 @@ export class PartidosService {
       );
   }
 
+  /**
+ * Obtiene la tabla de posiciones de la fase regular (todos contra todos)
+ */
+obtenerTablaFaseRegular(): Observable<TablaEquipo[]> {
+  console.log('🏆 Obteniendo tabla de la fase regular...');
+  return this.http.get<TablaEquipo[]>(`${this.apiUrl}/tabla-fase-regular`)
+    .pipe(
+      tap(tabla => console.log(`✅ Tabla de fase regular obtenida con ${tabla.length} equipos`)),
+      catchError(this.handleError<TablaEquipo[]>('obtenerTablaFaseRegular', []))
+    );
+}
+
   // ================================
   // 🔍 NUEVOS ENDPOINTS DE BÚSQUEDA
   // ================================

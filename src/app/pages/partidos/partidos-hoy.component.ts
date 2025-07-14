@@ -1,3 +1,5 @@
+ 
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -57,6 +59,15 @@ import { AuthService } from '../../auth/services/auth.service';
   styleUrls: ['./partidos-hoy.component.scss']
 })
 export class PartidosHoyComponent implements OnInit, OnDestroy {
+  /**
+   * Devuelve la tabla de la fase regular (todos contra todos), usando el endpoint dedicado.
+   */
+  get equiposTablaGeneral(): TablaEquipo[] {
+    return this.tablaFaseRegular;
+  }
+
+  // Nueva propiedad para la tabla de la fase regular
+  tablaFaseRegular: TablaEquipo[] = [];
   
   private destroy$ = new Subject<void>();
   
@@ -127,12 +138,14 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
       enVivo: this.partidosService.obtenerPartidosEnVivo(),
       proximos: this.partidosService.obtenerProximosPartidos(),
       resultados: this.partidosService.obtenerUltimosResultados(),
-      tabla: this.partidosService.obtenerTablaLigaColombiana(), // Ahora incluye TODOS los equipos
+      tabla: this.partidosService.obtenerTablaLigaColombiana(),
       todos: this.partidosService.obtenerTodosLosPartidos(),
       // 🆕 Nuevos endpoints de cuadrangulares
       tablasCompletas: this.partidosService.obtenerTodasLasTablas(),
       cuadrangularA: this.partidosService.obtenerCuadrangularA(),
-      cuadrangularB: this.partidosService.obtenerCuadrangularB()
+      cuadrangularB: this.partidosService.obtenerCuadrangularB(),
+      // Nueva tabla de fase regular
+      tablaFaseRegular: this.partidosService.obtenerTablaFaseRegular()
     })
     .pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -143,13 +156,15 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
         this.partidosEnVivo = datos.enVivo || [];
         this.proximosPartidos = datos.proximos || [];
         this.ultimosResultados = datos.resultados || [];
-        this.tablaLigaColombiana = datos.tabla || []; // Ahora incluye todos los equipos
+        this.tablaLigaColombiana = datos.tabla || [];
         this.todosLosPartidos = datos.todos || [];
         
         // 🆕 Nuevos datos de cuadrangulares
         this.tablasCompletas = datos.tablasCompletas || null;
         this.cuadrangularA = datos.cuadrangularA || [];
         this.cuadrangularB = datos.cuadrangularB || [];
+        // Nueva tabla de fase regular
+        this.tablaFaseRegular = datos.tablaFaseRegular || [];
         
         this.cargando = false;
         this.mostrarNotificacion('✅ Datos actualizados');
@@ -546,5 +561,18 @@ export class PartidosHoyComponent implements OnInit, OnDestroy {
       duration: 3000,
       panelClass: tipo === 'success' ? 'success-snackbar' : 'error-snackbar'
     });
+  }
+
+   /**
+   * Devuelve el tipo de cuadrangular al que pertenece el equipo ('A', 'B', o null)
+   */
+  obtenerTipoCuadrangular(equipo: TablaEquipo): 'A' | 'B' | null {
+    if (this.cuadrangularA.some(e => e.team.id === equipo.team.id)) {
+      return 'A';
+    }
+    if (this.cuadrangularB.some(e => e.team.id === equipo.team.id)) {
+      return 'B';
+    }
+    return null;
   }
 }

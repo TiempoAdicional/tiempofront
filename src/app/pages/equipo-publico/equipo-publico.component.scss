@@ -1,4 +1,5 @@
 
+
 // Variables para breakpoints responsive
 $breakpoint-xs: 480px;    // Móviles pequeños
 $breakpoint-sm: 768px;    // Tablets y móviles grandes  
@@ -538,34 +539,37 @@ $transition-smooth: all 0.5s ease;
   .miembros-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+    gap: 48px 40px; // Más separación entre filas y columnas
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 0 auto 60px auto;
+    padding: 0 24px;
     animation: fadeInUp 0.8s ease-out 0.8s both;
 
     @include tablet {
       grid-template-columns: repeat(2, 1fr);
-      gap: 28px;
+      gap: 36px 28px;
+      padding: 0 12px;
     }
 
     @include mobile {
       grid-template-columns: 1fr;
-      gap: 22px;
+      gap: 28px;
+      padding: 0 4px;
     }
 
     // Animación escalonada para las cards
-    .app-miembro-card, ::ng-deep app-miembro-card {
-      max-width: 370px;
+    app-miembro-card, .app-miembro-card, ::ng-deep app-miembro-card {
+      display: block;
       width: 100%;
-      margin: 0 auto;
+      max-width: 370px;
       opacity: 0;
       animation: slideInUp 0.6s ease-out forwards;
       animation-delay: calc(0.1s * var(--index, 0));
       transition: transform 0.3s ease, box-shadow 0.3s ease;
 
       &:hover {
-        transform: translateY(-6px) scale(1.02);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        transform: translateY(-8px) scale(1.03);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
       }
 
       @for $i from 1 through 12 {

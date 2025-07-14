@@ -44,10 +44,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 
 // ===== COMPONENTE PRINCIPAL =====
 
+// Elimina el max-width y margin para que el grid padre controle el ancho y alineación
 .miembro-card {
-  max-width: 370px;
   width: 100%;
-  margin: 0 auto;
   height: auto;
 
   .card-container {

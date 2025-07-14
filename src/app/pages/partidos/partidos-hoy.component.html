@@ -287,15 +287,96 @@
         </ng-template>
         
         <div class="tab-content">
-          <div *ngIf="tablaLigaColombiana.length === 0 && !cargando" class="empty-state">
+          <div *ngIf="!cargando && (equiposTablaGeneral.length === 0 && cuadrangularA.length === 0 && cuadrangularB.length === 0)" class="empty-state">
             <mat-icon>leaderboard</mat-icon>
             <h3>Tabla no disponible</h3>
             <p>No se pudo cargar la tabla de posiciones.</p>
           </div>
-          
-          <div *ngIf="tablaLigaColombiana.length > 0" class="tablas-container">
+
+          <div *ngIf="equiposTablaGeneral.length > 0 || cuadrangularA.length > 0 || cuadrangularB.length > 0" class="tablas-container">
             
-            <!-- 🔵 CUADRANGULAR A -->
+            <!-- 🏆 TABLA GENERAL -->
+            <mat-card class="tabla-card tabla-general-card" *ngIf="tablaLigaColombiana.length > 0">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>emoji_events</mat-icon>
+                  {{ obtenerTituloTabla('completa') }}
+                </mat-card-title>
+                <mat-card-subtitle>Clasificación general del torneo</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="tabla-posiciones tabla-general">
+                  <div class="tabla-header">
+                    <div class="pos-header">#</div>
+                    <div class="escudo-header"></div>
+                    <div class="equipo-header">Equipo</div>
+                    <div class="stat-header">PJ</div>
+                    <div class="stat-header">PG</div>
+                    <div class="stat-header">PE</div>
+                    <div class="stat-header">PP</div>
+                    <div class="stat-header">GF</div>
+                    <div class="stat-header">GC</div>
+                    <div class="stat-header puntos-header">Pts</div>
+                  </div>
+                  <div class="tabla-body">
+                    <div 
+                      *ngFor="let equipo of tablaLigaColombiana; trackBy: trackByEquipoTabla; let i = index" 
+                      class="equipo-fila"
+                      [class.copa-libertadores]="i < 4"
+                      [class.copa-sudamericana]="i >= 4 && i < 8"
+                      [class.descenso]="i >= tablaLigaColombiana.length - 3"
+                      [class.cuadrangular-a]="esCuadrangularA(equipo)"
+                      [class.cuadrangular-b]="esCuadrangularB(equipo)">
+                      <div class="posicion" 
+                           [class.champions]="i < 4"
+                           [class.libertadores]="i >= 4 && i < 6"
+                           [class.sudamericana]="i >= 6 && i < 12"
+                           [class.descenso]="i >= tablaLigaColombiana.length - 3">
+                        {{ equipo.position }}
+                      </div>
+                      <div class="escudo-tabla">
+                        <img [src]="equipo.team.logo" 
+                             [alt]="equipo.team.name"
+                             (error)="onImageError($event)">
+                      </div>
+                      <div class="equipo-nombre">{{ equipo.team.name }}</div>
+                      <div class="stat pj">{{ equipo.all.played }}</div>
+                      <div class="stat pg">{{ equipo.all.win }}</div>
+                      <div class="stat pe">{{ equipo.all.draw }}</div>
+                      <div class="stat pp">{{ equipo.all.lose }}</div>
+                      <div class="stat gf">{{ equipo.all.goals.for }}</div>
+                      <div class="stat gc">{{ equipo.all.goals.against }}</div>
+                      <div class="stat puntos">{{ equipo.points }}</div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Leyenda Tabla General -->
+                <div class="tabla-leyenda">
+                  <div class="leyenda-item copa-libertadores">
+                    <span class="indicador"></span>
+                    Copa Libertadores
+                  </div>
+                  <div class="leyenda-item copa-sudamericana">
+                    <span class="indicador"></span>
+                    Copa Sudamericana
+                  </div>
+                  <div class="leyenda-item descenso">
+                    <span class="indicador"></span>
+                    Descenso
+                  </div>
+                  <div class="leyenda-item cuadrangular-a">
+                    <span class="indicador"></span>
+                    Cuadrangular A
+                  </div>
+                  <div class="leyenda-item cuadrangular-b">
+                    <span class="indicador"></span>
+                    Cuadrangular B
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- � CUADRANGULAR A -->
             <mat-card class="tabla-card cuadrangular-a-card" *ngIf="cuadrangularA.length > 0">
               <mat-card-header>
                 <mat-card-title>
@@ -304,7 +385,6 @@
                 </mat-card-title>
                 <mat-card-subtitle>Clasifican los primeros 2 equipos</mat-card-subtitle>
               </mat-card-header>
-              
               <mat-card-content>
                 <div class="tabla-posiciones cuadrangular-a">
                   <div class="tabla-header">
@@ -319,26 +399,22 @@
                     <div class="stat-header">GC</div>
                     <div class="stat-header puntos-header">Pts</div>
                   </div>
-                  
                   <div class="tabla-body">
                     <div 
                       *ngFor="let equipo of cuadrangularA; trackBy: trackByEquipoTabla; let i = index" 
                       class="equipo-fila"
                       [class.clasificado]="i < 2"
                       [class.eliminado]="i >= 2">
-                      
                       <div class="posicion" 
                            [class.clasificado]="i < 2"
                            [class.eliminado]="i >= 2">
                         {{ equipo.position }}
                       </div>
-                      
                       <div class="escudo-tabla">
                         <img [src]="equipo.team.logo" 
                              [alt]="equipo.team.name"
                              (error)="onImageError($event)">
                       </div>
-                      
                       <div class="equipo-nombre">{{ equipo.team.name }}</div>
                       <div class="stat pj">{{ equipo.all.played }}</div>
                       <div class="stat pg">{{ equipo.all.win }}</div>
@@ -350,7 +426,6 @@
                     </div>
                   </div>
                 </div>
-                
                 <!-- Leyenda Cuadrangular A -->
                 <div class="tabla-leyenda">
                   <div class="leyenda-item clasificado">
@@ -374,7 +449,6 @@
                 </mat-card-title>
                 <mat-card-subtitle>Clasifican los primeros 2 equipos</mat-card-subtitle>
               </mat-card-header>
-              
               <mat-card-content>
                 <div class="tabla-posiciones cuadrangular-b">
                   <div class="tabla-header">
@@ -389,26 +463,22 @@
                     <div class="stat-header">GC</div>
                     <div class="stat-header puntos-header">Pts</div>
                   </div>
-                  
                   <div class="tabla-body">
                     <div 
                       *ngFor="let equipo of cuadrangularB; trackBy: trackByEquipoTabla; let i = index" 
                       class="equipo-fila"
                       [class.clasificado]="i < 2"
                       [class.eliminado]="i >= 2">
-                      
                       <div class="posicion" 
                            [class.clasificado]="i < 2"
                            [class.eliminado]="i >= 2">
                         {{ equipo.position }}
                       </div>
-                      
                       <div class="escudo-tabla">
                         <img [src]="equipo.team.logo" 
                              [alt]="equipo.team.name"
                              (error)="onImageError($event)">
                       </div>
-                      
                       <div class="equipo-nombre">{{ equipo.team.name }}</div>
                       <div class="stat pj">{{ equipo.all.played }}</div>
                       <div class="stat pg">{{ equipo.all.win }}</div>
@@ -420,7 +490,6 @@
                     </div>
                   </div>
                 </div>
-                
                 <!-- Leyenda Cuadrangular B -->
                 <div class="tabla-leyenda">
                   <div class="leyenda-item clasificado">
@@ -430,83 +499,6 @@
                   <div class="leyenda-item eliminado">
                     <span class="indicador"></span>
                     Eliminados
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-
-            <!-- 🏆 TABLA GENERAL -->
-            <mat-card class="tabla-card tabla-general-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>emoji_events</mat-icon>
-                  {{ obtenerTituloTabla('completa') }}
-                </mat-card-title>
-                <mat-card-subtitle>Clasificación general del torneo</mat-card-subtitle>
-              </mat-card-header>
-              
-              <mat-card-content>
-                <div class="tabla-posiciones tabla-general">
-                  <div class="tabla-header">
-                    <div class="pos-header">#</div>
-                    <div class="escudo-header"></div>
-                    <div class="equipo-header">Equipo</div>
-                    <div class="stat-header">PJ</div>
-                    <div class="stat-header">PG</div>
-                    <div class="stat-header">PE</div>
-                    <div class="stat-header">PP</div>
-                    <div class="stat-header">GF</div>
-                    <div class="stat-header">GC</div>
-                    <div class="stat-header puntos-header">Pts</div>
-                  </div>
-                  
-                  <div class="tabla-body">
-                    <div 
-                      *ngFor="let equipo of tablaLigaColombiana; trackBy: trackByEquipoTabla; let i = index" 
-                      class="equipo-fila"
-                      [class.copa-libertadores]="i < 4"
-                      [class.copa-sudamericana]="i >= 4 && i < 8"
-                      [class.descenso]="i >= tablaLigaColombiana.length - 3">
-                      
-                      <div class="posicion" 
-                           [class.champions]="i < 4"
-                           [class.libertadores]="i >= 4 && i < 6"
-                           [class.sudamericana]="i >= 6 && i < 12"
-                           [class.descenso]="i >= tablaLigaColombiana.length - 3">
-                        {{ equipo.position }}
-                      </div>
-                      
-                      <div class="escudo-tabla">
-                        <img [src]="equipo.team.logo" 
-                             [alt]="equipo.team.name"
-                             (error)="onImageError($event)">
-                      </div>
-                      
-                      <div class="equipo-nombre">{{ equipo.team.name }}</div>
-                      <div class="stat pj">{{ equipo.all.played }}</div>
-                      <div class="stat pg">{{ equipo.all.win }}</div>
-                      <div class="stat pe">{{ equipo.all.draw }}</div>
-                      <div class="stat pp">{{ equipo.all.lose }}</div>
-                      <div class="stat gf">{{ equipo.all.goals.for }}</div>
-                      <div class="stat gc">{{ equipo.all.goals.against }}</div>
-                      <div class="stat puntos">{{ equipo.points }}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Leyenda Tabla General -->
-                <div class="tabla-leyenda">
-                  <div class="leyenda-item copa-libertadores">
-                    <span class="indicador"></span>
-                    Copa Libertadores
-                  </div>
-                  <div class="leyenda-item copa-sudamericana">
-                    <span class="indicador"></span>
-                    Copa Sudamericana
-                  </div>
-                  <div class="leyenda-item descenso">
-                    <span class="indicador"></span>
-                    Descenso
                   </div>
                 </div>
               </mat-card-content>
