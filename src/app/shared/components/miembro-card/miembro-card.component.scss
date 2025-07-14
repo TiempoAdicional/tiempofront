@@ -52,7 +52,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   height: auto;
 
   .card-container {
-    width: 100%;
+    flex: 1 1 auto;
     max-width: 360px; // Limita el ancho máximo de la card
     margin: 0;
     display: flex;
@@ -60,7 +60,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
     border-radius: 16px;
     box-shadow: $shadow;
     transition: $transition;
-    background: white;
+    background: rgb(165, 158, 158);
     overflow: hidden;
 
     &:hover {
