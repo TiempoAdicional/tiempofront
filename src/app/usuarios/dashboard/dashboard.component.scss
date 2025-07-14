@@ -364,6 +364,29 @@
 
     @media (max-width: 768px) {
       padding: 1rem 0.5rem;
+      .hero-resumen {
+        margin-bottom: 0.5rem;
+      }
+      .hero-meta {
+        gap: 0.5rem;
+        .leer-mas-btn {
+          margin-top: 0.5rem;
+        }
+      }
+    }
+
+    @media (max-width: 480px) {
+      padding: 0 !important;
+      margin-top: -1.5rem;
+      .hero-resumen {
+        margin-bottom: 0;
+      }
+      .hero-meta {
+        gap: 0.4rem;
+        .leer-mas-btn {
+          margin-top: 0;
+        }
+      }
     }
 
     .seccion-chip {
