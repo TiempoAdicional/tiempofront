@@ -52,8 +52,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   height: auto;
 
   .card-container {
-    flex: 1 1 auto;
-    max-width: 360px; // Limita el ancho máximo de la card
+    width: 100%; // Ocupa todo el ancho disponible
+    max-width: 340px; // Limita el ancho máximo de la card
     margin: 0;
     display: flex;
     flex-direction: column;
