@@ -552,13 +552,9 @@ $transition-smooth: all 0.5s ease;
 
   .miembros-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); // Responsive grid
-    justify-items: center; // Centra cada card en su celda
-    gap: 48px 40px; // Espacio entre filas y columnas
-    max-width: 1200px;
-    margin: 0 auto 60px auto;
-    padding: 0 24px;
-    animation: fadeInUp 0.8s ease-out 0.8s both;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  justify-items: center; // Alinea cada celda de grid al centro
+  gap: 40px 32px;
 
     @include tablet {
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
