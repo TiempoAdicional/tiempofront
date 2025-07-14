@@ -75,13 +75,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.router.navigate(['/usuarios/dashboard'], { fragment: 'eventos' });
         break;
       case 'partidos':
-      case 'resultados':
-      case 'fixtures':
-        this.router.navigate(['/usuarios/dashboard'], { fragment: 'partidos' });
-        break;
-      case 'liga-colombiana':
-      case 'torneo':
-        this.router.navigate(['/usuarios/dashboard'], { fragment: 'liga' });
+        
+        this.router.navigate(['/partidos']);
         break;
       case 'equipo':
         this.router.navigate(['/equipo']);
@@ -106,16 +101,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   irAPartidos(): void {
-    this.router.navigate(['/usuarios/dashboard'], { fragment: 'partidos' });
+    console.log('🔄 Navegando a /partidos/hoy (autenticado o no)');
+    this.router.navigate(['/partidos']);
     this.activeDropdown = null;
     this.closeMobileMenu();
   }
 
-  irALigaColombiana(): void {
-    this.router.navigate(['/usuarios/dashboard'], { fragment: 'liga' });
-    this.activeDropdown = null;
-    this.closeMobileMenu();
-  }
+  
 
   irAEquipo(): void {
     console.log('🔄 Navegando a página de equipo...');

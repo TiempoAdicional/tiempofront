@@ -33,7 +33,7 @@
                         <div class="dropdown-content">
                             <a href="#" class="dropdown-item" (click)="irAEventos()">🏆 Ver Todos los Eventos</a>
                             <a href="#" class="dropdown-item" (click)="irAEventosProximos()">📅 Próximos</a>
-                            <a href="#" class="dropdown-item" (click)="irAPartidos()">⚽ Partidos</a>
+                            <a href="#" class="dropdown-item" (click)="irAPartidos(); $event.preventDefault();">⚽ Partidos</a>
                         </div>
                     </div>
                 </li>
@@ -122,8 +122,8 @@
                 <div class="mobile-dropdown" [class.active]="activeMobileSection === 'eventos'">
                     <a href="#" class="mobile-dropdown-item" (click)="irAEventos()">🏆 Ver Todos los Eventos</a>
                     <a href="#" class="mobile-dropdown-item" (click)="irAEventosProximos()">📅 Próximos</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="irAPartidos()">⚽ Partidos</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="irALigaColombiana()">🇨🇴 Liga Colombiana</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irAPartidos(); $event.preventDefault();">⚽ Partidos</a>
+                   
                 </div>
             </div>
 
@@ -137,7 +137,7 @@
                     <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('nuestra-historia', $event)">📖
                         Historia</a>
                     <a href="#" class="mobile-dropdown-item" (click)="irAEquipo(); $event.preventDefault(); $event.stopPropagation()">👥 Nuestro Equipo</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('contacto', $event)">📞 Contacto</a>
+                    
                 </div>
             </div>
 
