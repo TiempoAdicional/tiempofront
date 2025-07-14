@@ -1,171 +1,182 @@
- <div class="tiempo-adicional-history">
-      <!-- Hero Section -->
-      <section class="hero-section" [@heroAnimation]="heroState">
-        <div class="hero-background">
-          <div class="football-pattern"></div>
-          <div class="floating-ball ball-1"></div>
-          <div class="floating-ball ball-2"></div>
-          <div class="floating-ball ball-3"></div>
-        </div>
-        <div class="hero-content">
-          <div class="logo-container" [@logoAnimation]="logoState">
-            <mat-icon class="football-icon">sports_soccer</mat-icon>
-            <h1 class="hero-title">Tiempo Adicional</h1>
-          </div>
-          <p class="hero-subtitle" [@subtitleAnimation]="subtitleState">
-            Más allá de los 90 minutos
-          </p>
-          <p class="hero-description" [@descriptionAnimation]="descriptionState">
-            La etnografía del fútbol desde la voz de la afición
-          </p>
-          <div class="scroll-indicator" [@bounceAnimation]="bounceState">
-            <mat-icon>keyboard_arrow_down</mat-icon>
-          </div>
-        </div>
-      </section>
+<div class="tiempo-adicional-history">
+  <!-- ...contenido de la página... -->
 
-      <!-- Story Section -->
-      <section class="story-section">
-        <div class="container">
-          <mat-card class="story-card" [@cardSlideIn]="storyCardState">
-            <mat-card-header>
-              <mat-icon mat-card-avatar class="story-icon">auto_stories</mat-icon>
-              <mat-card-title>Nuestra Historia</mat-card-title>
-              <mat-card-subtitle>El origen de una pasión</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="story-content" [@storyContentAnimation]="storyContentState">
-                <p class="story-paragraph">
-                  <strong>Tiempo Adicional</strong> surge de la visión de dos hermanos convencidos de que el fútbol 
-                  trasciende los 90 minutos de juego. Este deporte es, ante todo, un fenómeno cultural en el que 
-                  convergen tradiciones, emociones e identidades que reflejan su folclore único.
-                </p>
-                <p class="story-paragraph">
-                  Entre sus protagonistas destacan los <em>hinchas</em>, fieles acompañantes de sus equipos 
-                  en cada victoria y derrota.
-                </p>
-                <div class="founding-highlight">
-                  <mat-icon class="calendar-icon">event</mat-icon>
-                  <span class="founding-text">Fundado en <strong>2023</strong></span>
-                </div>
-                <p class="story-paragraph">
-                  Este medio digital se planteó un objetivo claro: realizar una etnografía del fútbol centrada 
-                  en la voz de la afición. Sus cantos, rituales, frustraciones y sueños se convierten en el eje 
-                  de un relato que va más allá de lo deportivo.
-                </p>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </section>
-
-      <!-- Mission Section -->
-      <section class="mission-section">
-        <div class="container">
-          <h2 class="section-title" [@titleAnimation]="missionTitleState">
-            <mat-icon class="title-icon">flag</mat-icon>
-            Nuestra Misión
-          </h2>
-          <div class="mission-grid">
-            <mat-card class="mission-card main-mission" [@cardAnimation]="missionCard1State">
-              <mat-card-content>
-                <div class="card-icon-container">
-                  <mat-icon class="card-icon">sports_soccer</mat-icon>
-                </div>
-                <h3>Nuestra Misión</h3>
-                <p>En Tiempo Adicional, nos dedicamos a narrar el fútbol desde sus raíces más auténticas: la pasión, las historias y la cultura que lo rodean. A través de un periodismo ciudadano y participativo, amplificamos las voces de los hinchas, conectamos sus emociones con el juego y celebramos el deporte como un fenómeno colectivo. Nuestro compromiso es ir más allá del resultado, explorando la identidad que une a estadios, barrios y generaciones.</p>
-              </mat-card-content>
-            </mat-card>
-
-            <mat-card class="mission-card main-vision" [@cardAnimation]="missionCard2State">
-              <mat-card-content>
-                <div class="card-icon-container">
-                  <mat-icon class="card-icon">visibility</mat-icon>
-                </div>
-                <h3>Nuestra Visión</h3>
-                <p>Aspiramos a ser el referente del fútbol colombiano y latinoamericano desde una mirada humana e innovadora. Queremos construir una comunidad donde los aficionados, jugadores e instituciones dialoguen en un mismo lenguaje de pasión, furor, honestidad y respeto. A través de contenidos de calidad, buscamos redefinir la cobertura deportiva, convirtiendo cada historia en un puente que une los diferentes espacios que rodean al balompié.</p>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </div>
-      </section>
-
-      <!-- Vision Section -->
-      <section class="vision-section">
-        <div class="container">
-          <mat-card class="vision-card" [@visionCardAnimation]="visionCardState">
-            <mat-card-header>
-              <mat-icon mat-card-avatar class="vision-icon">visibility</mat-icon>
-              <mat-card-title>Nuestra Visión</mat-card-title>
-              <mat-card-subtitle>El futuro que construimos</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="vision-content" [@visionContentAnimation]="visionContentState">
-                <p class="vision-text">
-                  Consolidarnos como una <strong>comunidad auténtica</strong> que no solo escucha y debate, 
-                  sino que celebra el fútbol con un profundo sentido de pertenencia.
-                </p>
-                <div class="vision-features">
-                  <mat-chip-set>
-                    <mat-chip class="feature-chip" *ngFor="let feature of visionFeatures; let i = index" 
-                             [@chipAnimation]="getChipState(i)">
-                      <mat-icon matChipAvatar>{{feature.icon}}</mat-icon>
-                      {{feature.text}}
-                    </mat-chip>
-                  </mat-chip-set>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </section>
-
-      <!-- Values Section -->
-      <section class="values-section">
-        <div class="container">
-          <h2 class="section-title" [@titleAnimation]="valuesTitleState">
-            <mat-icon class="title-icon">favorite</mat-icon>
-            Nuestros Valores
-          </h2>
-          <div class="values-grid">
-            <mat-card class="value-card" *ngFor="let value of values; let i = index" 
-                     [@valueCardAnimation]="getValueCardState(i)">
-              <mat-card-content>
-                <div class="value-icon-container">
-                  <mat-icon class="value-icon">{{value.icon}}</mat-icon>
-                </div>
-                <h4 class="value-title">{{value.title}}</h4>
-                <p class="value-description">{{value.description}}</p>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </div>
-      </section>
-
-      <!-- CTA Section -->
-      <section class="cta-section">
-        <div class="container">
-          <mat-card class="cta-card" [@ctaAnimation]="ctaState">
-            <mat-card-content>
-              <div class="cta-content">
-                <mat-icon class="cta-icon">groups</mat-icon>
-                <h2 class="cta-title">Únete a Nuestra Comunidad</h2>
-                <p class="cta-description">
-                  Sé parte de la conversación que trasciende los 90 minutos
-                </p>
-                <div class="cta-buttons">
-                  <button mat-raised-button color="primary" class="cta-button">
-                    <mat-icon>sports_soccer</mat-icon>
-                    Explorar Contenido
-                  </button>
-                  <button mat-stroked-button color="accent" class="cta-button">
-                    <mat-icon>forum</mat-icon>
-                    Únete al Debate
-                  </button>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </section>
+  <!-- Hero Section -->
+  <section class="hero-section" [@heroAnimation]="heroState">
+    <div class="hero-background">
+      <div class="football-pattern"></div>
+      <div class="floating-ball ball-1"></div>
+      <div class="floating-ball ball-2"></div>
+      <div class="floating-ball ball-3"></div>
     </div>
+    <div class="hero-content">
+      <div class="logo-container" [@logoAnimation]="logoState">
+        <mat-icon class="football-icon">sports_soccer</mat-icon>
+        <h1 class="hero-title">Tiempo Adicional</h1>
+      </div>
+      <p class="hero-subtitle" [@subtitleAnimation]="subtitleState">
+        Más allá de los 90 minutos
+      </p>
+      <p class="hero-description" [@descriptionAnimation]="descriptionState">
+        La etnografía del fútbol desde la voz de la afición
+      </p>
+      <div class="scroll-indicator" [@bounceAnimation]="bounceState">
+        <mat-icon>keyboard_arrow_down</mat-icon>
+      </div>
+    </div>
+  </section>
+
+  <!-- Story Section -->
+  <section class="story-section">
+    <div class="container">
+      <mat-card class="story-card" [@cardSlideIn]="storyCardState">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="story-icon">auto_stories</mat-icon>
+          <mat-card-title>Nuestra Historia</mat-card-title>
+          <mat-card-subtitle>El origen de una pasión</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="story-content" [@storyContentAnimation]="storyContentState">
+            <p class="story-paragraph">
+              <strong>Tiempo Adicional</strong> surge de la visión de dos hermanos convencidos de que el fútbol 
+              trasciende los 90 minutos de juego. Este deporte es, ante todo, un fenómeno cultural en el que 
+              convergen tradiciones, emociones e identidades que reflejan su folclore único.
+            </p>
+            <p class="story-paragraph">
+              Entre sus protagonistas destacan los <em>hinchas</em>, fieles acompañantes de sus equipos 
+              en cada victoria y derrota.
+            </p>
+            <div class="founding-highlight">
+              <mat-icon class="calendar-icon">event</mat-icon>
+              <span class="founding-text">Fundado en <strong>2023</strong></span>
+            </div>
+            <p class="story-paragraph">
+              Este medio digital se planteó un objetivo claro: realizar una etnografía del fútbol centrada 
+              en la voz de la afición. Sus cantos, rituales, frustraciones y sueños se convierten en el eje 
+              de un relato que va más allá de lo deportivo.
+            </p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Mission Section -->
+  <section class="mission-section">
+    <div class="container">
+      <h2 class="section-title" [@titleAnimation]="missionTitleState">
+        <mat-icon class="title-icon">flag</mat-icon>
+        Nuestra Misión
+      </h2>
+      <div class="mission-grid">
+        <mat-card class="mission-card main-mission" [@cardAnimation]="missionCard1State">
+          <mat-card-content>
+            <div class="card-icon-container">
+              <mat-icon class="card-icon">sports_soccer</mat-icon>
+            </div>
+            <h3>Nuestra Misión</h3>
+            <p>En Tiempo Adicional, nos dedicamos a narrar el fútbol desde sus raíces más auténticas: la pasión, las historias y la cultura que lo rodean. A través de un periodismo ciudadano y participativo, amplificamos las voces de los hinchas, conectamos sus emociones con el juego y celebramos el deporte como un fenómeno colectivo. Nuestro compromiso es ir más allá del resultado, explorando la identidad que une a estadios, barrios y generaciones.</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="mission-card main-vision" [@cardAnimation]="missionCard2State">
+          <mat-card-content>
+            <div class="card-icon-container">
+              <mat-icon class="card-icon">visibility</mat-icon>
+            </div>
+            <h3>Nuestra Visión</h3>
+            <p>Aspiramos a ser el referente del fútbol colombiano y latinoamericano desde una mirada humana e innovadora. Queremos construir una comunidad donde los aficionados, jugadores e instituciones dialoguen en un mismo lenguaje de pasión, furor, honestidad y respeto. A través de contenidos de calidad, buscamos redefinir la cobertura deportiva, convirtiendo cada historia en un puente que une los diferentes espacios que rodean al balompié.</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vision Section -->
+  <section class="vision-section">
+    <div class="container">
+      <mat-card class="vision-card" [@visionCardAnimation]="visionCardState">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="vision-icon">visibility</mat-icon>
+          <mat-card-title>Nuestra Visión</mat-card-title>
+          <mat-card-subtitle>El futuro que construimos</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="vision-content" [@visionContentAnimation]="visionContentState">
+            <p class="vision-text">
+              Consolidarnos como una <strong>comunidad auténtica</strong> que no solo escucha y debate, 
+              sino que celebra el fútbol con un profundo sentido de pertenencia.
+            </p>
+            <div class="vision-features">
+              <mat-chip-set>
+                <mat-chip class="feature-chip" *ngFor="let feature of visionFeatures; let i = index" 
+                         [@chipAnimation]="getChipState(i)">
+                  <mat-icon matChipAvatar>{{feature.icon}}</mat-icon>
+                  {{feature.text}}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Values Section -->
+  <section class="values-section">
+    <div class="container">
+      <h2 class="section-title" [@titleAnimation]="valuesTitleState">
+        <mat-icon class="title-icon">favorite</mat-icon>
+        Nuestros Valores
+      </h2>
+      <div class="values-grid">
+        <mat-card class="value-card" *ngFor="let value of values; let i = index" 
+                 [@valueCardAnimation]="getValueCardState(i)">
+          <mat-card-content>
+            <div class="value-icon-container">
+              <mat-icon class="value-icon">{{value.icon}}</mat-icon>
+            </div>
+            <h4 class="value-title">{{value.title}}</h4>
+            <p class="value-description">{{value.description}}</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <mat-card class="cta-card" [@ctaAnimation]="ctaState">
+        <mat-card-content>
+          <div class="cta-content">
+            <mat-icon class="cta-icon">groups</mat-icon>
+            <h2 class="cta-title">Únete a Nuestra Comunidad</h2>
+            <p class="cta-description">
+              Sé parte de la conversación que trasciende los 90 minutos
+            </p>
+            <div class="cta-buttons">
+              <button mat-raised-button color="primary" class="cta-button" (click)="irARegistro()">
+                <mat-icon>sports_soccer</mat-icon>
+                Explorar Contenido
+              </button>
+              <button mat-stroked-button color="accent" class="cta-button" (click)="irARegistro()">
+                <mat-icon>forum</mat-icon>
+                Únete al Debate
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Botón flotante de vuelta al dashboard -->
+  <button mat-fab color="primary"
+          class="back-dashboard-btn"
+          [@backButtonAnimation]="backButtonState"
+          (click)="onBackToDashboard()"
+          aria-label="Volver al Dashboard">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</div>

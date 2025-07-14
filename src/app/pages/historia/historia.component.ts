@@ -1,4 +1,6 @@
+
 import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +21,13 @@ import { trigger, state, style, transition, animate, keyframes, query, stagger }
   templateUrl: './historia.component.html',
   styleUrls: ['./historia.component.scss'],
   animations: [
+    trigger('backButtonAnimation', [
+      state('in', style({ opacity: 1, transform: 'translateX(0) scale(1)' })),
+      transition('void => *', [
+        style({ opacity: 0, transform: 'translateX(-40px) scale(0.7)' }),
+        animate('0.7s 0.1s cubic-bezier(0.68, -0.55, 0.265, 1.55)')
+      ])
+    ]),
     trigger('heroAnimation', [
       state('in', style({ opacity: 1, transform: 'translateY(0)' })),
       transition('void => *', [
@@ -131,6 +140,7 @@ import { trigger, state, style, transition, animate, keyframes, query, stagger }
   ]
 })
 export class HistoriaComponent implements OnInit, AfterViewInit {
+  backButtonState = 'in';
   heroState = 'in';
   logoState = 'in';
   subtitleState = 'in';
@@ -191,13 +201,30 @@ export class HistoriaComponent implements OnInit, AfterViewInit {
   private valueCardStates: string[] = [];
   private chipStates: string[] = [];
 
+  constructor(private router: Router) {}
+
   ngOnInit() {
     this.initializeStates();
     this.setupScrollAnimations();
   }
 
+  onBackToDashboard() {
+    // Puedes ajustar la lógica según cómo manejes la autenticación
+    // Aquí se asume que si hay un token en localStorage, el usuario está logueado
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (token) {
+      this.router.navigate(['/usuarios/dashboard']);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
+
   ngAfterViewInit() {
     this.observeElements();
+  }
+
+  irARegistro() {
+    this.router.navigate(['/register']);
   }
 
   private initializeStates() {

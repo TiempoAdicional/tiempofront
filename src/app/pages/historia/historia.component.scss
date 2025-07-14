@@ -1,3 +1,4 @@
+
 // ===============================
 // 🎨 VARIABLES SCSS TIEMPO ADICIONAL
 // ===============================
@@ -140,6 +141,68 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   background: $gradient-dark;
   min-height: 100vh;
 }
+
+// ===============================
+// 🔝 BOTÓN FLOTANTE DASHBOARD
+// ===============================
+// Botón flotante centrado verticalmente a la derecha
+.back-dashboard-btn {
+  position: fixed;
+  top: 50%;
+  right: 2.5rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: $gradient-primary;
+  color: $blanco;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(30, 60, 30, 0.12);
+  border-radius: 2rem;
+  padding: 0.7rem 1.6rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+  will-change: transform;
+  z-index: 1002;
+  @include card-shadow(1);
+
+  mat-icon {
+    font-size: 1.4rem;
+    margin-right: 0.3rem;
+  }
+
+  &:hover, &:focus {
+    background: $gradient-accent;
+    box-shadow: 0 4px 16px rgba(30, 60, 30, 0.18);
+    transform: translateY(-2px) scale(1.03);
+  }
+
+  @include mobile {
+    top: 50%;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 1.5rem;
+    transform: translateY(-50%);
+  }
+
+  @include tablet {
+    top: 50%;
+    right: 1.5rem;
+    font-size: 1rem;
+    padding: 0.6rem 1.2rem;
+    transform: translateY(-50%);
+  }
+
+  @include laptop {
+    top: 50%;
+    right: 2rem;
+    transform: translateY(-50%);
+  }
+}
+
+
 
 // ===============================
 // 🦸‍♂️ HERO SECTION

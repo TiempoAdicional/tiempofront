@@ -61,6 +61,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     
     // Navegación específica para cada sección
     switch (item) {
+      case 'nuestra-historia':
+        this.router.navigate(['/historia']);
+        break;
       case 'noticias':
       case 'todas-noticias':
       case 'ultimas-noticias':

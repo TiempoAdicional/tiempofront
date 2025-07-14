@@ -45,38 +45,39 @@
         <span class="results-count">{{ miembrosFiltrados.length }} miembros encontrados</span>
       </div>
       
-      <div class="filtros-content">
-        <!-- Búsqueda por texto -->
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Buscar miembro...</mat-label>
-          <input 
-            matInput 
-            [(ngModel)]="textoBusqueda"
-            (input)="onBusquedaChange(textoBusqueda)"
-            placeholder="Nombre, apellido o rol">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-        
-        <!-- Filtro por rol -->
-        <mat-form-field appearance="outline" class="role-field">
-          <mat-label>Filtrar por rol</mat-label>
-          <mat-select [(ngModel)]="rolSeleccionado" (selectionChange)="onRolChange()">
-            <mat-option value="">Todos los roles</mat-option>
-            <mat-option *ngFor="let rol of rolesDisponibles" [value]="rol">
-              {{ rol }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        
-        <!-- Botón limpiar filtros -->
-        <button 
-          mat-stroked-button 
-          color="primary" 
-          (click)="limpiarFiltros()"
-          class="clear-filters-btn">
-          <mat-icon>clear</mat-icon>
-          Limpiar
-        </button>
+      <div class="filtros-content modern-filtros-row">
+        <div class="modern-filtro-item">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar miembro...</mat-label>
+            <input 
+              matInput 
+              [(ngModel)]="textoBusqueda"
+              (input)="onBusquedaChange(textoBusqueda)"
+              placeholder="Nombre, apellido o rol">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+        <div class="modern-filtro-item">
+          <mat-form-field appearance="outline" class="role-field">
+            <mat-label>Filtrar por rol</mat-label>
+            <mat-select [(ngModel)]="rolSeleccionado" (selectionChange)="onRolChange()">
+              <mat-option value="">Todos los roles</mat-option>
+              <mat-option *ngFor="let rol of rolesDisponibles" [value]="rol">
+                {{ rol }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="modern-filtro-item btn-item">
+          <button 
+            mat-stroked-button 
+            color="primary" 
+            (click)="limpiarFiltros()"
+            class="clear-filters-btn">
+            <mat-icon>clear</mat-icon>
+            Limpiar
+          </button>
+        </div>
       </div>
     </div>
   </div>
