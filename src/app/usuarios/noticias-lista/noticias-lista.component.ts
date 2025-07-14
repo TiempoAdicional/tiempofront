@@ -337,7 +337,11 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
   }
 
   volverAlDashboard(): void {
-    this.router.navigate(['/usuarios/dashboard']);
+    if (this.estaAutenticado) {
+      this.router.navigate(['/usuarios/dashboard']);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   formatearFecha(fecha: string): string {

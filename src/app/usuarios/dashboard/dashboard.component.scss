@@ -1268,23 +1268,56 @@
     overflow-y: auto;
     scroll-behavior: smooth;
     padding-right: 8px;
-    
+
     // Scroll styling
     &::-webkit-scrollbar {
       width: 6px;
     }
-    
+
     &::-webkit-scrollbar-track {
       background: #f1f1f1;
       border-radius: 10px;
     }
-    
+
     &::-webkit-scrollbar-thumb {
       background: var(--verde-lima);
       border-radius: 10px;
-      
       &:hover {
         background: var(--verde-selva);
+      }
+    }
+
+    // Ajustes responsivos para que los equipos nunca se salgan
+    .partido-card {
+      min-width: 0;
+      .partido-equipos {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        .equipo {
+          min-width: 0;
+          max-width: 90px;
+          .escudo-equipo {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            min-height: 24px;
+            max-width: 28px;
+            max-height: 28px;
+          }
+          .equipo-nombre {
+            font-size: 0.75rem;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+        .vs-container {
+          margin: 0 0.5rem;
+          .vs {
+            font-size: 0.7rem;
+          }
+        }
       }
     }
   }
@@ -1296,6 +1329,7 @@
     position: relative;
     min-height: fit-content;
     max-height: none; // Permitir que la card crezca según contenido
+    min-width: 0;
 
     &:hover {
       transform: translateY(-2px);
@@ -1304,7 +1338,6 @@
 
     &.bloqueado {
       opacity: 0.7;
-      
       .content-overlay {
         position: absolute;
         top: 0;
@@ -1318,12 +1351,10 @@
         justify-content: center;
         color: white;
         z-index: 2;
-        
         mat-icon {
           font-size: 2rem;
           margin-bottom: 0.5rem;
         }
-        
         p {
           font-size: 0.9rem;
           text-align: center;
@@ -1334,31 +1365,33 @@
 
     mat-card-content {
       padding: 1.25rem;
-
       .partido-equipos {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 1rem;
-
+        flex-wrap: wrap;
+        gap: 0.5rem;
         .equipo {
           display: flex;
           flex-direction: column;
           align-items: center;
           flex: 1;
-          max-width: 100px;
-
+          min-width: 0;
+          max-width: 90px;
           &.local {
             align-items: flex-start;
           }
-
           &.visitante {
             align-items: flex-end;
           }
-
           .escudo-equipo {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            min-height: 24px;
+            max-width: 28px;
+            max-height: 28px;
             object-fit: contain;
             margin-bottom: 0.5rem;
             border-radius: 50%;
@@ -1366,18 +1399,15 @@
             padding: 2px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: transform 0.2s ease;
-
             &:hover {
               transform: scale(1.1);
             }
-
             &:error {
               display: none;
             }
           }
-
           .equipo-nombre {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--gris-carbon);
             text-align: center;
@@ -1386,41 +1416,35 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 100%;
+            max-width: 80px;
           }
-
           .equipo-score {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--verde-selva);
             line-height: 1;
           }
         }
-
         .vs-container {
           display: flex;
           flex-direction: column;
           align-items: center;
-          margin: 0 1rem;
+          margin: 0 0.5rem;
           text-align: center;
-
           .vs {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #888;
             font-weight: 700;
             margin-bottom: 0.25rem;
           }
-
           .partido-fecha {
             font-size: 0.7rem;
             color: var(--purpura-real);
             font-weight: 500;
             white-space: nowrap;
           }
-
           .partido-estadio {
             margin-top: 0.25rem;
-            
             small {
               font-size: 0.6rem;
               color: #666;
@@ -1429,13 +1453,11 @@
           }
         }
       }
-
       .partido-info {
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 0.5rem;
-
         .liga-chip {
           background: var(--dorado-tiempo);
           color: var(--gris-carbon);
@@ -1443,16 +1465,13 @@
           font-weight: 600;
           flex-shrink: 0;
         }
-
         .estado-chip {
           font-size: 0.7rem;
           font-weight: 600;
-          
           &[color="accent"] {
             background: var(--verde-lima);
             color: var(--verde-bosque);
           }
-          
           &[color="primary"] {
             background: var(--purpura-real);
             color: white;
@@ -1980,7 +1999,6 @@
 
   .usuario-header {
     margin-bottom: 1rem;
-
     .user-info {
       flex-direction: column;
       gap: 0.5rem;
@@ -1990,18 +2008,14 @@
   .hero-section {
     height: 40vh;
     margin-bottom: 1rem;
-
     .hero-content {
       padding: 0 1rem;
     }
-
     .hero-info {
       padding: 1rem;
-
       .hero-titulo {
         font-size: 2rem;
       }
-
       .hero-resumen {
         font-size: 1rem;
       }
@@ -2025,6 +2039,36 @@
     overflow-y: auto;
   }
 
+  .partidos-lista {
+    gap: 0.5rem;
+    .partido-card {
+      .partido-equipos {
+        gap: 0.3rem;
+        .equipo {
+          max-width: 70px;
+          .escudo-equipo {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            min-height: 20px;
+            max-width: 22px;
+            max-height: 22px;
+          }
+          .equipo-nombre {
+            font-size: 0.68rem;
+            max-width: 60px;
+          }
+        }
+        .vs-container {
+          margin: 0 0.2rem;
+          .vs {
+            font-size: 0.65rem;
+          }
+        }
+      }
+    }
+  }
+
   .mobile-only {
     display: block;
   }
@@ -2035,7 +2079,6 @@
 
   .cta-section .cta-card mat-card_content {
     padding: 2rem 1rem;
-
     .cta-buttons {
       flex-direction: column;
     }

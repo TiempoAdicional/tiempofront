@@ -43,12 +43,18 @@ $transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 // ===== COMPONENTE PRINCIPAL =====
+
 .miembro-card {
-  height: 100%;
+  max-width: 370px;
   width: 100%;
-  
+  margin: 0 auto;
+  height: auto;
+
   .card-container {
-    height: 100%;
+    max-width: 370px;
+    width: 100%;
+    margin: 0 auto;
+    height: auto;
     display: flex;
     flex-direction: column;
     border-radius: 16px;
@@ -58,7 +64,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
     background: white;
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.05);
-    
+
     &:hover {
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
       transform: translateY(-4px);
