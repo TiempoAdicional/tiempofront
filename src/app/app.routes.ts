@@ -95,6 +95,8 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./usuarios/noticias-lista/noticias-lista.component').then(m => m.NoticiasListaComponent)
       }
+      
+    
     ]
   },
 
