@@ -537,47 +537,51 @@ $transition-smooth: all 0.5s ease;
   }
 
   .miembros-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 48px 40px; // Más separación entre filas y columnas
-    max-width: 1200px;
-    margin: 0 auto 60px auto;
-    padding: 0 24px;
-    animation: fadeInUp 0.8s ease-out 0.8s both;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); // 3 columnas en desktop
+  justify-items: center; // Centra las cards dentro de la celda
+  gap: 48px 40px; // Más espacio entre filas y columnas
+  max-width: 1200px;
+  margin: 0 auto 60px auto;
+  padding: 0 24px;
+  animation: fadeInUp 0.8s ease-out 0.8s both;
 
-    @include tablet {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 36px 28px;
-      padding: 0 12px;
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr); // 2 columnas en tablet
+    gap: 36px 28px;
+    padding: 0 16px;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr; // 1 columna en móvil
+    gap: 28px;
+    padding: 0 8px;
+  }
+
+  // Ajuste de las cards dentro de la grid
+  app-miembro-card,
+  .app-miembro-card,
+  ::ng-deep app-miembro-card {
+    display: block;
+    width: 100%;
+    max-width: 360px; // Limita el ancho para no estirarse demasiado
+    opacity: 0;
+    animation: slideInUp 0.6s ease-out forwards;
+    animation-delay: calc(0.1s * var(--index, 0));
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-10px) scale(1.04);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
     }
 
-    @include mobile {
-      grid-template-columns: 1fr;
-      gap: 28px;
-      padding: 0 4px;
-    }
-
-    // Animación escalonada para las cards
-    app-miembro-card, .app-miembro-card, ::ng-deep app-miembro-card {
-      display: block;
-      width: 100%;
-      max-width: 370px;
-      opacity: 0;
-      animation: slideInUp 0.6s ease-out forwards;
-      animation-delay: calc(0.1s * var(--index, 0));
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-      &:hover {
-        transform: translateY(-8px) scale(1.03);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    @for $i from 1 through 12 {
+      &:nth-child(#{$i}) {
+        --index: #{$i - 1};
       }
-
-      @for $i from 1 through 12 {
-        &:nth-child(#{$i}) {
-          --index: #{$i - 1};
-        }
-      }
     }
+  }
+
 
     @keyframes slideInUp {
       from {
