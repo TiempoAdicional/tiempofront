@@ -61,6 +61,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./usuarios/noticias-lista/noticias-lista.component').then(m => m.NoticiasListaComponent)
   },
+   {
+    path: 'historia',
+    loadComponent: () =>
+      import('./pages/historia/historia.component').then(m => m.HistoriaComponent)
+  },
+
 
   // ===============================
   // 📰 USUARIO ROUTES (Public/Registered Users)

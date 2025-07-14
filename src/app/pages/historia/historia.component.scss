@@ -1,0 +1,1276 @@
+// ===============================
+// 🎨 VARIABLES SCSS TIEMPO ADICIONAL
+// ===============================
+$verde-bosque: #045204;
+$verde-selva: #1a8000;
+$verde-lima: #b4ff15;
+$verde-claro: #81c784;
+$gris-fondo: #1b1f24;
+$gris-card: #262b32;
+$purpura-profundo: #3b0452;
+$purpura-real: #3e0ea4;
+$blanco-suave: #fffdf3;
+$blanco: #ffffff;
+$negro: #000000;
+$gris-carbon: #303030;
+$ta-verde-oscuro: #003e29;
+$ta-verde-oliva-claro: #81b29a;
+$azul-cielo: #2196f3;
+$azul-profundo: #1565c0;
+$naranja-energia: #ff9800;
+$naranja-intenso: #f57c00;
+$dorado-tiempo: #ffc107;
+$border-light: rgba(0, 0, 0, 0.12);
+
+// ===============================
+// 📱 BREAKPOINTS
+// ===============================
+$breakpoint-mobile: 480px;
+$breakpoint-tablet: 768px;
+$breakpoint-laptop: 1024px;
+$breakpoint-desktop: 1200px;
+$breakpoint-large: 1440px;
+
+// ===============================
+// 🎨 GRADIENTES
+// ===============================
+$gradient-primary: linear-gradient(135deg, $verde-selva 0%, $verde-lima 100%);
+$gradient-accent: linear-gradient(135deg, $naranja-energia 0%, $dorado-tiempo 100%);
+$gradient-dark: linear-gradient(135deg, $gris-fondo 0%, $gris-card 100%);
+$football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2px, transparent 2px);
+
+// ===============================
+// 🔧 MIXINS RESPONSIVE
+// ===============================
+@mixin mobile {
+  @media (max-width: #{$breakpoint-mobile}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-mobile + 1px}) and (max-width: #{$breakpoint-tablet}) {
+    @content;
+  }
+}
+
+@mixin laptop {
+  @media (min-width: #{$breakpoint-tablet + 1px}) and (max-width: #{$breakpoint-laptop}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-laptop + 1px}) and (max-width: #{$breakpoint-desktop}) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: #{$breakpoint-desktop + 1px}) {
+    @content;
+  }
+}
+
+@mixin mobile-up {
+  @media (min-width: #{$breakpoint-mobile + 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: #{$breakpoint-tablet + 1px}) {
+    @content;
+  }
+}
+
+@mixin laptop-up {
+  @media (min-width: #{$breakpoint-laptop + 1px}) {
+    @content;
+  }
+}
+
+// ===============================
+// 🎨 MIXINS DE DISEÑO
+// ===============================
+@mixin card-shadow($level: 1) {
+  @if $level == 1 {
+    box-shadow: 0 2px 8px rgba(26, 128, 0, 0.2);
+  } @else if $level == 2 {
+    box-shadow: 0 8px 24px rgba(26, 128, 0, 0.25);
+  } @else if $level == 3 {
+    box-shadow: 0 16px 40px rgba(26, 128, 0, 0.3);
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin text-gradient($gradient) {
+  background: $gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@mixin hover-lift($scale: 1.05, $shadow-level: 2) {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  &:hover {
+    transform: translateY(-8px) scale($scale);
+    @include card-shadow($shadow-level);
+  }
+}
+
+@mixin floating-animation($name, $duration: 8s) {
+  animation: #{$name} #{$duration} ease-in-out infinite;
+}
+
+// ===============================
+// 🏗️ COMPONENTE PRINCIPAL
+// ===============================
+.tiempo-adicional-history {
+  font-family: 'League Spartan', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  color: $blanco-suave;
+  overflow-x: hidden;
+  background: $gradient-dark;
+  min-height: 100vh;
+}
+
+// ===============================
+// 🦸‍♂️ HERO SECTION
+// ===============================
+.hero-section {
+  position: relative;
+  height: 100vh;
+  @include flex-center;
+  background: $gradient-primary;
+  color: $blanco-suave;
+  overflow: hidden;
+
+  @include mobile {
+    height: 80vh;
+    padding: 1rem;
+  }
+
+  @include tablet {
+    height: 85vh;
+    padding: 1.5rem;
+  }
+
+  @include laptop {
+    height: 90vh;
+  }
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.football-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: $football-pattern;
+  background-size: 40px 40px;
+  opacity: 0.3;
+
+  @include mobile {
+    background-size: 20px 20px;
+  }
+
+  @include tablet {
+    background-size: 30px 30px;
+  }
+}
+
+.floating-ball {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0);
+  border-radius: 50%;
+  opacity: 0.2;
+  @include floating-animation(floatBall);
+  box-shadow: inset -10px -10px 20px rgba(0, 0, 0, 0.2);
+
+  @include mobile {
+    width: 30px;
+    height: 30px;
+  }
+
+  @include tablet {
+    width: 45px;
+    height: 45px;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.3) 50%, transparent 60%);
+  }
+
+  &.ball-1 {
+    top: 20%;
+    left: 15%;
+    animation-delay: 0s;
+
+    @include mobile {
+      top: 15%;
+      left: 10%;
+    }
+  }
+
+  &.ball-2 {
+    top: 60%;
+    right: 20%;
+    animation-delay: 3s;
+
+    @include mobile {
+      top: 70%;
+      right: 10%;
+    }
+  }
+
+  &.ball-3 {
+    bottom: 15%;
+    left: 25%;
+    animation-delay: 6s;
+
+    @include mobile {
+      bottom: 10%;
+      left: 15%;
+    }
+  }
+}
+
+@keyframes floatBall {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg) scale(1); 
+  }
+  25% { 
+    transform: translateY(-30px) rotate(90deg) scale(1.1); 
+  }
+  50% { 
+    transform: translateY(-15px) rotate(180deg) scale(0.9); 
+  }
+  75% { 
+    transform: translateY(-25px) rotate(270deg) scale(1.05); 
+  }
+}
+
+.hero-content {
+  text-align: center;
+  z-index: 2;
+  max-width: 800px;
+  padding: 0 2rem;
+
+  @include mobile {
+    padding: 0 1rem;
+    max-width: 100%;
+  }
+
+  @include tablet {
+    padding: 0 1.5rem;
+    max-width: 600px;
+  }
+}
+
+.logo-container {
+  @include flex-center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  @include mobile {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  @include tablet {
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.football-icon {
+  font-size: 4rem !important;
+  width: 4rem !important;
+  height: 4rem !important;
+  color: $dorado-tiempo;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+
+  @include mobile {
+    font-size: 2.5rem !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  @include tablet {
+    font-size: 3rem !important;
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+}
+
+.hero-title {
+  font-size: 4.5rem;
+  font-weight: 700;
+  font-family: 'Anton', sans-serif;
+  margin: 0;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  @include text-gradient(linear-gradient(45deg, $blanco-suave, $verde-lima));
+  letter-spacing: 2px;
+
+  @include mobile {
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+
+  @include tablet {
+    font-size: 2.8rem;
+    letter-spacing: 1.5px;
+  }
+
+  @include laptop {
+    font-size: 3.5rem;
+  }
+
+  @include desktop {
+    font-size: 4rem;
+  }
+}
+
+.hero-subtitle {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: 400;
+  opacity: 0.95;
+  font-family: 'League Spartan', sans-serif;
+
+  @include mobile {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  @include tablet {
+    font-size: 1.3rem;
+  }
+
+  @include laptop {
+    font-size: 1.5rem;
+  }
+}
+
+.hero-description {
+  font-size: 1.3rem;
+  margin-bottom: 3rem;
+  opacity: 0.9;
+  font-style: italic;
+  font-family: 'League Spartan', sans-serif;
+
+  @include mobile {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  @include tablet {
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+  }
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  animation: bounce 2s infinite;
+
+  @include mobile {
+    bottom: 1rem;
+  }
+
+  mat-icon {
+    font-size: 3rem !important;
+    width: 3rem !important;
+    height: 3rem !important;
+    color: $dorado-tiempo;
+
+    @include mobile {
+      font-size: 2rem !important;
+      width: 2rem !important;
+      height: 2rem !important;
+    }
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  40% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+// ===============================
+// 📦 CONTAINER
+// ===============================
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+
+  @include mobile {
+    padding: 0 1rem;
+  }
+
+  @include tablet {
+    padding: 0 1.5rem;
+  }
+
+  @include laptop {
+    max-width: 1000px;
+  }
+
+  @include desktop {
+    max-width: 1100px;
+  }
+
+  @include large-desktop {
+    max-width: 1300px;
+  }
+}
+
+// ===============================
+// 📖 STORY SECTION
+// ===============================
+.story-section {
+  padding: 6rem 0;
+  background: $gradient-dark;
+
+  @include mobile {
+    padding: 3rem 0;
+  }
+
+  @include tablet {
+    padding: 4rem 0;
+  }
+
+  @include laptop {
+    padding: 5rem 0;
+  }
+}
+
+.story-card {
+  max-width: 900px;
+  margin: 0 auto;
+  @include card-shadow(3);
+  border-radius: 20px !important;
+  overflow: hidden;
+  background: $gris-card !important;
+
+  @include mobile {
+    border-radius: 15px !important;
+    margin: 0 0.5rem;
+  }
+
+  mat-card-header {
+    background: $gradient-primary;
+    color: white;
+    padding: 2rem;
+
+    @include mobile {
+      padding: 1.5rem;
+    }
+
+    @include tablet {
+      padding: 1.8rem;
+    }
+  }
+
+  mat-card-title {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    font-family: 'Anton', sans-serif !important;
+
+    @include mobile {
+      font-size: 1.8rem !important;
+    }
+
+    @include tablet {
+      font-size: 2rem !important;
+    }
+
+    @include laptop {
+      font-size: 2.2rem !important;
+    }
+  }
+
+  mat-card-subtitle {
+    font-size: 1.2rem !important;
+    opacity: 0.9 !important;
+
+    @include mobile {
+      font-size: 1rem !important;
+    }
+
+    @include tablet {
+      font-size: 1.1rem !important;
+    }
+  }
+}
+
+.story-icon {
+  background: $naranja-energia !important;
+  color: white !important;
+  font-size: 1.5rem !important;
+
+  @include mobile {
+    font-size: 1.2rem !important;
+  }
+}
+
+.story-content {
+  padding: 2rem;
+  background: $gris-card;
+
+  @include mobile {
+    padding: 1.5rem;
+  }
+
+  @include tablet {
+    padding: 1.8rem;
+  }
+}
+
+.story-paragraph {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  text-align: justify;
+  color: $blanco-suave;
+
+  @include mobile {
+    font-size: 1rem;
+    line-height: 1.6;
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+
+  @include tablet {
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+}
+
+.founding-highlight {
+  @include flex-center;
+  gap: 1rem;
+  background: $gradient-accent;
+  color: $blanco-suave;
+  padding: 1.5rem;
+  border-radius: 15px;
+  margin: 2rem 0;
+  @include card-shadow(2);
+
+  @include mobile {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+
+  @include tablet {
+    padding: 1.3rem;
+    margin: 1.8rem 0;
+  }
+
+  .calendar-icon {
+    font-size: 2rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
+
+    @include mobile {
+      font-size: 1.5rem !important;
+      width: 1.5rem !important;
+      height: 1.5rem !important;
+    }
+  }
+
+  .founding-text {
+    font-size: 1.3rem;
+    font-weight: 500;
+
+    @include mobile {
+      font-size: 1.1rem;
+    }
+
+    @include tablet {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+// ===============================
+// 🎯 SECTION TITLES
+// ===============================
+.section-title {
+  @include flex-center;
+  gap: 1rem;
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 4rem;
+  color: $blanco-suave;
+
+  @include mobile {
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  @include tablet {
+    font-size: 2.3rem;
+    margin-bottom: 2.5rem;
+  }
+
+  @include laptop {
+    font-size: 2.6rem;
+    margin-bottom: 3rem;
+  }
+
+  .title-icon {
+    font-size: 3rem !important;
+    width: 3rem !important;
+    height: 3rem !important;
+    color: $verde-selva;
+
+    @include mobile {
+      font-size: 2rem !important;
+      width: 2rem !important;
+      height: 2rem !important;
+    }
+
+    @include tablet {
+      font-size: 2.3rem !important;
+      width: 2.3rem !important;
+      height: 2.3rem !important;
+    }
+  }
+}
+
+// ===============================
+// 🎯 MISSION SECTION
+// ===============================
+.mission-section {
+  padding: 6rem 0;
+  background: $gris-fondo;
+
+  @include mobile {
+    padding: 3rem 0;
+  }
+
+  @include tablet {
+    padding: 4rem 0;
+  }
+
+  @include laptop {
+    padding: 5rem 0;
+  }
+}
+
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 3rem;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @include tablet {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  @include laptop {
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 2.5rem;
+  }
+}
+
+.mission-card {
+  border-radius: 20px !important;
+  @include card-shadow(2);
+  @include hover-lift(1.02, 3);
+  overflow: hidden;
+  position: relative;
+  background: $gris-card !important;
+
+  @include mobile {
+    border-radius: 15px !important;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $gradient-primary;
+  }
+
+  mat-card-content {
+    padding: 2.5rem !important;
+    text-align: center;
+
+    @include mobile {
+      padding: 1.5rem !important;
+    }
+
+    @include tablet {
+      padding: 2rem !important;
+    }
+  }
+
+  h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    font-family: 'Anton', sans-serif;
+    margin-bottom: 1rem;
+    color: $blanco-suave;
+    text-align: center;
+
+    @include mobile {
+      font-size: 1.5rem;
+    }
+
+    @include tablet {
+      font-size: 1.6rem;
+    }
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: $blanco-suave;
+    text-align: justify;
+
+    @include mobile {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    @include tablet {
+      font-size: 0.95rem;
+    }
+  }
+}
+
+.card-icon-container {
+  width: 80px;
+  height: 80px;
+  background: $gradient-primary;
+  border-radius: 50%;
+  @include flex-center;
+  margin: 0 auto 1.5rem;
+  @include card-shadow(2);
+
+  @include mobile {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+  }
+
+  @include tablet {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+.card-icon {
+  font-size: 2.5rem !important;
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  color: white !important;
+
+  @include mobile {
+    font-size: 1.8rem !important;
+    width: 1.8rem !important;
+    height: 1.8rem !important;
+  }
+
+  @include tablet {
+    font-size: 2rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+}
+
+.main-mission, .main-vision {
+  min-height: 400px;
+
+  @include mobile {
+    min-height: auto;
+  }
+
+  @include tablet {
+    min-height: 350px;
+  }
+}
+
+.main-mission .card-icon-container {
+  background: $gradient-primary;
+}
+
+.main-vision .card-icon-container {
+  background: $gradient-accent;
+}
+
+// ===============================
+// 👁️ VISION SECTION
+// ===============================
+.vision-section {
+  padding: 6rem 0;
+  background: $gradient-dark;
+
+  @include mobile {
+    padding: 3rem 0;
+  }
+
+  @include tablet {
+    padding: 4rem 0;
+  }
+
+  @include laptop {
+    padding: 5rem 0;
+  }
+}
+
+.vision-card {
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: 25px !important;
+  @include card-shadow(3);
+  overflow: hidden;
+  background: $gris-card !important;
+
+  @include mobile {
+    border-radius: 15px !important;
+    margin: 0 0.5rem;
+  }
+
+  mat-card-header {
+    background: $gradient-accent;
+    color: white;
+    padding: 2rem;
+
+    @include mobile {
+      padding: 1.5rem;
+    }
+
+    @include tablet {
+      padding: 1.8rem;
+    }
+  }
+
+  mat-card-title {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    font-family: 'Anton', sans-serif !important;
+
+    @include mobile {
+      font-size: 1.8rem !important;
+    }
+
+    @include tablet {
+      font-size: 2rem !important;
+    }
+
+    @include laptop {
+      font-size: 2.2rem !important;
+    }
+  }
+
+  mat-card-subtitle {
+    font-size: 1.2rem !important;
+    opacity: 0.9 !important;
+
+    @include mobile {
+      font-size: 1rem !important;
+    }
+
+    @include tablet {
+      font-size: 1.1rem !important;
+    }
+  }
+}
+
+.vision-icon {
+  background: $verde-selva !important;
+  color: white !important;
+  font-size: 1.5rem !important;
+
+  @include mobile {
+    font-size: 1.2rem !important;
+  }
+}
+
+.vision-content {
+  padding: 2.5rem;
+  background: $gris-card;
+
+  @include mobile {
+    padding: 1.5rem;
+  }
+
+  @include tablet {
+    padding: 2rem;
+  }
+}
+
+.vision-text {
+  font-size: 1.3rem;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: $blanco-suave;
+
+  @include mobile {
+    font-size: 1rem;
+    line-height: 1.6;
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+
+  @include tablet {
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+}
+
+.vision-features {
+  @include flex-center;
+
+  @include mobile {
+    justify-content: flex-start;
+  }
+}
+
+.feature-chip {
+  margin: 0.5rem !important;
+  background: $gradient-primary !important;
+  color: $blanco-suave !important;
+  font-weight: 500 !important;
+  padding: 0.8rem 1.2rem !important;
+  font-size: 1rem !important;
+  transition: all 0.3s ease !important;
+
+  @include mobile {
+    margin: 0.3rem !important;
+    padding: 0.6rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  @include tablet {
+    padding: 0.7rem 1.1rem !important;
+    font-size: 0.95rem !important;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    @include card-shadow(2);
+  }
+}
+
+// ===============================
+// 💎 VALUES SECTION
+// ===============================
+.values-section {
+  padding: 6rem 0;
+  background: $gris-fondo;
+
+  @include mobile {
+    padding: 3rem 0;
+  }
+
+  @include tablet {
+    padding: 4rem 0;
+  }
+
+  @include laptop {
+    padding: 5rem 0;
+  }
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.8rem;
+  }
+
+  @include laptop {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include desktop {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+}
+
+.value-card {
+  border-radius: 20px !important;
+  @include card-shadow(2);
+  @include hover-lift(1.02, 3);
+  overflow: hidden;
+  position: relative;
+  background: $gris-card !important;
+
+  @include mobile {
+    border-radius: 15px !important;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $gradient-accent;
+  }
+
+  mat-card-content {
+    padding: 2rem !important;
+    text-align: center;
+
+    @include mobile {
+      padding: 1.5rem !important;
+    }
+  }
+}
+
+.value-icon-container {
+  width: 70px;
+  height: 70px;
+  background: $gradient-accent;
+  border-radius: 50%;
+  @include flex-center;
+  margin: 0 auto 1.5rem;
+  @include card-shadow(2);
+
+  @include mobile {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+  }
+}
+
+.value-icon {
+  font-size: 2rem !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  color: white !important;
+
+  @include mobile {
+    font-size: 1.5rem !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+}
+
+.value-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Anton', sans-serif;
+  margin-bottom: 1rem;
+  color: $blanco-suave;
+
+  @include mobile {
+    font-size: 1.3rem;
+  }
+}
+
+.value-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: $blanco-suave;
+
+  @include mobile {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}
+
+// ===============================
+// 📢 CTA SECTION
+// ===============================
+.cta-section {
+  padding: 6rem 0;
+  background: $gradient-primary;
+
+  @include mobile {
+    padding: 3rem 0;
+  }
+
+  @include tablet {
+    padding: 4rem 0;
+  }
+
+  @include laptop {
+    padding: 5rem 0;
+  }
+}
+
+.cta-card {
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: 25px !important;
+  @include card-shadow(3);
+  background: $gris-card !important;
+  backdrop-filter: blur(10px);
+
+  @include mobile {
+    border-radius: 15px !important;
+    margin: 0 1rem;
+  }
+}
+
+.cta-content {
+  text-align: center;
+  padding: 3rem !important;
+
+  @include mobile {
+    padding: 2rem !important;
+  }
+
+  @include tablet {
+    padding: 2.5rem !important;
+  }
+}
+
+.cta-icon {
+  font-size: 4rem !important;
+  width: 4rem !important;
+  height: 4rem !important;
+  color: $verde-selva;
+  margin-bottom: 1rem;
+
+  @include mobile {
+    font-size: 3rem !important;
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+}
+
+.cta-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-family: 'Anton', sans-serif;
+  margin-bottom: 1rem;
+  color: $blanco-suave;
+
+  @include mobile {
+    font-size: 1.8rem;
+  }
+
+  @include tablet {
+    font-size: 2rem;
+  }
+}
+
+.cta-description {
+  font-size: 1.3rem;
+  margin-bottom: 2.5rem;
+  color: $ta-verde-oliva-claro;
+
+  @include mobile {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  @include tablet {
+    font-size: 1.2rem;
+  }
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  @include tablet {
+    gap: 1.5rem;
+  }
+}
+
+.cta-button {
+  padding: 1rem 2rem !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 50px !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+
+  @include mobile {
+    width: 100%;
+    max-width: 280px;
+    padding: 0.8rem 1.5rem !important;
+    font-size: 1rem !important;
+  }
+
+  @include tablet {
+    padding: 0.9rem 1.8rem !important;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    @include card-shadow(3);
+  }
+}
