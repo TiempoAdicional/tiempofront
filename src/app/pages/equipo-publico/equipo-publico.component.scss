@@ -564,7 +564,7 @@ $transition-smooth: all 0.5s ease;
     }
 
     // Animación escalonada para las cards
-    app-miembro-card {
+    .app-miembro-card {
       opacity: 0;
       animation: slideInUp 0.6s ease-out forwards;
       animation-delay: calc(0.1s * var(--index, 0));
