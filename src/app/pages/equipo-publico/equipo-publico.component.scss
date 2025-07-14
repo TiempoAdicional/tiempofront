@@ -551,10 +551,10 @@ $transition-smooth: all 0.5s ease;
   }
 
   .miembros-grid {
-    display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); // 3 columnas en desktop
-  justify-items: center; // Centra las cards dentro de las celdas
-  gap: 48px 36px; // Espacio generoso entre filas y columnas
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); // ✅ Cards autoajustables
+  justify-items: center; // ✅ Centra las cards en su celda
+  gap: 48px 36px; // ✅ Espacio amplio entre filas y columnas
   margin: 0 auto;
   padding: 0 20px;
   max-width: 1300px;
@@ -566,40 +566,40 @@ $transition-smooth: all 0.5s ease;
   }
 
   @include tablet {
-    grid-template-columns: repeat(2, 1fr); // 2 columnas en tablet
+    grid-template-columns: repeat(2, 1fr);
     gap: 40px 28px;
     padding: 0 16px;
   }
 
   @include mobile {
-    grid-template-columns: 1fr; // 1 columna en móvil
+    grid-template-columns: 1fr;
     gap: 32px;
     padding: 0 12px;
   }
 
   app-miembro-card,
-.app-miembro-card,
-::ng-deep app-miembro-card {
-  display: block; // ✅ No uses flex aquí, el grid ya gestiona alineación
-  width: auto; // ✅ Ajusta al contenido
-  max-width: 340px; // ✅ Mantén tamaño consistente
-  opacity: 0;
-  animation: slideInUp 0.6s ease-out forwards;
-  animation-delay: calc(0.1s * var(--index, 0));
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  .app-miembro-card {
+    display: block; // ✅ Grid ya maneja alineación
+    width: 100%; // ✅ Ocupará el ancho de su celda
+    max-width: 340px; // ✅ Limite máximo de ancho
+    opacity: 0;
+    animation: slideInUp 0.6s ease-out forwards;
+    animation-delay: calc(0.1s * var(--index, 0));
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 
-  &:hover {
-    transform: translateY(-8px) scale(1.04);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
-  }
+    &:hover {
+      transform: translateY(-8px) scale(1.04);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+    }
 
-  @for $i from 1 through 12 {
-    &:nth-child(#{$i}) {
-      --index: #{$i - 1};
+    @for $i from 1 through 12 {
+      &:nth-child(#{$i}) {
+        --index: #{$i - 1};
+      }
     }
   }
 }
-  }
+  
 
   .no-results {
     text-align: center;
