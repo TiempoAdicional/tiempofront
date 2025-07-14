@@ -47,8 +47,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 // Elimina el max-width y margin para que el grid padre controle el ancho y alineación
 .miembro-card {
   display: block; // ✅ Grid se encarga de la alineación
-  width: 100%; // ✅ Que respete el tamaño de la celda grid
-  height: auto;
+  width: auto;    // ✅ Ajusta al tamaño del contenido
+  margin: 0 auto;
 
   .card-container {
     width: 100%; // ✅ Ocupar todo el ancho de su celda
