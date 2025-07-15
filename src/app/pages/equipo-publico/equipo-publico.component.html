@@ -128,18 +128,16 @@
     </div>
   </div>
 
-  <div *ngIf="miembrosFiltrados.length > 0" class="miembros-grid">
-  <ng-container *ngFor="let miembro of miembrosFiltrados; trackBy: trackByMiembro; let i = index">
-    <app-miembro-card 
-      [miembro]="miembro"
-      [mostrarEstadisticas]="mostrarEstadisticas"
-      [mostrarAcciones]="false"
-      [esAdmin]="false"
-      [vista]="'card'">
-    </app-miembro-card>
-  </ng-container>
+<div *ngIf="miembrosFiltrados.length > 0" class="miembros-grid">
+  <app-miembro-card 
+    *ngFor="let miembro of miembrosFiltrados; trackBy: trackByMiembro; let i = index"
+    [miembro]="miembro"
+    [mostrarEstadisticas]="mostrarEstadisticas"
+    [mostrarAcciones]="false"
+    [esAdmin]="false"
+    [vista]="'card'">
+  </app-miembro-card>
 </div>
-
 
 <!-- ======================================
      FOOTER INFORMATIVO MODERNO
