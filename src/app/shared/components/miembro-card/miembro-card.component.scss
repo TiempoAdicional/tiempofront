@@ -46,25 +46,25 @@ $transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 
 // Elimina el max-width y margin para que el grid padre controle el ancho y alineación
 .miembro-card {
-  display: block; // ✅ Grid gestiona la alineación
-  width: 100%;    // ✅ Ocupa todo el ancho de la celda del grid
-  margin: 0 auto;
+display: block;      // ✅ Grid gestiona la alineación
+  width: 100%;         // ✅ Ocupará el ancho asignado por la celda de grid
+  margin: 0 auto;      // ✅ Centra la card horizontalmente
 
   .card-container {
-    width: 100%;       // ✅ Ocupará el ancho asignado por grid
-    max-width: 340px;  // ✅ Limita el ancho máximo visual
-    margin: 0 auto;    // ✅ Centrado dentro del espacio
+    width: 100%;         // ✅ Ocupar el ancho de la celda
+    max-width: 340px;    // ✅ Limitar el ancho máximo visual
+    margin: 0 auto;      // ✅ Centrado dentro de la celda
     display: flex;
     flex-direction: column;
     border-radius: 16px;
     box-shadow: $shadow;
     transition: $transition;
-    background: #ffffff; // 🎨 Fondo blanco para mejor contraste
+    background: #ffffff; // 🎨 Fondo blanco para contraste
     overflow: hidden;
 
     &:hover {
       box-shadow: $shadow-hover;
-      transform: translateY(-6px);
+      transform: translateY(-6px) scale(1.02); // 🪄 Suave levantamiento
     }
   }
   

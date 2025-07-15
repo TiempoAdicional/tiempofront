@@ -550,12 +550,12 @@ $transition-smooth: all 0.5s ease;
     }
   }
 
- .miembros-grid {
+.miembros-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); // ✅ Cards autoajustables
-  justify-items: center; // ✅ Centra cada card horizontalmente en su celda
-  align-items: start; // ✅ Evita que las cards se estiren verticalmente
-  gap: 40px 32px; // ✅ Espacio elegante entre filas y columnas
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); // 🔥 Mejor tamaño mínimo
+  justify-items: center; // 🔥 Centra horizontalmente cada card
+  align-items: start; // 🔥 Alinea arriba cada celda para evitar estiramientos
+  gap: 40px 32px; // 🔥 Espacio elegante
   margin: 0 auto;
   padding: 0 20px;
   max-width: 1300px;
@@ -578,23 +578,24 @@ $transition-smooth: all 0.5s ease;
     padding: 0 12px;
   }
 
-  app-miembro-card,
-  .app-miembro-card,
+  // Cards
+  > app-miembro-card,
   ::ng-deep app-miembro-card {
-    display: block; // ✅ No uses flex aquí, grid controla alineación
-    width: 100%; // ✅ Ocupará el ancho de su celda
-    max-width: 340px; // ✅ Limita el ancho de cada card
-    margin: 0 auto; // ✅ Centra la card dentro de su celda
-    opacity: 0;
+    display: block;      // ✅ Grid maneja alineación
+    width: 100%;         // ✅ Llenar celda, pero limitado
+    max-width: 340px;    // ✅ Limitar ancho para consistencia
+    margin: 0 auto;      // ✅ Centrado dentro de su celda
+    opacity: 0;          // ✅ Para animación inicial
     animation: slideInUp 0.6s ease-out forwards;
     animation-delay: calc(0.1s * var(--index, 0));
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
-      transform: translateY(-6px) scale(1.03);
+      transform: translateY(-8px) scale(1.04);
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
     }
 
+    // Animación escalonada
     @for $i from 1 through 20 {
       &:nth-child(#{$i}) {
         --index: #{$i - 1};
