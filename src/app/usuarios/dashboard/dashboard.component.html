@@ -309,17 +309,20 @@
 
         <!-- Lista de eventos -->
         <div class="eventos-lista" *ngIf="!cargandoEventos">
+          <!-- Si no hay eventos -->
+          <div *ngIf="eventosLimitados.length === 0" style="color:#c00;font-weight:bold;padding:12px 0;">
+            No hay eventos para mostrar
+          </div>
+          <!-- Renderizar cards si hay eventos -->
           <mat-card class="evento-card"
                     *ngFor="let evento of eventosLimitados"
                     [class.bloqueado]="evento.bloqueado"
                     (click)="verEvento(evento)">
-            
             <mat-card-content>
               <div class="evento-fecha">
                 <span class="dia">{{ evento.fecha | date:'dd' }}</span>
                 <span class="mes">{{ evento.fecha | date:'MMM' }}</span>
               </div>
-              
               <div class="evento-info">
                 <h4 class="evento-titulo">{{ evento.titulo }}</h4>
                 <p class="evento-competicion">{{ evento.competicion }}</p>
@@ -332,7 +335,6 @@
                   Por {{ evento.autorNombre }}
                 </p>
               </div>
-              
               <!-- Icono de bloqueo -->
               <mat-icon class="evento-lock" *ngIf="evento.bloqueado">lock</mat-icon>
             </mat-card-content>

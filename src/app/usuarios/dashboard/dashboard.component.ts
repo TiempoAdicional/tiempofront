@@ -520,17 +520,12 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ Eventos públicos cargados:', response);
-          
           let eventos = [];
           if (response?.eventos) {
             eventos = response.eventos;
           } else if (Array.isArray(response)) {
             eventos = response;
           }
-          
-          console.log(`📅 Procesando ${eventos.length} eventos públicos (límite: ${this.LIMITE_EVENTOS})`);
-          
           this.procesarEventosLimitados(eventos);
           this.mostrarAvisoLimiteEventos = !this.estaAutenticado && eventos.length >= this.LIMITE_EVENTOS;
           this.cargandoEventos = false;
