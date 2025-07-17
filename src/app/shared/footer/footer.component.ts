@@ -7,8 +7,8 @@ import { Router } from '@angular/router';
   selector: 'app-footer',
   standalone: true,
   imports: [
-  FormsModule
-],
+    FormsModule
+  ],
 
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss']
@@ -20,7 +20,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   isVisible = false;
   showBackToTop = false;
   emailInput = '';
-constructor(private router: Router) {}
+  constructor(private router: Router) { }
   private observer!: IntersectionObserver;
   private scrollListener!: () => void;
 
@@ -89,10 +89,10 @@ constructor(private router: Router) {}
   onContactClick(type: string): void {
     switch (type) {
       case 'email':
-        window.location.href = 'mailto:contacto@tiempoadicional.com';
+        window.location.href = 'mailto:gerencia@tiempoadicional.com';
         break;
       case 'phone':
-        window.location.href = 'tel:+573001234567';
+        window.location.href = 'tel:+573158966668';
         break;
       case 'address':
         window.open('https://maps.google.com/?q=Colombia', '_blank');
@@ -109,9 +109,9 @@ constructor(private router: Router) {}
 
   onBottomLinkClick(link: string, event: Event): void {
     event.preventDefault();
-     if (link === 'politicas') {
-    this.router.navigate(['/politicas']);
-  }
+    if (link === 'politicas') {
+      this.router.navigate(['/politicas']);
+    }
   }
 
   scrollToTop(): void {
