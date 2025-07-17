@@ -41,37 +41,33 @@
   <!-- ===============================
        📰 HERO CAROUSEL - NOTICIAS DESTACADAS
        =============================== -->
-  <section class="hero-carousel" *ngIf="noticiaDestacadaActual"
-           (mouseenter)="pausarCarousel()" 
-           (mouseleave)="reanudarCarousel()">
-    
+  <section class="hero-carousel" *ngIf="noticiaDestacadaActual" (mouseenter)="pausarCarousel()"
+    (mouseleave)="reanudarCarousel()">
+
     <!-- Carousel Container -->
     <div class="carousel-container">
       <!-- Noticia Actual -->
       <div class="carousel-slide active">
         <div class="hero-content">
           <div class="hero-imagen">
-            <img [src]="noticiaDestacadaActual.imagenUrl || '/assets/edit-tools.png'" 
-                 [alt]="noticiaDestacadaActual.titulo"
-                 class="hero-img">
+            <img [src]="noticiaDestacadaActual.imagenUrl || '/assets/edit-tools.png'"
+              [alt]="noticiaDestacadaActual.titulo" class="hero-img">
             <div class="hero-overlay"></div>
           </div>
-          
+
           <div class="hero-info">
             <mat-chip class="seccion-chip">⭐ {{ noticiaDestacadaActual.seccion }}</mat-chip>
             <h1 class="hero-titulo">{{ noticiaDestacadaActual.titulo }}</h1>
             <p class="hero-resumen">{{ noticiaDestacadaActual.resumen }}</p>
-            
+
             <div class="hero-meta">
               <span class="fecha">{{ noticiaDestacadaActual.fechaPublicacion | date:'dd MMM yyyy' }}</span>
               <span class="autor-destacado" *ngIf="noticiaDestacadaActual.autorNombre">
                 <mat-icon>person</mat-icon>
                 Por {{ noticiaDestacadaActual.autorNombre }}
               </span>
-              <button mat-raised-button 
-                      color="accent" 
-                      (click)="verNoticia(noticiaDestacadaActual)"
-                      class="leer-mas-btn">
+              <button mat-raised-button color="accent" (click)="verNoticia(noticiaDestacadaActual)"
+                class="leer-mas-btn">
                 <mat-icon>article</mat-icon>
                 Leer Completa
               </button>
@@ -84,29 +80,23 @@
     <!-- Controles del Carousel -->
     <div class="carousel-controls" *ngIf="noticiasDestacadas.length > 1">
       <!-- Botón Anterior -->
-      <button mat-fab 
-              class="carousel-btn carousel-btn-prev"
-              (click)="anteriorNoticia()"
-              [attr.aria-label]="'Noticia anterior'">
+      <button mat-fab class="carousel-btn carousel-btn-prev" (click)="anteriorNoticia()"
+        [attr.aria-label]="'Noticia anterior'">
         <mat-icon>chevron_left</mat-icon>
       </button>
-      
+
       <!-- Botón Siguiente -->
-      <button mat-fab 
-              class="carousel-btn carousel-btn-next"
-              (click)="siguienteNoticia()"
-              [attr.aria-label]="'Siguiente noticia'">
+      <button mat-fab class="carousel-btn carousel-btn-next" (click)="siguienteNoticia()"
+        [attr.aria-label]="'Siguiente noticia'">
         <mat-icon>chevron_right</mat-icon>
       </button>
     </div>
 
     <!-- Indicadores -->
     <div class="carousel-indicators" *ngIf="noticiasDestacadas.length > 1">
-      <button *ngFor="let noticia of noticiasDestacadas; let i = index"
-              class="indicator"
-              [class.active]="i === indiceNoticiaActual"
-              (click)="irANoticia(i)"
-              [attr.aria-label]="'Ir a noticia ' + (i + 1)">
+      <button *ngFor="let noticia of noticiasDestacadas; let i = index" class="indicator"
+        [class.active]="i === indiceNoticiaActual" (click)="irANoticia(i)"
+        [attr.aria-label]="'Ir a noticia ' + (i + 1)">
       </button>
     </div>
 
@@ -125,12 +115,12 @@
         🎯 SECCIONES DINÁMICAS DE CONTENIDO
        =============================== -->
   <div class="contenido-grid">
-    
+
     <!-- ===============================
          🗞️ SECCIONES DE NOTICIAS DINÁMICAS
          =============================== -->
     <section class="secciones-noticias">
-      
+
       <!-- Loading de secciones -->
       <div class="loading-container" *ngIf="cargandoSecciones">
         <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
@@ -138,9 +128,9 @@
       </div>
 
       <!-- Mostrar cada sección de noticias dinámicamente -->
-      <div *ngFor="let seccionConContenido of obtenerSeccionesNoticias(); let last = last; trackBy: trackBySeccionId" 
-           class="seccion-dinamica">
-        
+      <div *ngFor="let seccionConContenido of obtenerSeccionesNoticias(); let last = last; trackBy: trackBySeccionId"
+        class="seccion-dinamica">
+
         <div class="section-header">
           <h2 class="section-titulo">
             <mat-icon [style.color]="obtenerColorSeccion(seccionConContenido.seccion.tipo)">
@@ -148,7 +138,7 @@
             </mat-icon>
             {{ seccionConContenido.seccion.titulo }}
           </h2>
-          
+
           <!-- Límite para no registrados -->
           <div class="limite-badge" *ngIf="mostrarLimites && noticiasLimitadas.length >= LIMITE_NOTICIAS">
             <mat-chip color="warn">
@@ -156,12 +146,10 @@
               Más disponibles registrándote
             </mat-chip>
           </div>
-          
+
           <!-- Botón ver todas -->
-          <button mat-stroked-button 
-                  color="accent" 
-                  class="ver-todas-btn"
-                  (click)="navegarASeccion(seccionConContenido.seccion.id, seccionConContenido.seccion.tipo)">
+          <button mat-stroked-button color="accent" class="ver-todas-btn"
+            (click)="navegarASeccion(seccionConContenido.seccion.id, seccionConContenido.seccion.tipo)">
             <mat-icon>open_in_new</mat-icon>
             Ver todas
           </button>
@@ -169,36 +157,23 @@
 
         <!-- Grid de noticias para esta sección -->
         <div class="noticias-grid" *ngIf="!cargandoNoticias">
-          <mat-card class="noticia-card" 
-                    *ngFor="let noticia of noticiasLimitadas | slice:0:6"
-                    [class.bloqueada]="noticia.bloqueada"
-                    (click)="verNoticia(noticia)">
-            
+          <mat-card class="noticia-card" *ngFor="let noticia of seccionConContenido.contenido | slice:0:6"
+            (click)="verNoticia(noticia)">
             <div class="card-image">
-              <img [src]="noticia.imagenUrl || '/assets/default-news.jpg'" 
-                   [alt]="noticia.titulo">
-              
-              <!-- Overlay para contenido bloqueado -->
-              <div class="block-overlay" *ngIf="noticia.bloqueada">
-                <mat-icon class="lock-icon">lock</mat-icon>
-                <span>Regístrate para ver más</span>
-              </div>
+              <img [src]="noticia.imagen || '/assets/default-news.jpg'" [alt]="noticia.titulo">
             </div>
-            
             <mat-card-header>
-              <mat-chip class="seccion-mini" 
-                        [style.background-color]="obtenerColorSeccion(seccionConContenido.seccion.tipo)"
-                        [style.color]="'white'">
+              <mat-chip class="seccion-mini"
+                [style.background-color]="obtenerColorSeccion(seccionConContenido.seccion.tipo)"
+                [style.color]="'white'">
                 {{ seccionConContenido.seccion.titulo }}
               </mat-chip>
               <mat-card-title class="noticia-titulo">{{ noticia.titulo }}</mat-card-title>
             </mat-card-header>
-            
             <mat-card-content>
-              <p class="noticia-resumen">{{ noticia.resumen }}</p>
+              <p class="noticia-resumen">{{ noticia.descripcion }}</p>
               <div class="noticia-meta">
-                <span class="fecha-mini">{{ noticia.fechaPublicacion | date:'dd/MM' }}</span>
-                <span class="autor-mini" *ngIf="noticia.autorNombre">Por {{ noticia.autorNombre }}</span>
+                <span class="fecha-mini">{{ noticia.fecha | date:'dd/MM' }}</span>
                 <mat-icon class="read-icon">chevron_right</mat-icon>
               </div>
             </mat-card-content>
@@ -210,13 +185,14 @@
       </div>
 
       <!-- Fallback: Sección tradicional si no hay secciones dinámicas -->
-      <section id="noticias" class="noticias-section" *ngIf="obtenerSeccionesNoticias().length === 0 && !cargandoSecciones">
+      <section id="noticias" class="noticias-section"
+        *ngIf="obtenerSeccionesNoticias().length === 0 && !cargandoSecciones">
         <div class="section-header">
           <h2 class="section-titulo">
             <mat-icon>article</mat-icon>
             Últimas Noticias
           </h2>
-          
+
           <!-- Límite para no registrados -->
           <div class="limite-badge" *ngIf="mostrarLimites && noticiasLimitadas.length >= LIMITE_NOTICIAS">
             <mat-chip color="warn">
@@ -234,27 +210,24 @@
 
         <!-- Grid de noticias tradicional -->
         <div class="noticias-grid" *ngIf="!cargandoNoticias">
-          <mat-card class="noticia-card" 
-                    *ngFor="let noticia of noticiasLimitadas"
-                    [class.bloqueada]="noticia.bloqueada"
-                    (click)="verNoticia(noticia)">
-            
+          <mat-card class="noticia-card" *ngFor="let noticia of noticiasLimitadas" [class.bloqueada]="noticia.bloqueada"
+            (click)="verNoticia(noticia)">
+
             <div class="card-image">
-              <img [src]="noticia.imagenUrl || '/assets/default-news.jpg'" 
-                   [alt]="noticia.titulo">
-              
+              <img [src]="noticia.imagenUrl || '/assets/default-news.jpg'" [alt]="noticia.titulo">
+
               <!-- Overlay para contenido bloqueado -->
               <div class="block-overlay" *ngIf="noticia.bloqueada">
                 <mat-icon class="lock-icon">lock</mat-icon>
                 <span>Regístrate para ver más</span>
               </div>
             </div>
-            
+
             <mat-card-header>
               <mat-chip class="seccion-mini">{{ noticia.seccion }}</mat-chip>
               <mat-card-title class="noticia-titulo">{{ noticia.titulo }}</mat-card-title>
             </mat-card-header>
-            
+
             <mat-card-content>
               <p class="noticia-resumen">{{ noticia.resumen }}</p>
               <div class="noticia-meta">
@@ -285,7 +258,7 @@
 
     <!-- COLUMNA DERECHA: EVENTOS Y PARTIDOS -->
     <aside id="eventos" class="eventos-sidebar">
-      
+
       <!-- PRÓXIMOS EVENTOS -->
       <section class="eventos-section">
         <div class="section-header">
@@ -293,7 +266,7 @@
             <mat-icon>event</mat-icon>
             Próximos Eventos
           </h3>
-          
+
           <!-- Límite para no registrados -->
           <div class="limite-badge" *ngIf="mostrarLimites">
             <mat-chip color="warn" class="mini-chip">
@@ -314,10 +287,8 @@
             No hay eventos para mostrar
           </div>
           <!-- Renderizar cards si hay eventos -->
-          <mat-card class="evento-card"
-                    *ngFor="let evento of eventosLimitados"
-                    [class.bloqueado]="evento.bloqueado"
-                    (click)="verEvento(evento)">
+          <mat-card class="evento-card" *ngFor="let evento of eventosLimitados" [class.bloqueado]="evento.bloqueado"
+            (click)="verEvento(evento)">
             <mat-card-content>
               <div class="evento-fecha">
                 <span class="dia">{{ evento.fecha | date:'dd' }}</span>
@@ -375,26 +346,20 @@
 
         <!-- Lista de partidos reales -->
         <div class="partidos-lista" *ngIf="!cargandoPartidos && partidosLimitados.length > 0">
-          <mat-card 
-            class="partido-card" 
-            [class.bloqueado]="partido.bloqueado"
-            *ngFor="let partido of partidosLimitados; let i = index"
-            (click)="verPartido(partido)">
-            
+          <mat-card class="partido-card" [class.bloqueado]="partido.bloqueado"
+            *ngFor="let partido of partidosLimitados; let i = index" (click)="verPartido(partido)">
+
             <mat-card-content>
               <div class="partido-equipos">
                 <div class="equipo local">
-                  <img 
-                    [src]="partido.escudoEquipoLocal" 
-                    [alt]="'Escudo ' + partido.nombreEquipoLocal"
-                    class="escudo-equipo"
-                    (error)="onImagenEscudoError($event)">
+                  <img [src]="partido.escudoEquipoLocal" [alt]="'Escudo ' + partido.nombreEquipoLocal"
+                    class="escudo-equipo" (error)="onImagenEscudoError($event)">
                   <span class="equipo-nombre">{{ partido.nombreEquipoLocal }}</span>
                   <span class="equipo-score" *ngIf="partido.estado !== 'Por jugar'">
                     {{ partido.golesLocal }}
                   </span>
                 </div>
-                
+
                 <div class="vs-container">
                   <span class="vs">VS</span>
                   <div class="partido-fecha">
@@ -404,25 +369,20 @@
                     <small>{{ partido.estadio }}</small>
                   </div>
                 </div>
-                
+
                 <div class="equipo visitante">
-                  <img 
-                    [src]="partido.escudoEquipoVisitante" 
-                    [alt]="'Escudo ' + partido.nombreEquipoVisitante"
-                    class="escudo-equipo"
-                    (error)="onImagenEscudoError($event)">
+                  <img [src]="partido.escudoEquipoVisitante" [alt]="'Escudo ' + partido.nombreEquipoVisitante"
+                    class="escudo-equipo" (error)="onImagenEscudoError($event)">
                   <span class="equipo-nombre">{{ partido.nombreEquipoVisitante }}</span>
                   <span class="equipo-score" *ngIf="partido.estado !== 'Por jugar'">
                     {{ partido.golesVisitante }}
                   </span>
                 </div>
               </div>
-              
+
               <div class="partido-info">
                 <mat-chip class="liga-chip">Liga Colombiana</mat-chip>
-                <mat-chip 
-                  class="estado-chip" 
-                  [color]="partido.estado === 'En vivo' ? 'accent' : 'primary'">
+                <mat-chip class="estado-chip" [color]="partido.estado === 'En vivo' ? 'accent' : 'primary'">
                   {{ partido.estado }}
                   <span *ngIf="partido.minutoActual > 0 && partido.estado === 'En vivo'">
                     - {{ partido.minutoActual }}'

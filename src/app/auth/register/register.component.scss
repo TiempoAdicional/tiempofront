@@ -11,99 +11,127 @@
 
 .form-card {
   background: var(--gris-card);
-  padding: 2.5rem 3rem;
+  padding: 2rem 2.5rem;
   border-radius: var(--radius-xl);
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
   box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
-  animation: fadeInCard 0.7s ease-out;
-  transition: all 0.3s ease-in-out;
+  animation: fadeInCard 0.6s ease;
+  transition: var(--transition-fast);
   color: var(--blanco-suave);
-  backdrop-filter: blur(10px);
 }
 
 .title {
   font-family: 'Anton', sans-serif;
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   color: var(--verde-lima);
   text-align: center;
   margin-bottom: 2rem;
-  animation: slideInTitle 0.6s ease-out;
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
-  animation: fadeInGroup 0.4s ease-out;
-  animation-fill-mode: both;
-}
-
-.input-icon {
-  display: flex;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.08);
-  padding: 0.7rem 1rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: border-color 0.3s, background-color 0.3s;
-  position: relative;
-}
-
-.input-icon:hover {
-  background-color: rgba(255, 255, 255, 0.12);
-  border-color: var(--verde-lima);
-}
-
-.input-icon input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--blanco);
-  padding-left: 0.8rem;
+.full-width {
   width: 100%;
-  font-size: 1rem;
+  margin-bottom: 1.5rem;
+
+  mat-form-field {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    color: var(--blanco);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.12);
+      border-color: var(--verde-lima);
+    }
+
+    &.mat-focused {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--verde-lima);
+      box-shadow: 0 0 8px rgba(0, 255, 127, 0.3);
+    }
+
+    input {
+      color: var(--blanco) !important;
+      font-weight: 500;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 400;
+      }
+
+      &:focus {
+        color: var(--blanco) !important;
+      }
+    }
+
+    .mat-icon {
+      color: var(--verde-lima);
+    }
+
+    // Estilos para labels de Angular Material
+    .mat-form-field-label {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    &.mat-focused .mat-form-field-label {
+      color: var(--verde-lima) !important;
+    }
+
+    // Underline styles para Material
+    .mat-form-field-underline {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &.mat-focused .mat-form-field-underline .mat-form-field-ripple {
+      background-color: var(--verde-lima);
+    }
+  }
+}
+
+/* Placeholder más claro */
+input::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-weight: 400;
+}
+
+/* Inputs con texto visible */
+input {
+  color: var(--blanco) !important;
   font-weight: 500;
 }
 
-.input-icon i.fas {
+/* Iconos visibles al 100% */
+.mat-icon {
   color: var(--verde-lima);
-  transition: color 0.3s ease;
-}
-
-.input-icon i.fas:last-child {
-  cursor: pointer;
-  position: absolute;
-  right: 0.8rem;
-  opacity: 0.8;
-}
-
-.input-icon input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-  font-weight: 400;
+  opacity: 1;
 }
 
 .btn-login {
   width: 100%;
-  padding: 0.9rem;
+  padding: 0.8rem;
   font-weight: bold;
   color: var(--negro);
   background-color: var(--verde-lima);
   border-radius: var(--radius-lg);
-  box-shadow: 0 0 12px var(--verde-lima);
-  transition: all 0.3s ease-in-out;
+  box-shadow: 0 0 10px var(--verde-lima);
+  transition: all var(--transition-fast);
   text-transform: uppercase;
-  font-size: 1rem;
-  letter-spacing: 0.5px;
-  margin-top: 1rem;
+
+  &:hover {
+    background-color: var(--verde-selva);
+    box-shadow: 0 0 16px var(--verde-lima), 0 0 32px var(--verde-lima);
+    color: var(--blanco);
+  }
+
+  mat-icon {
+    margin-right: 0.5rem;
+  }
 }
 
-.btn-login:hover {
-  background-color: var(--verde-selva);
-  color: var(--blanco);
-  box-shadow: 0 0 20px var(--verde-lima), 0 0 30px var(--verde-lima);
-}
-
+/* Botón deshabilitado más visible */
 button[disabled] {
   opacity: 0.4;
   background-color: var(--gris-card);
@@ -113,63 +141,71 @@ button[disabled] {
 .register-text {
   text-align: center;
   font-size: 1rem;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   color: var(--blanco-suave);
-  animation: fadeInText 0.5s ease;
+
+  .link-animado {
+    color: var(--verde-lima);
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--accent-color);
+      text-shadow: 0 0 10px var(--verde-lima);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background-color: var(--verde-lima);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition-fast);
+    }
+
+    &:hover::after {
+      transform: scaleX(1);
+    }
+  }
 }
 
-.register-text a {
-  color: var(--verde-lima);
-  font-weight: bold;
-  text-decoration: none;
-  transition: color 0.3s ease;
-  position: relative;
-}
-
-.register-text a:hover {
-  color: var(--accent-color);
-  text-shadow: 0 0 10px var(--verde-lima);
-}
-
-.register-text a::after {
-  content: '';
+/* Spinner overlay */
+.overlay-spinner {
   position: absolute;
+  top: 0;
   left: 0;
-  bottom: -2px;
   width: 100%;
-  height: 2px;
-  background-color: var(--verde-lima);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
+  height: 100%;
+  background: rgba(27, 31, 36, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  border-radius: var(--radius-xl);
 }
 
-.register-text a:hover::after {
-  transform: scaleX(1);
-}
-
-/* Animaciones */
+/* Animación de entrada */
 @keyframes fadeInCard {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes fadeInGroup {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideInTitle {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes fadeInText {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Responsive */
+/* RESPONSIVE: */
+/* Celular pequeño */
 @media (max-width: var(--breakpoint-mobile)) {
   .form-card {
     padding: 1.5rem;
@@ -181,21 +217,23 @@ button[disabled] {
   }
 }
 
+/* Móvil grande */
 @media (min-width: var(--breakpoint-mobile)) and (max-width: var(--breakpoint-tablet)) {
   .form-card {
     max-width: 90%;
   }
 }
 
+/* Tablet */
 @media (min-width: var(--breakpoint-tablet)) and (max-width: var(--breakpoint-desktop)) {
   .form-card {
     max-width: 75%;
   }
 }
 
+/* Escritorio */
 @media (min-width: var(--breakpoint-desktop)) {
   .form-card {
-    max-width: 440px;
+    max-width: 420px;
   }
 }
-

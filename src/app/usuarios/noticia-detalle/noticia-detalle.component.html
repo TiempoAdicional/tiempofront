@@ -48,12 +48,9 @@
     </mat-card>
 
     <!-- Sección de comentarios modernizada -->
-    <app-comentarios 
-      [noticiaId]="noticia.id"
-      [permitirComentarios]="estaAutenticado"
-      [esAdmin]="false"
-      (comentarioCreado)="onComentarioCreado($event)"
-      (comentarioAprobado)="onComentarioAprobado($event)"
+
+    <app-comentarios [noticiaId]="noticia.id" [permitirComentarios]="estaAutenticado" [esAdmin]="false"
+      (comentarioCreado)="onComentarioCreado($event)" (comentarioAprobado)="onComentarioAprobado($event)"
       (comentarioEliminado)="onComentarioEliminado($event)">
     </app-comentarios>
 

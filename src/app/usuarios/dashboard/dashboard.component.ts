@@ -93,12 +93,12 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   cargandoEventos = true;
   cargandoPartidos = true;
   cargandoSecciones = true;
-  
+
   // Datos limitados para usuarios no registrados
   noticiasLimitadas: NoticiaLimitada[] = [];
   eventosLimitados: EventoLimitado[] = [];
   partidosLimitados: PartidoLimitado[] = [];
-  
+
   // 🆕 Secciones dinámicas
   seccionesActivas: SeccionResponse[] = [];
   seccionesConContenido: SeccionConContenidoResponse[] = [];
@@ -107,7 +107,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     'EVENTOS': [],
     'PARTIDOS': []
   };
-  
+
   // Noticia destacada para hero section (carousel)
   noticiasDestacadas: NoticiaLimitada[] = [];
   noticiaDestacadaActual: NoticiaLimitada | null = null;
@@ -116,12 +116,12 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   carouselInterval: any;
   progressInterval: any;
   readonly CAROUSEL_DURATION = 2000; // 2 segundos por noticia
-  
+
   // Límites para usuarios no registrados
   readonly LIMITE_NOTICIAS = 10;
   readonly LIMITE_EVENTOS = 8;
   readonly LIMITE_PARTIDOS = 6;
-  
+
   // Estado del usuario
   estaAutenticado = false;
   mostrarLimites = true;
@@ -130,7 +130,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   // Estado de conexión con el backend
   backendDisponible = true;
   mensajeConexion = '';
-  
+
   // Avisos de límites para usuarios no autenticados
   mostrarAvisoLimiteNoticias = false;
   mostrarAvisoLimiteEventos = false;
@@ -148,12 +148,12 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     private usuariosService: UsuariosService,
     private seccionesService: SeccionesService, // 🆕 Servicio de secciones
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.verificarAutenticacion();
     this.cargarDatos();
-    
+
     // Manejar query parameters para filtros específicos
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
@@ -183,7 +183,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     this.estaAutenticado = this.authService.estaAutenticado();
     this.mostrarLimites = !this.estaAutenticado;
     this.nombreUsuario = this.authService.obtenerNombreUsuario() || 'Usuario';
-    
+
     console.log('🔍 Estado de autenticación:', {
       estaAutenticado: this.estaAutenticado,
       mostrarLimites: this.mostrarLimites,
@@ -200,15 +200,15 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   private cargarSecciones(): void {
     this.cargandoSecciones = true;
-    
+
     console.log('🏷️ Cargando secciones activas...');
-    
+
     this.seccionesService.obtenerSeccionesActivasConContenido()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (seccionesConContenido) => {
           console.log('✅ Secciones con contenido cargadas:', seccionesConContenido);
-          
+
           this.seccionesConContenido = seccionesConContenido;
           this.organizarSeccionesPorTipo(seccionesConContenido);
           this.cargandoSecciones = false;
@@ -243,7 +243,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   private cargarSeccionesFallback(): void {
     console.log('🔄 Cargando secciones predeterminadas como fallback...');
-    
+
     // Crear secciones básicas como fallback
     this.seccionesPorTipo = {
       'NOTICIAS': [{
@@ -284,7 +284,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   private cargarNoticias(): void {
     this.cargandoNoticias = true;
-    
+
     if (this.estaAutenticado) {
       // Usuario autenticado: acceso completo
       console.log('🔓 Usuario autenticado - Cargando todas las noticias');
@@ -315,21 +315,21 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       .subscribe({
         next: (response) => {
           console.log('✅ Noticias públicas cargadas:', response);
-          
+
           let noticias = [];
           if (response?.noticias) {
             noticias = response.noticias;
           } else if (Array.isArray(response)) {
             noticias = response;
           }
-          
+
           console.log(`📰 Procesando ${noticias.length} noticias públicas (límite: ${this.LIMITE_NOTICIAS})`);
-          
+
           // Solo cargar noticia destacada si NO está autenticado
           if (!this.estaAutenticado) {
             this.cargarNoticiaDestacada();
           }
-          
+
           // Procesar noticias limitadas
           this.procesarNoticiasLimitadas(noticias);
           this.mostrarAvisoLimiteNoticias = !this.estaAutenticado && noticias.length >= this.LIMITE_NOTICIAS;
@@ -359,9 +359,9 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
                 bloqueada: false,
                 autorNombre: noticia.autorNombre || 'TiempoAdicional'
               }));
-              
 
-              
+
+
               // Inicializar carousel
               if (this.noticiasDestacadas.length > 0) {
                 this.indiceNoticiaActual = 0;
@@ -369,7 +369,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
                 this.iniciarCarousel();
                 console.log('✨ Carousel inicializado con', this.noticiasDestacadas.length, 'noticias destacadas reales (sin duplicados)');
               }
-              
+
               console.log('✨ Noticias destacadas públicas configuradas (solo reales):', this.noticiasDestacadas.length);
             }
           },
@@ -382,19 +382,19 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   private procesarNoticiasCompletas(noticias: any[]): void {
     console.log('📰 Procesando noticias completas para usuario autenticado:', noticias.length);
-    
+
     // Para usuarios autenticados: buscar todas las noticias destacadas
     const noticiasDestacadasRaw = noticias.filter((n: any) => n.destacada === true);
-    
+
     if (noticiasDestacadasRaw.length > 0) {
       console.log('✨ Noticias destacadas encontradas:', noticiasDestacadasRaw.length);
-      
+
       this.noticiasDestacadas = noticiasDestacadasRaw.map(noticiaRaw => {
-        const autorNombre = noticiaRaw.creadorNombre || 
-                           noticiaRaw.autorNombre || 
-                           noticiaRaw.autor_nombre || 
-                           'TiempoAdicional';
-        
+        const autorNombre = noticiaRaw.creadorNombre ||
+          noticiaRaw.autorNombre ||
+          noticiaRaw.autor_nombre ||
+          'TiempoAdicional';
+
         return {
           id: noticiaRaw.id,
           titulo: noticiaRaw.titulo,
@@ -407,9 +407,9 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
           creadorId: noticiaRaw.autorId || noticiaRaw.creador_id
         };
       });
-      
 
-      
+
+
       // Inicializar carousel
       if (this.noticiasDestacadas.length > 0) {
         this.indiceNoticiaActual = 0;
@@ -417,22 +417,25 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
         this.iniciarCarousel();
         console.log('✨ Carousel inicializado con', this.noticiasDestacadas.length, 'noticias destacadas reales (sin duplicados)');
       }
-      
+
       console.log('✅ Noticias destacadas configuradas (solo reales):', this.noticiasDestacadas.length);
     } else {
       console.log('⚠️ No hay noticias destacadas en las noticias autenticadas');
     }
-    
+
     // Filtrar noticias para grid (excluir destacadas)
     const noticiasParaGrid = noticias.filter((n: any) => !n.destacada);
-    
+
     console.log(`📋 Procesando ${noticiasParaGrid.length} noticias para el grid (excluyendo destacadas)`);
     this.procesarListaNoticias(noticiasParaGrid, false);
   }
 
   private procesarNoticiasLimitadas(noticias: any[]): void {
     // Para usuarios no autenticados: contenido limitado
-    const noticiasLimitadas = noticias.slice(0, this.LIMITE_NOTICIAS);
+    // Excluir noticias destacadas para que no se repitan en el grid
+    const idsDestacadas = (this.noticiasDestacadas || []).map(n => n.id);
+    const noticiasSinDestacadas = noticias.filter(n => !idsDestacadas.includes(n.id));
+    const noticiasLimitadas = noticiasSinDestacadas.slice(0, this.LIMITE_NOTICIAS);
     this.procesarListaNoticias(noticiasLimitadas, true);
   }
 
@@ -441,15 +444,15 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       noticias.map(async (noticia: any) => {
         // Priorizar creadorNombre (igual que en noticia-detalle), luego autorNombre
         let autorNombre = noticia.creadorNombre || noticia.autorNombre || noticia.autor_nombre;
-        
+
         // Log para diagnosticar qué campo se está usando
         console.log(`📰 Noticia ${noticia.id} - creadorNombre: ${noticia.creadorNombre}, autorNombre: ${noticia.autorNombre}, autor_nombre: ${noticia.autor_nombre}`);
-        
+
         // Solo buscar por ID si no tenemos ningún nombre disponible
         if (!autorNombre) {
           autorNombre = await this.obtenerNombreUsuario(noticia.autorId || noticia.creador_id);
         }
-        
+
         return {
           id: noticia.id,
           titulo: noticia.titulo,
@@ -480,7 +483,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     this.cargandoNoticias = false;
     this.backendDisponible = false;
     this.mensajeConexion = 'Error loading content';
-    
+
     this.snackBar.open(
       'No se pudieron cargar las noticias. Verifique su conexión.',
       'Cerrar',
@@ -490,7 +493,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   private cargarEventos(): void {
     this.cargandoEventos = true;
-    
+
     if (this.estaAutenticado) {
       // Usuario autenticado: acceso completo
       console.log('🔓 Usuario autenticado - Cargando todos los eventos');
@@ -545,7 +548,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     } else if (Array.isArray(response)) {
       eventosArray = response;
     }
-    
+
     this.procesarListaEventos(eventosArray, false);
   }
 
@@ -560,15 +563,15 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       eventos.map(async (evento: any) => {
         // Priorizar creadorNombre (igual que en evento-detalle), luego autorNombre
         let autorNombre = evento.creadorNombre || evento.autorNombre || evento.autor_nombre;
-        
+
         // Log para diagnosticar qué campo se está usando
         console.log(`📅 Evento ${evento.id} - creadorNombre: ${evento.creadorNombre}, autorNombre: ${evento.autorNombre}, autor_nombre: ${evento.autor_nombre}`);
-        
+
         // Solo buscar por ID si no tenemos ningún nombre disponible
         if (!autorNombre) {
           autorNombre = await this.obtenerNombreUsuario(evento.creadorId || evento.creador_id);
         }
-        
+
         return {
           id: evento.id || 0,
           titulo: evento.nombre || evento.titulo,
@@ -593,7 +596,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     console.log('🔄 Cargando eventos con datos de fallback...');
     this.eventosLimitados = [];
     this.cargandoEventos = false;
-    
+
     this.snackBar.open(
       'No se pudieron cargar los eventos. Verifique su conexión.',
       'Cerrar',
@@ -603,7 +606,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   private cargarPartidos(): void {
     this.cargandoPartidos = true;
-    
+
     if (this.estaAutenticado) {
       // Usuario autenticado: acceso completo - cargar todos los tipos de partidos
       console.log('🔓 Usuario autenticado - Cargando partidos completos de Liga Colombiana');
@@ -622,7 +625,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       .subscribe({
         next: (partidosEnVivo) => {
           console.log('✅ Partidos en vivo cargados:', partidosEnVivo.length);
-          
+
           // Si hay partidos en vivo, mostrar esos principalmente
           if (partidosEnVivo.length > 0) {
             this.procesarPartidosCompletos(partidosEnVivo.slice(0, 6));
@@ -662,7 +665,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       .subscribe({
         next: (partidosEnVivo) => {
           console.log('✅ Partidos en vivo públicos cargados:', partidosEnVivo.length);
-          
+
           // Si hay partidos en vivo, mostrar esos principalmente
           if (partidosEnVivo.length >= this.LIMITE_PARTIDOS) {
             this.procesarPartidosLimitados(partidosEnVivo.slice(0, this.LIMITE_PARTIDOS));
@@ -681,21 +684,21 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   private completarConProximosPartidos(partidosEnVivo: any[]): void {
     const partidosRestantes = this.LIMITE_PARTIDOS - partidosEnVivo.length;
-    
+
     this.partidosService.obtenerProximosPartidos()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (proximosPartidos) => {
           console.log(`✅ Próximos partidos cargados para completar: ${proximosPartidos.length}`);
-          
+
           // Combinar partidos en vivo con próximos partidos
           const partidosCombinados = [
             ...partidosEnVivo,
             ...proximosPartidos.slice(0, partidosRestantes)
           ];
-          
+
           console.log(`⚽ Combinando ${partidosEnVivo.length} en vivo + ${partidosRestantes} próximos = ${partidosCombinados.length} total`);
-          
+
           this.procesarPartidosLimitados(partidosCombinados);
           this.cargandoPartidos = false;
         },
@@ -732,7 +735,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     } else if (Array.isArray(response)) {
       partidosArray = response;
     }
-    
+
     this.procesarListaPartidos(partidosArray, false);
   }
 
@@ -757,7 +760,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       minutoActual: partido.minutoActual || 0,
       bloqueado: false // ✅ Permitir ver contenido, solo limitar cantidad
     }));
-    
+
     console.log(`✅ ${this.partidosLimitados.length} partidos procesados para el grid`);
   }
 
@@ -765,7 +768,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     console.log('🔄 Cargando partidos con datos de fallback...');
     this.partidosLimitados = [];
     this.cargandoPartidos = false;
-    
+
     this.snackBar.open(
       'No se pudieron cargar los partidos. Verifique su conexión.',
       'Cerrar',
@@ -777,12 +780,12 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     setTimeout(() => {
       const element = document.getElementById(section);
       if (element) {
-        element.scrollIntoView({ 
-          behavior: 'smooth', 
+        element.scrollIntoView({
+          behavior: 'smooth',
           block: 'start',
           inline: 'nearest'
         });
-        
+
         // Highlight the section temporarily
         element.classList.add('highlight-section');
         setTimeout(() => {
@@ -793,8 +796,8 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   // Métodos de navegación y acciones
-  verNoticia(noticia: NoticiaLimitada): void {
-    // ✅ Permitir navegación a todos los usuarios - contenido público disponible
+  verNoticia(noticia: NoticiaLimitada | import('../../core/services/secciones.service').ContenidoSeccion): void {
+    // Si viene de sección dinámica, adaptar a navegación por id
     this.router.navigate(['/noticia', noticia.id]);
   }
 
@@ -817,7 +820,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   private mostrarMensajeRegistro(tipo: string): void {
     this.snackBar.open(
-      `¡Regístrate para acceder a ${tipo}!`, 
+      `¡Regístrate para acceder a ${tipo}!`,
       'Registrarse',
       {
         duration: 8000,
@@ -859,20 +862,20 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
   // ===============================
   // 🎠 MÉTODOS DEL CAROUSEL
   // ===============================
-  
+
   private iniciarCarousel(): void {
     console.log('🎠 Iniciando carousel con', this.noticiasDestacadas.length, 'noticias');
     if (this.noticiasDestacadas.length === 0) return;
-    
+
     this.pararCarousel();
-    
+
     // Solo iniciar animación automática si hay más de 1 noticia
     if (this.noticiasDestacadas.length > 1) {
       console.log('🔄 Iniciando animación automática del carousel');
       // Inicializar progress
       this.progressValue = 0;
       this.iniciarProgress();
-      
+
       // Configurar cambio automático
       this.carouselInterval = setInterval(() => {
         this.siguienteNoticia();
@@ -881,7 +884,7 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       console.log('⏸️ Solo hay 1 noticia, carousel estático');
     }
   }
-  
+
   private pararCarousel(): void {
     if (this.carouselInterval) {
       clearInterval(this.carouselInterval);
@@ -892,11 +895,11 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       this.progressInterval = null;
     }
   }
-  
+
   private iniciarProgress(): void {
     this.progressValue = 0;
     const incremento = 100 / (this.CAROUSEL_DURATION / 50); // Actualizar cada 50ms
-    
+
     this.progressInterval = setInterval(() => {
       this.progressValue += incremento;
       if (this.progressValue >= 100) {
@@ -905,10 +908,10 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       }
     }, 50);
   }
-  
+
   siguienteNoticia(): void {
     if (this.noticiasDestacadas.length === 0) return;
-    
+
     const indiceAnterior = this.indiceNoticiaActual;
     this.indiceNoticiaActual = (this.indiceNoticiaActual + 1) % this.noticiasDestacadas.length;
     this.noticiaDestacadaActual = this.noticiasDestacadas[this.indiceNoticiaActual];
@@ -916,18 +919,18 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
     console.log('📰 Nueva noticia:', this.noticiaDestacadaActual.titulo);
     this.iniciarProgress();
   }
-  
+
   anteriorNoticia(): void {
     if (this.noticiasDestacadas.length === 0) return;
-    
-    this.indiceNoticiaActual = this.indiceNoticiaActual === 0 
-      ? this.noticiasDestacadas.length - 1 
+
+    this.indiceNoticiaActual = this.indiceNoticiaActual === 0
+      ? this.noticiasDestacadas.length - 1
       : this.indiceNoticiaActual - 1;
     this.noticiaDestacadaActual = this.noticiasDestacadas[this.indiceNoticiaActual];
     this.pararCarousel();
     this.iniciarCarousel();
   }
-  
+
   irANoticia(indice: number): void {
     if (indice >= 0 && indice < this.noticiasDestacadas.length) {
       this.indiceNoticiaActual = indice;
@@ -936,15 +939,15 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
       this.iniciarCarousel();
     }
   }
-  
+
   pausarCarousel(): void {
     this.pararCarousel();
   }
-  
+
   reanudarCarousel(): void {
     this.iniciarCarousel();
   }
-  
+
   // ===============================
   // 🔧 MÉTODOS AUXILIARES
   // ===============================
@@ -1016,14 +1019,14 @@ export class UsuarioDashboardComponent implements OnInit, OnDestroy, AfterViewIn
 
   // Verificar si una sección específica está activa
   estaSeccionActiva(titulo: string): boolean {
-    return this.seccionesConContenido.some(s => 
+    return this.seccionesConContenido.some(s =>
       s.seccion.titulo.toLowerCase().includes(titulo.toLowerCase()) && s.seccion.activa
     );
   }
 
   // Obtener sección específica por título
   obtenerSeccionPorTitulo(titulo: string): SeccionConContenidoResponse | null {
-    return this.seccionesConContenido.find(s => 
+    return this.seccionesConContenido.find(s =>
       s.seccion.titulo.toLowerCase().includes(titulo.toLowerCase())
     ) || null;
   }

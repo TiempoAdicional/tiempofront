@@ -20,7 +20,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   nombreUsuario = '';
   private subs: Subscription[] = [];
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.subs.push(
@@ -46,7 +46,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogoClick(): void {
-    this.router.navigate(['/']);
+    if (this.estaAutenticado) {
+      this.router.navigate(['/usuarios']);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+
   }
 
   onNavClick(section: string, event: Event): void {
@@ -58,7 +63,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     event.preventDefault();
     this.activeDropdown = null;
     this.closeMobileMenu();
-    
+
     // Navegación específica para cada sección
     switch (item) {
       case 'nuestra-historia':
@@ -75,7 +80,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.router.navigate(['/usuarios/dashboard'], { fragment: 'eventos' });
         break;
       case 'partidos':
-        
+
         this.router.navigate(['/partidos']);
         break;
       case 'equipo':
@@ -107,7 +112,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.closeMobileMenu();
   }
 
-  
+
 
   irAEquipo(): void {
     console.log('🔄 Navegando a página de equipo...');
@@ -129,15 +134,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   irANoticiasRecientes(): void {
     console.log('🔄 Navegando a noticias recientes...');
     console.log('🔍 Estado autenticado:', this.estaAutenticado);
-    
+
     // Por ahora, siempre usar la ruta pública para debuggear
     const rutaBase = '/noticias';
     console.log('🛣️ Navegando a ruta:', rutaBase, 'con queryParams:', { tipo: 'recientes', limite: 10 });
-    
-    this.router.navigate([rutaBase], { 
-      queryParams: { 
+
+    this.router.navigate([rutaBase], {
+      queryParams: {
         tipo: 'recientes',
-        limite: 10 
+        limite: 10
       }
     }).then(success => {
       console.log('✅ Navegación exitosa:', success);
@@ -151,13 +156,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   irANoticiasDestacadas(): void {
     console.log('🔄 Navegando a noticias destacadas...');
     console.log('🔍 Estado autenticado:', this.estaAutenticado);
-    
+
     // Por ahora, siempre usar la ruta pública para debuggear
     const rutaBase = '/noticias';
     console.log('🛣️ Navegando a ruta:', rutaBase, 'con queryParams:', { tipo: 'destacadas' });
-    
-    this.router.navigate([rutaBase], { 
-      queryParams: { 
+
+    this.router.navigate([rutaBase], {
+      queryParams: {
         tipo: 'destacadas'
       }
     }).then(success => {
@@ -172,13 +177,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   irATodasLasNoticias(): void {
     console.log('🔄 Navegando a todas las noticias...');
     console.log('🔍 Estado autenticado:', this.estaAutenticado);
-    
+
     // Por ahora, siempre usar la ruta pública para debuggear
     const rutaBase = '/noticias';
     console.log('🛣️ Navegando a ruta:', rutaBase, 'con queryParams:', { tipo: 'todas', limite: 20 });
-    
-    this.router.navigate([rutaBase], { 
-      queryParams: { 
+
+    this.router.navigate([rutaBase], {
+      queryParams: {
         tipo: 'todas',
         limite: 20
       }
@@ -197,11 +202,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   irAEventosProximos(): void {
     console.log('🔄 Navegando a eventos próximos...');
-    this.router.navigate(['/usuarios/dashboard'], { 
-      queryParams: { 
+    this.router.navigate(['/usuarios/dashboard'], {
+      queryParams: {
         seccion: 'eventos',
         filtro: 'proximos',
-        limite: 10 
+        limite: 10
       }
     });
     this.activeDropdown = null;

@@ -2,7 +2,7 @@
     <div class="header-container">
         <!-- Logo -->
         <div class="logo-section" (click)="onLogoClick()">
-            <img src="assets/logo-tiempo.png" alt="Logo Tiempo Adicional" class="logo-img" />
+            <img src="assets/logo.png" alt="Logo Tiempo Adicional" class="logo-img" />
             <span class="logo-text">Tiempo Adicional</span>
         </div>
 
@@ -18,9 +18,12 @@
                     </a>
                     <div class="dropdown" [class.active]="activeDropdown === 'noticias'">
                         <div class="dropdown-content">
-                            <a href="#" class="dropdown-item" (click)="irANoticias(); $event.preventDefault()">📰 Ver Todas las Noticias</a>
-                            <a href="#" class="dropdown-item" (click)="irANoticiasRecientes(); $event.preventDefault()">🕒 Recientes</a>
-                            <a href="#" class="dropdown-item" (click)="irANoticiasDestacadas(); $event.preventDefault()">⭐ Destacadas</a>
+                            <a href="#" class="dropdown-item" (click)="irANoticias(); $event.preventDefault()">📰 Ver
+                                Todas las Noticias</a>
+                            <a href="#" class="dropdown-item"
+                                (click)="irANoticiasRecientes(); $event.preventDefault()">🕒 Recientes</a>
+                            <a href="#" class="dropdown-item"
+                                (click)="irANoticiasDestacadas(); $event.preventDefault()">⭐ Destacadas</a>
                         </div>
                     </div>
                 </li>
@@ -33,7 +36,8 @@
                         <div class="dropdown-content">
                             <a href="#" class="dropdown-item" (click)="irAEventos()">🏆 Ver Todos los Eventos</a>
                             <a href="#" class="dropdown-item" (click)="irAEventosProximos()">📅 Próximos</a>
-                            <a href="#" class="dropdown-item" (click)="irAPartidos(); $event.preventDefault();">⚽ Partidos</a>
+                            <a href="#" class="dropdown-item" (click)="irAPartidos(); $event.preventDefault();">⚽
+                                Partidos</a>
                         </div>
                     </div>
                 </li>
@@ -46,7 +50,9 @@
                         <div class="dropdown-content">
                             <a href="#" class="dropdown-item" (click)="onSubNavClick('nuestra-historia', $event)">📖
                                 Historia</a>
-                            <a href="#" class="dropdown-item" (click)="irAEquipo(); $event.preventDefault(); $event.stopPropagation()">👥 Nuestro Equipo</a>
+                            <a href="#" class="dropdown-item"
+                                (click)="irAEquipo(); $event.preventDefault(); $event.stopPropagation()">👥 Nuestro
+                                Equipo</a>
                         </div>
                     </div>
                 </li>
@@ -108,9 +114,12 @@
                     Noticias <span class="mobile-arrow" [class.rotated]="activeMobileSection === 'noticias'">▼</span>
                 </button>
                 <div class="mobile-dropdown" [class.active]="activeMobileSection === 'noticias'">
-                    <a href="#" class="mobile-dropdown-item" (click)="irANoticias(); $event.preventDefault()">📰 Ver Todas las Noticias</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="irANoticiasRecientes(); $event.preventDefault()">🕒 Recientes</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="irANoticiasDestacadas(); $event.preventDefault()">⭐ Destacadas</a>
+                    <a href="#" class="mobile-dropdown-item" (click)="irANoticias(); $event.preventDefault()">📰 Ver
+                        Todas las Noticias</a>
+                    <a href="#" class="mobile-dropdown-item"
+                        (click)="irANoticiasRecientes(); $event.preventDefault()">🕒 Recientes</a>
+                    <a href="#" class="mobile-dropdown-item"
+                        (click)="irANoticiasDestacadas(); $event.preventDefault()">⭐ Destacadas</a>
                 </div>
             </div>
 
@@ -122,8 +131,9 @@
                 <div class="mobile-dropdown" [class.active]="activeMobileSection === 'eventos'">
                     <a href="#" class="mobile-dropdown-item" (click)="irAEventos()">🏆 Ver Todos los Eventos</a>
                     <a href="#" class="mobile-dropdown-item" (click)="irAEventosProximos()">📅 Próximos</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="irAPartidos(); $event.preventDefault();">⚽ Partidos</a>
-                   
+                    <a href="#" class="mobile-dropdown-item" (click)="irAPartidos(); $event.preventDefault();">⚽
+                        Partidos</a>
+
                 </div>
             </div>
 
@@ -136,8 +146,9 @@
                 <div class="mobile-dropdown" [class.active]="activeMobileSection === 'nosotros'">
                     <a href="#" class="mobile-dropdown-item" (click)="onSubNavClick('nuestra-historia', $event)">📖
                         Historia</a>
-                    <a href="#" class="mobile-dropdown-item" (click)="irAEquipo(); $event.preventDefault(); $event.stopPropagation()">👥 Nuestro Equipo</a>
-                    
+                    <a href="#" class="mobile-dropdown-item"
+                        (click)="irAEquipo(); $event.preventDefault(); $event.stopPropagation()">👥 Nuestro Equipo</a>
+
                 </div>
             </div>
 
