@@ -9,5 +9,7 @@
   <router-outlet></router-outlet>
 </main>
 
-<!-- FOOTER: Siempre visible -->
-<app-footer></app-footer>
+<div *ngIf="!hideFooter">
+  <!-- ...todo el contenido del footer... -->
+   <app-footer></app-footer>
+</div>

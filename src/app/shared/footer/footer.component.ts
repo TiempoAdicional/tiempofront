@@ -18,6 +18,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   activeSection: string | null = null;
   isVisible = false;
+  hideFooter = false;
   showBackToTop = false;
   emailInput = '';
   constructor(private router: Router) { }
@@ -27,6 +28,8 @@ export class FooterComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupIntersectionObserver();
     this.setupScrollListener();
+    // Inicializar el estado del footer al cargar
+    this.hideFooter = this.router.url.startsWith('/politicas');
   }
 
   ngOnDestroy(): void {
