@@ -32,6 +32,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -42,30 +43,43 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
 }
 
 @keyframes bounce {
-  0%, 20%, 53%, 80%, 100% {
+
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
     transform: translate3d(0, 0, 0);
   }
-  40%, 43% {
+
+  40%,
+  43% {
     transform: translate3d(0, -15px, 0);
   }
+
   70% {
     transform: translate3d(0, -8px, 0);
   }
+
   90% {
     transform: translate3d(0, -2px, 0);
   }
@@ -76,7 +90,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   margin-top: 2rem;
   padding: 0 1rem;
   max-width: 100%;
-  
+
   @media (min-width: #{$tablet + 1px}) {
     padding: 0 2rem;
   }
@@ -89,22 +103,22 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   box-shadow: $shadow-2;
   transition: all 0.3s ease;
   background: linear-gradient(135deg, $surface-color 0%, rgba($primary-color, 0.02) 100%);
-  
+
   &:hover {
     box-shadow: $shadow-3;
     transform: translateY(-2px);
   }
-  
+
   .mat-mdc-card-header {
     padding-bottom: 0;
-    
+
     .mat-mdc-card-title {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       color: $primary-color;
       font-weight: 600;
-      
+
       mat-icon {
         font-size: 24px;
         width: 24px;
@@ -120,7 +134,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 .mensaje-field {
   width: 100%;
   margin-bottom: 1rem;
-  
+
   .mat-mdc-form-field {
     width: 100%;
   }
@@ -130,12 +144,12 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   input {
     color: $text-primary !important;
     font-weight: 400;
-    
+
     &::placeholder {
       color: $text-hint !important;
       opacity: 1;
     }
-    
+
     &:invalid {
       color: $error-color !important;
     }
@@ -148,7 +162,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
     min-height: 100px;
     line-height: 1.6;
     color: $text-primary !important; // Forzar color visible
-    
+
     &::placeholder {
       color: $text-hint !important;
       opacity: 1;
@@ -160,7 +174,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 .autor-field input {
   color: $text-primary !important;
   font-weight: 500;
-  
+
   &::placeholder {
     color: $text-hint !important;
     opacity: 1;
@@ -171,7 +185,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 // Mejorar contraste de iconos
 .mat-icon {
   color: inherit;
-  
+
   &.mat-icon-no-color {
     color: $text-secondary;
   }
@@ -194,20 +208,20 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   flex-direction: column;
   gap: 1rem;
   margin-top: 1rem;
-  
+
   .submit-button {
     font-size: 1rem;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     padding: 0.75rem 2rem;
     border-radius: 8px;
-    
+
     &:disabled {
       background-color: rgba($primary-color, 0.3) !important;
       color: rgba(white, 0.7) !important;
     }
   }
-  
+
   .form-note {
     display: flex;
     align-items: center;
@@ -219,7 +233,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
     background-color: rgba($primary-color, 0.05);
     border-radius: 6px;
     border-left: 3px solid $primary-color;
-    
+
     mat-icon {
       font-size: 1rem;
       width: 1rem;
@@ -234,10 +248,10 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   justify-content: flex-end;
   margin-top: 1.5rem;
   gap: 1rem;
-  
+
   @media (max-width: $mobile) {
     justify-content: stretch;
-    
+
     .submit-button {
       width: 100%;
     }
@@ -250,16 +264,16 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   padding: 0 2rem;
   min-width: 150px;
   transition: all 0.3s ease;
-  
+
   &:not(:disabled):hover {
     transform: translateY(-1px);
     box-shadow: $shadow-2;
   }
-  
+
   &:disabled {
     opacity: 0.6;
   }
-  
+
   mat-progress-spinner {
     margin-right: 0.5rem;
   }
@@ -272,7 +286,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 
 .comentarios-header {
   margin-bottom: 1.5rem;
-  
+
   .comentarios-titulo {
     display: flex;
     align-items: center;
@@ -281,14 +295,14 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
     color: $primary-color;
     font-weight: 600;
     font-size: 1.5rem;
-    
+
     mat-icon {
       font-size: 28px;
       width: 28px;
       height: 28px;
     }
   }
-  
+
   mat-divider {
     border-color: rgba($primary-color, 0.2);
   }
@@ -303,11 +317,11 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   padding: 3rem 2rem;
   text-align: center;
   animation: pulse 2s infinite;
-  
+
   mat-progress-spinner {
     margin-bottom: 1rem;
   }
-  
+
   p {
     color: $text-secondary;
     font-size: 1.1rem;
@@ -320,7 +334,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   padding: 3rem 2rem;
   color: $text-secondary;
   animation: fadeIn 0.8s ease-out;
-  
+
   .empty-icon {
     font-size: 64px;
     width: 64px;
@@ -329,13 +343,13 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
     color: rgba($primary-color, 0.3);
     animation: bounce 2s infinite;
   }
-  
+
   h4 {
     margin: 1rem 0 0.5rem 0;
     color: $text-primary;
     font-weight: 500;
   }
-  
+
   p {
     margin: 0;
     font-size: 1rem;
@@ -350,6 +364,22 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
 // Individual comment card
+
+// Tarjeta de comentario aprobado
+.comentario-card.comentario-aprobado {
+
+  border-left: 5px solid #4caf50 !important;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
+  color: #1b3a1b;
+}
+
+// Tarjeta de comentario pendiente (ya existe)
+.comentario-card.comentario-pendiente {
+  background: #fffbe6 !important;
+  border-left: 5px solid #ff9800 !important;
+  color: #6d4c00;
+}
+
 .comentario-card {
   border-radius: 12px;
   box-shadow: $shadow-1;
@@ -357,23 +387,25 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   border-left: 4px solid transparent;
   overflow: hidden;
   animation: slideInUp 0.6s ease-out;
-  
+  background: $surface-color;
+  color: $text-primary;
+
   &:hover {
     box-shadow: $shadow-2;
     transform: translateY(-1px);
     border-left-color: $primary-color;
   }
-  
+
   // Animation delay for staggered effect
   @for $i from 1 through 10 {
     &:nth-child(#{$i}) {
       animation-delay: #{$i * 0.1}s;
     }
   }
-  
+
   .mat-mdc-card-header {
     padding: 1rem 1.5rem 0.5rem;
-    
+
     @media (max-width: $mobile) {
       padding: 1rem 1rem 0.5rem;
     }
@@ -392,7 +424,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   justify-content: center;
   box-shadow: $shadow-1;
   flex-shrink: 0;
-  
+
   mat-icon {
     font-size: 24px;
     width: 24px;
@@ -419,7 +451,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   flex-direction: column;
   gap: 0.5rem;
   margin: 0;
-  
+
   @media (min-width: #{$tablet + 1px}) {
     flex-direction: row;
     align-items: center;
@@ -433,7 +465,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   gap: 0.25rem;
   color: $text-secondary;
   font-size: 0.875rem;
-  
+
   .metadata-icon {
     font-size: 16px;
     width: 16px;
@@ -448,20 +480,20 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   font-weight: 600;
   height: 24px;
   align-self: flex-start;
-  
+
   mat-icon {
     font-size: 14px;
     width: 14px;
     height: 14px;
     margin-right: 0.25rem;
   }
-  
+
   &.estado-aprobado {
     background-color: rgba($success-color, 0.1);
     color: $success-color;
     border: 1px solid rgba($success-color, 0.3);
   }
-  
+
   &.estado-pendiente {
     background-color: rgba($warning-color, 0.1);
     color: $warning-color;
@@ -473,15 +505,15 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 .comentario-actions {
   display: flex;
   align-items: center;
-  
+
   @media (max-width: $mobile) {
     display: none; // Hide on mobile, show mobile actions instead
   }
-  
+
   button {
     color: $text-secondary;
     transition: color 0.2s ease;
-    
+
     &:hover {
       color: $primary-color;
     }
@@ -493,23 +525,23 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   display: none;
   gap: 0.5rem;
   padding: 0.5rem 1rem 1rem;
-  
+
   @media (max-width: $mobile) {
     display: flex;
     justify-content: flex-end;
   }
-  
+
   .approve-btn {
     color: $success-color;
-    
+
     &:hover {
       background-color: rgba($success-color, 0.1);
     }
   }
-  
+
   .delete-btn {
     color: $error-color;
-    
+
     &:hover {
       background-color: rgba($error-color, 0.1);
     }
@@ -524,7 +556,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   font-size: 1rem;
   word-wrap: break-word;
   white-space: pre-line; // Preserve line breaks
-  
+
   // Responsive font size
   @media (max-width: $mobile) {
     font-size: 0.9rem;
@@ -534,7 +566,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 // Menu styling for admin actions
 .delete-action {
   color: $error-color !important;
-  
+
   mat-icon {
     color: $error-color !important;
   }
@@ -545,48 +577,48 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   .mat-mdc-form-field-focus-overlay {
     background-color: rgba($primary-color, 0.04);
   }
-  
+
   &.mat-focused {
     .mat-mdc-form-field-outline-thick {
       color: $primary-color;
     }
   }
-  
+
   .mat-mdc-form-field-hint,
   .mat-mdc-form-field-error {
     font-size: 0.875rem;
   }
-  
+
   // Mejorar visibilidad del input y placeholder
   .mat-mdc-input-element {
     color: $text-primary !important;
     font-weight: 500;
-    
+
     &::placeholder {
       color: $text-hint !important;
       opacity: 1 !important;
       font-weight: 400;
     }
-    
+
     &:focus::placeholder {
       color: rgba($text-hint, 0.7) !important;
     }
   }
-  
+
   // Label styling
   .mat-mdc-form-field-label {
     color: $text-secondary !important;
-    
+
     &.mat-mdc-form-field-label-floating {
       color: $primary-color !important;
     }
   }
-  
+
   // Outline colors
   .mat-mdc-form-field-outline {
     color: $border-color !important;
   }
-  
+
   &.mat-focused .mat-mdc-form-field-outline-thick {
     color: $border-focused !important;
     border-width: 2px;
@@ -599,20 +631,20 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
     margin-top: 1rem;
     padding: 0 0.5rem;
   }
-  
+
   .comentario-form-card,
   .comentario-card {
     margin-left: -0.5rem;
     margin-right: -0.5rem;
     border-radius: 8px;
   }
-  
+
   .comentario-metadata {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   // Mejor legibilidad en móvil
   .mat-mdc-form-field .mat-mdc-input-element {
     font-size: 16px; // Previene zoom en iOS
@@ -622,20 +654,21 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 // Dark theme support (optional)
 @media (prefers-color-scheme: dark) {
   .comentarios-container {
+
     .comentario-form-card,
     .comentario-card {
       background-color: #2d2d2d;
       color: #ffffff;
     }
-    
+
     .comentario-autor {
       color: #ffffff;
     }
-    
+
     .comentario-fecha {
       color: rgba(255, 255, 255, 0.7);
     }
-    
+
     .comentario-mensaje {
       color: rgba(255, 255, 255, 0.87);
     }
@@ -644,12 +677,13 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 
 // Print styles
 @media print {
+
   .comentario-form-card,
   .comentario-actions,
   .mobile-admin-actions {
     display: none !important;
   }
-  
+
   .comentario-card {
     break-inside: avoid;
     box-shadow: none;
@@ -735,7 +769,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   font-size: 1rem;
   word-wrap: break-word;
   white-space: pre-line; // Preserve line breaks
-  
+
   // Responsive font size
   @media (max-width: $mobile) {
     font-size: 0.9rem;
@@ -753,7 +787,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   .comentario-actions {
     display: none;
   }
-  
+
   .mobile-admin-actions {
     display: flex;
   }
@@ -768,7 +802,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 // Menu styling for admin actions
 .delete-action {
   color: $error-color !important;
-  
+
   mat-icon {
     color: $error-color !important;
   }
@@ -779,48 +813,48 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   .mat-mdc-form-field-focus-overlay {
     background-color: rgba($primary-color, 0.04);
   }
-  
+
   &.mat-focused {
     .mat-mdc-form-field-outline-thick {
       color: $primary-color;
     }
   }
-  
+
   .mat-mdc-form-field-hint,
   .mat-mdc-form-field-error {
     font-size: 0.875rem;
   }
-  
+
   // Mejorar visibilidad del input y placeholder
   .mat-mdc-input-element {
     color: $text-primary !important;
     font-weight: 500;
-    
+
     &::placeholder {
       color: $text-hint !important;
       opacity: 1 !important;
       font-weight: 400;
     }
-    
+
     &:focus::placeholder {
       color: rgba($text-hint, 0.7) !important;
     }
   }
-  
+
   // Label styling
   .mat-mdc-form-field-label {
     color: $text-secondary !important;
-    
+
     &.mat-mdc-form-field-label-floating {
       color: $primary-color !important;
     }
   }
-  
+
   // Outline colors
   .mat-mdc-form-field-outline {
     color: $border-color !important;
   }
-  
+
   &.mat-focused .mat-mdc-form-field-outline-thick {
     color: $border-focused !important;
     border-width: 2px;
@@ -833,20 +867,20 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
     margin-top: 1rem;
     padding: 0 0.5rem;
   }
-  
+
   .comentario-form-card,
   .comentario-card {
     margin-left: -0.5rem;
     margin-right: -0.5rem;
     border-radius: 8px;
   }
-  
+
   .comentario-metadata {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   // Mejor legibilidad en móvil
   .mat-mdc-form-field .mat-mdc-input-element {
     font-size: 16px; // Previene zoom en iOS
@@ -856,20 +890,21 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 // Dark theme support (optional)
 @media (prefers-color-scheme: dark) {
   .comentarios-container {
+
     .comentario-form-card,
     .comentario-card {
       background-color: #2d2d2d;
       color: #ffffff;
     }
-    
+
     .comentario-autor {
       color: #ffffff;
     }
-    
+
     .comentario-fecha {
       color: rgba(255, 255, 255, 0.7);
     }
-    
+
     .comentario-mensaje {
       color: rgba(255, 255, 255, 0.87);
     }
@@ -878,12 +913,13 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 
 // Print styles
 @media print {
+
   .comentario-form-card,
   .comentario-actions,
   .mobile-admin-actions {
     display: none !important;
   }
-  
+
   .comentario-card {
     break-inside: avoid;
     box-shadow: none;
@@ -969,7 +1005,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   font-size: 1rem;
   word-wrap: break-word;
   white-space: pre-line; // Preserve line breaks
-  
+
   // Responsive font size
   @media (max-width: $mobile) {
     font-size: 0.9rem;
@@ -987,7 +1023,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   .comentario-actions {
     display: none;
   }
-  
+
   .mobile-admin-actions {
     display: flex;
   }
@@ -1002,7 +1038,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 // Menu styling for admin actions
 .delete-action {
   color: $error-color !important;
-  
+
   mat-icon {
     color: $error-color !important;
   }
@@ -1011,18 +1047,18 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 // 🆕 ESTILOS PARA EL LÍMITE DE COMENTARIOS
 .comentarios-limite-info {
   margin-bottom: 20px;
-  
+
   .limite-card {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     border-radius: 12px;
     box-shadow: $shadow-1;
     border: 1px solid $border-color;
-    
+
     .limite-content {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      
+
       @media (min-width: $tablet) {
         flex-direction: row;
         align-items: center;
@@ -1030,52 +1066,52 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
         gap: 24px;
       }
     }
-    
+
     .limite-stats {
       display: flex;
       align-items: center;
       gap: 12px;
-      
+
       mat-icon {
         font-size: 32px;
         width: 32px;
         height: 32px;
         color: $success-color;
-        
+
         &.limite-warning {
           color: $warning-color;
         }
       }
-      
+
       .limite-text {
         display: flex;
         flex-direction: column;
-        
+
         strong {
           font-size: 20px;
           font-weight: 600;
           color: $text-primary;
         }
-        
+
         .limite-description {
           font-size: 14px;
           color: $text-secondary;
         }
       }
     }
-    
+
     .limite-progress {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      
+
       .progress-bar {
         height: 8px;
         background: rgba(255, 255, 255, 0.3);
         border-radius: 4px;
         overflow: hidden;
-        
+
         .progress-fill {
           height: 100%;
           background: linear-gradient(90deg, $success-color 0%, $warning-color 75%, $error-color 100%);
@@ -1083,12 +1119,12 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
           transition: width 0.3s ease;
         }
       }
-      
+
       .limite-mensaje {
         font-size: 12px;
         color: $text-secondary;
         text-align: center;
-        
+
         &.limite-completo {
           color: $error-color;
           font-weight: 500;
@@ -1103,11 +1139,11 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
   border: 1px solid #ffcdd2;
   margin-bottom: 20px;
-  
+
   .disabled-content {
     text-align: center;
     padding: 20px;
-    
+
     .disabled-icon {
       font-size: 48px;
       width: 48px;
@@ -1115,12 +1151,12 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
       color: $error-color;
       margin-bottom: 16px;
     }
-    
+
     h4 {
       color: $text-primary;
       margin-bottom: 8px;
     }
-    
+
     p {
       color: $text-secondary;
       margin: 0;
@@ -1133,7 +1169,7 @@ $shadow-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   display: flex;
   align-items: center;
   gap: 12px;
-  
+
   .comentarios-count {
     background: $primary-color;
     color: white;

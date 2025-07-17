@@ -52,16 +52,16 @@ interface NoticiaCompleta {
 })
 export class NoticiasListaComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  
+
   noticias: NoticiaCompleta[] = [];
   cargando = true;
   estaAutenticado = false;
-  
+
   // Filtros
   tipoLista: string = 'todas'; // 'todas', 'recientes', 'destacadas'
   tituloSeccion: string = 'Todas las Noticias';
   limite: number = 20;
-  
+
   // Cache para usuarios
   private usuariosCache = new Map<number, string>();
 
@@ -80,7 +80,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
     console.log('🚀 NoticiasListaComponent inicializado');
     this.estaAutenticado = this.authService.estaAutenticado();
     console.log('🔍 Estado autenticado en noticias-lista:', this.estaAutenticado);
-    
+
     // Leer parámetros de la URL
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
@@ -99,7 +99,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
   private configurarFiltros(params: any): void {
     this.tipoLista = params['tipo'] || 'todas';
     this.limite = params['limite'] ? parseInt(params['limite']) : 20;
-    
+
     switch (this.tipoLista) {
       case 'recientes':
         this.tituloSeccion = 'Noticias Recientes';
@@ -112,7 +112,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
         this.tituloSeccion = 'Todas las Noticias';
         break;
     }
-    
+
     console.log('🔍 Configuración de lista:', {
       tipo: this.tipoLista,
       limite: this.limite,
@@ -123,7 +123,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
   private cargarNoticias(): void {
     this.cargando = true;
     this.noticias = [];
-    
+
     switch (this.tipoLista) {
       case 'recientes':
         this.cargarNoticiasRecientes();
@@ -140,7 +140,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
 
   private cargarTodasLasNoticias(): void {
     console.log(`📰 Cargando todas las noticias (límite: ${this.limite})...`);
-    
+
     if (this.estaAutenticado) {
       this.noticiasService.listarTodasAutenticado(1, this.limite)
         .pipe(takeUntil(this.destroy$))
@@ -161,7 +161,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
 
   private cargarNoticiasRecientes(): void {
     console.log(`🕒 Cargando noticias recientes (límite: ${this.limite})...`);
-    
+
     if (this.estaAutenticado) {
       this.noticiasService.listarTodasAutenticado(1, this.limite)
         .pipe(takeUntil(this.destroy$))
@@ -169,7 +169,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
           next: (response) => {
             const noticias = response.noticias || [];
             // Ordenar por fecha más reciente
-            const noticiasOrdenadas = noticias.sort((a: any, b: any) => 
+            const noticiasOrdenadas = noticias.sort((a: any, b: any) =>
               new Date(b.fechaPublicacion).getTime() - new Date(a.fechaPublicacion).getTime()
             );
             this.procesarNoticias(noticiasOrdenadas);
@@ -186,7 +186,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
 
   private cargarNoticiasDestacadas(): void {
     console.log('⭐ Cargando noticias destacadas...');
-    
+
     if (this.estaAutenticado) {
       this.noticiasService.listarTodasAutenticado(1, 50)
         .pipe(takeUntil(this.destroy$))
@@ -218,16 +218,16 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
           } else if (Array.isArray(response)) {
             noticias = response;
           }
-          
+
           // Aplicar filtros específicos para usuarios no autenticados
           if (this.tipoLista === 'destacadas') {
             noticias = noticias.filter((n: any) => n.destacada === true);
           } else if (this.tipoLista === 'recientes') {
-            noticias.sort((a: any, b: any) => 
+            noticias.sort((a: any, b: any) =>
               new Date(b.fechaPublicacion).getTime() - new Date(a.fechaPublicacion).getTime()
             );
           }
-          
+
           this.procesarNoticias(noticias);
         },
         error: (error) => {
@@ -239,16 +239,16 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
 
   private async procesarNoticias(noticiasRaw: any[]): Promise<void> {
     console.log(`🔄 Procesando ${noticiasRaw.length} noticias...`);
-    
+
     try {
       const noticiasPromises = noticiasRaw.map(async (noticia: any) => {
         // Obtener nombre del autor
         let autorNombre = noticia.creadorNombre || noticia.autorNombre || noticia.autor_nombre;
-        
+
         if (!autorNombre) {
           autorNombre = await this.obtenerNombreUsuario(noticia.autorId || noticia.creador_id);
         }
-        
+
         return {
           id: noticia.id,
           titulo: noticia.titulo,
@@ -263,10 +263,10 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
           creadorId: noticia.autorId || noticia.creador_id
         } as NoticiaCompleta;
       });
-      
+
       this.noticias = await Promise.all(noticiasPromises);
       console.log(`✅ ${this.noticias.length} noticias procesadas correctamente`);
-      
+
     } catch (error) {
       console.error('❌ Error procesando noticias:', error);
       this.mostrarError('Error al procesar las noticias');
@@ -277,12 +277,12 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
 
   private async obtenerNombreUsuario(creadorId: number | undefined): Promise<string> {
     if (!creadorId) return 'Redacción';
-    
+
     // Verificar cache primero
     if (this.usuariosCache.has(creadorId)) {
       return this.usuariosCache.get(creadorId)!;
     }
-    
+
     try {
       const usuario = await this.usuariosService.obtenerPorId(creadorId).toPromise();
       const nombre = usuario?.nombre || 'Redacción';
@@ -293,7 +293,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
         this.usuariosCache.set(creadorId, 'Redacción');
         return 'Redacción';
       }
-      
+
       this.usuariosCache.set(creadorId, 'Redacción');
       return 'Redacción';
     }
@@ -301,10 +301,10 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
 
   private extraerResumen(contenidoHtml: string): string {
     if (!contenidoHtml) return '';
-    
+
     // Remover tags HTML y extraer texto plano
     const textoPlano = contenidoHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    
+
     // Limitar a 200 caracteres
     return textoPlano.length > 200 ? textoPlano.substring(0, 200) + '...' : textoPlano;
   }
@@ -338,7 +338,7 @@ export class NoticiasListaComponent implements OnInit, OnDestroy {
 
   volverAlDashboard(): void {
     if (this.estaAutenticado) {
-      this.router.navigate(['/usuarios/dashboard']);
+      this.router.navigate(['/usuarios']);
     } else {
       this.router.navigate(['/dashboard']);
     }

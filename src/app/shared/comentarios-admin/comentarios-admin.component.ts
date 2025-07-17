@@ -77,13 +77,13 @@ import { ComentariosService, ComentarioDTO } from '../../core/services/comentari
           
           <!-- CONTENIDO DEL COMENTARIO -->
           <div class="comentario-contenido">
-            <p class="comentario-mensaje">{{ comentario.contenido }}</p>
+            <p class="comentario-mensaje">{{  comentario.mensaje }}</p>
             
             <!-- METADATA -->
             <div class="comentario-metadata">
               <span class="comentario-fecha">
                 <mat-icon>schedule</mat-icon>
-                {{ formatearFecha(comentario.fechaCreacion) }}
+                {{ formatearFecha(comentario.fecha) }}
               </span>
               <span class="comentario-id">
                 <mat-icon>fingerprint</mat-icon>
@@ -115,7 +115,7 @@ import { ComentariosService, ComentarioDTO } from '../../core/services/comentari
 export class ComentariosAdminComponent {
   @Input() comentarios: ComentarioDTO[] = [];
   @Input() cargando = false;
-  
+
   @Output() comentarioAprobado = new EventEmitter<ComentarioDTO>();
   @Output() comentarioEliminado = new EventEmitter<number>();
 

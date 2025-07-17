@@ -66,7 +66,7 @@ export class ComentariosComponent implements OnInit, OnChanges {
   @Input() cargando = false;
   @Input() permitirComentarios = true;
   @Input() esAdmin = false;
-  
+
   @Output() comentarioCreado = new EventEmitter<ComentarioDTO>();
   @Output() comentarioAprobado = new EventEmitter<ComentarioDTO>();
   @Output() comentarioEliminado = new EventEmitter<number>();
@@ -76,11 +76,10 @@ export class ComentariosComponent implements OnInit, OnChanges {
   private snackBar = inject(MatSnackBar);
 
   // 🆕 Propiedades para manejar la nueva lógica de comentarios
-  infoComentarios: InfoComentariosDTO = {
+  infoComentarios: any = {
     comentarios: [],
-    totalComentarios: 0,
     comentariosAprobados: 0,
-    puedeComentary: false,
+    puedeComenta: false,
     limite: 5,
     restantes: 0
   };
@@ -112,10 +111,14 @@ export class ComentariosComponent implements OnInit, OnChanges {
    * 🆕 Cargar comentarios usando el nuevo endpoint /info
    */
   cargarComentarios(): void {
-    if (!this.noticiaId) return;
+    if (!this.noticiaId) {
+      console.warn('[ComentariosComponent] noticiaId no válido:', this.noticiaId);
+      return;
+    }
 
+    console.log('[ComentariosComponent] Cargando comentarios para noticiaId:', this.noticiaId);
     this.cargandoComentarios = true;
-    
+
     this.comentariosService.obtenerInfoComentarios(this.noticiaId).subscribe({
       next: (response) => {
         if (response.success) {
@@ -137,7 +140,7 @@ export class ComentariosComponent implements OnInit, OnChanges {
     if (this.comentarioForm.invalid) return;
 
     // 🆕 Verificar si puede comentar antes de enviar
-    if (!this.infoComentarios.puedeComentary) {
+    if (!this.infoComentarios.puedeComenta) {
       this.snackBar.open('Esta noticia ya tiene el máximo de comentarios permitidos (5)', 'Cerrar', {
         duration: 4000,
         panelClass: ['error-snackbar']
@@ -147,28 +150,35 @@ export class ComentariosComponent implements OnInit, OnChanges {
 
     this.enviando = true;
     const formValue = this.comentarioForm.value;
-    
-    const request: CrearComentarioDTO = {
-      noticiaId: this.noticiaId,
-      contenido: formValue.contenido
-    };
 
-    this.comentariosService.crearComentario(request).subscribe({
+    // Log detallado del request y endpoint
+    console.log('[DEBUG] Enviando comentario:', {
+      autor: formValue.autor,
+      mensaje: formValue.contenido,
+      noticiaId: this.noticiaId
+    });
+    console.log('[DEBUG] Endpoint:', this.comentariosService['apiUrl']);
+
+    this.comentariosService.crearComentarioSimple(
+      formValue.autor,
+      formValue.contenido,
+      this.noticiaId
+    ).subscribe({
       next: (response) => {
         console.log('✅ Comentario creado:', response);
-        
+
         if (response.success) {
           this.comentarioForm.reset();
           this.comentarioCreado.emit(response.data);
-          
+
           // Recargar comentarios para actualizar el contador
           this.cargarComentarios();
-          
+
           // Mensaje diferente para admin vs usuario
-          const mensaje = this.esAdmin 
+          const mensaje = this.esAdmin
             ? '¡Comentario enviado exitosamente!'
             : '¡Comentario enviado! Será visible una vez que el editor lo apruebe.';
-            
+
           this.snackBar.open(mensaje, 'Cerrar', {
             duration: 4000,
             panelClass: ['success-snackbar']
@@ -179,7 +189,7 @@ export class ComentariosComponent implements OnInit, OnChanges {
             panelClass: ['error-snackbar']
           });
         }
-        
+
         this.enviando = false;
       },
       error: (error) => {
@@ -251,7 +261,7 @@ export class ComentariosComponent implements OnInit, OnChanges {
   }
 
   get puedeComentary(): boolean {
-    return this.infoComentarios.puedeComentary && this.permitirComentarios;
+    return this.infoComentarios.puedeComenta && this.permitirComentarios;
   }
 
   get mensajeLimite(): string {
@@ -270,6 +280,11 @@ export class ComentariosComponent implements OnInit, OnChanges {
    */
   formatearFecha(fechaString: string): string {
     return this.comentariosService.formatearFecha(fechaString);
+  }
+
+  // Compatibilidad: obtener la fecha del comentario (fecha o fechaCreacion)
+  getFechaComentario(comentario: ComentarioDTO): string {
+    return comentario.fecha || comentario.fecha;
   }
 
   getClaseEstado(comentario: ComentarioDTO): string {

@@ -49,7 +49,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
   cargando = true;
   cargandoComentarios = false;
   error: string | null = null;
-  
+
   // Estados y funcionalidades adicionales
   mostrandoEstadisticas = false;
   noticiasRelacionadas: any[] = [];
@@ -89,30 +89,30 @@ export class DetalleComponent implements OnInit, OnDestroy {
    */
   private cargarDetalleCompleto(noticiaId: number): void {
     this.cargando = true;
-    
+
     // Para administradores, cargamos la noticia y TODOS los comentarios por separado
     this.noticiasService.obtenerPorId(noticiaId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (noticia) => {
           console.log('📰 Noticia recibida del servicio:', noticia);
-          
+
           if (!noticia) {
             console.error('❌ Error: noticia no encontrada');
             this.error = 'No se pudo cargar la noticia - datos inválidos.';
             this.cargando = false;
             return;
           }
-          
+
           // Crear estructura de detalle temporal
           this.detalle = {
             noticia: noticia,
             comentarios: []
           };
-          
+
           // Cargar TODOS los comentarios para admin (incluidos pendientes)
           this.cargarTodosLosComentarios(noticiaId);
-          
+
           // Cargar el contenido HTML si está disponible
           if (noticia.contenidoUrl) {
             this.cargarContenidoHtml(noticia.contenidoUrl);
@@ -121,7 +121,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
             this.contenidoHtml = noticia.contenidoHtml || 'Sin contenido disponible';
             this.cargando = false;
           }
-          
+
           this.cargarMetricas(noticiaId);
           this.cargarNoticiasRelacionadas(noticiaId);
           this.incrementarVisita(noticiaId);
@@ -142,7 +142,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
     console.log(`🔄 [ADMIN] Intentando cargar comentarios para noticia ${noticiaId}`);
     console.log(`🔄 [ADMIN] Usuario autenticado:`, this.authService.estaAutenticado());
     console.log(`🔄 [ADMIN] Token:`, this.authService.obtenerToken());
-    
+
     // Primero probar el endpoint público para ver si hay comentarios
     console.log('🔄 [ADMIN] Probando endpoint público primero...');
     this.comentariosService.obtenerComentariosDeNoticia(noticiaId)
@@ -150,7 +150,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (comentariosPublicos: ComentarioDTO[]) => {
           console.log(`✅ [ADMIN] Comentarios públicos encontrados: ${comentariosPublicos.length}`, comentariosPublicos);
-          
+
           // Luego intentar con el endpoint de admin
           console.log('🔄 [ADMIN] Ahora probando endpoint de admin...');
           this.comentariosService.obtenerTodosLosComentariosDeNoticia(noticiaId)
@@ -208,7 +208,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
       this.cargando = false;
       return;
     }
-    
+
     fetch(url)
       .then(resp => {
         if (!resp.ok) {
@@ -272,7 +272,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (noticias: any) => {
           console.log('🔄 Noticias relacionadas recibidas:', noticias);
-          
+
           // Validar que noticias sea un array
           if (Array.isArray(noticias)) {
             this.noticiasRelacionadas = noticias.slice(0, 5); // Máximo 5
@@ -283,7 +283,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
             console.warn('⚠️ Formato de noticias relacionadas inesperado:', noticias);
             this.noticiasRelacionadas = [];
           }
-          
+
           console.log('✅ Noticias relacionadas procesadas:', this.noticiasRelacionadas.length);
         },
         error: (error: any) => {
@@ -336,7 +336,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
   cambiarEstadoPublicacion(): void {
     if (this.detalle && this.esAutorDeLaNoticia) {
       const nuevoEstado = !this.detalle.noticia.esPublica;
-      
+
       // Simulamos el cambio de estado localmente
       this.detalle.noticia.esPublica = nuevoEstado;
       this.mostrarExito(
@@ -444,10 +444,10 @@ export class DetalleComponent implements OnInit, OnDestroy {
     if (this.detalle?.noticia?.id) {
       console.log('🔄 Recargando comentarios manualmente...');
       console.log('🔄 URL del endpoint:', `${environment.apiBaseUrl}/api/comentarios/admin/noticia/${this.detalle.noticia.id}`);
-      
+
       this.cargandoComentarios = true;
       this.cargarTodosLosComentarios(this.detalle.noticia.id);
-      
+
       // Resetear el estado de carga después de un tiempo
       setTimeout(() => {
         this.cargandoComentarios = false;
@@ -460,14 +460,14 @@ export class DetalleComponent implements OnInit, OnDestroy {
    */
   mostrarComentarios = false;
   mostrarFormularioComentario = false;
-  
+
   toggleComentarios(): void {
     this.mostrarComentarios = !this.mostrarComentarios;
   }
 
   // Getters para el template
   get fechaFormateada(): string {
-    return this.detalle?.noticia?.fechaPublicacion ? 
+    return this.detalle?.noticia?.fechaPublicacion ?
       this.formatearFecha(this.detalle.noticia.fechaPublicacion) : '';
   }
 
@@ -498,10 +498,10 @@ export class DetalleComponent implements OnInit, OnDestroy {
    */
   onComentarioCreado(comentario: ComentarioDTO): void {
     console.log('✅ Nuevo comentario creado en admin:', comentario);
-    
+
     // Ocultar el formulario después de crear
     this.mostrarFormularioComentario = false;
-    
+
     // Recargar todos los comentarios para mostrar el nuevo
     if (this.detalle?.noticia?.id) {
       this.cargarTodosLosComentarios(this.detalle.noticia.id);
@@ -513,7 +513,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
    */
   onComentarioAprobado(comentario: ComentarioDTO): void {
     console.log('✅ Comentario aprobado en admin:', comentario);
-    
+
     // Actualizar el comentario en la lista local
     if (this.detalle?.comentarios) {
       const index = this.detalle.comentarios.findIndex(c => c.id === comentario.id);
@@ -528,38 +528,14 @@ export class DetalleComponent implements OnInit, OnDestroy {
    */
   onComentarioEliminado(comentarioId: number): void {
     console.log('✅ Comentario eliminado en admin:', comentarioId);
-    
+
     // Remover el comentario de la lista local
     if (this.detalle?.comentarios) {
       this.detalle.comentarios = this.detalle.comentarios.filter(c => c.id !== comentarioId);
     }
   }
 
-  /**
-   * Método para agregar comentarios de prueba (solo para desarrollo)
-   */
-  agregarComentariosPrueba(): void {
-    if (this.detalle?.noticia?.id) {
-      console.log('🔄 Creando comentario de prueba...');
-      
-      // Usar el servicio para crear un comentario real
-      this.comentariosService.crearComentario({
-        noticiaId: this.detalle.noticia.id,
-        contenido: 'Este es un comentario de prueba creado desde el admin para verificar que funciona la integración con la base de datos.'
-      }).subscribe({
-        next: (response) => {
-          console.log('✅ Comentario de prueba creado:', response);
-          if (response.success) {
-            // Recargar todos los comentarios
-            this.cargarTodosLosComentarios(this.detalle!.noticia.id);
-          }
-        },
-        error: (error) => {
-          console.error('❌ Error al crear comentario de prueba:', error);
-        }
-      });
-    }
-  }
+
 
   /**
    * Método para debuggear el estado de los comentarios
@@ -599,7 +575,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
     this.comentariosService.obtenerComentariosPendientes().subscribe({
       next: (comentarios) => {
         console.log('📝 Comentarios pendientes en el sistema:', comentarios);
-        const mensaje = comentarios.length > 0 
+        const mensaje = comentarios.length > 0
           ? `Hay ${comentarios.length} comentarios pendientes de aprobación`
           : 'No hay comentarios pendientes';
         this.mostrarExito(mensaje);
@@ -616,7 +592,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
   aprobarComentario(comentario: ComentarioDTO): void {
     if (comentario.id) {
       console.log('🔄 Aprobando comentario:', comentario.id);
-      
+
       this.comentariosService.aprobarComentario(comentario.id).subscribe({
         next: (response) => {
           console.log('✅ Comentario aprobado:', response);
@@ -645,7 +621,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
   eliminarComentario(comentario: ComentarioDTO): void {
     if (comentario.id && confirm('¿Estás seguro de que deseas eliminar este comentario?')) {
       console.log('🔄 Eliminando comentario:', comentario.id);
-      
+
       this.comentariosService.eliminarComentario(comentario.id).subscribe({
         next: (response) => {
           console.log('✅ Comentario eliminado:', response);

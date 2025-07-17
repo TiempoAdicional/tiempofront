@@ -19,7 +19,7 @@
   color: #333;
   font-size: 1.25rem;
   font-weight: 600;
-  
+
   mat-icon {
     color: #1976d2;
     font-size: 1.5rem;
@@ -35,11 +35,11 @@
 
 .comentario-item {
   padding: 1.5rem 0;
-  
+
   &:first-child {
     padding-top: 0;
   }
-  
+
   &:last-child {
     padding-bottom: 0;
   }
@@ -51,46 +51,46 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
-  
+
   .comentario-autor {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    
+
     mat-icon {
-      color: #1976d2;
+      color: #3787d7;
       font-size: 1.2rem;
     }
-    
+
     .autor-nombre {
       font-weight: 600;
       color: #333;
       font-size: 1rem;
     }
-    
+
     mat-chip {
       font-size: 0.75rem;
       height: 24px;
-      
+
       mat-icon {
         font-size: 0.9rem;
       }
     }
   }
-  
+
   .comentario-fecha {
     display: flex;
     align-items: center;
     gap: 0.25rem;
     color: #666;
     font-size: 0.9rem;
-    
+
     mat-icon {
       font-size: 1rem;
       color: #999;
     }
   }
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: flex-start;
@@ -103,8 +103,10 @@
   .comentario-mensaje {
     margin: 0;
     line-height: 1.7;
-    color: #444;
-    font-size: 1rem;
+    // Forzar máxima visibilidad del contenido del comentario
+    color: #111 !important;
+    font-size: 1.05rem;
+    font-weight: 600;
     text-align: justify;
   }
 }
@@ -117,7 +119,7 @@
   text-align: center;
   padding: 3rem 1rem;
   color: #666;
-  
+
   mat-icon {
     font-size: 3rem;
     width: 3rem;
@@ -126,15 +128,15 @@
     opacity: 0.5;
     color: #1976d2;
   }
-  
+
   p {
     margin: 0.5rem 0;
-    
+
     &:first-of-type {
       font-size: 1.1rem;
       font-weight: 500;
     }
-    
+
     &.sub-text {
       font-size: 0.9rem;
       opacity: 0.7;
@@ -148,15 +150,15 @@
     margin-top: 1rem;
     padding: 1rem;
   }
-  
+
   .comentarios-titulo {
     font-size: 1.1rem;
   }
-  
+
   .comentarios-lista {
     gap: 1rem;
   }
-  
+
   .comentario-item {
     padding: 1rem 0;
   }
@@ -168,6 +170,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

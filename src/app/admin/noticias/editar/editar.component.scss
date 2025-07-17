@@ -45,7 +45,7 @@
 
     button {
       color: var(--text-color);
-      
+
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);
       }
@@ -64,7 +64,7 @@
   gap: 1.5rem;
   padding: 1.5rem;
   min-height: calc(100vh - 80px);
-  background: linear-gradient(135deg, var(--surface-color) 0%, #121212 100%);
+  background: linear-gradient(135deg, rgb(110, 110, 172) 30%, #d8cfcf 100%);
 
   @media (max-width: 1200px) {
     grid-template-columns: 300px 1fr;
@@ -144,7 +144,8 @@
     transition: all 0.3s ease;
     cursor: pointer;
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       background: var(--primary-color);
       border-color: var(--accent-color);
       transform: translateY(-1px);
@@ -272,7 +273,8 @@
 }
 
 // Estados de carga y vacío
-.loading-section, .empty-state {
+.loading-section,
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -377,7 +379,9 @@
 }
 
 // Formularios
-.info-form, .contenido-form, .config-form {
+.info-form,
+.contenido-form,
+.config-form {
   .full-width {
     width: 100%;
     margin-bottom: 1rem;
@@ -400,7 +404,8 @@
     }
   }
 
-  h3, h4 {
+  h3,
+  h4 {
     color: var(--text-color);
     display: flex;
     align-items: center;
@@ -417,25 +422,25 @@
 .config-form {
   .seccion-field {
     margin: 1rem 0;
-    
+
     .mat-form-field {
       width: 100%;
     }
-    
+
     .mat-select-panel {
       max-height: 300px;
     }
   }
-  
+
   .opciones-publicacion {
     margin-bottom: 1.5rem;
-    
+
     .opcion-checkbox {
       margin-bottom: 0.75rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      
+
       mat-icon {
         color: var(--accent-color);
         margin-right: 0.25rem;
@@ -473,7 +478,7 @@
       right: -8px;
       background: var(--error-color);
       color: white;
-      
+
       &:hover {
         background: #d32f2f;
       }
@@ -496,22 +501,22 @@
 // Editor de contenido
 .editor-container {
   margin: 1rem 0;
-  
+
   .content-editor {
     border-radius: 8px;
     overflow: hidden;
-    
+
     ::ng-deep .tox {
       .tox-editor-header {
         background: var(--card-color);
         border-color: var(--border-color);
       }
-      
+
       .tox-toolbar {
         background: var(--card-color);
         border-color: var(--border-color);
       }
-      
+
       .tox-edit-area {
         background: var(--surface-color);
         border-color: var(--border-color);
@@ -542,7 +547,7 @@
 
       mat-icon {
         color: var(--text-secondary);
-        
+
         &:hover {
           color: var(--error-color);
         }
@@ -560,9 +565,9 @@
 
   .opcion-checkbox {
     color: var(--text-color);
-    
+
     .mdc-checkbox {
-      .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background {
+      .mdc-checkbox__native-control:checked~.mdc-checkbox__background {
         background-color: var(--accent-color);
         border-color: var(--accent-color);
       }
@@ -682,16 +687,16 @@
 @media (max-width: 768px) {
   .editar-container {
     grid-template-columns: 1fr;
-    
+
     .sidebar-card {
       max-height: 300px;
       order: 2;
     }
-    
+
     .editor-area {
       order: 1;
     }
-    
+
     .seleccion-mensaje {
       order: 1;
     }
@@ -701,7 +706,7 @@
     mat-chip-set {
       justify-content: center;
     }
-    
+
     mat-chip {
       flex: 1;
       min-width: auto;
@@ -712,12 +717,12 @@
   .form-actions {
     flex-direction: column;
     align-items: stretch;
-    
+
     button {
       width: 100%;
       margin-bottom: 0.5rem;
     }
-    
+
     .spacer {
       display: none;
     }
@@ -726,7 +731,7 @@
   .filtros-section {
     flex-direction: column;
     align-items: stretch;
-    
+
     .filtro-busqueda {
       margin-bottom: 0.5rem;
     }
@@ -739,6 +744,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -750,6 +756,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -760,22 +767,24 @@
   animation: slideInLeft 0.5s ease-out;
 }
 
-.editor-card, .mensaje-card {
+.editor-card,
+.mensaje-card {
   animation: fadeInUp 0.6s ease-out;
 }
 
 .noticia-item {
   animation: fadeInUp 0.3s ease-out;
-  
+
   &:nth-child(even) {
     animation-delay: 0.1s;
   }
 }
 
 // Estados de hover mejorados
-.sidebar-card, .editor-card {
+.sidebar-card,
+.editor-card {
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../auth/services/auth.service';
 import { NoticiasService, Noticia } from '../../core/services/noticias.service';
 import { DomSanitizer, SafeHtml, Meta, Title } from '@angular/platform-browser';
 
@@ -39,17 +40,17 @@ import { MatInputModule } from '@angular/material/input';
   styleUrls: ['./noticia-publica.component.scss']
 })
 export class NoticiaPublicaComponent implements OnInit {
-  
+
   noticia: Noticia | null = null;
   cargando = true;
   error: string | null = null;
   contenidoSanitizado: SafeHtml | null = null;
   urlCompartir: string = '';
   showScrollTop = false;
-  
+
   // Exponer window para el template
   window = window;
-  
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -57,13 +58,18 @@ export class NoticiaPublicaComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
     private meta: Meta,
-    private title: Title
-  ) {}
+    private title: Title,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     // Obtener el ID de la ruta
     const id = this.route.snapshot.params['id'];
-    
+    // Si el usuario está autenticado, redirigir a la ruta de usuarios/noticia/:id
+    if (this.authService.estaAutenticado() && id) {
+      this.router.navigate(['/usuarios/noticia', id]);
+      return;
+    }
     if (id && !isNaN(Number(id))) {
       this.cargarNoticia(Number(id));
     } else {
@@ -92,9 +98,9 @@ export class NoticiaPublicaComponent implements OnInit {
         console.log('📄 Contenido HTML disponible:', !!noticia.contenidoHtml);
         console.log('📝 Contenido HTML:', noticia.contenidoHtml?.substring(0, 100));
         console.log('🔗 URL de contenido:', noticia.contenidoUrl);
-        
+
         this.noticia = noticia;
-        
+
         // Prioridad 1: contenidoHtml directo
         if (noticia.contenidoHtml && noticia.contenidoHtml.trim() !== '') {
           console.log('✅ Usando contenidoHtml directo');
@@ -121,7 +127,7 @@ export class NoticiaPublicaComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Error cargando noticia:', err);
-        
+
         if (err.status === 404) {
           this.error = 'Noticia no encontrada';
         } else if (err.status === 403) {
@@ -129,7 +135,7 @@ export class NoticiaPublicaComponent implements OnInit {
         } else {
           this.error = 'Error al cargar la noticia';
         }
-        
+
         this.cargando = false;
       }
     });
@@ -175,28 +181,28 @@ export class NoticiaPublicaComponent implements OnInit {
   private finalizarCarga(noticia: any): void {
     // Generar URL simple para compartir
     this.urlCompartir = `${window.location.origin}/noticia/${noticia.id}`;
-    
+
     // Configurar SEO
     this.configurarSEO(noticia);
-    
+
     this.cargando = false;
   }
 
   private configurarSEO(noticia: Noticia): void {
     // Configurar título de la página
     this.title.setTitle(`${noticia.titulo} - Tiempo Adicional`);
-    
+
     // Configurar meta tags
     this.meta.updateTag({ name: 'description', content: noticia.resumen });
     this.meta.updateTag({ name: 'keywords', content: noticia.tags?.join(', ') || '' });
-    
+
     // Open Graph meta tags para redes sociales
     this.meta.updateTag({ property: 'og:title', content: noticia.titulo });
     this.meta.updateTag({ property: 'og:description', content: noticia.resumen });
     this.meta.updateTag({ property: 'og:image', content: noticia.imagenDestacada });
     this.meta.updateTag({ property: 'og:url', content: this.urlCompartir });
     this.meta.updateTag({ property: 'og:type', content: 'article' });
-    
+
     // Twitter Card meta tags
     this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
     this.meta.updateTag({ name: 'twitter:title', content: noticia.titulo });
@@ -206,7 +212,7 @@ export class NoticiaPublicaComponent implements OnInit {
 
   compartirNoticia(): void {
     if (!this.noticia) return;
-    
+
     if (navigator.share) {
       // API nativa de compartir (móviles)
       navigator.share({
@@ -222,7 +228,7 @@ export class NoticiaPublicaComponent implements OnInit {
 
   copiarEnlace(): void {
     if (!this.urlCompartir) return;
-    
+
     navigator.clipboard.writeText(this.urlCompartir).then(() => {
       this.mostrarNotificacion('✅ Enlace copiado al portapapeles');
     }).catch(() => {

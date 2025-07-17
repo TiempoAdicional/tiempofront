@@ -61,6 +61,7 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    console.log('[NoticiaDetalle] ngOnInit');
     this.verificarAutenticacion();
     this.cargarNoticia();
   }
@@ -75,14 +76,16 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe((isAuth: boolean) => {
       this.estaAutenticado = isAuth;
-      console.log('🔐 Estado de autenticación:', this.estaAutenticado);
+      console.log('[NoticiaDetalle] Estado autenticado:', isAuth);
     });
+        // console.log('🔐 Estado de autenticación:', this.estaAutenticado);
   }
 
   private cargarNoticia(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    console.log('[NoticiaDetalle] Param id:', id);
     if (!id) {
-      console.error('❌ ID de noticia no encontrado');
+      console.error('[NoticiaDetalle] ❌ ID de noticia no encontrado');
       this.router.navigate(['/usuarios']);
       return;
     }
@@ -93,18 +96,18 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (noticia) => {
-          console.log('📰 Noticia cargada:', noticia);
+          console.log('[NoticiaDetalle] 📰 Noticia cargada:', noticia);
           this.noticia = noticia;
           this.cargando = false;
-          
+          console.log('[NoticiaDetalle] noticia.id:', this.noticia?.id);
           // ✅ Verificar que el contenido esté disponible
           if (this.noticia && !this.noticia.contenidoHtml && this.noticia.resumen) {
-            console.log('⚠️ Usando resumen como contenido principal');
+            console.log('[NoticiaDetalle] ⚠️ Usando resumen como contenido principal');
             this.noticia.contenidoHtml = `<p>${this.noticia.resumen}</p>`;
           }
         },
         error: (error) => {
-          console.error('❌ Error al cargar noticia:', error);
+          console.error('[NoticiaDetalle] ❌ Error al cargar noticia:', error);
           this.cargando = false;
           this.snackBar.open('No se pudo cargar la noticia', 'Cerrar', { duration: 5000 });
           setTimeout(() => {
@@ -117,18 +120,18 @@ export class NoticiaDetalleComponent implements OnInit, OnDestroy {
   // === EVENT HANDLERS PARA COMENTARIOS ===
 
   onComentarioCreado(comentario: ComentarioDTO): void {
-    console.log('✅ Comentario creado:', comentario);
     // El componente de comentarios maneja su propia actualización
+    console.log('[NoticiaDetalle] Comentario creado:', comentario);
   }
 
   onComentarioAprobado(comentario: ComentarioDTO): void {
-    console.log('✅ Comentario aprobado:', comentario);
     // El componente de comentarios maneja su propia actualización
+    console.log('[NoticiaDetalle] Comentario aprobado:', comentario);
   }
 
   onComentarioEliminado(comentarioId: number): void {
-    console.log('✅ Comentario eliminado:', comentarioId);
     // El componente de comentarios maneja su propia actualización
+    console.log('[NoticiaDetalle] Comentario eliminado:', comentarioId);
   }
 
   // === MÉTODOS DE NAVEGACIÓN ===

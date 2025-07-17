@@ -2,7 +2,7 @@
 :root {
   --primary-color: #2e7d32;
   --accent-color: #00e676;
-  --surface-color: #1e1e1e;
+  --surface-color: #d95656;
   --card-color: #2c2c2c;
   --text-color: #ffffff;
   --text-secondary: #b0b0b0;
@@ -16,7 +16,7 @@
 
 .listar-noticias-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--surface-color) 0%, #121212 100%);
+  background: linear-gradient(135deg, rgb(94, 94, 121) 50%, #afc8b1 100%);
   padding-bottom: 2rem;
 
   // Header toolbar
@@ -46,7 +46,7 @@
 
     button[mat-raised-button] {
       background: linear-gradient(135deg, var(--accent-color), #00c853);
-      color: #000;
+      color: #171616;
       font-weight: 600;
       box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
 
@@ -213,7 +213,7 @@
     .filter-actions {
       display: flex;
       gap: 1rem;
-      
+
       button {
         color: var(--text-color);
         border-color: var(--border-color);
@@ -528,6 +528,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
