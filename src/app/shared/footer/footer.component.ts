@@ -21,7 +21,12 @@ export class FooterComponent implements OnInit, OnDestroy {
   hideFooter = false;
   showBackToTop = false;
   emailInput = '';
-  constructor(private router: Router) { }
+  constructor(private router: Router) {
+    // Suscribirse a cambios de ruta para ocultar el footer en /politicas
+    this.router.events.subscribe(() => {
+      this.hideFooter = this.router.url.startsWith('/politicas');
+    });
+  }
   private observer!: IntersectionObserver;
   private scrollListener!: () => void;
 
