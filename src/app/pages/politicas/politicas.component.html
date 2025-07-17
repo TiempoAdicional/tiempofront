@@ -1,0 +1,161 @@
+<div class="terms-container" [@fadeIn]>
+  <!-- Header -->
+  <mat-toolbar class="privacy-header" color="primary">
+    <div class="header-content">
+      <mat-icon class="header-icon">privacy_tip</mat-icon>
+      <h1 class="header-title">Política de Privacidad - Tiempo Adicional</h1>
+    </div>
+  </mat-toolbar>
+
+  <!-- Main Content -->
+  <div class="privacy-content">
+    <!-- Introduction Card -->
+    <mat-card class="intro-card" [@slideIn]>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>schedule</mat-icon>
+          Información General
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon color="primary">schedule</mat-icon>
+            <div>
+              <strong>Última actualización:</strong>
+              <span>{{ lastUpdated | date:'longDate' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon color="primary">event</mat-icon>
+            <div>
+              <strong>Fecha efectiva:</strong>
+              <span>{{ effectiveDate | date:'longDate' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <mat-divider></mat-divider>
+        
+        <div class="categories-section">
+          <h3>Secciones de la Política</h3>
+          <mat-chip-set>
+            <mat-chip *ngFor="let category of termsCategories" 
+                     [highlighted]="true" 
+                     [@staggerAnimation]>
+              {{ category }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Privacy Sections -->
+    <div class="privacy-sections">
+      <mat-accordion class="privacy-accordion" multi="true">
+        <mat-expansion-panel 
+          *ngFor="let section of termsSections; let i = index" 
+          [expanded]="section.expanded"
+          [@slideIn]
+          [style.animation-delay]="i * 100 + 'ms'"
+          class="privacy-panel">
+          
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="section-icon">{{ section.icon }}</mat-icon>
+              <span class="section-title">{{ section.title }}</span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          
+          <div class="panel-content" [@expandCollapse]>
+            <p class="section-content">{{ section.content }}</p>
+            
+            <div class="section-actions">
+              <button mat-stroked-button color="primary" class="action-btn">
+                <mat-icon>bookmark</mat-icon>
+                Marcar como leído
+              </button>
+              <button mat-stroked-button color="accent" class="action-btn">
+                <mat-icon>help</mat-icon>
+                Más información
+              </button>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+
+    <!-- Acceptance Section -->
+    <mat-card class="acceptance-card" [@slideIn]>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>verified_user</mat-icon>
+          Aceptación de Política de Privacidad
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="acceptance-content">
+          <mat-checkbox 
+            [(ngModel)]="accepted" 
+            (change)="toggleAcceptance()"
+            class="acceptance-checkbox"
+            color="primary">
+            He leído y acepto la política de privacidad de Tiempo Adicional
+          </mat-checkbox>
+          
+          <div class="acceptance-note">
+            <mat-icon color="warn">warning</mat-icon>
+            <span>
+              Al marcar esta casilla, confirmas que has leído y entendido cómo 
+              Tiempo Adicional recopila, usa y protege tu información personal.
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons" [@slideIn]>
+      <button mat-raised-button 
+              color="primary" 
+              [disabled]="!accepted"
+              class="primary-btn">
+        <mat-icon>done</mat-icon>
+        Continuar
+      </button>
+      
+      <button mat-stroked-button 
+              color="accent" 
+              (click)="onPrintTerms()"
+              class="secondary-btn">
+        <mat-icon>print</mat-icon>
+        Imprimir
+      </button>
+      
+      <button mat-stroked-button 
+              color="accent" 
+              (click)="onDownloadTerms()"
+              class="secondary-btn">
+        <mat-icon>download</mat-icon>
+        Descargar
+      </button>
+      
+      <button mat-stroked-button 
+              color="warn" 
+              (click)="onContactSupport()"
+              class="secondary-btn">
+        <mat-icon>email</mat-icon>
+        Contactar: gerencia&#64;tiempoadicional.com
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <button mat-fab 
+          color="primary" 
+          class="scroll-to-top-btn"
+          (click)="scrollToTop()"
+          [@slideIn]>
+    <mat-icon>keyboard_arrow_up</mat-icon>
+  </button>
+</div>

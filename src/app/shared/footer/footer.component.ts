@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -20,7 +20,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   isVisible = false;
   showBackToTop = false;
   emailInput = '';
-
+constructor(private router: Router) {}
   private observer!: IntersectionObserver;
   private scrollListener!: () => void;
 
@@ -109,7 +109,9 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   onBottomLinkClick(link: string, event: Event): void {
     event.preventDefault();
-    console.log(`Bottom link clicked: ${link}`);
+     if (link === 'politicas') {
+    this.router.navigate(['/politicas']);
+  }
   }
 
   scrollToTop(): void {

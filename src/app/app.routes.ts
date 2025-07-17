@@ -66,6 +66,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/historia/historia.component').then(m => m.HistoriaComponent)
   },
+  {
+    path: 'politicas',
+    loadComponent: () =>
+      import('./pages/politicas/politicas.component').then(m => m.PoliticasComponent)
+  },
+
 
 
   // ===============================
