@@ -23,7 +23,7 @@ import { CookiesBannerComponent } from './shared/cookies/cookies-banner.componen
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'tiempoadicional-front';
-  
+   hideFooter = false;
   // Propiedades para controlar la visibilidad del header
   mostrarHeader = true;
   private destroy$ = new Subject<void>();
