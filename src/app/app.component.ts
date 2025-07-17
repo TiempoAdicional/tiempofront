@@ -32,7 +32,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
 
   ngOnInit(): void {
-    // Escuchar cambios de ruta para actualizar la visibilidad del header
+    // Escuchar cambios de ruta para actualizar la visibilidad del header y footer
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),
@@ -40,10 +40,19 @@ export class AppComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         this.actualizarVisibilidadHeader();
+        this.actualizarVisibilidadFooter();
       });
 
     // Verificar inicialmente
     this.actualizarVisibilidadHeader();
+    this.actualizarVisibilidadFooter();
+  }
+  /**
+   * Determina si se debe ocultar el footer basado en la ruta actual
+   */
+  private actualizarVisibilidadFooter(): void {
+    const rutaActual = this.router.url;
+    this.hideFooter = rutaActual.startsWith('/politicas');
   }
 
   ngOnDestroy(): void {
