@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
@@ -15,10 +15,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Servicios y componentes
 import { EquipoService, MiembroEquipo } from '../../core/services/equipo.service';
 import { MiembroCardComponent } from '../../shared/components/miembro-card/miembro-card.component';
+import { AuthService } from '../../auth/services/auth.service';
 
 @Component({
   selector: 'app-equipo-publico',
@@ -37,6 +39,7 @@ import { MiembroCardComponent } from '../../shared/components/miembro-card/miemb
     MatProgressSpinnerModule,
     MatToolbarModule,
     MatBadgeModule,
+    MatTooltipModule,
     MiembroCardComponent
   ],
   templateUrl: './equipo-publico.component.html',
@@ -44,23 +47,27 @@ import { MiembroCardComponent } from '../../shared/components/miembro-card/miemb
 })
 export class EquipoPublicoComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  
+
   miembros: MiembroEquipo[] = [];
   miembrosFiltrados: MiembroEquipo[] = [];
   rolesDisponibles: string[] = [];
-  
+
   // Estados de la UI
   cargando = true;
   error = false;
-  
+
   // Filtros
   textoBusqueda = '';
   rolSeleccionado = '';
-  
+
   // Vista
   mostrarEstadisticas = true;
 
-  constructor(private equipoService: EquipoService) {}
+  constructor(
+    private equipoService: EquipoService,
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.cargarMiembros();
@@ -92,7 +99,7 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
   private cargarMiembros(): void {
     this.cargando = true;
     this.error = false;
-    
+
     // 🆕 Usar método con respaldo para debugging
     this.equipoService.listarMiembrosActivosConRespaldo()
       .pipe(takeUntil(this.destroy$))
@@ -128,7 +135,7 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
   private configurarBusqueda(): void {
     // Búsqueda con debounce para optimizar
     const busquedaSubject = new Subject<string>();
-    
+
     busquedaSubject
       .pipe(
         debounceTime(300),
@@ -152,7 +159,7 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
     }
 
     this.cargando = true;
-    
+
     this.equipoService.buscarMiembros(texto)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -175,7 +182,7 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
     }
 
     this.cargando = true;
-    
+
     this.equipoService.filtrarPorRol(this.rolSeleccionado)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -196,7 +203,7 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
 
     // Filtrar por rol si está seleccionado
     if (this.rolSeleccionado && this.textoBusqueda) {
-      miembrosFiltrados = miembrosFiltrados.filter(m => 
+      miembrosFiltrados = miembrosFiltrados.filter(m =>
         m.rol.toLowerCase().includes(this.rolSeleccionado.toLowerCase())
       );
     }
@@ -205,11 +212,11 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
     miembrosFiltrados.sort((a, b) => {
       const ordenA = a.ordenVisualizacion || 999;
       const ordenB = b.ordenVisualizacion || 999;
-      
+
       if (ordenA !== ordenB) {
         return ordenA - ordenB;
       }
-      
+
       return `${a.nombre} ${a.apellido}`.localeCompare(`${b.nombre} ${b.apellido}`);
     });
 
@@ -240,11 +247,11 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
 
   get miembroMasProductivo(): MiembroEquipo | null {
     if (this.miembros.length === 0) return null;
-    
+
     return this.miembros.reduce((max, miembro) => {
       const publicacionesMiembro = (miembro.totalNoticias || 0) + (miembro.totalEventos || 0);
       const publicacionesMax = (max.totalNoticias || 0) + (max.totalEventos || 0);
-      
+
       return publicacionesMiembro > publicacionesMax ? miembro : max;
     });
   }
@@ -254,5 +261,101 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
    */
   trackByMiembro(index: number, miembro: MiembroEquipo): number {
     return miembro.id;
+  }
+
+  // ======================================
+  // 🚀 BOTÓN FLOTANTE DE NAVEGACIÓN
+  // ======================================
+
+  /**
+   * Verifica si el usuario está autenticado
+   */
+  get estaAutenticado(): boolean {
+    return this.authService.estaAutenticado();
+  }
+
+  /**
+   * Obtiene el rol del usuario autenticado
+   */
+  get rolUsuario(): string | null {
+    return this.authService.obtenerRol();
+  }
+
+  /**
+   * Obtiene el texto del botón según el rol
+   */
+  get textoBotonDashboard(): string {
+    const rol = this.rolUsuario;
+    switch (rol) {
+      case 'ADMIN':
+      case 'EDITOR_JEFE':
+        return 'Dashboard Admin';
+      case 'SUPER_ADMIN':
+        return 'Dashboard Super Admin';
+      case 'USUARIO':
+        return 'Mi Dashboard';
+      default:
+        return 'Iniciar Sesión';
+    }
+  }
+
+  /**
+   * Obtiene el ícono del botón según el rol
+   */
+  get iconoBotonDashboard(): string {
+    const rol = this.rolUsuario;
+    switch (rol) {
+      case 'ADMIN':
+      case 'EDITOR_JEFE':
+        return 'admin_panel_settings';
+      case 'SUPER_ADMIN':
+        return 'supervisor_account';
+      case 'USUARIO':
+        return 'dashboard';
+      default:
+        return 'login';
+    }
+  }
+
+  /**
+   * Obtiene el tooltip del botón según el rol
+   */
+  get tooltipBotonDashboard(): string {
+    const rol = this.rolUsuario;
+    switch (rol) {
+      case 'ADMIN':
+      case 'EDITOR_JEFE':
+        return 'Ir al Dashboard de Administración';
+      case 'SUPER_ADMIN':
+        return 'Ir al Dashboard de Super Administración';
+      case 'USUARIO':
+        return 'Ir a mi Dashboard de Usuario';
+      default:
+        return 'Iniciar sesión para acceder a tu dashboard';
+    }
+  }
+
+  /**
+ * Navega al dashboard correspondiente según el rol del usuario
+ */
+  navegarAlDashboard(): void {
+    const rol = this.rolUsuario;
+
+    switch (rol) {
+      case 'ADMIN':
+      case 'EDITOR_JEFE':
+        this.router.navigate(['/admin']);
+        break;
+      case 'SUPER_ADMIN':
+        this.router.navigate(['/super-admin']);
+        break;
+      case 'USUARIO':
+        this.router.navigate(['/usuarios']);
+        break;
+      default:
+        // Si no está autenticado, ir al login
+        this.router.navigate(['/login']);
+        break;
+    }
   }
 }

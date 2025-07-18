@@ -10,19 +10,19 @@
     <p class="page-description">
       Conoce a los profesionales que hacen posible el mejor periodismo deportivo
     </p>
-    
+
     <!-- Estadísticas generales -->
     <div class="stats-general">
       <div class="stat-item" style="--delay: 0s">
         <span class="stat-number">{{ totalMiembros }}</span>
         <span class="stat-label">Miembros</span>
       </div>
-      
+
       <div class="stat-item" style="--delay: 0.1s">
         <span class="stat-number">{{ totalPublicaciones || 0 }}</span>
         <span class="stat-label">Publicaciones</span>
       </div>
-      
+
       <div class="stat-item" style="--delay: 0.2s" *ngIf="miembroMasProductivo">
         <span class="stat-number">⭐</span>
         <span class="stat-label">{{ miembroMasProductivo.nombre || 'Destacado' }}</span>
@@ -44,15 +44,12 @@
         </h3>
         <span class="results-count">{{ miembrosFiltrados.length }} miembros encontrados</span>
       </div>
-      
+
       <div class="filtros-content modern-filtros-row">
         <div class="modern-filtro-item">
           <mat-form-field appearance="outline" class="search-field">
             <mat-label>Buscar miembro...</mat-label>
-            <input 
-              matInput 
-              [(ngModel)]="textoBusqueda"
-              (input)="onBusquedaChange(textoBusqueda)"
+            <input matInput [(ngModel)]="textoBusqueda" (input)="onBusquedaChange(textoBusqueda)"
               placeholder="Nombre, apellido o rol">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
@@ -69,11 +66,7 @@
           </mat-form-field>
         </div>
         <div class="modern-filtro-item btn-item">
-          <button 
-            mat-stroked-button 
-            color="primary" 
-            (click)="limpiarFiltros()"
-            class="clear-filters-btn">
+          <button mat-stroked-button color="primary" (click)="limpiarFiltros()" class="clear-filters-btn">
             <mat-icon>clear</mat-icon>
             Limpiar
           </button>
@@ -90,10 +83,7 @@
 <!-- Estado de carga -->
 <div *ngIf="cargando" class="loading-section">
   <div class="loading-content">
-    <mat-progress-spinner 
-      mode="indeterminate" 
-      diameter="60"
-      color="primary">
+    <mat-progress-spinner mode="indeterminate" diameter="60" color="primary">
     </mat-progress-spinner>
     <h3>Cargando nuestro equipo...</h3>
     <p>Estamos preparando la información de nuestros profesionales</p>
@@ -128,41 +118,53 @@
     </div>
   </div>
 
-<div *ngIf="miembrosFiltrados.length > 0" class="miembros-grid">
-  <app-miembro-card 
-    *ngFor="let miembro of miembrosFiltrados; trackBy: trackByMiembro; let i = index"
-    [miembro]="miembro"
-    [mostrarEstadisticas]="mostrarEstadisticas"
-    [mostrarAcciones]="false"
-    [esAdmin]="false"
-    [vista]="'card'">
-  </app-miembro-card>
-</div>
+  <div *ngIf="miembrosFiltrados.length > 0" class="miembros-grid">
+    <app-miembro-card *ngFor="let miembro of miembrosFiltrados; trackBy: trackByMiembro; let i = index"
+      [miembro]="miembro" [mostrarEstadisticas]="mostrarEstadisticas" [mostrarAcciones]="false" [esAdmin]="false"
+      [vista]="'card'">
+    </app-miembro-card>
+  </div>
 
-<!-- ======================================
+  <!-- ======================================
      FOOTER INFORMATIVO MODERNO
      ====================================== -->
-<div *ngIf="!cargando && !error && miembrosFiltrados.length > 0" class="equipo-footer">
-  <div class="footer-content">
-    <h3 class="footer-title">
-      ¿Quieres formar parte de nuestro equipo?
-    </h3>
-    <p class="footer-description">
-      Únete a nuestra familia de periodistas deportivos y contribuye a llevar las mejores noticias a nuestra audiencia.
-    </p>
-    <div class="footer-stats">
-      <div class="footer-stat">
-        <span class="stat-number">{{ totalMiembros }}</span>
-        <span class="stat-label">Profesionales</span>
-      </div>
-      <div class="footer-stat">
-        <span class="stat-number">{{ totalPublicaciones }}</span>
-        <span class="stat-label">Publicaciones</span>
-      </div>
-      <div class="footer-stat">
-        <span class="stat-number">24/7</span>
-        <span class="stat-label">Cobertura</span>
+  <div *ngIf="!cargando && !error && miembrosFiltrados.length > 0" class="equipo-footer">
+    <div class="footer-content">
+      <h3 class="footer-title">
+        ¿Quieres formar parte de nuestro equipo?
+      </h3>
+      <p class="footer-description">
+        Únete a nuestra familia de periodistas deportivos y contribuye a llevar las mejores noticias a nuestra
+        audiencia.
+      </p>
+      <div class="footer-stats">
+        <div class="footer-stat">
+          <span class="stat-number">{{ totalMiembros }}</span>
+          <span class="stat-label">Profesionales</span>
+        </div>
+        <div class="footer-stat">
+          <span class="stat-number">{{ totalPublicaciones }}</span>
+          <span class="stat-label">Publicaciones</span>
+        </div>
+        <div class="footer-stat">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Cobertura</span>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- ======================================
+     BOTÓN FLOTANTE DE NAVEGACIÓN
+     ====================================== -->
+  <div class="floating-dashboard-button" [class.authenticated]="estaAutenticado">
+    <button mat-fab color="primary" class="dashboard-fab" [matTooltip]="tooltipBotonDashboard" matTooltipPosition="left"
+      (click)="navegarAlDashboard()" aria-label="Ir al dashboard">
+      <mat-icon>{{ iconoBotonDashboard }}</mat-icon>
+    </button>
+
+    <!-- Etiqueta del botón que aparece en hover -->
+    <div class="fab-label">
+      <span>{{ textoBotonDashboard }}</span>
+    </div>
+  </div>
