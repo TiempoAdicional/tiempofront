@@ -290,8 +290,7 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
       case 'ADMIN':
       case 'EDITOR_JEFE':
         return 'Dashboard Admin';
-      case 'SUPER_ADMIN':
-        return 'Dashboard Super Admin';
+
       case 'USUARIO':
         return 'Mi Dashboard';
       default:
@@ -308,8 +307,6 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
       case 'ADMIN':
       case 'EDITOR_JEFE':
         return 'admin_panel_settings';
-      case 'SUPER_ADMIN':
-        return 'supervisor_account';
       case 'USUARIO':
         return 'dashboard';
       default:
@@ -326,8 +323,6 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
       case 'ADMIN':
       case 'EDITOR_JEFE':
         return 'Ir al Dashboard de Administración';
-      case 'SUPER_ADMIN':
-        return 'Ir al Dashboard de Super Administración';
       case 'USUARIO':
         return 'Ir a mi Dashboard de Usuario';
       default:
@@ -345,9 +340,6 @@ export class EquipoPublicoComponent implements OnInit, OnDestroy {
       case 'ADMIN':
       case 'EDITOR_JEFE':
         this.router.navigate(['/admin']);
-        break;
-      case 'SUPER_ADMIN':
-        this.router.navigate(['/super-admin']);
         break;
       case 'USUARIO':
         this.router.navigate(['/usuarios']);
