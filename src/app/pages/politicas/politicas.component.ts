@@ -68,10 +68,10 @@ interface TermsSection {
   ]
 })
 export class PoliticasComponent implements OnInit {
-accepted = false;
+  accepted = false;
   lastUpdated = new Date('2025-07-16');
   effectiveDate = new Date('2025-07-16');
-  
+  constructor(private router: Router) { }
   termsCategories = [
     'Información Recopilada',
     'Uso de Datos',
@@ -138,7 +138,7 @@ accepted = false;
     }
   ];
 
-  constructor() {}
+
 
   ngOnInit(): void {
     // Inicialización del componente
@@ -169,6 +169,11 @@ accepted = false;
   }
 
   scrollToTop(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (token) {
+      this.router.navigate(['/usuarios/dashboard']);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
   }
 }
