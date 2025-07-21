@@ -6,7 +6,8 @@
         <div class="welcome-content">
           <mat-icon class="welcome-icon">star</mat-icon>
           <h2>¡Bienvenido, Editor Jefe!</h2>
-          <p>Para acceder a todas las funciones de administración, primero debe completar su perfil como miembro del equipo editorial.</p>
+          <p>Para acceder a todas las funciones de administración, primero debe completar su perfil como miembro del
+            equipo editorial.</p>
           <p><strong>Su correo ya está configurado.</strong> Solo complete la información adicional.</p>
         </div>
       </mat-card-content>
@@ -23,271 +24,243 @@
         </h1>
         <p class="subtitle">Administra los miembros del equipo editorial</p>
       </div>
-      
+
       <div class="actions-section">
-        <button mat-button 
-                (click)="openCreateForm()" 
-                class="add-member-btn bounce-on-hover">
+        <button mat-button (click)="openCreateForm()" class="add-member-btn bounce-on-hover">
           <mat-icon>add</mat-icon>
           Nuevo Miembro
         </button>
-        
-        <button mat-icon-button 
-                (click)="loadMiembros()" 
-                class="refresh-btn"
-                matTooltip="Actualizar">
+
+        <button mat-icon-button (click)="loadMiembros()" class="refresh-btn" matTooltip="Actualizar">
           <mat-icon>refresh</mat-icon>
         </button>
       </div>
     </div>
   </div>
 
-    <!-- Estadísticas rápidas -->
-    <div class="stats-section" *ngIf="estadisticas() as stats">
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-icon">
-            <mat-icon>people</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{ stats.total }}</h3>
-            <p>Total Miembros</p>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card active">
-        <mat-card-content>
-          <div class="stat-icon">
-            <mat-icon>person</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{ stats.activos }}</h3>
-            <p>Activos</p>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-icon">
-            <mat-icon>article</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{ stats.totalNoticias }}</h3>
-            <p>Noticias Publicadas</p>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-icon">
-            <mat-icon>event</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{ stats.totalEventos }}</h3>
-            <p>Eventos Creados</p>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>
-
-  <!-- Controles de filtrado y búsqueda -->
-  <div class="controls-section filters-centered">
-    <mat-card class="filters-card">
+  <!-- Estadísticas rápidas -->
+  <div class="stats-section" *ngIf="estadisticas() as stats">
+    <mat-card class="stat-card">
       <mat-card-content>
-        <div class="filters-row filters-spaced">
-          <!-- Búsqueda -->
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>Buscar miembros...</mat-label>
-            <input matInput 
-                   placeholder="Nombre, apellido, correo, cargo..."
-                   #searchInput
-                   (input)="onSearchChange(searchInput.value)"
-                   [value]="searchTerm()">
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
+        <div class="stat-icon">
+          <mat-icon>people</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.total }}</h3>
+          <p>Total Miembros</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-          <!-- Filtro por rol -->
-          <mat-form-field appearance="outline">
-            <mat-label>Rol</mat-label>
-            <mat-select [value]="selectedRol()" 
-                        (selectionChange)="selectedRol.set($event.value); onFilterChange()">
-              <mat-option value="">Todos los roles</mat-option>
-              <mat-option *ngFor="let rol of roles" [value]="rol">
-                {{ rol }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+    <mat-card class="stat-card active">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.activos }}</h3>
+          <p>Activos</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-          <!-- Filtro por estado -->
-          <mat-form-field appearance="outline">
-            <mat-label>Estado</mat-label>
-            <mat-select [value]="selectedEstado()" 
-                        (selectionChange)="selectedEstado.set($event.value); onFilterChange()">
-              <mat-option *ngFor="let estado of estados" [value]="estado.value">
-                {{ estado.label }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>article</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.totalNoticias }}</h3>
+          <p>Noticias Publicadas</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-          <!-- Toggle vista -->
-          <button mat-icon-button 
-                  [matTooltip]="currentView() === 'grid' ? 'Vista tabla' : 'Vista tarjetas'"
-                  (click)="toggleView()">
-            <mat-icon>{{ currentView() === 'grid' ? 'view_list' : 'view_module' }}</mat-icon>
-          </button>
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>event</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.totalEventos }}</h3>
+          <p>Eventos Creados</p>
         </div>
       </mat-card-content>
     </mat-card>
   </div>
+</div>
 
-  <!-- Loading indicator -->
-  <div class="loading-container" *ngIf="isLoading()">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Cargando miembros...</p>
+<!-- Controles de filtrado y búsqueda -->
+<div class="controls-section filters-centered">
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-row filters-spaced">
+        <!-- Búsqueda -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Buscar miembros...</mat-label>
+          <input matInput placeholder="Nombre, apellido, correo, cargo..." #searchInput
+            (input)="onSearchChange(searchInput.value)" [value]="searchTerm()">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Filtro por rol -->
+        <mat-form-field appearance="outline">
+          <mat-label>Rol</mat-label>
+          <mat-select [value]="selectedRol()" (selectionChange)="selectedRol.set($event.value); onFilterChange()">
+            <mat-option value="">Todos los roles</mat-option>
+            <mat-option *ngFor="let rol of roles" [value]="rol">
+              {{ rol }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Filtro por estado -->
+        <mat-form-field appearance="outline">
+          <mat-label>Estado</mat-label>
+          <mat-select [value]="selectedEstado()" (selectionChange)="selectedEstado.set($event.value); onFilterChange()">
+            <mat-option *ngFor="let estado of estados" [value]="estado.value">
+              {{ estado.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Toggle vista -->
+        <button mat-icon-button [matTooltip]="currentView() === 'grid' ? 'Vista tabla' : 'Vista tarjetas'"
+          (click)="toggleView()">
+          <mat-icon>{{ currentView() === 'grid' ? 'view_list' : 'view_module' }}</mat-icon>
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Loading indicator -->
+<div class="loading-container" *ngIf="isLoading()">
+  <mat-spinner diameter="40"></mat-spinner>
+  <p>Cargando miembros...</p>
+</div>
+
+<!-- Vista en Grid (Tarjetas) -->
+<div class="content-section" *ngIf="!isLoading() && currentView() === 'grid'">
+  <div class="members-grid">
+    <app-miembro-card *ngFor="let miembro of filteredMiembros()" [miembro]="miembro" [esAdmin]="true"
+      [mostrarAcciones]="true" (editar)="onEditarMiembro($event)" (eliminar)="onEliminarMiembro($event)"
+      (cambiarEstado)="onCambiarEstadoMiembro($event)">
+    </app-miembro-card>
   </div>
 
-  <!-- Vista en Grid (Tarjetas) -->
-  <div class="content-section" *ngIf="!isLoading() && currentView() === 'grid'">
-    <div class="members-grid">
-      <app-miembro-card 
-        *ngFor="let miembro of filteredMiembros()" 
-        [miembro]="miembro"
-        [esAdmin]="true"
-        [mostrarAcciones]="true"
-        (editar)="onEditarMiembro($event)"
-        (eliminar)="onEliminarMiembro($event)"
-        (cambiarEstado)="onCambiarEstadoMiembro($event)">
-      </app-miembro-card>
-    </div>
-
-    <!-- Mensaje cuando no hay resultados -->
-    <div class="no-results" *ngIf="filteredMiembros().length === 0">
-      <mat-icon>search_off</mat-icon>
-      <h3>No se encontraron miembros</h3>
-      <p>Intenta ajustar los filtros de búsqueda</p>
-    </div>
+  <!-- Mensaje cuando no hay resultados -->
+  <div class="no-results" *ngIf="filteredMiembros().length === 0">
+    <mat-icon>search_off</mat-icon>
+    <h3>No se encontraron miembros</h3>
+    <p>Intenta ajustar los filtros de búsqueda</p>
   </div>
+</div>
 
-  <!-- Vista en Tabla -->
-  <div class="content-section" *ngIf="!isLoading() && currentView() === 'table'">
-    <mat-card class="table-card">
-      <mat-table [dataSource]="filteredMiembros()" class="members-table">
-        
-        <!-- Columna Foto -->
-        <ng-container matColumnDef="foto">
-          <mat-header-cell *matHeaderCellDef>Foto</mat-header-cell>
-          <mat-cell *matCellDef="let miembro">
-            <div class="member-avatar">
-              <img [src]="miembro.imagenUrl || miembro.fotoUrl || '/assets/user.png'" 
-                   [alt]="miembro.nombre"
-                   onerror="this.src='/assets/user.png'">
-            </div>
-          </mat-cell>
-        </ng-container>
+<!-- Vista en Tabla -->
+<div class="content-section" *ngIf="!isLoading() && currentView() === 'table'">
+  <mat-card class="table-card">
+    <mat-table [dataSource]="filteredMiembros()" class="members-table">
 
-        <!-- Columna Nombre -->
-        <ng-container matColumnDef="nombre">
-          <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
-          <mat-cell *matCellDef="let miembro">
-            <div class="member-info">
-              <strong>{{ miembro.nombre }} {{ miembro.apellido }}</strong>
-              <small>{{ miembro.correo }}</small>
-            </div>
-          </mat-cell>
-        </ng-container>
+      <!-- Columna Foto -->
+      <ng-container matColumnDef="foto">
+        <mat-header-cell *matHeaderCellDef>Foto</mat-header-cell>
+        <mat-cell *matCellDef="let miembro">
+          <div class="member-avatar">
+            <img [src]="miembro.imagenUrl || miembro.fotoUrl || '/assets/user.png'" [alt]="miembro.nombre"
+              onerror="this.src='/assets/user.png'">
+          </div>
+        </mat-cell>
+      </ng-container>
 
-        <!-- Columna Email -->
-        <ng-container matColumnDef="email">
-          <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
-          <mat-cell *matCellDef="let miembro">
-            {{ miembro.correo }}
-          </mat-cell>
-        </ng-container>
+      <!-- Columna Nombre -->
+      <ng-container matColumnDef="nombre">
+        <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+        <mat-cell *matCellDef="let miembro">
+          <div class="member-info">
+            <strong>{{ miembro.nombre }} {{ miembro.apellido }}</strong>
+            <small>{{ miembro.correo }}</small>
+          </div>
+        </mat-cell>
+      </ng-container>
 
-        <!-- Columna Rol -->
-        <ng-container matColumnDef="rol">
-          <mat-header-cell *matHeaderCellDef>Rol</mat-header-cell>
-          <mat-cell *matCellDef="let miembro">
-            <mat-chip class="role-chip">{{ miembro.rol }}</mat-chip>
-          </mat-cell>
-        </ng-container>
+      <!-- Columna Email -->
+      <ng-container matColumnDef="email">
+        <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+        <mat-cell *matCellDef="let miembro">
+          {{ miembro.correo }}
+        </mat-cell>
+      </ng-container>
 
-        <!-- Columna Estado -->
-        <ng-container matColumnDef="estado">
-          <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
-          <mat-cell *matCellDef="let miembro">
-            <mat-chip [class]="miembro.activo || miembro.estado === 'activo' ? 'status-active' : 'status-inactive'">
-              {{ (miembro.activo || miembro.estado === 'activo') ? 'Activo' : 'Inactivo' }}
-            </mat-chip>
-          </mat-cell>
-        </ng-container>
+      <!-- Columna Rol -->
+      <ng-container matColumnDef="rol">
+        <mat-header-cell *matHeaderCellDef>Rol</mat-header-cell>
+        <mat-cell *matCellDef="let miembro">
+          <mat-chip class="role-chip">{{ miembro.rol }}</mat-chip>
+        </mat-cell>
+      </ng-container>
 
-        <!-- Columna Estadísticas -->
-        <ng-container matColumnDef="stats">
-          <mat-header-cell *matHeaderCellDef>Estadísticas</mat-header-cell>
-          <mat-cell *matCellDef="let miembro">
-            <div class="stats-mini">
-              <span class="stat-item">
-                <mat-icon>article</mat-icon>
-                {{ miembro.totalNoticias || 0 }}
-              </span>
-              <span class="stat-item">
-                <mat-icon>event</mat-icon>
-                {{ miembro.totalEventos || 0 }}
-              </span>
-            </div>
-          </mat-cell>
-        </ng-container>
+      <!-- Columna Estado -->
+      <ng-container matColumnDef="estado">
+        <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+        <mat-cell *matCellDef="let miembro">
+          <mat-chip [class]="miembro.activo || miembro.estado === 'activo' ? 'status-active' : 'status-inactive'">
+            {{ (miembro.activo || miembro.estado === 'activo') ? 'Activo' : 'Inactivo' }}
+          </mat-chip>
+        </mat-cell>
+      </ng-container>
 
-        <!-- Columna Acciones -->
-        <ng-container matColumnDef="acciones">
-          <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
-          <mat-cell *matCellDef="let miembro">
-            <div class="actions-buttons">
-              <button mat-icon-button 
-                      color="primary"
-                      [matTooltip]="'Editar ' + miembro.nombre"
-                      (click)="openEditForm(miembro)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              
-              <button mat-icon-button 
-                      [color]="(miembro.activo || miembro.estado === 'activo') ? 'warn' : 'accent'"
-                      [matTooltip]="(miembro.activo || miembro.estado === 'activo') ? 'Desactivar' : 'Activar'"
-                      (click)="toggleEstadoMiembro(miembro)">
-                <mat-icon>{{ (miembro.activo || miembro.estado === 'activo') ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
-              
-              <button mat-icon-button 
-                      color="warn"
-                      matTooltip="Eliminar"
-                      (click)="deleteMiembro(miembro.id)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </mat-cell>
-        </ng-container>
+      <!-- Columna Estadísticas -->
+      <ng-container matColumnDef="stats">
+        <mat-header-cell *matHeaderCellDef>Estadísticas</mat-header-cell>
+        <mat-cell *matCellDef="let miembro">
+          <div class="stats-mini">
+            <span class="stat-item">
+              <mat-icon>article</mat-icon>
+              {{ miembro.totalNoticias || 0 }}
+            </span>
+            <span class="stat-item">
+              <mat-icon>event</mat-icon>
+              {{ miembro.totalEventos || 0 }}
+            </span>
+          </div>
+        </mat-cell>
+      </ng-container>
 
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-      </mat-table>
-    </mat-card>
-  </div>
+      <!-- Columna Acciones -->
+      <ng-container matColumnDef="acciones">
+        <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+        <mat-cell *matCellDef="let miembro">
+          <div class="actions-buttons">
+            <button mat-icon-button color="primary" [matTooltip]="'Editar ' + miembro.nombre"
+              (click)="openEditForm(miembro)">
+              <mat-icon>edit</mat-icon>
+            </button>
 
-  <!-- Paginación -->
-  <mat-paginator 
-    *ngIf="!isLoading() && totalElements() > 0"
-    [length]="totalElements()"
-    [pageSize]="pageSize()"
-    [pageIndex]="currentPage()"
-    [pageSizeOptions]="[6, 12, 24, 48]"
-    (page)="onPageChange($event)"
-    class="paginator">
-  </mat-paginator>
+            <button mat-icon-button [color]="(miembro.activo || miembro.estado === 'activo') ? 'warn' : 'accent'"
+              [matTooltip]="(miembro.activo || miembro.estado === 'activo') ? 'Desactivar' : 'Activar'"
+              (click)="toggleEstadoMiembro(miembro)">
+              <mat-icon>{{ (miembro.activo || miembro.estado === 'activo') ? 'visibility_off' : 'visibility'
+                }}</mat-icon>
+            </button>
+
+            <button mat-icon-button color="warn" matTooltip="Eliminar" (click)="deleteMiembro(miembro.id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+  </mat-card>
+</div>
+
+<!-- Paginación -->
+<mat-paginator *ngIf="!isLoading() && totalElements() > 0" [length]="totalElements()" [pageSize]="pageSize()"
+  [pageIndex]="currentPage()" [pageSizeOptions]="[6, 12, 24, 48]" (page)="onPageChange($event)" class="paginator">
+</mat-paginator>
 
 
 <!-- Modal para crear/editar miembro -->
@@ -308,21 +281,12 @@
       <!-- Foto del miembro -->
       <div class="photo-section modern-photo-section">
         <div class="photo-preview modern-photo-preview">
-          <img [src]="imagePreview || '/assets/user.png'" 
-               alt="Vista previa"
-               class="profile-img"
-               onerror="this.src='/assets/user.png'">
+          <img [src]="imagePreview || '/assets/user.png'" alt="Vista previa" class="profile-img"
+            onerror="this.src='/assets/user.png'">
         </div>
         <div class="photo-upload modern-photo-upload">
-          <input type="file" 
-                 #fileInput 
-                 accept="image/*" 
-                 (change)="onImageSelected($event)"
-                 style="display: none;">
-          <button type="button" 
-                  mat-raised-button 
-                  color="accent"
-                  (click)="fileInput.click()">
+          <input type="file" #fileInput accept="image/*" (change)="onImageSelected($event)" style="display: none;">
+          <button type="button" mat-raised-button color="accent" (click)="fileInput.click()">
             <mat-icon>photo_camera</mat-icon>
             Seleccionar Foto
           </button>
@@ -416,24 +380,17 @@
       <!-- Biografía -->
       <mat-form-field appearance="outline" class="full-width modern-field">
         <mat-label>Biografía</mat-label>
-        <textarea matInput 
-                  formControlName="biografia" 
-                  rows="3"
-                  placeholder="Descripción breve del miembro..."></textarea>
+        <textarea matInput formControlName="biografia" rows="3"
+          placeholder="Descripción breve del miembro..."></textarea>
       </mat-form-field>
 
       <!-- Botones de acción -->
       <div class="form-actions modern-form-actions">
-        <button type="button" 
-                mat-button 
-                (click)="cancelForm()">
+        <button type="button" mat-button (click)="cancelForm()">
           Cancelar
         </button>
-        
-        <button type="submit" 
-                mat-raised-button 
-                color="primary"
-                [disabled]="!miembroForm.valid || isLoading()">
+
+        <button type="submit" mat-raised-button color="primary" [disabled]="!miembroForm.valid || isLoading()">
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
           {{ editingMiembro() ? 'Actualizar' : 'Crear' }}
         </button>
@@ -441,3 +398,9 @@
     </form>
   </div>
 </div>
+
+<!-- Botón flotante para volver al dashboard de admin -->
+<button mat-fab color="primary" class="fab-dashboard-btn" matTooltip="Volver al Dashboard"
+  (click)="goToAdminDashboard()">
+  <mat-icon>dashboard</mat-icon>
+</button>

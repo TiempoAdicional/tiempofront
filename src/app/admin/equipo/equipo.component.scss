@@ -14,9 +14,9 @@
   --gradient-secondary: linear-gradient(135deg, #00ff88 0%, #00e676 100%);
   --gradient-success: linear-gradient(135deg, #00ff88 0%, #27ae60 100%);
   --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  --shadow-light: 0 2px 10px rgba(0,0,0,0.08);
-  --shadow-medium: 0 4px 20px rgba(0,0,0,0.13);
-  --shadow-heavy: 0 8px 30px rgba(0,0,0,0.18);
+  --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.13);
+  --shadow-heavy: 0 8px 30px rgba(0, 0, 0, 0.18);
   --border-radius: 12px;
   --border-radius-large: 20px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -27,11 +27,11 @@
 // ==========================================
 // 📱 BREAKPOINTS RESPONSIVE
 // ==========================================
-$breakpoint-xs: 480px;    // Móviles muy pequeños
-$breakpoint-sm: 768px;    // Tablets y móviles grandes  
-$breakpoint-md: 1024px;   // Tablets horizontales y laptops pequeñas
-$breakpoint-lg: 1200px;   // Laptops y desktops
-$breakpoint-xl: 1440px;   // Desktops grandes
+$breakpoint-xs: 480px; // Móviles muy pequeños
+$breakpoint-sm: 768px; // Tablets y móviles grandes  
+$breakpoint-md: 1024px; // Tablets horizontales y laptops pequeñas
+$breakpoint-lg: 1200px; // Laptops y desktops
+$breakpoint-xl: 1440px; // Desktops grandes
 
 // Mixins para media queries
 @mixin mobile-xs {
@@ -110,7 +110,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
     display: none !important;
   }
 
-  > * {
+  >* {
     position: relative;
     z-index: 1;
   }
@@ -171,13 +171,18 @@ $breakpoint-xl: 1440px;   // Desktops grandes
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     animation: shimmer 3s ease-in-out infinite;
   }
 
   @keyframes shimmer {
-    0% { left: -100%; }
-    100% { left: 100%; }
+    0% {
+      left: -100%;
+    }
+
+    100% {
+      left: 100%;
+    }
   }
 
   .header-content {
@@ -208,9 +213,9 @@ $breakpoint-xl: 1440px;   // Desktops grandes
       margin: 0;
       font-size: 2.8rem;
       font-weight: 800;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
       line-height: 1.2;
-      
+
       @include mobile-xs {
         font-size: 1.8rem;
       }
@@ -230,7 +235,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
       mat-icon {
         margin-right: 12px;
         vertical-align: middle;
-        
+
         @include mobile-xs {
           margin-right: 8px;
           font-size: 1.8rem;
@@ -328,7 +333,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
 
     mat-icon {
       margin-right: 8px;
-      
+
       @include mobile-xs {
         margin-right: 6px;
       }
@@ -456,7 +461,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
       mat-icon {
         color: var(--secondary-color);
         font-size: 1.8rem;
-        
+
         @include mobile-xs {
           font-size: 1.4rem;
         }
@@ -555,7 +560,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
 
         .mat-mdc-form-field-subscript-wrapper {
           display: none; // Ocultar helper text en móvil
-          
+
           @include tablet {
             display: block;
           }
@@ -635,7 +640,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
 
       mat-icon {
         transition: var(--transition);
-        
+
         @include mobile-xs {
           margin-right: 8px;
         }
@@ -753,7 +758,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
       transition: left 0.5s ease;
     }
 
@@ -961,7 +966,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
     }
 
     .members-count {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       padding: 5px 12px;
       border-radius: 15px;
       font-size: 0.9rem;
@@ -1048,13 +1053,40 @@ $breakpoint-xl: 1440px;   // Desktops grandes
               text-transform: uppercase;
               letter-spacing: 0.5px;
 
-              &.director { background: #e74c3c; color: white; }
-              &.editor { background: #3498db; color: white; }
-              &.redactor { background: #27ae60; color: white; }
-              &.fotografo { background: #f39c12; color: white; }
-              &.columnista { background: #9b59b6; color: white; }
-              &.reportero { background: #1abc9c; color: white; }
-              &.administrador { background: #34495e; color: white; }
+              &.director {
+                background: #e74c3c;
+                color: white;
+              }
+
+              &.editor {
+                background: #3498db;
+                color: white;
+              }
+
+              &.redactor {
+                background: #27ae60;
+                color: white;
+              }
+
+              &.fotografo {
+                background: #f39c12;
+                color: white;
+              }
+
+              &.columnista {
+                background: #9b59b6;
+                color: white;
+              }
+
+              &.reportero {
+                background: #1abc9c;
+                color: white;
+              }
+
+              &.administrador {
+                background: #34495e;
+                color: white;
+              }
             }
 
             .status-badge {
@@ -1370,8 +1402,13 @@ $breakpoint-xl: 1440px;   // Desktops grandes
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 }
 
@@ -1399,6 +1436,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
       opacity: 0;
       transform: translateY(50px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -1465,6 +1503,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
       opacity: 0;
       transform: translateY(-20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -1544,8 +1583,15 @@ $breakpoint-xl: 1440px;   // Desktops grandes
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 // ==========================================
@@ -1555,6 +1601,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
   @include mobile-sm {
     display: none !important;
   }
+
   padding: 18px 0 0 0;
 
   .form-row {
@@ -1562,18 +1609,22 @@ $breakpoint-xl: 1440px;   // Desktops grandes
     gap: 1.2rem;
     margin-bottom: 0.5rem;
     flex-wrap: wrap;
-    > * {
+
+    >* {
       flex: 1 1 0;
       min-width: 160px;
     }
+
     @include mobile-xs {
       flex-direction: column;
       gap: 0.7rem;
-      > * {
+
+      >* {
         min-width: 0;
       }
     }
   }
+
   @include desktop {
     display: block !important;
   }
@@ -1582,11 +1633,11 @@ $breakpoint-xl: 1440px;   // Desktops grandes
 // Espaciado responsive
 .mb-responsive {
   margin-bottom: 16px;
-  
+
   @include mobile-sm {
     margin-bottom: 12px;
   }
-  
+
   @include desktop {
     margin-bottom: 24px;
   }
@@ -1594,11 +1645,11 @@ $breakpoint-xl: 1440px;   // Desktops grandes
 
 .p-responsive {
   padding: 16px;
-  
+
   @include mobile-sm {
     padding: 12px;
   }
-  
+
   @include desktop {
     padding: 24px;
   }
@@ -1616,16 +1667,19 @@ $breakpoint-xl: 1440px;   // Desktops grandes
     border-radius: 1rem;
     padding-left: 20px;
     padding-right: 20px;
+
     @include mobile-xs {
       border-radius: 1rem;
       padding-left: 6px;
       padding-right: 6px;
     }
+
     @include mobile-sm {
       border-radius: 1rem;
       padding-left: 10px;
       padding-right: 10px;
     }
+
     @include desktop {
       border-radius: 1rem;
       padding-left: 32px;
@@ -1642,7 +1696,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
   align-items: flex-end;
   justify-content: space-between;
 
-  > * {
+  >* {
     min-width: 140px;
     flex: 1 1 0;
     max-width: 220px;
@@ -1651,16 +1705,19 @@ $breakpoint-xl: 1440px;   // Desktops grandes
   @include mobile-xs {
     flex-direction: column;
     gap: 12px;
-    > * {
+
+    >* {
       max-width: 100%;
       min-width: 0;
       flex: 1 1 100%;
     }
   }
+
   @include mobile-sm {
     flex-direction: column;
     gap: 14px;
-    > * {
+
+    >* {
       max-width: 100%;
       min-width: 0;
       flex: 1 1 100%;
@@ -1676,7 +1733,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
   padding: 2.5rem 1.5rem 1.5rem 1.5rem;
   background: #86ba93;
   border-radius: 1.2rem;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   color: #fff;
   max-width: 540px;
   margin: 0 auto;
@@ -1709,15 +1766,17 @@ $breakpoint-xl: 1440px;   // Desktops grandes
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid #00ff88;
-  box-shadow: 0 4px 24px #00ff8855, 0 2px 8px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 24px #00ff8855, 0 2px 8px rgba(0, 0, 0, 0.18);
   background: #5f6c83;
   transition: box-shadow 0.3s, border-color 0.3s, transform 0.3s;
   margin-bottom: 0.2rem;
+
   &:hover {
-    box-shadow: 0 8px 32px #00ff8899, 0 4px 16px rgba(0,0,0,0.22);
+    box-shadow: 0 8px 32px #00ff8899, 0 4px 16px rgba(0, 0, 0, 0.22);
     border-color: #00e676;
     transform: scale(1.04);
   }
+
   @include mobile-xs {
     width: 80px;
     height: 80px;
@@ -1736,6 +1795,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
   display: flex;
   gap: 1.5rem;
   margin-bottom: 0.5rem;
+
   @include mobile-xs {
     flex-direction: column;
     gap: 0.7rem;
@@ -1745,6 +1805,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
 .modern-field {
   flex: 1 1 0;
   min-width: 0;
+
   .mat-form-field-flex {
     background: #7191d1;
     color: #fff;
@@ -1760,6 +1821,7 @@ $breakpoint-xl: 1440px;   // Desktops grandes
   justify-content: flex-end;
   gap: 1.2rem;
   margin-top: 1.2rem;
+
   @include mobile-xs {
     flex-direction: column;
     gap: 0.7rem;
@@ -1770,13 +1832,28 @@ $breakpoint-xl: 1440px;   // Desktops grandes
 // Inputs modernos: fondo claro y texto oscuro para contraste
 .member-form.modern-form .modern-field .mat-input-element,
 .member-form.modern-form .modern-field textarea.mat-input-element {
-  background: #f4f6fa ;
-  color: #eef0f3 ;
+  background: #f4f6fa;
+  color: #eef0f3;
   border-radius: 0.7rem;
   caret-color: #2d5a3d;
 }
+
 .member-form.modern-form .modern-field .mat-input-element::placeholder,
 .member-form.modern-form .modern-field textarea.mat-input-element::placeholder {
   color: #e8ebed;
-  opacity: 1 ;
+  opacity: 1;
+}
+
+.fab-dashboard-btn {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 1000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  }
 }

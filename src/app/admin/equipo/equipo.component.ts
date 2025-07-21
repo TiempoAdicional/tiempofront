@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -51,7 +51,8 @@ interface PaginatedMiembros {
     MatProgressSpinnerModule,
     MatChipsModule,
     MatTooltipModule,
-    MiembroCardComponent
+    MiembroCardComponent,
+    RouterModule
   ],
   templateUrl: './equipo.component.html',
   styleUrls: ['./equipo.component.scss']
@@ -70,12 +71,12 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
   miembros = signal<MiembroEquipo[]>([]);
   estadisticas = signal<EstadisticasEquipo | null>(null);
   currentView = signal<'grid' | 'table'>('grid');
-  
+
   // Paginación
   currentPage = signal(0);
   pageSize = signal(12);
   totalElements = signal(0);
-  
+
   // Filtros y búsqueda
   searchTerm = signal('');
   selectedRol = signal('');
@@ -87,14 +88,14 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
   miembroForm: FormGroup;
   editingMiembro = signal<MiembroEquipo | null>(null);
   showForm = signal(false);
-  
+
   // Para upload de imagen
   selectedImage: File | null = null;
   imagePreview: string | null = null;
 
   // Control de suscripciones
   private destroy$ = new Subject<void>();
-  
+
   // Servicios inyectados
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -122,11 +123,11 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
   // Computed values
   filteredMiembros = computed(() => {
     let filtered = this.miembros();
-    
+
     // Aplicar filtros
     if (this.searchTerm()) {
       const term = this.searchTerm().toLowerCase();
-      filtered = filtered.filter(m => 
+      filtered = filtered.filter(m =>
         m.nombre.toLowerCase().includes(term) ||
         m.apellido.toLowerCase().includes(term) ||
         m.correo.toLowerCase().includes(term) ||
@@ -134,18 +135,18 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
         m.rol.toLowerCase().includes(term)
       );
     }
-    
+
     if (this.selectedRol()) {
       filtered = filtered.filter(m => m.rol === this.selectedRol());
     }
-    
+
     if (this.selectedEstado()) {
       filtered = filtered.filter(m => {
         const estado = m.activo ? 'activo' : 'inactivo';
         return estado === this.selectedEstado();
       });
     }
-    
+
     return filtered;
   });
 
@@ -181,11 +182,11 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
       if (params['completarPerfil'] === 'true' && this.authService.esEditorJefe()) {
         this.completandoPerfil.set(true);
         this.showForm.set(true);
-        
+
         // Pre-llenar el formulario con el correo del usuario
         const correo = this.authService.obtenerCorreoUsuario();
         const nombre = this.authService.obtenerNombre();
-        
+
         if (correo) {
           this.miembroForm.patchValue({
             correo: correo,
@@ -197,7 +198,7 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
 
           // Deshabilitar el campo de correo
           this.miembroForm.get('correo')?.disable();
-          
+
           this.showSuccess('👋 ¡Bienvenido! Complete su perfil como miembro del equipo editorial');
         }
 
@@ -233,7 +234,7 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
 
   loadMiembros(): void {
     this.isLoading.set(true);
-    
+
     // Por ahora usar listar todos los miembros hasta que el backend implemente paginación
     this.equipoService.listarTodosLosMiembros().subscribe({
       next: (miembros: MiembroEquipo[]) => {
@@ -322,7 +323,7 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
     const file = event.target.files[0];
     if (file) {
       this.selectedImage = file;
-      
+
       // Crear preview
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -339,7 +340,7 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading.set(true);
-    
+
     try {
       const formData = this.miembroForm.value;
       const miembroData: any = {
@@ -372,27 +373,27 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
         this.completandoPerfil.set(false);
         this.showSuccess('✅ ¡Perfil completado! Ya puede acceder a todas las funciones de administración');
       }
-      
+
       this.cancelForm();
       this.loadMiembros();
       this.loadEstadisticas();
-      
+
     } catch (error: any) {
       console.error('Error saving miembro:', error);
-      
+
       // Si es error 500, verificar si realmente se guardó
       if (error.status === 500) {
         console.log('🔄 Error 500 detectado, verificando si se guardó...');
-        
+
         // Mostrar mensaje más específico
         this.showSuccess('El miembro se ha guardado correctamente (ignorando error del servidor)');
-        
+
         // Recargar datos para confirmar
         setTimeout(() => {
           this.loadMiembros();
           this.loadEstadisticas();
         }, 1500);
-        
+
         this.cancelForm();
       } else {
         // Para otros tipos de error
@@ -410,7 +411,7 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading.set(true);
-    
+
     try {
       await this.equipoService.eliminarMiembro(miembro.id).toPromise();
       this.showSuccess('Miembro eliminado exitosamente');
@@ -424,7 +425,7 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleEstadoMiembro(event: {id: number, activo: boolean}): void {
+  toggleEstadoMiembro(event: { id: number, activo: boolean }): void {
     this.equipoService.cambiarEstado(event.id, event.activo).subscribe({
       next: () => {
         this.showSuccess(`Miembro ${event.activo ? 'activado' : 'desactivado'} exitosamente`);
@@ -446,7 +447,7 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
     this.deleteMiembro(id);
   }
 
-  onCambiarEstadoMiembro(event: {id: number, activo: boolean}): void {
+  onCambiarEstadoMiembro(event: { id: number, activo: boolean }): void {
     this.toggleEstadoMiembro(event);
   }
 
@@ -469,5 +470,9 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
       duration: 5000,
       panelClass: ['error-snackbar']
     });
+  }
+
+  goToAdminDashboard() {
+    this.router.navigate(['/admin']);
   }
 }

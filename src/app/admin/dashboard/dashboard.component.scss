@@ -22,27 +22,49 @@ $breakpoint-md: 1024px;
 $breakpoint-lg: 1200px;
 $breakpoint-xl: 1440px;
 $breakpoint-xxl: 2560px;
+
 @mixin mobile-xs {
-  @media (max-width: #{$breakpoint-xs - 1px}) { @content; }
+  @media (max-width: #{$breakpoint-xs - 1px}) {
+    @content;
+  }
 }
+
 @mixin mobile-sm {
-  @media (max-width: #{$breakpoint-sm - 1px}) { @content; }
+  @media (max-width: #{$breakpoint-sm - 1px}) {
+    @content;
+  }
 }
+
 @mixin tablet {
-  @media (min-width: $breakpoint-sm) and (max-width: #{$breakpoint-md - 1px}) { @content; }
+  @media (min-width: $breakpoint-sm) and (max-width: #{$breakpoint-md - 1px}) {
+    @content;
+  }
 }
+
 @mixin laptop {
-  @media (min-width: $breakpoint-md) and (max-width: #{$breakpoint-lg - 1px}) { @content; }
+  @media (min-width: $breakpoint-md) and (max-width: #{$breakpoint-lg - 1px}) {
+    @content;
+  }
 }
+
 @mixin desktop {
-  @media (min-width: $breakpoint-lg) { @content; }
+  @media (min-width: $breakpoint-lg) {
+    @content;
+  }
 }
+
 @mixin desktop-xl {
-  @media (min-width: $breakpoint-xl) { @content; }
+  @media (min-width: $breakpoint-xl) {
+    @content;
+  }
 }
+
 @mixin desktop-xxl {
-  @media (min-width: $breakpoint-xxl) { @content; }
+  @media (min-width: $breakpoint-xxl) {
+    @content;
+  }
 }
+
 // ==========================================
 // 🏠 CONTENEDOR PRINCIPAL
 // ==========================================
@@ -54,26 +76,56 @@ $breakpoint-xxl: 2560px;
   position: relative;
   overflow-x: hidden;
 
+  // Quitar padding-top para que el header esté pegado arriba
+  padding-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+
   // Responsive padding
-  @include mobile-sm { padding: 16px; }
-  @include mobile-xs { padding: 12px; }
-  @include tablet { padding: 20px; }
-  @include desktop { padding: 32px; max-width: 1400px; margin: 0 auto; }
-  @include desktop-xl { padding: 40px; max-width: 1600px; }
-  @include desktop-xxl { max-width: 2200px; padding-left: 80px; padding-right: 80px; }
+  @include mobile-sm {
+    padding: 16px;
+    padding-top: 0 !important;
+  }
+
+  @include mobile-xs {
+    padding: 12px;
+    padding-top: 0 !important;
+  }
+
+  @include tablet {
+    padding: 20px;
+    padding-top: 0 !important;
+  }
+
+  @include desktop {
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-top: 0 !important;
+  }
+
+  @include desktop-xl {
+    padding: 40px;
+    max-width: 1600px;
+    padding-top: 0 !important;
+  }
+
+  @include desktop-xxl {
+    max-width: 2200px;
+    padding-left: 80px;
+    padding-right: 80px;
+    padding-top: 0 !important;
+  }
 
   // Quitar fondo de partículas/cuadrícula
   &::before {
     display: none !important;
   }
 
-  > * {
+  >* {
     position: relative;
     z-index: 1;
   }
-
-  // Ajuste para que el contenido no quede debajo del header fijo
-  padding-top: 72px;
 }
 
 // ==========================================
@@ -85,17 +137,54 @@ $breakpoint-xxl: 2560px;
   width: 100%;
   box-shadow: var(--shadow-elevation);
   border-radius: 0;
-  margin: 0 0 32px 0;
+  margin-top: 0 !important;
+  margin-bottom: 40px;
+  margin-left: 0;
+  margin-right: 0;
   padding: 32px 0 32px 0;
   min-height: 56px;
   overflow: hidden;
 
   // Responsive padding
-  @include mobile-xs { padding: 20px 0 20px 0; margin-bottom: 20px; }
-  @include mobile-sm { padding: 24px 0 24px 0; margin-bottom: 24px; }
-  @include tablet { padding: 28px 0 28px 0; margin-bottom: 28px; }
-  @include desktop { padding: 40px 0 40px 0; margin-bottom: 40px; }
-  @include desktop-xl { padding: 48px 0 48px 0; margin-bottom: 48px; }
+  @include mobile-xs {
+    padding: 20px 0 20px 0;
+    margin-bottom: 24px;
+  }
+
+  @include mobile-sm {
+    padding: 24px 0 24px 0;
+    margin-bottom: 24px;
+  }
+
+  @include tablet {
+    padding: 28px 0 28px 0;
+    margin-bottom: 32px;
+  }
+
+  @include desktop {
+    padding: 40px 0 40px 0;
+    margin-bottom: 40px;
+  }
+
+  @include desktop-xl {
+    padding: 48px 0 48px 0;
+    margin-bottom: 48px;
+  }
+
+  .mat-toolbar-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+
+    @include mobile-sm {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 0 8px;
+    }
+  }
 
   .admin-title {
     display: flex;
@@ -104,39 +193,67 @@ $breakpoint-xxl: 2560px;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--text-color);
+
     mat-icon {
       font-size: 2rem;
       width: 2rem;
       height: 2rem;
       color: var(--accent-color);
     }
+
+    @include mobile-sm {
+      width: 100%;
+      justify-content: flex-start;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
   }
-  .spacer { flex: 1 1 auto; }
+
+  .spacer {
+    flex: 1 1 auto;
+  }
+
   .user-info {
     display: flex;
     align-items: center;
     gap: 1rem;
-    @include mobile-sm { gap: 0.5rem; }
+
+    @include mobile-sm {
+      gap: 0.5rem;
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+
+      .logout-button {
+        align-self: flex-end;
+      }
+    }
+
     mat-chip-set {
       mat-chip {
         background-color: rgba(255, 255, 255, 0.1);
         color: var(--text-color);
         font-weight: 500;
         border: 1px solid rgba(255, 255, 255, 0.2);
+
         mat-icon {
           color: var(--accent-color);
         }
       }
     }
+
     .logout-button {
       background-color: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
       transition: all 0.3s ease;
+
       &:hover {
         background-color: rgba(244, 67, 54, 0.2);
         border-color: #f44336;
         transform: scale(1.05);
       }
+
       mat-icon {
         color: #ff5722;
       }
@@ -144,24 +261,94 @@ $breakpoint-xxl: 2560px;
   }
 }
 
+// Responsive: en mobile, aún más compacto
+@include mobile-sm {
+  .admin-header {
+    padding: 10px 0 10px 0;
+
+    .admin-title {
+      font-size: 1rem;
+
+      mat-icon {
+        font-size: 1.1rem;
+      }
+    }
+
+    .user-info {
+      mat-chip-set mat-chip {
+        font-size: 0.85rem;
+        height: 28px;
+      }
+
+      .logout-button {
+        width: 30px;
+        height: 30px;
+
+        mat-icon {
+          font-size: 1.1rem;
+        }
+      }
+    }
+  }
+}
+
 // Ajuste de layout para pantallas ultra anchas (29 pulgadas+)
 @mixin desktop-xxl {
-  @media (min-width: 2560px) { @content; }
+  @media (min-width: 2560px) {
+    @content;
+  }
 }
 
 .admin-dashboard {
-  @include desktop-xl { max-width: 1800px; }
-  @include desktop-xxl { max-width: 2200px; padding-left: 80px; padding-right: 80px; }
+  @include desktop-xl {
+    max-width: 1800px;
+  }
+
+  @include desktop-xxl {
+    max-width: 2200px;
+    padding-left: 80px;
+    padding-right: 80px;
+  }
 }
 
 .stats-grid {
-  @include desktop-xl { grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 3rem; }
-  @include desktop-xxl { grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: 4rem; }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  margin-top: 0;
+
+  @include mobile-xs {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 0;
+  }
+
+  @include mobile-sm {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 0;
+  }
+
+  @include tablet {
+    margin-top: 0;
+  }
+
+  @include desktop-xl {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2.5rem;
+    margin-top: 0;
+  }
 }
 
 .admin-panels {
-  @include desktop-xl { gap: 3.5rem; }
-  @include desktop-xxl { gap: 4.5rem; }
+  @include desktop-xl {
+    gap: 3.5rem;
+  }
+
+  @include desktop-xxl {
+    gap: 4.5rem;
+  }
 }
 
 // ==========================================
@@ -172,9 +359,21 @@ $breakpoint-xxl: 2560px;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-bottom: 3rem;
-  @include mobile-xs { grid-template-columns: 1fr; gap: 1rem; }
-  @include mobile-sm { grid-template-columns: 1fr; gap: 1.5rem; }
-  @include desktop-xl { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2.5rem; }
+
+  @include mobile-xs {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @include mobile-sm {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @include desktop-xl {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2.5rem;
+  }
 
   .stat-card {
     background: var(--card-color);
@@ -184,6 +383,7 @@ $breakpoint-xxl: 2560px;
     border: 1px solid var(--border-color);
     overflow: hidden;
     position: relative;
+
     &::before {
       content: '';
       position: absolute;
@@ -193,13 +393,16 @@ $breakpoint-xxl: 2560px;
       height: 4px;
       background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
     }
+
     &:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
       border-color: var(--accent-color);
     }
+
     mat-card-header {
       padding: 1.5rem 1.5rem 1rem;
+
       .mat-icon {
         background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
         color: white;
@@ -211,20 +414,24 @@ $breakpoint-xxl: 2560px;
         justify-content: center;
         border-radius: 12px;
       }
+
       mat-card-title {
         color: var(--text-color);
         font-size: 1.2rem;
         font-weight: 600;
         margin: 0;
       }
+
       mat-card-subtitle {
         color: var(--text-secondary);
         font-size: 0.9rem;
         margin: 0.25rem 0 0;
       }
     }
+
     mat-card-content {
       padding: 0 1.5rem 1.5rem;
+
       .stat-number {
         font-size: 2.5rem;
         font-weight: 700;
@@ -233,6 +440,7 @@ $breakpoint-xxl: 2560px;
         text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
         margin-bottom: 0.5rem;
       }
+
       .stat-detail {
         display: flex;
         align-items: center;
@@ -241,6 +449,7 @@ $breakpoint-xxl: 2560px;
         font-size: 0.85rem;
         color: var(--text-secondary);
         font-weight: 500;
+
         .detail-icon {
           font-size: 1rem;
           width: 1rem;
@@ -267,23 +476,28 @@ $breakpoint-xxl: 2560px;
     box-shadow: var(--shadow-elevation);
     border: 1px solid var(--border-color);
     overflow: hidden;
+
     &:hover {
       border-color: var(--accent-color);
     }
+
     mat-expansion-panel-header {
       background: var(--card-color);
       color: var(--text-color);
       padding: 1.5rem;
       transition: all 0.3s ease;
+
       &:hover {
         background: rgba(46, 125, 50, 0.1);
       }
+
       .mat-expansion-panel-header-title {
         font-weight: 600;
         font-size: 1.1rem;
         display: flex;
         align-items: center;
         gap: 0.75rem;
+
         .panel-icon {
           color: var(--accent-color);
           font-size: 1.5rem;
@@ -291,12 +505,14 @@ $breakpoint-xxl: 2560px;
           height: 1.5rem;
         }
       }
+
       .mat-expansion-panel-header-description {
         color: var(--text-secondary);
         font-size: 0.9rem;
         margin-top: 0.25rem;
       }
     }
+
     .panel-actions {
       padding: 2rem;
       background: rgba(255, 255, 255, 0.02);
@@ -304,11 +520,13 @@ $breakpoint-xxl: 2560px;
       flex-wrap: wrap;
       gap: 1rem;
       align-items: center;
+
       .action-group {
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
         min-width: 200px;
+
         .group-label {
           font-size: 0.9rem;
           color: var(--accent-color);
@@ -317,39 +535,48 @@ $breakpoint-xxl: 2560px;
           letter-spacing: 0.5px;
         }
       }
+
       button {
         min-width: 140px;
         height: 40px;
         border-radius: 8px;
         font-weight: 500;
         transition: all 0.3s ease;
+
         &.mat-raised-button {
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
           &:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
           }
         }
+
         &.mat-stroked-button {
           border-width: 2px;
+
           &:hover {
             background-color: rgba(255, 255, 255, 0.05);
           }
         }
+
         mat-icon {
           margin-right: 0.5rem;
         }
       }
+
       .preview-button {
         background: linear-gradient(135deg, var(--accent-color), #00c853);
         color: #000;
         font-weight: 600;
         box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
+
         &:hover {
           transform: translateY(-2px);
           box-shadow: 0 6px 16px rgba(0, 230, 118, 0.4);
         }
       }
+
       mat-divider {
         margin: 1rem 0;
         background-color: var(--border-color);
@@ -537,7 +764,7 @@ $breakpoint-xxl: 2560px;
 
         .mat-mdc-form-field-subscript-wrapper {
           display: none; // Ocultar helper text en móvil
-          
+
           @include tablet {
             display: block;
           }
@@ -617,7 +844,7 @@ $breakpoint-xxl: 2560px;
 
       mat-icon {
         transition: var(--transition);
-        
+
         @include mobile-xs {
           margin-right: 8px;
         }
@@ -666,20 +893,24 @@ $breakpoint-xxl: 2560px;
   align-items: center;
   min-height: 100vh;
   background: var(--surface-color);
+
   .loading-card {
     background: var(--card-color);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-elevation);
     border: 1px solid var(--border-color);
+
     .loading-content {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1.5rem;
       padding: 2rem;
+
       mat-spinner {
         --mdc-circular-progress-active-indicator-color: var(--accent-color);
       }
+
       .loading-text {
         color: var(--text-color);
         font-size: 1.1rem;
@@ -713,8 +944,13 @@ $breakpoint-xxl: 2560px;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 }
 
@@ -742,6 +978,7 @@ $breakpoint-xxl: 2560px;
       opacity: 0;
       transform: translateY(50px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -808,6 +1045,7 @@ $breakpoint-xxl: 2560px;
       opacity: 0;
       transform: translateY(-20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -887,8 +1125,15 @@ $breakpoint-xxl: 2560px;
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 // ==========================================
@@ -908,7 +1153,7 @@ $breakpoint-xxl: 2560px;
 
 .show-mobile-only {
   display: none;
-  
+
   @include mobile-sm {
     display: block !important;
   }
@@ -916,7 +1161,7 @@ $breakpoint-xxl: 2560px;
 
 .show-desktop-only {
   display: none;
-  
+
   @include desktop {
     display: block !important;
   }
@@ -925,11 +1170,11 @@ $breakpoint-xxl: 2560px;
 // Espaciado responsive
 .mb-responsive {
   margin-bottom: 16px;
-  
+
   @include mobile-sm {
     margin-bottom: 12px;
   }
-  
+
   @include desktop {
     margin-bottom: 24px;
   }
@@ -937,11 +1182,11 @@ $breakpoint-xxl: 2560px;
 
 .p-responsive {
   padding: 16px;
-  
+
   @include mobile-sm {
     padding: 12px;
   }
-  
+
   @include desktop {
     padding: 24px;
   }
