@@ -1,3 +1,8 @@
+# Redirect www to non-www
+https://www.tiempoadicional.com/* https://tiempoadicional.com/:splat 301!
+
+# Force HTTPS
+http://* https://:splat 301!
+
+# SPA fallback
 /*    /index.html   200
-# Redirect all traffic to HTTPS
-/*  https://tiempoadicional.com/:splat  301!
