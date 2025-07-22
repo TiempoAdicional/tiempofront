@@ -1,1 +1,3 @@
 /*    /index.html   200
+# Redirect all traffic to HTTPS
+/*  https://tiempoadicional.com/:splat  301!
