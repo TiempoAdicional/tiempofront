@@ -1,38 +1,61 @@
 /* You can add global styles to this file, and also import other style files */
 // ===============================
-// 🎨 PALETA DE COLORES TIEMPO ADICIONAL
+// 🎨 NUEVA PALETA DE COLORES
 // ===============================
 :root {
-    --verde-bosque: #045204;
-    --verde-selva: #1a8000;
-    --verde-lima: #b4ff15;
+    // ===============================
+    // 🎨 NUEVA PALETA DE COLORES
+    // ===============================
+
+    // Colores principales
+    --blanco-fondo: #ffffff;
+    --blanco-card: #fafafa;
+    --verde-texto: #2e7d32;
+    --verde-principal: #4caf50;
     --verde-claro: #81c784;
-    --gris-fondo: #1b1f24; // nuevo fondo más suave que el negro puro
-    --gris-card: #262b32;
-    --purpura-profundo: #3b0452;
-    --purpura-real: #3e0ea4;
+    --morado-accent: #9c27b0;
+    --morado-oscuro: #7b1fa2;
+    --morado-claro: #ba68c8;
 
-    --blanco-suave: #fffdf3;
-    --blanco: #ffffff;
-    --negro: #000000;
-    --gris-carbon: #303030;
-    --ta-verde-oscuro: #003e29;
-    --ta-verde-oliva-claro: #81b29a;
+    // Colores de texto
+    --texto-principal: var(--verde-texto);
+    --texto-secundario: #666666;
+    --texto-claro: #999999;
 
-    // Nuevas variables agregadas
-    --azul-cielo: #2196f3;
-    --azul-profundo: #1565c0;
-    --naranja-energia: #ff9800;
-    --naranja-intenso: #f57c00;
-    --dorado-tiempo: #ffc107;
-    --border-light: rgba(0, 0, 0, 0.12);
+    // Fondos
+    --bg-principal: var(--blanco-fondo);
+    --bg-card: var(--blanco-card);
+    --bg-gradient: linear-gradient(135deg, var(--blanco-fondo) 0%, var(--blanco-card) 100%);
 
-    --primary-color: var(--verde-selva);
-    --secondary-color: var(--purpura-real);
-    --text-color: var(--gris-carbon);
-    --bg-color: var(--blanco-suave);
-    --bg-gradient: linear-gradient(135deg, var(--gris-fondo) 0%, var(--gris-card) 100%);
-    --accent-color: var(--verde-lima);
+    // Bordes y líneas
+    --borde-color: #e0e0e0;
+    --borde-morado: var(--morado-accent);
+
+    // Sombras
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+    // Estados
+    --success-color: var(--verde-principal);
+    --warning-color: #ff9800;
+    --error-color: #f44336;
+    --info-color: var(--morado-accent);
+
+    // Gradientes
+    --gradient-verde: linear-gradient(135deg, var(--verde-principal), var(--verde-claro));
+    --gradient-morado: linear-gradient(135deg, var(--morado-accent), var(--morado-claro));
+    --gradient-mixto: linear-gradient(135deg, var(--verde-principal), var(--morado-accent));
+
+    // Variables legacy (mantener compatibilidad)
+    --verde-bosque: var(--verde-texto);
+    --verde-selva: var(--verde-principal);
+    --verde-lima: var(--verde-claro);
+    --verde-claro: var(--verde-claro);
+    --gris-fondo: var(--blanco-fondo);
+    --gris-card: var(--blanco-card);
+    --primary-color: var(--verde-principal);
+    --accent-color: var(--morado-accent);
 
     // ===============================
     // 📱 BREAKPOINTS
@@ -62,7 +85,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
     padding: 0;
@@ -76,4 +100,3 @@ html, body {
 
 // Asegúrate de haber agregado los links en `index.html`:
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=League+Spartan:wght@400;700&display=swap');
-
