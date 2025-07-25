@@ -8,7 +8,7 @@
   top: 0;
   left: 0;
   right: 0;
-  background-color: var(--gris-card);
+  background-color: var(--blanco-fondo);
   backdrop-filter: blur(10px);
   z-index: 999;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -32,23 +32,10 @@
   gap: 0.8rem;
   cursor: pointer;
 
-  .logo-img {
-    width: 52px;
-    height: auto;
-    object-fit: contain;
-    border-radius: 10px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-    &:hover {
-      transform: scale(1.07);
-      box-shadow: 0 0 10px var(--verde-lima), 0 0 20px var(--verde-selva);
-    }
-  }
-
   .logo-text {
     font-size: 1.5rem;
     font-weight: bold;
-    background: linear-gradient(135deg, var(--verde-selva), var(--verde-lima));
+    background: linear-gradient(135deg, var(--morado-accent), var(--morado-claro));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -76,7 +63,7 @@
 .nav-link {
   display: flex;
   align-items: center;
-  color: var(--blanco);
+  color: var(--morado-claro);
   font-weight: 500;
   font-size: 1rem;
   padding: 0.5rem 0.75rem;
@@ -87,7 +74,7 @@
 
 .nav-link:hover {
   background-color: rgba(180, 255, 21, 0.08);
-  color: var(--verde-lima);
+  color: var(--morado-accent);
 }
 
 .nav-arrow {
@@ -98,7 +85,7 @@
 
 .nav-arrow.rotated {
   transform: rotate(180deg);
-  color: var(--verde-selva);
+  color: var(--morado-claro);
 }
 
 .dropdown {
@@ -106,7 +93,7 @@
   top: 100%;
   left: 0;
   min-width: 220px;
-  background: var(--gris-card);
+  background: var(--blanco-fondo);
   border-radius: 12px;
   padding: 0.5rem;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -142,8 +129,8 @@
 }
 
 .dropdown-item:hover {
-  background-color: rgba(180, 255, 21, 0.1);
-  color: var(--verde-lima);
+  background-color: rgba(149, 53, 173, 0.1);
+  color: var(--morado-claro);
   transform: translateX(5px);
 }
 
@@ -167,7 +154,7 @@
 .hamburger-line {
   width: 24px;
   height: 3px;
-  background-color: var(--blanco);
+  background-color: var(--morado-claro);
   border-radius: 4px;
   transition: all 0.3s ease;
 }
@@ -190,8 +177,8 @@
   top: 64px;
   left: 0;
   right: 0;
-  background: var(--gris-card);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--blanco-fondo);
+  border-bottom: 1px solid rgba(169, 74, 183, 0.08);
   transform: translateY(-100%);
   opacity: 0;
   visibility: hidden;
@@ -219,7 +206,7 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
-  color: var(--blanco);
+  color: var(--morado-claro);
   background: none;
   border: none;
   padding: 0.75rem;
@@ -230,7 +217,7 @@
 }
 
 .mobile-nav-link:hover {
-  color: var(--verde-lima);
+  color: var(--morado-claro);
 }
 
 .mobile-arrow {
@@ -240,7 +227,7 @@
 
 .mobile-arrow.rotated {
   transform: rotate(180deg);
-  color: var(--verde-selva);
+  color: var(--morado-claro);
 }
 
 .mobile-dropdown {
@@ -266,7 +253,7 @@
 
 .mobile-dropdown-item:hover {
   background-color: rgba(180, 255, 21, 0.1);
-  color: var(--verde-lima);
+  color: var(--morado-claro);
   transform: translateX(6px);
 }
 
@@ -277,7 +264,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(174, 93, 159, 0.5);
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
@@ -315,8 +302,8 @@
   height: 28px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid var(--verde-lima);
-  box-shadow: 0 0 4px rgba(180, 255, 21, 0.5);
+  border: 1px solid var(--morado-claro);
+  box-shadow: 0 0 4px rgba(195, 98, 206, 0.5);
   transition: transform 0.3s ease;
 }
 
@@ -329,7 +316,7 @@
   position: absolute;
   top: 110%;
   right: 0;
-  background: var(--gris-card);
+  background: var(--blanco-fondo);
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   opacity: 0;
@@ -349,15 +336,15 @@
 .user-dropdown a {
   display: block;
   padding: 10px 16px;
-  color: var(--blanco);
+  color: var(--blanco-fondo);
   text-decoration: none;
   font-size: 14px;
   transition: background-color 0.3s;
 }
 
 .user-dropdown a:hover {
-  background-color: rgba(180, 255, 21, 0.08);
-  color: var(--verde-lima);
+  background-color: rgba(234, 204, 232, 0.08);
+  color: var(--morado-claro);
   font-weight: 600;
 }
 
@@ -406,7 +393,7 @@
     width: 130px;
     min-width: 100px;
     max-width: 180px;
-    box-shadow: 0 0 15px var(--verde-lima), 0 0 25px var(--verde-selva);
+    box-shadow: 0 0 15px var(--morado-claro), 0 0 25px var(--morado-claro);
     animation: fadeInUpLogo 0.8s ease-out;
   }
 
@@ -428,7 +415,7 @@
 .nav-link:focus,
 .mobile-nav-link:focus,
 .mobile-dropdown-item:focus {
-  outline: 2px solid var(--verde-lima);
+  outline: 2px solid var(--morado-claro);
   outline-offset: 2px;
 }
 
