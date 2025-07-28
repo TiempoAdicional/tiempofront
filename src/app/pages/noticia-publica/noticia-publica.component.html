@@ -25,12 +25,12 @@
 
 <!-- Contenido de la Noticia -->
 <div *ngIf="noticia && !cargando && !error" class="noticia-container">
-  
+
   <!-- Header de la noticia -->
   <div class="noticia-header">
     <mat-card class="header-card">
       <mat-card-header>
-        
+
         <!-- Breadcrumb y navegación -->
         <div class="breadcrumb">
           <button mat-icon-button (click)="volverAlInicio()" matTooltip="Volver al inicio">
@@ -53,12 +53,12 @@
             <mat-icon>person</mat-icon>
             <span>Por {{ noticia.autorNombre }}</span>
           </div>
-          
+
           <div class="metadata-item">
             <mat-icon>schedule</mat-icon>
             <span>{{ formatearFecha(noticia.fechaPublicacion) }}</span>
           </div>
-          
+
           <div class="metadata-item" *ngIf="noticia.visitas">
             <mat-icon>visibility</mat-icon>
             <span>{{ noticia.visitas }} {{ noticia.visitas === 1 ? 'vista' : 'vistas' }}</span>
@@ -71,11 +71,7 @@
   <!-- Imagen destacada -->
   <div class="imagen-destacada" *ngIf="noticia.imagenDestacada">
     <mat-card class="imagen-card">
-      <img 
-        [src]="noticia.imagenDestacada" 
-        [alt]="noticia.titulo"
-        class="imagen-principal"
-        loading="lazy">
+      <img [src]="noticia.imagenDestacada" [alt]="noticia.titulo" class="imagen-principal" loading="lazy">
     </mat-card>
   </div>
 
@@ -95,9 +91,7 @@
   <div class="contenido-principal">
     <mat-card class="contenido-card">
       <mat-card-content>
-        <div 
-          class="contenido-html" 
-          [innerHTML]="contenidoSanitizado">
+        <div class="contenido-html" [innerHTML]="contenidoSanitizado">
         </div>
       </mat-card-content>
     </mat-card>
@@ -108,7 +102,7 @@
     <mat-card class="acciones-card">
       <mat-card-content>
         <div class="acciones-content">
-          
+
           <!-- Información adicional -->
           <div class="info-adicional">
             <mat-chip-set>
@@ -130,10 +124,7 @@
               Compartir
             </button>
 
-            <button 
-              mat-icon-button 
-              [matMenuTriggerFor]="shareMenu"
-              matTooltip="Más opciones de compartir"
+            <button mat-icon-button [matMenuTriggerFor]="shareMenu" matTooltip="Más opciones de compartir"
               class="more-share-btn">
               <mat-icon>more_vert</mat-icon>
             </button>
@@ -143,23 +134,23 @@
                 <mat-icon>share</mat-icon>
                 <span>Compartir en Twitter</span>
               </button>
-              
+
               <button mat-menu-item (click)="compartirEnRedSocial('facebook')">
                 <mat-icon>share</mat-icon>
                 <span>Compartir en Facebook</span>
               </button>
-              
+
               <button mat-menu-item (click)="compartirEnRedSocial('whatsapp')">
                 <mat-icon>share</mat-icon>
                 <span>Compartir en WhatsApp</span>
               </button>
-              
+
               <button mat-menu-item (click)="compartirEnRedSocial('telegram')">
                 <mat-icon>share</mat-icon>
                 <span>Compartir en Telegram</span>
               </button>
             </mat-menu>
-            
+
             <button mat-stroked-button (click)="volverAlInicio()">
               <mat-icon>arrow_back</mat-icon>
               Volver al Inicio
@@ -189,13 +180,3 @@
   </div>
 
 </div>
-
-<!-- Botón flotante para volver arriba -->
-<button 
-  mat-fab 
-  class="scroll-top-btn"
-  (click)="scrollToTop()"
-  *ngIf="showScrollTop"
-  matTooltip="Volver arriba">
-  <mat-icon>keyboard_arrow_up</mat-icon>
-</button>

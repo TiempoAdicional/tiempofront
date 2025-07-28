@@ -287,10 +287,5 @@ export class NoticiaPublicaComponent implements OnInit {
     });
   }
 
-  scrollToTop(): void {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  }
+  
 }

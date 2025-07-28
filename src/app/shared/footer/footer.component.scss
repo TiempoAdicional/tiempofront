@@ -1,7 +1,7 @@
 /* Footer Styles */
 .footer {
-  background: var(--gris-card);
-  color: var(--blanco);
+  background: var(--blanco-fondo);
+  color: var(--morado-accent);
   position: relative;
   overflow: hidden;
   padding-top: 24px;
@@ -44,12 +44,15 @@
 .footer-section:nth-child(1).animate-in {
   transition-delay: 0.1s;
 }
+
 .footer-section:nth-child(2).animate-in {
   transition-delay: 0.2s;
 }
+
 .footer-section:nth-child(3).animate-in {
   transition-delay: 0.3s;
 }
+
 .footer-section:nth-child(4).animate-in {
   transition-delay: 0.4s;
 }
@@ -108,6 +111,7 @@
 .social-link:hover .social-icon {
   filter: grayscale(0);
 }
+
 .icon-social {
   width: 36px;
   height: 36px;
@@ -290,7 +294,7 @@
   width: 56px;
   height: 56px;
   background: linear-gradient(135deg, var(--verde-selva), var(--verde-lima));
-  color: white;
+  color: var(--morado-accent);
   border: none;
   border-radius: 50%;
   font-size: 20px;
@@ -320,6 +324,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 32px;
   }
+
   .company-section {
     grid-column: 1 / -1;
   }
@@ -331,28 +336,34 @@
     gap: 24px;
     padding: 48px 0 32px;
   }
+
   .footer-container {
     padding: 0 16px;
   }
+
   .section-header {
     cursor: pointer;
   }
+
   .section-content {
     max-height: 0;
   }
+
   .section-content.expanded {
     max-height: 200px;
   }
-  
+
   .footer-bottom-content {
     flex-direction: column;
     gap: 16px;
     text-align: center;
   }
+
   .footer-bottom-links {
     flex-wrap: wrap;
     justify-content: center;
   }
+
   .back-to-top {
     bottom: 24px;
     right: 24px;
@@ -366,7 +377,7 @@
   .social-links {
     justify-content: center;
   }
- 
+
   .footer-bottom-links {
     flex-direction: column;
     gap: 12px;
@@ -378,11 +389,13 @@
     max-height: none;
     overflow: visible;
   }
+
   .section-header {
     cursor: default;
     border-bottom: none;
     margin-bottom: 16px;
   }
+
   .toggle-arrow {
     display: none;
   }
@@ -393,6 +406,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -400,9 +414,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
@@ -415,5 +432,3 @@
 .social-link:hover {
   animation: pulse 0.6s ease;
 }
-
-

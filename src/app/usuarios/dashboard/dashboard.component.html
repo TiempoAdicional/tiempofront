@@ -427,23 +427,5 @@
     </aside>
   </div>
 
-  <!-- ===============================
-       🎯 ACCESOS RÁPIDOS MÓVIL
-       =============================== -->
-  <section class="mobile-actions" *ngIf="!estaAutenticado">
-    <div class="quick-actions">
-      <button mat-raised-button color="primary" (click)="irARegistro()" class="action-btn">
-        <mat-icon>person_add</mat-icon>
-        Registrarse
-      </button>
-      <button mat-raised-button color="accent" routerLink="/partidos" class="action-btn">
-        <mat-icon>sports_soccer</mat-icon>
-        Ver Partidos
-      </button>
-      <button mat-raised-button color="warn" routerLink="/equipo" class="action-btn">
-        <mat-icon>groups</mat-icon>
-        Nuestro Equipo
-      </button>
-    </div>
-  </section>
+
 </div>

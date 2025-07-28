@@ -7,7 +7,7 @@
   margin: 0 auto;
   padding: 2rem;
   min-height: 100vh;
-  background: var(--bg-principal);
+  background: var(--blanco-fondo);
 
   @media (max-width: 1024px) {
     padding: 1.5rem;
@@ -111,10 +111,15 @@
   border-radius: 16px;
   box-shadow: var(--shadow-soft);
   border: 1px solid var(--borde-color);
-  background: var(--bg-card);
+  background: var(--blanco-fondo);
 
   .mat-card-header {
     padding-bottom: 1rem;
+    background: var(--morado-accent);
+    color: white;
+    margin: -16px -16px 16px -16px;
+    padding: 16px;
+    border-radius: 16px 16px 0 0;
 
     .seccion-chip {
       background: var(--verde-claro);
@@ -127,6 +132,29 @@
       background: var(--morado-claro);
       color: white;
       font-weight: 600;
+    }
+
+    .mat-card-title {
+      color: white;
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 1.3rem;
+      }
+    }
+
+    .mat-card-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+
+      .meta-info {
+        color: rgba(255, 255, 255, 0.8);
+      }
     }
   }
 
@@ -163,11 +191,16 @@
 
   .resumen {
     margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--morado-accent), var(--morado-claro));
+    padding: 1.5rem;
+    border-radius: 12px;
+    color: white;
 
     p {
       font-size: 1.1rem;
       line-height: 1.6;
-      color: var(--texto-principal);
+      color: white;
+      margin: 0;
 
       @media (max-width: 768px) {
         font-size: 1rem;
@@ -180,7 +213,7 @@
 
     mat-divider {
       margin-top: 1rem;
-      background-color: var(--borde-color);
+      background-color: rgba(255, 255, 255, 0.3);
     }
   }
 

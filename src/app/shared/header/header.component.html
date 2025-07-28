@@ -107,6 +107,11 @@
     <!-- Menú móvil -->
     <div class="mobile-nav" [class.active]="mobileMenuOpen">
         <div class="mobile-nav-content">
+            <!-- Logo en menú móvil -->
+            <div class="logo-section mobile-logo" (click)="onLogoClick()">
+                <span class="logo-text">Tiempo Adicional</span>
+            </div>
+
             <!-- Noticias -->
             <div class="mobile-nav-item">
                 <button class="mobile-nav-link" (click)="toggleMobileSection('noticias')">

@@ -1,10 +1,11 @@
 // ===============================
 // 📰 NOTICIAS LISTA - ESTILOS PROFESIONALES RESPONSIVE
 // ===============================
+@use 'sass:math';
 
 .noticias-lista-container {
   min-height: 100vh;
-  background: var(--bg-principal);
+  background: var(--blanco-fondo);
   padding-bottom: 2rem;
 
   @media (max-width: 768px) {
@@ -21,7 +22,7 @@
 // ===============================
 
 .header-section {
-  background: var(--bg-card);
+  background: var(--morado-claro);
   box-shadow: var(--shadow-soft);
   margin-bottom: 2rem;
   border-bottom: 1px solid var(--borde-color);
@@ -36,8 +37,8 @@
 }
 
 .lista-toolbar {
-  background: var(--bg-card) !important;
-  color: var(--texto-principal) !important;
+  background: var(--bg-card);
+  color: var(--texto-principal);
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem 2rem;
@@ -253,18 +254,20 @@
 }
 
 .noticia-card {
-  background: var(--bg-card);
+  background: var(--morado-accent);
   border-radius: 16px !important;
   box-shadow: var(--shadow-soft) !important;
-  border: 1px solid var(--borde-color);
+  border: 1px solid var(--morado-claro);
   transition: all 0.3s ease;
   cursor: pointer;
   overflow: hidden;
+  color: white;
 
   &:hover {
     box-shadow: var(--shadow-medium) !important;
     transform: translateY(-4px);
-    border-color: var(--verde-principal);
+    border-color: var(--morado-claro);
+    background: var(--morado-oscuro);
   }
 
   @media (max-width: 480px) {
@@ -292,7 +295,7 @@
   }
 
   .noticia-avatar {
-    background: var(--gradient-verde);
+    background: rgba(255, 255, 255, 0.2);
     color: white;
     display: flex;
     align-items: center;
@@ -322,7 +325,7 @@
   .noticia-titulo {
     font-size: 1.5rem !important;
     font-weight: 700 !important;
-    color: var(--texto-principal) !important;
+    color: white !important;
     line-height: 1.4 !important;
     margin: 0 !important;
     transition: color 0.3s ease;
@@ -340,7 +343,7 @@
     }
 
     &:hover {
-      color: var(--verde-principal) !important;
+      color: rgba(255, 255, 255, 0.9) !important;
     }
   }
 
@@ -369,7 +372,7 @@
         display: flex;
         align-items: center;
         gap: 0.25rem;
-        color: var(--texto-secundario);
+        color: rgba(255, 255, 255, 0.9);
         font-size: 0.9rem;
         font-weight: 500;
 
@@ -381,7 +384,7 @@
           font-size: 1rem;
           width: 1rem;
           height: 1rem;
-          color: var(--texto-claro);
+          color: rgba(255, 255, 255, 0.7);
 
           @media (max-width: 480px) {
             font-size: 0.9rem;
@@ -449,7 +452,7 @@
   .noticia-resumen {
     font-size: 1rem;
     line-height: 1.7;
-    color: var(--texto-principal);
+    color: white;
     margin: 0 0 1rem 0;
     text-align: justify;
     font-weight: 400;
@@ -474,19 +477,19 @@
       gap: 0.5rem;
 
       .tag-chip {
-        background: var(--bg-principal) !important;
-        color: var(--texto-secundario) !important;
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
         font-size: 0.8rem !important;
         height: 2rem !important;
-        border: 1px solid var(--borde-color);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 12px;
         font-weight: 500;
         transition: all 0.3s ease;
 
         &:hover {
-          background: var(--verde-claro) !important;
-          color: var(--verde-texto) !important;
-          border-color: var(--verde-principal);
+          background: rgba(255, 255, 255, 0.3) !important;
+          color: white !important;
+          border-color: rgba(255, 255, 255, 0.5);
         }
 
         @media (max-width: 480px) {
@@ -501,11 +504,12 @@
     margin-top: 1rem;
 
     .chip-destacada {
-      background: var(--gradient-morado) !important;
+      background: rgba(255, 255, 255, 0.2) !important;
       color: white !important;
       font-weight: 600 !important;
       border-radius: 20px;
       padding: 0.5rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
 
       mat-icon {
         color: white;
@@ -529,8 +533,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid var(--borde-color);
-  background: var(--bg-principal);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
 
   @media (max-width: 1024px) {
     padding: 0.75rem 1.25rem 1.25rem 1.25rem !important;
@@ -552,7 +556,7 @@
   }
 
   .fecha-completa {
-    color: var(--texto-claro);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 0.85rem;
     font-weight: 500;
 
@@ -564,11 +568,13 @@
   }
 
   button {
-    color: var(--morado-accent) !important;
+    color: white !important;
     border-radius: 25px;
     padding: 0.5rem 1rem;
     font-weight: 600;
     transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 
     @media (max-width: 768px) {
       padding: 0.4rem 0.8rem;
@@ -581,7 +587,7 @@
     }
 
     &:hover {
-      background: rgba(156, 39, 176, 0.1) !important;
+      background: rgba(255, 255, 255, 0.3) !important;
       transform: translateY(-2px);
       box-shadow: var(--shadow-soft);
     }
@@ -664,48 +670,5 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-// ===============================
-// 🌙 DARK MODE SUPPORT
-// ===============================
-
-@media (prefers-color-scheme: dark) {
-  .noticias-lista-container {
-    background: #121212;
-  }
-
-  .header-section {
-    background: #1e1e1e;
-    border-bottom-color: #333;
-  }
-
-  .lista-toolbar {
-    background: #1e1e1e !important;
-    color: #e0e0e0 !important;
-  }
-
-  .noticia-card {
-    background: #1e1e1e;
-    border-color: #333;
-
-    .noticia-titulo {
-      color: #e0e0e0 !important;
-
-      &:hover {
-        color: var(--verde-claro) !important;
-      }
-    }
-
-    .noticia-resumen {
-      color: #b0b0b0;
-    }
-
-    .meta-info .autor,
-    .meta-info .fecha,
-    .meta-info .seccion {
-      color: #999;
-    }
   }
 }

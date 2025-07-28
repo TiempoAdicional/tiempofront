@@ -3,14 +3,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--gris-fondo);
+  background-color: var(--blanco-fondo);
   padding: 2rem;
   position: relative;
   font-family: 'League Spartan', sans-serif;
 }
 
 .form-card {
-  background: var(--gris-card);
+  background: linear-gradient(135deg, var(--morado-claro), rgb(205, 180, 205));
   padding: 2rem 2.5rem;
   border-radius: var(--radius-xl);
   width: 100%;
@@ -20,13 +20,13 @@
   flex-direction: column;
   animation: fadeInCard 0.6s ease;
   transition: var(--transition-fast);
-  color: var(--blanco-suave);
+  color: white;
 }
 
 .title {
   font-family: 'Anton', sans-serif;
   font-size: 2.2rem;
-  color: var(--verde-lima);
+  color: white;
   text-align: center;
   margin-bottom: 2rem;
 }
@@ -36,25 +36,25 @@
   margin-bottom: 1.5rem;
 
   mat-form-field {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-lg);
-    color: var(--blanco);
+    color: white;
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.12);
-      border-color: var(--verde-lima);
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--morado-claro);
     }
 
     &.mat-focused {
-      background-color: rgba(255, 255, 255, 0.15);
-      border-color: var(--verde-lima);
-      box-shadow: 0 0 8px rgba(0, 255, 127, 0.3);
+      background-color: rgba(255, 255, 255, 0.2);
+      border-color: var(--morado-claro);
+      box-shadow: 0 0 8px rgba(186, 104, 200, 0.3);
     }
 
     input {
-      color: var(--blanco) !important;
+      color: white !important;
       font-weight: 500;
 
       &::placeholder {
@@ -63,21 +63,21 @@
       }
 
       &:focus {
-        color: var(--blanco) !important;
+        color: white !important;
       }
     }
 
     .mat-icon {
-      color: var(--verde-lima);
+      color: var(--morado-claro);
     }
 
     // Estilos para labels de Angular Material
     .mat-form-field-label {
-      color: rgba(255, 255, 255, 0.7) !important;
+      color: rgba(255, 255, 255, 0.8) !important;
     }
 
     &.mat-focused .mat-form-field-label {
-      color: var(--verde-lima) !important;
+      color: var(--morado-claro) !important;
     }
 
     // Underline styles para Material
@@ -86,7 +86,7 @@
     }
 
     &.mat-focused .mat-form-field-underline .mat-form-field-ripple {
-      background-color: var(--verde-lima);
+      background-color: var(--morado-claro);
     }
   }
 }
@@ -99,13 +99,13 @@ input::placeholder {
 
 /* Inputs con texto visible */
 input {
-  color: var(--blanco) !important;
+  color: white !important;
   font-weight: 500;
 }
 
 /* Iconos visibles al 100% */
 .mat-icon {
-  color: var(--verde-lima);
+  color: var(--morado-claro);
   opacity: 1;
 }
 
@@ -113,17 +113,17 @@ input {
   width: 100%;
   padding: 0.8rem;
   font-weight: bold;
-  color: var(--negro);
-  background-color: var(--verde-lima);
+  color: white;
+  background-color: var(--morado-accent);
   border-radius: var(--radius-lg);
-  box-shadow: 0 0 10px var(--verde-lima);
+  box-shadow: 0 0 10px var(--morado-accent);
   transition: all var(--transition-fast);
   text-transform: uppercase;
 
   &:hover {
-    background-color: var(--verde-selva);
-    box-shadow: 0 0 16px var(--verde-lima), 0 0 32px var(--verde-lima);
-    color: var(--blanco);
+    background-color: var(--morado-oscuro);
+    box-shadow: 0 0 16px var(--morado-accent), 0 0 32px var(--morado-accent);
+    color: white;
   }
 
   mat-icon {
@@ -135,17 +135,17 @@ input {
 button[disabled] {
   opacity: 0.4;
   background-color: var(--gris-card);
-  color: var(--blanco-suave);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .register-text {
   text-align: center;
   font-size: 1rem;
   margin-top: 1.5rem;
-  color: var(--blanco-suave);
+  color: rgba(255, 255, 255, 0.9);
 
   .link-animado {
-    color: var(--verde-lima);
+    color: var(--verde-principal);
     font-weight: bold;
     cursor: pointer;
     text-decoration: none;
@@ -153,8 +153,8 @@ button[disabled] {
     transition: color var(--transition-fast);
 
     &:hover {
-      color: var(--accent-color);
-      text-shadow: 0 0 10px var(--verde-lima);
+      color: var(--verde-claro);
+      text-shadow: 0 0 10px var(--verde-principal);
     }
 
     &::after {
@@ -164,7 +164,7 @@ button[disabled] {
       bottom: -2px;
       width: 100%;
       height: 2px;
-      background-color: var(--verde-lima);
+      background-color: var(--verde-principal);
       transform: scaleX(0);
       transform-origin: left;
       transition: transform var(--transition-fast);
@@ -197,6 +197,7 @@ button[disabled] {
     opacity: 0;
     transform: translateY(15px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
