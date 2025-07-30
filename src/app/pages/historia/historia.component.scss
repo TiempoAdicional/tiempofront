@@ -1,27 +1,26 @@
-
 // ===============================
-// 🎨 VARIABLES SCSS TIEMPO ADICIONAL
+// 🎨 VARIABLES SCSS TIEMPO ADICIONAL - ACTUALIZADAS
 // ===============================
-$verde-bosque: #045204;
-$verde-selva: #1a8000;
-$verde-lima: #b4ff15;
-$verde-claro: #81c784;
-$gris-fondo: #1b1f24;
-$gris-card: #262b32;
-$purpura-profundo: #3b0452;
-$purpura-real: #3e0ea4;
-$blanco-suave: #fffdf3;
+$verde-bosque: #22C55E; // Verde para títulos
+$verde-selva: #16A34A; // Verde oscuro
+$verde-lima: #10B981; // Verde claro
+$verde-claro: #059669; // Verde más claro
+$gris-fondo: #ffffff; // Fondo blanco
+$gris-card: #ffffff; // Tarjetas blancas
+$purpura-profundo: #d06aea; // Morado
+$purpura-real: #b780ea; // Morado claro
+$blanco-suave: #ffffff;
 $blanco: #ffffff;
 $negro: #000000;
-$gris-carbon: #303030;
-$ta-verde-oscuro: #003e29;
-$ta-verde-oliva-claro: #81b29a;
-$azul-cielo: #2196f3;
-$azul-profundo: #1565c0;
-$naranja-energia: #ff9800;
-$naranja-intenso: #f57c00;
-$dorado-tiempo: #ffc107;
-$border-light: rgba(0, 0, 0, 0.12);
+$gris-carbon: #f8f9fa; // Gris muy claro
+$ta-verde-oscuro: #22C55E; // Verde
+$ta-verde-oliva-claro: #16A34A; // Verde oscuro
+$azul-cielo: #8B5CF6; // Morado
+$azul-profundo: #A855F7; // Morado claro
+$naranja-energia: #C084FC; // Morado claro
+$naranja-intenso: #D946EF; // Morado más claro
+$dorado-tiempo: #22C55E; // Verde para acentos
+$border-light: rgba(139, 92, 246, 0.2); // Borde morado
 
 // ===============================
 // 📱 BREAKPOINTS
@@ -33,12 +32,12 @@ $breakpoint-desktop: 1200px;
 $breakpoint-large: 1440px;
 
 // ===============================
-// 🎨 GRADIENTES
+// 🎨 GRADIENTES - ACTUALIZADOS
 // ===============================
-$gradient-primary: linear-gradient(135deg, $verde-selva 0%, $verde-lima 100%);
-$gradient-accent: linear-gradient(135deg, $naranja-energia 0%, $dorado-tiempo 100%);
-$gradient-dark: linear-gradient(135deg, $gris-fondo 0%, $gris-card 100%);
-$football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2px, transparent 2px);
+$gradient-primary: linear-gradient(135deg, $purpura-profundo 0%, $purpura-real 100%); // Morado
+$gradient-accent: linear-gradient(135deg, $verde-bosque 0%, $verde-selva 100%); // Verde
+$gradient-dark: linear-gradient(135deg, $gris-fondo 0%, $gris-carbon 100%); // Blanco
+$football-pattern: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 2px, transparent 2px); // Patrón morado
 
 // ===============================
 // 🔧 MIXINS RESPONSIVE
@@ -95,12 +94,16 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 // 🎨 MIXINS DE DISEÑO
 // ===============================
 @mixin card-shadow($level: 1) {
-  @if $level == 1 {
-    box-shadow: 0 2px 8px rgba(26, 128, 0, 0.2);
-  } @else if $level == 2 {
-    box-shadow: 0 8px 24px rgba(26, 128, 0, 0.25);
-  } @else if $level == 3 {
-    box-shadow: 0 16px 40px rgba(26, 128, 0, 0.3);
+  @if $level ==1 {
+    box-shadow: 0 2px 8px rgba(208, 106, 234, 0.2);
+  }
+
+  @else if $level ==2 {
+    box-shadow: 0 8px 24px rgba(208, 106, 234, 0.25);
+  }
+
+  @else if $level ==3 {
+    box-shadow: 0 16px 40px rgba(208, 106, 234, 0.3);
   }
 }
 
@@ -119,7 +122,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 
 @mixin hover-lift($scale: 1.05, $shadow-level: 2) {
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  
+
   &:hover {
     transform: translateY(-8px) scale($scale);
     @include card-shadow($shadow-level);
@@ -136,9 +139,9 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 .tiempo-adicional-history {
   font-family: 'League Spartan', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.6;
-  color: $blanco-suave;
+  color: $negro; // Texto negro sobre fondo blanco
   overflow-x: hidden;
-  background: $gradient-dark;
+  background: $gradient-dark; // Fondo blanco
   min-height: 100vh;
 }
 
@@ -154,10 +157,10 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: $gradient-primary;
+  background: $gradient-primary; // Morado
   color: $blanco;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(30, 60, 30, 0.12);
+  box-shadow: 0 2px 8px rgba(208, 106, 234, 0.25);
   border-radius: 2rem;
   padding: 0.7rem 1.6rem;
   font-size: 1.1rem;
@@ -172,9 +175,10 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
     margin-right: 0.3rem;
   }
 
-  &:hover, &:focus {
-    background: $gradient-accent;
-    box-shadow: 0 4px 16px rgba(30, 60, 30, 0.18);
+  &:hover,
+  &:focus {
+    background: linear-gradient(135deg, $naranja-energia 0%, $naranja-intenso 100%); // Morado claro
+    box-shadow: 0 4px 16px rgba(208, 106, 234, 0.4);
     transform: translateY(-2px) scale(1.03);
   }
 
@@ -211,7 +215,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   position: relative;
   height: 100vh;
   @include flex-center;
-  background: $gradient-primary;
+  background: $gradient-primary; // Morado
   color: $blanco-suave;
   overflow: hidden;
 
@@ -324,17 +328,22 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 }
 
 @keyframes floatBall {
-  0%, 100% { 
-    transform: translateY(0px) rotate(0deg) scale(1); 
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
   }
-  25% { 
-    transform: translateY(-30px) rotate(90deg) scale(1.1); 
+
+  25% {
+    transform: translateY(-30px) rotate(90deg) scale(1.1);
   }
-  50% { 
-    transform: translateY(-15px) rotate(180deg) scale(0.9); 
+
+  50% {
+    transform: translateY(-15px) rotate(180deg) scale(0.9);
   }
-  75% { 
-    transform: translateY(-25px) rotate(270deg) scale(1.05); 
+
+  75% {
+    transform: translateY(-25px) rotate(270deg) scale(1.05);
   }
 }
 
@@ -376,7 +385,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   font-size: 4rem !important;
   width: 4rem !important;
   height: 4rem !important;
-  color: $dorado-tiempo;
+  color: $dorado-tiempo; // Verde
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 
   @include mobile {
@@ -398,7 +407,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   font-family: 'Anton', sans-serif;
   margin: 0;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-  @include text-gradient(linear-gradient(45deg, $blanco-suave, $verde-lima));
+  color: white !important; // Letras blancas
   letter-spacing: 2px;
 
   @include mobile {
@@ -475,7 +484,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
     font-size: 3rem !important;
     width: 3rem !important;
     height: 3rem !important;
-    color: $dorado-tiempo;
+    color: $dorado-tiempo; // Verde
 
     @include mobile {
       font-size: 2rem !important;
@@ -486,12 +495,19 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateX(-50%) translateY(0);
   }
+
   40% {
     transform: translateX(-50%) translateY(-10px);
   }
+
   60% {
     transform: translateX(-50%) translateY(-5px);
   }
@@ -531,7 +547,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 // ===============================
 .story-section {
   padding: 6rem 0;
-  background: $gradient-dark;
+  background: $gradient-dark; // Fondo blanco
 
   @include mobile {
     padding: 3rem 0;
@@ -552,7 +568,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   @include card-shadow(3);
   border-radius: 20px !important;
   overflow: hidden;
-  background: $gris-card !important;
+  background: $gris-card !important; // Fondo blanco
 
   @include mobile {
     border-radius: 15px !important;
@@ -560,7 +576,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   }
 
   mat-card-header {
-    background: $gradient-primary;
+    background: $gradient-primary; // Morado
     color: white;
     padding: 2rem;
 
@@ -577,6 +593,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
     font-size: 2.5rem !important;
     font-weight: 700 !important;
     font-family: 'Anton', sans-serif !important;
+    color: $verde-bosque !important; // Verde para títulos
 
     @include mobile {
       font-size: 1.8rem !important;
@@ -606,7 +623,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 }
 
 .story-icon {
-  background: $naranja-energia !important;
+  background: $purpura-profundo !important; // Morado para iconos
   color: white !important;
   font-size: 1.5rem !important;
 
@@ -617,7 +634,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 
 .story-content {
   padding: 2rem;
-  background: $gris-card;
+  background: $gris-card; // Fondo blanco
 
   @include mobile {
     padding: 1.5rem;
@@ -633,7 +650,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   line-height: 1.8;
   margin-bottom: 1.5rem;
   text-align: justify;
-  color: $blanco-suave;
+  color: $negro; // Texto negro sobre fondo blanco
 
   @include mobile {
     font-size: 1rem;
@@ -651,7 +668,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 .founding-highlight {
   @include flex-center;
   gap: 1rem;
-  background: $gradient-accent;
+  background: $gradient-accent; // Verde
   color: $blanco-suave;
   padding: 1.5rem;
   border-radius: 15px;
@@ -707,7 +724,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   font-weight: 700;
   text-align: center;
   margin-bottom: 4rem;
-  color: $blanco-suave;
+  color: $verde-bosque; // Verde para títulos
 
   @include mobile {
     flex-direction: column;
@@ -730,7 +747,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
     font-size: 3rem !important;
     width: 3rem !important;
     height: 3rem !important;
-    color: $verde-selva;
+    color: $purpura-profundo; // Morado para iconos
 
     @include mobile {
       font-size: 2rem !important;
@@ -751,7 +768,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 // ===============================
 .mission-section {
   padding: 6rem 0;
-  background: $gris-fondo;
+  background: $gris-fondo; // Fondo blanco
 
   @include mobile {
     padding: 3rem 0;
@@ -793,7 +810,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   @include hover-lift(1.02, 3);
   overflow: hidden;
   position: relative;
-  background: $gris-card !important;
+  background: $gris-card !important; // Fondo blanco
 
   @include mobile {
     border-radius: 15px !important;
@@ -806,7 +823,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
     left: 0;
     right: 0;
     height: 4px;
-    background: $gradient-primary;
+    background: $gradient-primary; // Morado
   }
 
   mat-card-content {
@@ -827,7 +844,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
     font-weight: 600;
     font-family: 'Anton', sans-serif;
     margin-bottom: 1rem;
-    color: $blanco-suave;
+    color: $verde-bosque; // Verde para títulos
     text-align: center;
 
     @include mobile {
@@ -842,7 +859,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   p {
     font-size: 1rem;
     line-height: 1.7;
-    color: $blanco-suave;
+    color: $negro; // Texto negro sobre fondo blanco
     text-align: justify;
 
     @include mobile {
@@ -860,11 +877,11 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 .card-icon-container {
   width: 80px;
   height: 80px;
-  background: $gradient-primary;
+  background: $gradient-primary; // Morado
   border-radius: 50%;
   @include flex-center;
   margin: 0 auto 1.5rem;
-  @include card-shadow(2);
+  box-shadow: 0 8px 24px rgba(208, 106, 234, 0.25);
 
   @include mobile {
     width: 60px;
@@ -897,7 +914,8 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   }
 }
 
-.main-mission, .main-vision {
+.main-mission,
+.main-vision {
   min-height: 400px;
 
   @include mobile {
@@ -910,11 +928,11 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 }
 
 .main-mission .card-icon-container {
-  background: $gradient-primary;
+  background: $gradient-primary; // Morado
 }
 
 .main-vision .card-icon-container {
-  background: $gradient-accent;
+  background: $gradient-accent; // Verde
 }
 
 // ===============================
@@ -922,7 +940,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 // ===============================
 .vision-section {
   padding: 6rem 0;
-  background: $gradient-dark;
+  background: $gradient-dark; // Fondo blanco
 
   @include mobile {
     padding: 3rem 0;
@@ -943,7 +961,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   border-radius: 25px !important;
   @include card-shadow(3);
   overflow: hidden;
-  background: $gris-card !important;
+  background: $gris-card !important; // Fondo blanco
 
   @include mobile {
     border-radius: 15px !important;
@@ -951,7 +969,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   }
 
   mat-card-header {
-    background: $gradient-accent;
+    background: $gradient-accent; // Verde
     color: white;
     padding: 2rem;
 
@@ -968,6 +986,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
     font-size: 2.5rem !important;
     font-weight: 700 !important;
     font-family: 'Anton', sans-serif !important;
+    color: white !important; // Texto blanco sobre fondo verde
 
     @include mobile {
       font-size: 1.8rem !important;
@@ -985,6 +1004,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   mat-card-subtitle {
     font-size: 1.2rem !important;
     opacity: 0.9 !important;
+    color: white !important; // Texto blanco sobre fondo verde
 
     @include mobile {
       font-size: 1rem !important;
@@ -997,7 +1017,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 }
 
 .vision-icon {
-  background: $verde-selva !important;
+  background: $purpura-profundo !important; // Morado para iconos
   color: white !important;
   font-size: 1.5rem !important;
 
@@ -1007,69 +1027,146 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 }
 
 .vision-content {
-  padding: 2.5rem;
-  background: $gris-card;
+  padding: 3rem;
+  background: $gris-card; // Fondo blanco
 
   @include mobile {
     padding: 1.5rem;
   }
 
   @include tablet {
-    padding: 2rem;
+    padding: 2.5rem;
+  }
+
+  @include laptop {
+    padding: 3rem;
   }
 }
 
 .vision-text {
   font-size: 1.3rem;
   line-height: 1.8;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   text-align: center;
-  color: $blanco-suave;
+  color: $negro; // Texto negro sobre fondo blanco
+  font-weight: 500;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 
   @include mobile {
     font-size: 1rem;
     line-height: 1.6;
     text-align: left;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    max-width: 100%;
   }
 
   @include tablet {
     font-size: 1.1rem;
     line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+
+  strong {
+    color: $verde-bosque; // Verde para texto destacado
+    font-weight: 700;
   }
 }
 
 .vision-features {
   @include flex-center;
+  margin-top: 2rem;
 
   @include mobile {
     justify-content: flex-start;
+    margin-top: 1.5rem;
+  }
+
+  @include tablet {
+    margin-top: 1.8rem;
+  }
+
+  mat-chip-set {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    max-width: 800px;
+    margin: 0 auto;
+
+    @include mobile {
+      gap: 0.6rem;
+      max-width: 100%;
+    }
+
+    @include tablet {
+      gap: 0.7rem;
+      max-width: 700px;
+    }
+
+    @include laptop {
+      gap: 0.8rem;
+      max-width: 800px;
+    }
   }
 }
 
 .feature-chip {
-  margin: 0.5rem !important;
-  background: $gradient-primary !important;
-  color: $blanco-suave !important;
-  font-weight: 500 !important;
-  padding: 0.8rem 1.2rem !important;
-  font-size: 1rem !important;
+  margin: 0.2rem !important;
+  background: $gradient-primary !important; // Morado
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 0.9rem 1.4rem !important;
+  font-size: 0.95rem !important;
   transition: all 0.3s ease !important;
+  border-radius: 50px !important;
+  min-height: 46px;
+  border: 2px solid rgb(255, 255, 255) !important;
+  box-shadow: 0 4px 12px rgba(208, 106, 234, 0.2) !important;
+  white-space: nowrap !important;
 
   @include mobile {
-    margin: 0.3rem !important;
-    padding: 0.6rem 1rem !important;
-    font-size: 0.9rem !important;
+    margin: 0.15rem !important;
+    padding: 0.7rem 1.1rem !important;
+    font-size: 0.85rem !important;
+    min-height: 42px;
+    border-radius: 40px !important;
   }
 
   @include tablet {
-    padding: 0.7rem 1.1rem !important;
+    padding: 0.8rem 1.2rem !important;
+    font-size: 0.9rem !important;
+    min-height: 44px;
+    border-radius: 45px !important;
+  }
+
+  @include laptop {
+    padding: 0.9rem 1.4rem !important;
     font-size: 0.95rem !important;
+    min-height: 46px;
+    border-radius: 50px !important;
   }
 
   &:hover {
-    transform: scale(1.05);
-    @include card-shadow(2);
+    transform: scale(1.03) translateY(-1px);
+    box-shadow: 0 6px 20px rgba(208, 106, 234, 0.35) !important;
+    background: linear-gradient(135deg, $purpura-real 0%, $naranja-energia 100%) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+  }
+
+  &:active {
+    transform: scale(0.98) translateY(0);
+    box-shadow: 0 2px 8px rgba(208, 106, 234, 0.3) !important;
+  }
+
+  mat-icon {
+    color: white !important;
+    font-size: 1.1rem !important;
+    width: 1.1rem !important;
+    height: 1.1rem !important;
+    margin-right: 0.4rem !important;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
   }
 }
 
@@ -1078,7 +1175,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 // ===============================
 .values-section {
   padding: 6rem 0;
-  background: $gris-fondo;
+  background: $gris-fondo; // Fondo blanco
 
   @include mobile {
     padding: 3rem 0;
@@ -1124,7 +1221,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   @include hover-lift(1.02, 3);
   overflow: hidden;
   position: relative;
-  background: $gris-card !important;
+  background: $gris-card !important; // Fondo blanco
 
   @include mobile {
     border-radius: 15px !important;
@@ -1137,7 +1234,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
     left: 0;
     right: 0;
     height: 4px;
-    background: $gradient-accent;
+    background: $gradient-accent; // Verde
   }
 
   mat-card-content {
@@ -1153,11 +1250,11 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 .value-icon-container {
   width: 70px;
   height: 70px;
-  background: $gradient-accent;
+  background: $gradient-accent; // Verde
   border-radius: 50%;
   @include flex-center;
   margin: 0 auto 1.5rem;
-  @include card-shadow(2);
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.25);
 
   @include mobile {
     width: 60px;
@@ -1184,7 +1281,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   font-weight: 600;
   font-family: 'Anton', sans-serif;
   margin-bottom: 1rem;
-  color: $blanco-suave;
+  color: $verde-bosque; // Verde para títulos
 
   @include mobile {
     font-size: 1.3rem;
@@ -1194,7 +1291,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 .value-description {
   font-size: 1rem;
   line-height: 1.6;
-  color: $blanco-suave;
+  color: $negro; // Texto negro sobre fondo blanco
 
   @include mobile {
     font-size: 0.9rem;
@@ -1207,7 +1304,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 // ===============================
 .cta-section {
   padding: 6rem 0;
-  background: $gradient-primary;
+  background: $gradient-primary; // Morado
 
   @include mobile {
     padding: 3rem 0;
@@ -1227,7 +1324,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   margin: 0 auto;
   border-radius: 25px !important;
   @include card-shadow(3);
-  background: $gris-card !important;
+  background: $gris-card !important; // Fondo blanco
   backdrop-filter: blur(10px);
 
   @include mobile {
@@ -1253,7 +1350,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   font-size: 4rem !important;
   width: 4rem !important;
   height: 4rem !important;
-  color: $verde-selva;
+  color: $purpura-profundo; // Morado para iconos
   margin-bottom: 1rem;
 
   @include mobile {
@@ -1268,7 +1365,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
   font-weight: 700;
   font-family: 'Anton', sans-serif;
   margin-bottom: 1rem;
-  color: $blanco-suave;
+  color: $verde-bosque; // Verde para títulos
 
   @include mobile {
     font-size: 1.8rem;
@@ -1282,7 +1379,7 @@ $football-pattern: radial-gradient(circle at 50% 50%, rgba(180, 255, 21, 0.1) 2p
 .cta-description {
   font-size: 1.3rem;
   margin-bottom: 2.5rem;
-  color: $ta-verde-oliva-claro;
+  color: $negro; // Texto negro sobre fondo blanco
 
   @include mobile {
     font-size: 1.1rem;

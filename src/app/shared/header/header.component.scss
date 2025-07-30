@@ -35,12 +35,14 @@
   .logo-text {
     font-size: 1.5rem;
     font-weight: bold;
+    font-family: 'Anton', sans-serif;
     background: linear-gradient(135deg, var(--morado-accent), var(--morado-claro));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     color: transparent;
     transition: opacity 0.3s ease;
+
   }
 }
 
@@ -57,6 +59,7 @@
   display: block;
   font-size: 1.8rem;
   font-weight: bold;
+  font-family: 'Anton', sans-serif;
   background: linear-gradient(135deg, var(--morado-accent), var(--morado-claro));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -391,6 +394,7 @@
   display: block;
   font-size: 1.8rem;
   font-weight: bold;
+  font-family: 'Anton', sans-serif;
   background: linear-gradient(135deg, var(--morado-accent), var(--morado-claro));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
