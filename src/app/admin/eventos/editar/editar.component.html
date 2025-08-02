@@ -1,169 +1,382 @@
-<!-- Botón de vuelta al dashboard -->
-<div class="boton-vuelta-container">
-  <button mat-fab 
-          color="primary" 
-          class="boton-vuelta-dashboard"
-          [routerLink]="['/admin']"
-          matTooltip="Volver al Dashboard"
-          aria-label="Volver al Dashboard">
-    <mat-icon>dashboard</mat-icon>
-  </button>
-</div>
+<div class="crear-evento-container">
+  <!-- Header con navegación mejorado -->
+  <div class="header-section">
+    <button mat-fab color="primary" class="back-button" (click)="volverAlDashboard()" matTooltip="Volver al Dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
 
-<!-- Indicador de carga -->
-<div class="cargando" *ngIf="cargando">
-  <mat-icon class="icono-cargando spin">autorenew</mat-icon>
-  <span>Cargando...</span>
-</div>
-
-<!-- Selección de evento -->
-<section class="seleccion-eventos" *ngIf="!eventoId && !cargando">
-  <h2 class="titulo-edicion">Selecciona un evento para editar</h2>
-  <p class="subtitulo-seleccion">
-    Se muestran solo los eventos que has creado. Todos son editables.
-  </p>
-
-  <div *ngIf="eventos.length === 0" class="sin-eventos">
-    <mat-icon>event_busy</mat-icon>
-    <span>No tienes eventos creados aún.</span>
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon class="title-icon">edit</mat-icon>
+        Editar Evento Deportivo
+      </h1>
+      <p class="page-subtitle">Actualice la información del evento deportivo</p>
+    </div>
   </div>
 
-  <div class="lista-eventos" *ngIf="eventos.length > 0">
-    <mat-card class="tarjeta-evento evento-editable" *ngFor="let evento of eventos">
-      
-      <div class="imagen-container">
-        <img mat-card-image [src]="evento.imagenEvento || 'assets/default-event.jpg'" 
-             alt="Imagen del evento {{ evento.nombre }}" 
-             class="imagen-evento" />
-        <div class="overlay-estado">
-          <div class="badge-estado editable">
+  <!-- Indicador de carga -->
+  <div class="cargando" *ngIf="cargando">
+    <mat-icon class="icono-cargando spin">autorenew</mat-icon>
+    <span>Cargando evento...</span>
+  </div>
+
+  <!-- Selección de evento -->
+  <section class="seleccion-eventos" *ngIf="!eventoId && !cargando">
+    <h2 class="titulo-edicion">Selecciona un evento para editar</h2>
+    <p class="subtitulo-seleccion">
+      Se muestran solo los eventos que has creado. Todos son editables.
+    </p>
+
+    <div *ngIf="eventos.length === 0" class="sin-eventos">
+      <mat-icon>event_busy</mat-icon>
+      <span>No tienes eventos creados aún.</span>
+    </div>
+
+    <div class="lista-eventos" *ngIf="eventos.length > 0">
+      <mat-card class="tarjeta-evento evento-editable" *ngFor="let evento of eventos">
+
+        <div class="imagen-container">
+          <img mat-card-image [src]="evento.imagenEvento || 'assets/default-event.jpg'"
+            alt="Imagen del evento {{ evento.nombre }}" class="imagen-evento" />
+          <div class="overlay-estado">
+            <div class="badge-estado editable">
+              <mat-icon>edit</mat-icon>
+            </div>
+          </div>
+        </div>
+
+        <mat-card-content class="contenido-evento">
+          <h3 class="titulo-evento">{{ evento.nombre }}</h3>
+          <div class="detalles-evento">
+            <div class="detalle">
+              <mat-icon>event</mat-icon>
+              <span>{{ evento.fecha | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="detalle">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ evento.lugar }}</span>
+            </div>
+          </div>
+          <p class="descripcion-evento">{{ evento.descripcion }}</p>
+
+          <div class="estado-permiso">
+            <span class="badge-permiso editable">
+              <mat-icon>check_circle</mat-icon>
+              Puedes editar
+            </span>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions class="acciones-evento">
+          <button mat-raised-button color="primary" (click)="seleccionarEvento(evento.id)" class="boton-accion">
             <mat-icon>edit</mat-icon>
-          </div>
-        </div>
-      </div>
-      
-      <mat-card-content class="contenido-evento">
-        <h3 class="titulo-evento">{{ evento.nombre }}</h3>
-        <div class="detalles-evento">
-          <div class="detalle">
-            <mat-icon>event</mat-icon>
-            <span>{{ evento.fecha | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="detalle">
-            <mat-icon>location_on</mat-icon>
-            <span>{{ evento.lugar }}</span>
-          </div>
-        </div>
-        <p class="descripcion-evento">{{ evento.descripcion }}</p>
-        
-        <div class="estado-permiso">
-          <span class="badge-permiso editable">
-            <mat-icon>check_circle</mat-icon>
-            Puedes editar
-          </span>
-        </div>
-      </mat-card-content>
-      
-      <mat-card-actions class="acciones-evento">
-        <button mat-raised-button 
-                color="primary"
-                (click)="seleccionarEvento(evento.id)"
-                class="boton-accion">
-          <mat-icon>edit</mat-icon> 
-          Editar evento
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-</section>
-
-<!-- Formulario de edición -->
-<section class="contenedor-editar-evento" *ngIf="form">
-  <h1 class="titulo-edicion">Editar Evento</h1>
-
-  <form [formGroup]="form" (ngSubmit)="actualizarEvento()" class="formulario-editar">
-
-    <mat-form-field appearance="fill" class="campo-formulario">
-      <mat-label>Nombre del evento</mat-label>
-      <input matInput formControlName="nombre" required />
-      <mat-icon matSuffix>event</mat-icon>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" class="campo-formulario">
-      <mat-label>Descripción</mat-label>
-      <textarea matInput formControlName="descripcion" rows="4" required></textarea>
-      <mat-icon matSuffix>description</mat-icon>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" class="campo-formulario">
-      <mat-label>Fecha del evento</mat-label>
-      <input matInput type="date" formControlName="fecha" required />
-      <mat-icon matSuffix>calendar_today</mat-icon>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" class="campo-formulario">
-      <mat-label>Lugar</mat-label>
-      <input matInput formControlName="lugar" required />
-      <mat-icon matSuffix>location_on</mat-icon>
-    </mat-form-field>
-
-    <!-- SECCIÓN -->
-    <mat-form-field appearance="fill" class="campo-formulario">
-      <mat-label>
-        <mat-icon>folder</mat-icon>
-        Sección
-      </mat-label>
-      <mat-select formControlName="seccionId" placeholder="Seleccione una sección">
-        <mat-option value="">Sin sección</mat-option>
-        <mat-option *ngFor="let seccion of secciones" [value]="seccion.id">
-          {{seccion.titulo}}
-        </mat-option>
-      </mat-select>
-      <mat-hint>Opcional: Asigne el evento a una sección específica</mat-hint>
-    </mat-form-field>
-
-    <div class="campo-formulario archivo">
-      <label for="imagen" class="etiqueta-subida">
-        <mat-icon>image</mat-icon>
-        Imagen del evento
-      </label>
-      <input type="file" 
-             id="imagen" 
-             accept="image/*" 
-             (change)="onFileSelected($event)" 
-             class="input-archivo" />
+            Editar evento
+          </button>
+        </mat-card-actions>
+      </mat-card>
     </div>
+  </section>
 
-    <div class="imagen-preview-contenedor" *ngIf="imagenPreview">
-      <p class="texto-preview">Vista previa:</p>
-      <img [src]="imagenPreview" alt="Vista previa de imagen" class="imagen-preview" />
-    </div>
+  <!-- Formulario principal -->
+  <mat-card class="form-card" elevation="2" *ngIf="form && !cargando">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>edit</mat-icon>
+        Información del Evento
+      </mat-card-title>
+      <mat-card-subtitle>
+        Todos los campos marcados con * son obligatorios
+      </mat-card-subtitle>
+    </mat-card-header>
 
-    <mat-form-field appearance="fill" class="campo-formulario">
-      <mat-label>URL de video (opcional)</mat-label>
-      <input matInput formControlName="videoUrl" />
-      <mat-icon matSuffix>videocam</mat-icon>
-    </mat-form-field>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="actualizarEvento()" class="event-form">
 
-    <div class="botones-accion">
-      <button mat-raised-button 
-              color="primary" 
-              type="submit" 
-              [disabled]="form.invalid || cargando"
-              class="boton-guardar">
-        <mat-icon>save</mat-icon> 
-        Guardar Cambios
+        <!-- Sección: Información Básica -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>info</mat-icon>
+            Información Básica
+          </h3>
+
+          <div class="form-grid">
+            <!-- Nombre del evento -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nombre del Evento *</mat-label>
+              <input matInput formControlName="nombre" placeholder="Ej. Final Liga BetPlay 2024" maxlength="100">
+              <mat-icon matSuffix>event</mat-icon>
+              <mat-hint align="end">{{form.get('nombre')?.value?.length || 0}}/100</mat-hint>
+              <mat-error *ngIf="form.get('nombre')?.invalid && form.get('nombre')?.touched">
+                El nombre del evento es obligatorio
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Tipo de evento -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Tipo de Evento *</mat-label>
+              <mat-select formControlName="tipoEvento">
+                <mat-option value="partido">⚽ Partido</mat-option>
+                <mat-option value="torneo">🏆 Torneo</mat-option>
+                <mat-option value="final">👑 Final</mat-option>
+                <mat-option value="semifinal">🥈 Semifinal</mat-option>
+                <mat-option value="cuartos">🥉 Cuartos de Final</mat-option>
+                <mat-option value="amistoso">🤝 Partido Amistoso</mat-option>
+                <mat-option value="clasificatorio">📋 Clasificatorio</mat-option>
+                <mat-option value="copa">🏅 Copa</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>category</mat-icon>
+            </mat-form-field>
+
+            <!-- Importancia -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Importancia</mat-label>
+              <mat-select formControlName="importancia">
+                <mat-option value="baja">🟢 Baja</mat-option>
+                <mat-option value="media">🟡 Media</mat-option>
+                <mat-option value="alta">🟠 Alta</mat-option>
+                <mat-option value="critica">🔴 Crítica</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>priority_high</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <!-- Descripción -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Descripción del Evento *</mat-label>
+            <textarea matInput formControlName="descripcion" rows="4"
+              placeholder="Describe el evento, equipos participantes, contexto, etc." maxlength="500"></textarea>
+            <mat-icon matSuffix>description</mat-icon>
+            <mat-hint align="end">{{form.get('descripcion')?.value?.length || 0}}/500</mat-hint>
+            <mat-error *ngIf="form.get('descripcion')?.invalid && form.get('descripcion')?.touched">
+              La descripción es obligatoria
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Sección: Fecha y Ubicación -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>schedule</mat-icon>
+            Fecha y Ubicación
+          </h3>
+
+          <div class="form-grid">
+            <!-- Fecha -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Fecha del Evento *</mat-label>
+              <input matInput [matDatepicker]="datePicker" formControlName="fecha" placeholder="Seleccionar fecha">
+              <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+              <mat-datepicker #datePicker></mat-datepicker>
+              <mat-error *ngIf="form.get('fecha')?.invalid && form.get('fecha')?.touched">
+                La fecha es obligatoria
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Hora -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Hora del Evento</mat-label>
+              <input matInput type="time" formControlName="hora" placeholder="00:00">
+              <mat-icon matSuffix>access_time</mat-icon>
+            </mat-form-field>
+
+            <!-- Lugar/Estadio -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Estadio/Lugar *</mat-label>
+              <input matInput formControlName="lugar" placeholder="Ej. Estadio El Campín" maxlength="100">
+              <mat-icon matSuffix>stadium</mat-icon>
+              <mat-error *ngIf="form.get('lugar')?.invalid && form.get('lugar')?.touched">
+                El lugar es obligatorio
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Ciudad -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Ciudad</mat-label>
+              <input matInput formControlName="ciudad" placeholder="Ej. Bogotá" maxlength="50">
+              <mat-icon matSuffix>location_city</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Sección: Equipos (si es partido) -->
+        <div class="form-section"
+          *ngIf="form.get('tipoEvento')?.value === 'partido' || form.get('tipoEvento')?.value === 'final' || form.get('tipoEvento')?.value === 'semifinal'">
+          <h3 class="section-title">
+            <mat-icon>groups</mat-icon>
+            Equipos Participantes
+          </h3>
+
+          <div class="form-grid">
+            <!-- Equipo Local -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Equipo Local</mat-label>
+              <input matInput formControlName="equipoLocal" placeholder="Ej. Atlético Nacional" maxlength="50">
+              <mat-icon matSuffix>home</mat-icon>
+            </mat-form-field>
+
+            <!-- Equipo Visitante -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Equipo Visitante</mat-label>
+              <input matInput formControlName="equipoVisitante" placeholder="Ej. Millonarios FC" maxlength="50">
+              <mat-icon matSuffix>flight</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Sección: Organización -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>business</mat-icon>
+            Organización y Categorización
+          </h3>
+
+          <div class="form-grid">
+            <!-- Sección -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Sección del Periódico</mat-label>
+              <mat-select formControlName="seccionId">
+                <mat-option value="">Sin sección específica</mat-option>
+                <mat-option *ngFor="let seccion of secciones" [value]="seccion.id">
+                  {{seccion.titulo}}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>folder</mat-icon>
+              <mat-hint>Opcional: Asigne a una sección del periódico</mat-hint>
+            </mat-form-field>
+
+            <!-- Competición -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Competición</mat-label>
+              <mat-select formControlName="competicion">
+                <mat-option value="liga-betplay">Liga BetPlay</mat-option>
+                <mat-option value="copa-colombia">Copa Colombia</mat-option>
+                <mat-option value="libertadores">Copa Libertadores</mat-option>
+                <mat-option value="sudamericana">Copa Sudamericana</mat-option>
+                <mat-option value="eliminatorias">Eliminatorias</mat-option>
+                <mat-option value="amistoso">Partido Amistoso</mat-option>
+                <mat-option value="otro">Otro</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>emoji_events</mat-icon>
+            </mat-form-field>
+
+            <!-- Estado del evento -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Estado</mat-label>
+              <mat-select formControlName="estado">
+                <mat-option value="programado">📅 Programado</mat-option>
+                <mat-option value="en-vivo">🔴 En Vivo</mat-option>
+                <mat-option value="finalizado">✅ Finalizado</mat-option>
+                <mat-option value="suspendido">⏸️ Suspendido</mat-option>
+                <mat-option value="cancelado">❌ Cancelado</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>info</mat-icon>
+            </mat-form-field>
+
+            <!-- Precio estimado -->
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Precio Estimado (COP)</mat-label>
+              <input matInput type="number" formControlName="precioEstimado" placeholder="0" min="0">
+              <span matPrefix>$ </span>
+              <mat-icon matSuffix>attach_money</mat-icon>
+              <mat-hint>Precio aproximado de entrada</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Sección: Multimedia -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>photo_library</mat-icon>
+            Multimedia
+          </h3>
+
+          <!-- Imagen del evento -->
+          <div class="file-upload-section">
+            <mat-label class="upload-label">
+              <mat-icon>image</mat-icon>
+              Imagen del Evento
+            </mat-label>
+            <div class="file-upload-container">
+              <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+              <button mat-stroked-button color="primary" type="button" (click)="fileInput.click()"
+                class="upload-button">
+                <mat-icon>cloud_upload</mat-icon>
+                Seleccionar Imagen
+              </button>
+              <span class="file-info" *ngIf="imagenSeleccionada">
+                {{imagenSeleccionada.name}}
+              </span>
+            </div>
+          </div>
+
+          <!-- Vista previa de imagen -->
+          <div *ngIf="imagenUrl || imagenPreview" class="image-preview">
+            <mat-label>Vista Previa:</mat-label>
+            <img [src]="imagenUrl || imagenPreview" alt="Vista previa del evento" class="preview-image">
+          </div>
+
+          <!-- URL del video -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>URL de Video (Opcional)</mat-label>
+            <input matInput formControlName="videoUrl" placeholder="https://youtube.com/watch?v=..." type="url">
+            <mat-icon matSuffix>videocam</mat-icon>
+            <mat-hint>YouTube, Twitch, Facebook Live, etc.</mat-hint>
+            <mat-error *ngIf="form.get('videoUrl')?.invalid && form.get('videoUrl')?.touched">
+              Por favor ingrese una URL válida
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Sección: Información Adicional -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>add_circle</mat-icon>
+            Información Adicional
+          </h3>
+
+          <div class="form-grid">
+            <!-- Tags -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Tags (separados por comas)</mat-label>
+              <input matInput formControlName="tags" placeholder="fútbol, liga, final, nacional, millonarios">
+              <mat-icon matSuffix>tag</mat-icon>
+              <mat-hint>Palabras clave para búsquedas</mat-hint>
+            </mat-form-field>
+
+            <!-- Notas adicionales -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Notas Adicionales</mat-label>
+              <textarea matInput formControlName="notas" rows="3"
+                placeholder="Información adicional, comentarios internos, etc." maxlength="300"></textarea>
+              <mat-icon matSuffix>note</mat-icon>
+              <mat-hint align="end">{{form.get('notas')?.value?.length || 0}}/300</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+      </form>
+    </mat-card-content>
+
+    <!-- Botones de acción -->
+    <mat-card-actions class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="guardando || form.invalid"
+        (click)="actualizarEvento()" class="action-button">
+        <mat-icon>save</mat-icon>
+        <span *ngIf="!guardando">Guardar Cambios</span>
+        <span *ngIf="guardando">Guardando...</span>
       </button>
 
-      <button mat-stroked-button 
-              color="warn" 
-              type="button" 
-              (click)="cancelarEdicion()"
-              class="boton-cancelar">
-        <mat-icon>cancel</mat-icon> 
-        Cancelar
+      <button mat-outlined-button color="accent" type="button" (click)="cancelarEdicion()" [disabled]="guardando"
+        class="action-button">
+        <mat-icon>refresh</mat-icon>
+        Cancelar Edición
       </button>
-    </div>
 
-  </form>
-</section>
+      <button mat-outlined-button color="warn" type="button" (click)="volverAlDashboard()" [disabled]="guardando"
+        class="action-button">
+        <mat-icon>cancel</mat-icon>
+        Volver
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

@@ -13,6 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-editar',
@@ -28,7 +30,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatIconModule,
     MatTooltipModule,
     MatSelectModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './editar.component.html',
   styleUrls: ['./editar.component.scss']
@@ -45,7 +49,10 @@ export class EditarComponent implements OnInit {
   form!: FormGroup;
   eventoId!: number;
   imagenPreview: string = '';
+  imagenUrl: string = '';
+  imagenSeleccionada: File | null = null;
   cargando = false;
+  guardando = false;
   secciones: SeccionResponse[] = [];
   cargandoSecciones = false;
 
@@ -67,12 +74,12 @@ export class EditarComponent implements OnInit {
     this.eventosService.obtenerPorId(this.eventoId).subscribe({
       next: (evento) => {
         const autorIdActual = this.authService.obtenerIdUsuario();
-        
+
         // Verificar si el evento pertenece al usuario actual consultando la lista de sus eventos
         this.eventosService.listarPorCreador(autorIdActual || 0).subscribe({
           next: (eventosDelUsuario) => {
             const eventoPertenece = eventosDelUsuario.some(e => e.id === this.eventoId);
-            
+
             if (!eventoPertenece) {
               this.snackBar.open('No tienes permiso para editar este evento', 'Cerrar', { duration: 5000 });
               this.router.navigate(['/admin']);
@@ -136,15 +143,26 @@ export class EditarComponent implements OnInit {
           nombre: [evento.nombre ?? '', Validators.required],
           descripcion: [evento.descripcion ?? '', Validators.required],
           fecha: [evento.fecha ?? '', Validators.required],
+          hora: [evento.hora ?? ''],
           lugar: [evento.lugar ?? '', Validators.required],
-          imagen: [evento.imagenEvento ?? '', Validators.required],
+          ciudad: [evento.ciudad ?? ''],
+          tipoEvento: [evento.tipoEvento ?? 'partido'],
+          importancia: [evento.importancia ?? 'media'],
+          equipoLocal: [evento.equipoLocal ?? ''],
+          equipoVisitante: [evento.equipoVisitante ?? ''],
+          seccionId: [evento.seccion_id ?? ''],
+          competicion: [evento.competicion ?? ''],
+          estado: [evento.estado ?? 'programado'],
+          precioEstimado: [evento.precioEstimado ?? 0],
           videoUrl: [evento.videoUrl ?? ''],
-          seccionId: [evento.seccion_id ?? ''] // Nuevo campo para sección
+          tags: [evento.tags ?? ''],
+          notas: [evento.notas ?? '']
         });
 
         this.imagenPreview = evento.imagenEvento ?? '';
+        this.imagenUrl = evento.imagenEvento ?? '';
         this.cargando = false;
-        
+
         // Cargar secciones después de cargar el evento
         this.cargarSecciones();
       },
@@ -163,7 +181,7 @@ export class EditarComponent implements OnInit {
     this.seccionesService.listar().subscribe({
       next: (secciones: SeccionResponse[]) => {
         // Filtrar solo secciones de eventos que estén activas
-        this.secciones = secciones.filter((s: SeccionResponse) => 
+        this.secciones = secciones.filter((s: SeccionResponse) =>
           s.tipo === 'EVENTOS' && s.activa
         );
         this.cargandoSecciones = false;
@@ -182,14 +200,32 @@ export class EditarComponent implements OnInit {
       return;
     }
 
+    this.guardando = true;
     const formData = new FormData();
+
+    // Campos básicos
     formData.append('nombre', this.form.get('nombre')?.value || '');
     formData.append('descripcion', this.form.get('descripcion')?.value || '');
     formData.append('fecha', this.form.get('fecha')?.value || '');
+    formData.append('hora', this.form.get('hora')?.value || '');
     formData.append('lugar', this.form.get('lugar')?.value || '');
-    formData.append('imagen', this.form.get('imagen')?.value || '');
+    formData.append('ciudad', this.form.get('ciudad')?.value || '');
+    formData.append('tipoEvento', this.form.get('tipoEvento')?.value || 'partido');
+    formData.append('importancia', this.form.get('importancia')?.value || 'media');
+    formData.append('equipoLocal', this.form.get('equipoLocal')?.value || '');
+    formData.append('equipoVisitante', this.form.get('equipoVisitante')?.value || '');
+    formData.append('competicion', this.form.get('competicion')?.value || '');
+    formData.append('estado', this.form.get('estado')?.value || 'programado');
+    formData.append('precioEstimado', this.form.get('precioEstimado')?.value || 0);
     formData.append('videoUrl', this.form.get('videoUrl')?.value || '');
-    
+    formData.append('tags', this.form.get('tags')?.value || '');
+    formData.append('notas', this.form.get('notas')?.value || '');
+
+    // Imagen si se seleccionó una nueva
+    if (this.imagenSeleccionada) {
+      formData.append('imagen', this.imagenSeleccionada);
+    }
+
     // Agregar sección si se seleccionó
     if (this.form.get('seccionId')?.value) {
       formData.append('seccionId', this.form.get('seccionId')?.value.toString());
@@ -198,10 +234,12 @@ export class EditarComponent implements OnInit {
     this.eventosService.actualizar(this.eventoId, formData).subscribe({
       next: () => {
         this.snackBar.open('Evento actualizado correctamente', 'Cerrar', { duration: 3000 });
+        this.guardando = false;
         this.router.navigate(['/admin']);
       },
       error: (error) => {
         this.snackBar.open('Error al actualizar el evento', 'Cerrar', { duration: 3000 });
+        this.guardando = false;
       }
     });
   }
@@ -210,7 +248,7 @@ export class EditarComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      this.form.patchValue({ imagen: file });
+      this.imagenSeleccionada = file;
 
       const reader = new FileReader();
       reader.onload = () => {
@@ -227,7 +265,13 @@ export class EditarComponent implements OnInit {
 
     this.eventoId = 0;
     this.imagenPreview = '';
+    this.imagenUrl = '';
+    this.imagenSeleccionada = null;
     this.router.navigate(['/admin/eventos/editar']);
+  }
+
+  volverAlDashboard(): void {
+    this.router.navigate(['/admin']);
   }
 
   esEventoEditable(evento: any): boolean {
