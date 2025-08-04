@@ -10,7 +10,7 @@
 }
 
 .boton-vuelta-dashboard {
-  background: linear-gradient(135deg, var(--verde-selva), var(--verde-bosque)) !important;
+  background: linear-gradient(135deg, var(--verde-selva), var(--verde-bosqu)) !important;
   color: var(--blanco) !important;
   box-shadow: 0 4px 12px rgba(26, 128, 0, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -57,7 +57,7 @@
 // ===============================
 .contenedor-crear-editar {
   padding: 2rem;
-  background: linear-gradient(135deg, var(--gris-fondo) 0%, #0f1419 100%);
+  background: white;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -66,9 +66,9 @@
 }
 
 .card-formulario {
-  background: linear-gradient(135deg, var(--gris-card) 0%, #2a2f36 100%);
+  background: rgb(215, 180, 215);
   border-radius: var(--radius-xl);
-  box-shadow: 
+  box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(180, 255, 21, 0.1);
   width: 100%;
@@ -79,7 +79,7 @@
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 
+    box-shadow:
       0 20px 40px rgba(0, 0, 0, 0.4),
       0 0 0 1px rgba(180, 255, 21, 0.2);
   }
@@ -117,7 +117,7 @@
     margin: 0;
     position: relative;
     z-index: 1;
-    
+
     mat-icon {
       font-size: 2rem;
       color: var(--verde-lima);
@@ -146,7 +146,7 @@
 
 .campo-formulario {
   width: 100%;
-  
+
   &.mat-form-field {
     .mat-form-field-outline {
       color: rgba(180, 255, 21, 0.3);
@@ -164,7 +164,8 @@
       color: var(--verde-lima);
     }
 
-    input, textarea {
+    input,
+    textarea {
       color: var(--blanco);
       background: transparent;
     }
@@ -208,7 +209,7 @@
 
   mat-select {
     color: var(--blanco);
-    
+
     .mat-select-arrow {
       color: var(--verde-lima);
     }
@@ -217,7 +218,7 @@
   mat-option {
     background: var(--gris-card);
     color: var(--blanco);
-    
+
     &:hover,
     &.mat-selected {
       background: var(--verde-selva);
@@ -370,6 +371,7 @@
     opacity: 0;
     transform: translateX(100px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -377,12 +379,18 @@
 }
 
 @keyframes bounce {
-  0%, 20%, 60%, 100% {
+
+  0%,
+  20%,
+  60%,
+  100% {
     transform: translateY(0);
   }
+
   40% {
     transform: translateY(-8px);
   }
+
   80% {
     transform: translateY(-4px);
   }
@@ -392,6 +400,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -402,6 +411,7 @@
     opacity: 0;
     transform: translateY(50px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -412,6 +422,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -428,7 +439,7 @@
   .card-formulario {
     .header-formulario {
       padding: 1.5rem;
-      
+
       .titulo-formulario {
         font-size: 1.5rem;
       }
@@ -458,7 +469,7 @@
   .boton-vuelta-dashboard {
     width: 48px !important;
     height: 48px !important;
-    
+
     mat-icon {
       font-size: 1.2rem;
     }
@@ -468,7 +479,7 @@
 @media (max-width: 400px) {
   .card-formulario {
     margin: 0.5rem;
-    
+
     .header-formulario {
       .titulo-formulario {
         font-size: 1.3rem;
@@ -492,7 +503,7 @@
 @media (min-width: 1024px) {
   .card-formulario {
     max-width: 800px;
-    
+
     .formulario-seccion {
       padding: 3rem;
     }
