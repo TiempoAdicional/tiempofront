@@ -378,11 +378,22 @@ export class EquipoService {
     }
 
     console.log('🌐 URL del endpoint:', `${this.apiUrl}/admin`);
-    console.log('📦 FormData contenido:', {
-      miembro: formData.get('miembro'),
-      hasImagen: formData.has('imagen'),
-      imagenName: imagen?.name || 'sin imagen'
-    });
+    // Logging detallado del FormData
+    console.log('📦 FormData contenido detallado:');
+    console.log('- miembro (JSON):', formData.get('miembro'));
+    console.log('- hasImagen:', formData.has('imagen'));
+    console.log('- imagenName:', imagen?.name || 'sin imagen');
+    console.log('- imagenSize:', imagen?.size || 0, 'bytes');
+    console.log('- imagenType:', imagen?.type || 'N/A');
+
+    // Verificar que el JSON es válido
+    try {
+      const miembroJson = formData.get('miembro') as string;
+      const parsedMiembro = JSON.parse(miembroJson);
+      console.log('✅ JSON del miembro válido:', parsedMiembro);
+    } catch (error) {
+      console.error('❌ Error al parsear JSON del miembro:', error);
+    }
 
     // No establecer Content-Type, Angular lo maneja automáticamente para FormData
     return this.http.post<any>(`${this.apiUrl}/admin`, formData)
@@ -484,11 +495,23 @@ export class EquipoService {
     }
 
     console.log('🌐 URL del endpoint PUT:', `${this.apiUrl}/admin/${id}`);
-    console.log('📦 FormData para actualizar:', {
-      miembro: formData.get('miembro'),
-      hasImagen: formData.has('imagen'),
-      imagenName: imagen?.name || 'sin cambio de imagen'
-    });
+
+    // Logging detallado del FormData para actualización
+    console.log('📦 FormData para actualizar - contenido detallado:');
+    console.log('- miembro (JSON):', formData.get('miembro'));
+    console.log('- hasImagen:', formData.has('imagen'));
+    console.log('- imagenName:', imagen?.name || 'sin cambio de imagen');
+    console.log('- imagenSize:', imagen?.size || 0, 'bytes');
+    console.log('- imagenType:', imagen?.type || 'N/A');
+
+    // Verificar que el JSON es válido
+    try {
+      const miembroJson = formData.get('miembro') as string;
+      const parsedMiembro = JSON.parse(miembroJson);
+      console.log('✅ JSON del miembro para actualizar válido:', parsedMiembro);
+    } catch (error) {
+      console.error('❌ Error al parsear JSON del miembro para actualizar:', error);
+    }
 
     // No establecer Content-Type, Angular lo maneja automáticamente para FormData
     return this.http.put<any>(`${this.apiUrl}/admin/${id}`, formData)
