@@ -19,13 +19,13 @@ export interface MiembroEquipo {
   telefono?: string;
   cargo?: string;
   ordenVisualizacion: number;
-  
+
   // ========== ESTADÍSTICAS DE PUBLICACIONES ==========
   totalNoticias?: number;
   totalEventos?: number;
   noticiasDestacadas?: number;
   fechaUltimaPublicacion?: string;
-  
+
   // Campos calculados
   nombreCompleto?: string;
 }
@@ -83,7 +83,7 @@ export class EquipoService {
   readonly miembros$ = this.miembrosSubject.asObservable();
   readonly estadisticas$ = this.estadisticasSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // ===== VERIFICACIÓN DE MIEMBRO =====
 
@@ -108,22 +108,22 @@ export class EquipoService {
    */
   listarMiembrosActivos(): Observable<MiembroEquipo[]> {
     console.log('🔄 Obteniendo miembros activos del equipo...');
-    
+
     return this.http.get<any>(`${this.apiUrl}/publico`)
       .pipe(
         map(response => {
           console.log('✅ Miembros activos obtenidos:', response);
-          
+
           let miembros = [];
           if (response.success && response.data) {
             miembros = response.data;
           } else if (Array.isArray(response)) {
             miembros = response;
           }
-          
+
           // Ordenar por ordenVisualizacion
           miembros.sort((a: any, b: any) => (a.ordenVisualizacion || 0) - (b.ordenVisualizacion || 0));
-          
+
           this.miembrosSubject.next(miembros);
           return miembros;
         }),
@@ -143,7 +143,7 @@ export class EquipoService {
     }
 
     const params = new HttpParams().set('texto', texto.trim());
-    
+
     return this.http.get<any>(`${this.apiUrl}/publico/buscar`, { params })
       .pipe(
         map(response => {
@@ -153,7 +153,7 @@ export class EquipoService {
           } else if (Array.isArray(response)) {
             miembros = response;
           }
-          
+
           console.log(`🔍 Búsqueda "${texto}": ${miembros.length} resultados`);
           return miembros;
         }),
@@ -166,7 +166,7 @@ export class EquipoService {
    */
   filtrarPorRol(rol: string): Observable<MiembroEquipo[]> {
     console.log(`🔄 Filtrando miembros por rol: ${rol}`);
-    
+
     return this.http.get<any>(`${this.apiUrl}/publico/rol/${encodeURIComponent(rol)}`)
       .pipe(
         map(response => {
@@ -176,7 +176,7 @@ export class EquipoService {
           } else if (Array.isArray(response)) {
             miembros = response;
           }
-          
+
           console.log(`✅ Miembros con rol "${rol}": ${miembros.length}`);
           return miembros;
         }),
@@ -220,7 +220,7 @@ export class EquipoService {
    */
   listarTodosLosMiembros(): Observable<MiembroEquipo[]> {
     console.log('🔄 Obteniendo todos los miembros (admin)...');
-    
+
     return this.http.get<any>(`${this.apiUrl}/admin`)
       .pipe(
         map(response => {
@@ -230,7 +230,7 @@ export class EquipoService {
           } else if (Array.isArray(response)) {
             miembros = response;
           }
-          
+
           console.log(`✅ Total miembros (admin): ${miembros.length}`);
           this.miembrosSubject.next(miembros);
           return miembros;
@@ -244,7 +244,7 @@ export class EquipoService {
    */
   getMiembrosAdmin(params: any): Observable<any> {
     let httpParams = new HttpParams();
-    
+
     Object.keys(params).forEach(key => {
       if (params[key] !== null && params[key] !== undefined && params[key] !== '') {
         httpParams = httpParams.set(key, params[key].toString());
@@ -348,7 +348,7 @@ export class EquipoService {
    */
   crearMiembro(miembroData: CrearMiembroDTO, imagen?: File): Observable<MiembroEquipo> {
     console.log('📤 Creando miembro del equipo...', miembroData);
-    
+
     // 🆕 Asegurar que el miembro sea activo por defecto y corregir mapeo
     // 🚫 NO incluir fechaCreacion ni fechaActualizacion - las asigna el backend
     const miembroConDefaults = {
@@ -362,17 +362,17 @@ export class EquipoService {
       ordenVisualizacion: miembroData.ordenVisualizacion || 0,
       activo: miembroData.activo !== undefined ? miembroData.activo : true
     };
-    
+
     console.log('📋 Datos procesados para envío:', miembroConDefaults);
-    
+
     const formData = new FormData();
-    
+
     // 🆕 CORREGIR: Enviar los datos del miembro como Blob JSON para que tenga el Content-Type correcto
     const miembroJSON = JSON.stringify(miembroConDefaults);
     const miembroBlob = new Blob([miembroJSON], { type: 'application/json' });
     formData.append('miembro', miembroBlob);
     console.log('📋 Datos JSON del miembro:', miembroJSON);
-    
+
     if (imagen) {
       formData.append('imagen', imagen, imagen.name);
       console.log('📷 Imagen adjunta para subir a Cloudinary:', imagen.name);
@@ -395,17 +395,17 @@ export class EquipoService {
       .pipe(
         map(response => {
           console.log('📥 Respuesta del backend al crear miembro:', response);
-          
+
           // Si la respuesta tiene formato {success: true, data: {...}}
           if (response && response.success && response.data) {
             return response.data;
           }
-          
+
           // Si viene un miembro directamente (formato anterior)
           if (response && response.id) {
             return response;
           }
-          
+
           // Si es string (mensaje de éxito pero sin datos)
           if (typeof response === 'string') {
             console.log('✅ Miembro creado (respuesta texto):', response);
@@ -415,7 +415,7 @@ export class EquipoService {
             }, 1000);
             return { message: response };
           }
-          
+
           return response;
         }),
         tap(miembro => {
@@ -426,7 +426,7 @@ export class EquipoService {
         }),
         catchError(error => {
           console.error('❌ Error al crear miembro:', error);
-          
+
           // 🆕 MEJORAR: Logging más detallado para debugging en producción
           console.error('🔍 Detalles del error:', {
             status: error.status,
@@ -435,7 +435,7 @@ export class EquipoService {
             message: error.message,
             error: error.error
           });
-          
+
           // Si es error 400, mostrar información específica
           if (error.status === 400) {
             console.error('🚨 Error 400 - Posibles causas:');
@@ -443,22 +443,22 @@ export class EquipoService {
             console.error('   - Datos malformados');
             console.error('   - Validación del backend falló');
             console.error('   - Headers incorrectos');
-            
+
             if (error.error && error.error.message) {
               console.error('📝 Mensaje del backend:', error.error.message);
             }
           }
-          
+
           // Si es error de Content-Type, el problema está en el formato de datos
           if (error.error && error.error.message && error.error.message.includes('Content-Type')) {
             console.error('🔴 Error de Content-Type - Revisar formato de FormData');
           }
-          
+
           // Si es error de autenticación
           if (error.status === 401 || error.status === 403) {
             console.error('🔐 Error de autenticación - Verificar token');
           }
-          
+
           return throwError(() => error);
         })
       );
@@ -469,23 +469,34 @@ export class EquipoService {
    */
   actualizarMiembro(id: number, miembroData: Partial<CrearMiembroDTO>, imagen?: File): Observable<MiembroEquipo> {
     console.log(`📤 Actualizando miembro id=${id}...`, miembroData);
-    
+
     const formData = new FormData();
-    
+
     // 🆕 CORREGIR: Enviar los datos del miembro como Blob JSON para que tenga el Content-Type correcto
     const miembroJSON = JSON.stringify(miembroData);
     const miembroBlob = new Blob([miembroJSON], { type: 'application/json' });
     formData.append('miembro', miembroBlob);
     console.log('📋 Datos JSON del miembro para actualizar:', miembroJSON);
-    
+
     if (imagen) {
       formData.append('imagen', imagen, imagen.name);
       console.log('📷 Nueva imagen adjunta para actualizar:', imagen.name);
     }
 
+    // 🆕 MEJORAR: Logging más detallado para debugging
+    console.log('🌐 URL del endpoint PUT:', `${this.apiUrl}/admin/${id}`);
+    console.log('📦 FormData contenido para actualizar:', {
+      hasMiembro: formData.has('miembro'),
+      hasImagen: formData.has('imagen'),
+      miembroSize: miembroJSON.length,
+      id: id
+    });
+
     return this.http.put<any>(`${this.apiUrl}/admin/${id}`, formData)
       .pipe(
         map(response => {
+          console.log(`📥 Respuesta del backend al actualizar miembro id=${id}:`, response);
+
           if (response.success && response.data) {
             return response.data;
           }
@@ -497,6 +508,40 @@ export class EquipoService {
         }),
         catchError(error => {
           console.error(`❌ Error al actualizar miembro id=${id}:`, error);
+
+          // 🆕 MEJORAR: Logging más detallado para debugging en producción
+          console.error('🔍 Detalles del error PUT:', {
+            status: error.status,
+            statusText: error.statusText,
+            url: error.url,
+            method: 'PUT',
+            message: error.message,
+            error: error.error,
+            id: id
+          });
+
+          // Si es error 400, mostrar información específica
+          if (error.status === 400) {
+            console.error('🚨 Error 400 en PUT - Posibles causas:');
+            console.error('   - Datos malformados o incompletos');
+            console.error('   - Validación del backend falló');
+            console.error('   - ID del miembro no existe');
+            console.error('   - Campos requeridos faltantes');
+            console.error('   - Formato de datos incorrecto');
+
+            if (error.error && error.error.message) {
+              console.error('📝 Mensaje del backend:', error.error.message);
+            }
+
+            // 🆕 Mostrar los datos que se están enviando
+            console.error('📤 Datos enviados que causaron error:', miembroData);
+          }
+
+          // Si es error de autenticación
+          if (error.status === 401 || error.status === 403) {
+            console.error('🔐 Error de autenticación en PUT - Verificar token');
+          }
+
           return throwError(() => error);
         })
       );
@@ -507,9 +552,9 @@ export class EquipoService {
    */
   cambiarEstado(id: number, activo: boolean): Observable<MiembroEquipo> {
     console.log(`🔄 Cambiando estado miembro id=${id} a ${activo ? 'activo' : 'inactivo'}`);
-    
+
     const params = new HttpParams().set('activo', activo.toString());
-    
+
     return this.http.patch<any>(`${this.apiUrl}/admin/${id}/estado`, {}, { params })
       .pipe(
         map(response => {
@@ -534,7 +579,7 @@ export class EquipoService {
    */
   eliminarMiembro(id: number): Observable<any> {
     console.log(`🗑️ Eliminando miembro id=${id}...`);
-    
+
     return this.http.delete<any>(`${this.apiUrl}/admin/${id}`)
       .pipe(
         tap(() => {
@@ -553,7 +598,7 @@ export class EquipoService {
    */
   obtenerEstadisticas(): Observable<EstadisticasEquipo> {
     console.log('📊 Obteniendo estadísticas del equipo...');
-    
+
     return this.http.get<any>(`${this.apiUrl}/admin/estadisticas`)
       .pipe(
         map(response => {
@@ -575,7 +620,7 @@ export class EquipoService {
    */
   obtenerEstadisticasMiembro(id: number): Observable<EstadisticasMiembro> {
     console.log(`📊 Obteniendo estadísticas del miembro id=${id}...`);
-    
+
     return this.http.get<any>(`${this.apiUrl}/admin/${id}/estadisticas`)
       .pipe(
         map(response => {
@@ -594,9 +639,9 @@ export class EquipoService {
    */
   obtenerTopProductivos(limite: number = 10): Observable<EstadisticasMiembro[]> {
     console.log(`🏆 Obteniendo top ${limite} miembros productivos...`);
-    
+
     const params = new HttpParams().set('limite', limite.toString());
-    
+
     return this.http.get<any>(`${this.apiUrl}/admin/top-productivos`, { params })
       .pipe(
         map(response => {
@@ -606,7 +651,7 @@ export class EquipoService {
           } else if (Array.isArray(response)) {
             topMiembros = response;
           }
-          
+
           console.log(`✅ Top ${topMiembros.length} miembros productivos:`, topMiembros);
           return topMiembros;
         }),
@@ -621,7 +666,7 @@ export class EquipoService {
     const params = new HttpParams()
       .set('texto', texto.trim())
       .set('incluirInactivos', incluirInactivos.toString());
-    
+
     return this.http.get<any>(`${this.apiUrl}/admin/buscar`, { params })
       .pipe(
         map(response => {
@@ -631,7 +676,7 @@ export class EquipoService {
           } else if (Array.isArray(response)) {
             miembros = response;
           }
-          
+
           console.log(`🔍 Búsqueda admin "${texto}": ${miembros.length} resultados`);
           return miembros;
         }),
@@ -646,11 +691,11 @@ export class EquipoService {
    */
   actualizarEstadisticasNoticia(autorId: number, accion: 'crear' | 'eliminar' | 'destacar' | 'no-destacar'): Observable<any> {
     if (!autorId) return of(null);
-    
+
     console.log(`📊 Actualizando estadísticas de noticia para miembro ${autorId}: ${accion}`);
-    
+
     const payload = { autorId, accion, tipo: 'noticia' };
-    
+
     return this.http.post<any>(`${this.apiUrl}/admin/actualizar-estadisticas`, payload)
       .pipe(
         tap(() => console.log(`✅ Estadísticas de noticia actualizadas para miembro ${autorId}`)),
@@ -666,11 +711,11 @@ export class EquipoService {
    */
   actualizarEstadisticasEvento(creadorId: number, accion: 'crear' | 'eliminar'): Observable<any> {
     if (!creadorId) return of(null);
-    
+
     console.log(`📊 Actualizando estadísticas de evento para miembro ${creadorId}: ${accion}`);
-    
+
     const payload = { creadorId, accion, tipo: 'evento' };
-    
+
     return this.http.post<any>(`${this.apiUrl}/admin/actualizar-estadisticas`, payload)
       .pipe(
         tap(() => console.log(`✅ Estadísticas de evento actualizadas para miembro ${creadorId}`)),
@@ -701,13 +746,13 @@ export class EquipoService {
   private actualizarCacheMiembro(miembro: MiembroEquipo): void {
     const miembrosActuales = this.miembrosSubject.value;
     const index = miembrosActuales.findIndex(m => m.id === miembro.id);
-    
+
     if (index !== -1) {
       miembrosActuales[index] = miembro;
     } else {
       miembrosActuales.push(miembro);
     }
-    
+
     this.miembrosSubject.next([...miembrosActuales]);
   }
 
@@ -720,12 +765,12 @@ export class EquipoService {
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error(`❌ Error en ${operation}:`, error);
-      
+
       // Log adicional del error
       if (error.status) {
         console.error(`Status: ${error.status}, URL: ${error.url}`);
       }
-      
+
       // Devolver resultado seguro
       return of(result as T);
     };
@@ -736,28 +781,28 @@ export class EquipoService {
    */
   listarMiembrosActivosConRespaldo(): Observable<MiembroEquipo[]> {
     console.log('🔄 Obteniendo miembros activos con respaldo...');
-    
+
     return this.http.get<any>(`${this.apiUrl}/publico`)
       .pipe(
         map(response => {
           console.log('✅ Respuesta endpoint público:', response);
-          
+
           let miembros = [];
           if (response.success && response.data) {
             miembros = response.data;
           } else if (Array.isArray(response)) {
             miembros = response;
           }
-          
+
           // Si no hay miembros en público, intentar desde admin
           if (miembros.length === 0) {
             console.log('⚠️ No hay miembros en endpoint público, verificando en admin...');
             this.verificarMiembrosEnAdmin();
           }
-          
+
           // Ordenar por ordenVisualizacion
           miembros.sort((a: any, b: any) => (a.ordenVisualizacion || 0) - (b.ordenVisualizacion || 0));
-          
+
           this.miembrosSubject.next(miembros);
           return miembros;
         }),
@@ -773,23 +818,23 @@ export class EquipoService {
    */
   private verificarMiembrosEnAdmin(): Observable<MiembroEquipo[]> {
     console.log('🔍 Verificando miembros en endpoint admin...');
-    
+
     return this.http.get<any>(`${this.apiUrl}/admin`)
       .pipe(
         map(response => {
           console.log('📋 Miembros en admin:', response);
-          
+
           let miembros = [];
           if (response.success && response.data) {
             miembros = response.data;
           } else if (Array.isArray(response)) {
             miembros = response;
           }
-          
+
           // Filtrar solo los activos para el público
           const miembrosActivos = miembros.filter((m: any) => m.activo === true);
           console.log(`🔍 De ${miembros.length} miembros total, ${miembrosActivos.length} están activos`);
-          
+
           this.miembrosSubject.next(miembrosActivos);
           return miembrosActivos;
         }),

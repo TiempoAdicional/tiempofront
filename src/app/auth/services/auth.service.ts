@@ -13,7 +13,7 @@ export interface LoginResponse {
   token: string;
   rol: string;
   nombre: string;
-  id : number;
+  id: number;
 }
 
 export interface RegisterPayload {
@@ -40,7 +40,7 @@ export class AuthService {
   autenticado$ = this.autenticadoSubject.asObservable();
   nombre$ = this.nombreSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // === LOGIN / REGISTER ===
   login(payload: LoginPayload): Observable<LoginResponse> {
@@ -58,20 +58,20 @@ export class AuthService {
       console.error('❌ Token inválido recibido:', token);
       return;
     }
-    
+
     console.log('🔐 Guardando token:', {
       tokenLength: token.length,
       tokenPreview: token.substring(0, 20) + '...',
       timestamp: new Date().toISOString()
     });
-    
+
     localStorage.setItem('jwt', token);
     this.autenticadoSubject.next(this.estaAutenticado());
   }
 
   guardarUsuario(nombre: string, rol: string, id: number): void {
     console.log('👤 Guardando datos de usuario:', { nombre, rol, id });
-    
+
     localStorage.setItem('nombre', nombre);
     localStorage.setItem('rol', rol);
     localStorage.setItem('id', id.toString());
@@ -123,14 +123,14 @@ export class AuthService {
       const decoded: DecodedToken = jwtDecode(token);
       const ahora = Math.floor(Date.now() / 1000);
       const esValido = decoded.exp > ahora;
-      
+
       console.log('🔍 Verificando token:', {
         exp: decoded.exp,
         ahora,
         esValido,
         tiempoRestante: decoded.exp - ahora
       });
-      
+
       return esValido;
     } catch (error) {
       console.error('❌ Error decodificando token:', error);
@@ -190,19 +190,19 @@ export class AuthService {
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
   obtenerIdUsuario(): number | null {
-  const id = localStorage.getItem('id');
-  return id ? Number(id) : null;
-}
-obtenerUsuario(): { id: number; nombre: string; rol: string } | null {
-  const id = this.obtenerIdUsuario();
-  const nombre = this.obtenerNombre();
-  const rol = this.obtenerRol();
-
-  if (id !== null && nombre && rol) {
-    return { id, nombre, rol };
+    const id = localStorage.getItem('id');
+    return id ? Number(id) : null;
   }
+  obtenerUsuario(): { id: number; nombre: string; rol: string } | null {
+    const id = this.obtenerIdUsuario();
+    const nombre = this.obtenerNombre();
+    const rol = this.obtenerRol();
 
-  return null;
-}
+    if (id !== null && nombre && rol) {
+      return { id, nombre, rol };
+    }
+
+    return null;
+  }
 
 }
