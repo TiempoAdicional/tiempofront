@@ -49,6 +49,7 @@ export interface CrearMiembroDTO {
   activo?: boolean;
   // 🚫 NO incluir fechaCreacion ni fechaActualizacion
   // Estas fechas las asigna automáticamente el backend
+  // 📁 La imagen se maneja por separado como File en FormData
 }
 
 export interface EstadisticasMiembro {
@@ -84,6 +85,8 @@ export class EquipoService {
   readonly estadisticas$ = this.estadisticasSubject.asObservable();
 
   constructor(private http: HttpClient) { }
+
+
 
   // ===== VERIFICACIÓN DE MIEMBRO =====
 
@@ -338,19 +341,16 @@ export class EquipoService {
   }
 
   /**
-   * Crea un nuevo miembro del equipo con imagen
-   * 
-   * ⚠️ IMPORTANTE: Las fechas (fechaCreacion, fechaActualizacion) NO se envían
-   * desde el frontend. El backend debe asignarlas automáticamente usando:
-   * - @PrePersist para fechaCreacion
-   * - @PreUpdate para fechaActualizacion
-   * - O anotaciones como @CreationTimestamp y @UpdateTimestamp
-   */
+ * Crea un nuevo miembro del equipo con imagen
+ * 
+ * ⚠️ FORMATO BACKEND: FormData con archivo directo
+ * - Content-Type: multipart/form-data (automático)
+ * - JSON en campo 'miembro' + archivo en campo 'imagen'
+ */
   crearMiembro(miembroData: CrearMiembroDTO, imagen?: File): Observable<MiembroEquipo> {
     console.log('📤 Creando miembro del equipo...', miembroData);
 
-    // 🆕 Asegurar que el miembro sea activo por defecto y corregir mapeo
-    // 🚫 NO incluir fechaCreacion ni fechaActualizacion - las asigna el backend
+    // Preparar datos del miembro (sin imagenBase64)
     const miembroConDefaults = {
       nombre: miembroData.nombre,
       apellido: miembroData.apellido || '',
@@ -365,25 +365,26 @@ export class EquipoService {
 
     console.log('📋 Datos procesados para envío:', miembroConDefaults);
 
-    // 🆕 CORREGIR: El backend espera FormData con el objeto como JSON string
+    // Crear FormData
     const formData = new FormData();
 
-    // Agregar el objeto completo como JSON string en el campo 'miembro'
+    // Agregar datos del miembro como JSON string
     formData.append('miembro', JSON.stringify(miembroConDefaults));
 
+    // Agregar imagen como archivo directo (si existe)
     if (imagen) {
       formData.append('imagen', imagen, imagen.name);
-      console.log('📷 Imagen adjunta:', imagen.name);
+      console.log('📷 Imagen adjunta:', imagen.name, 'Tamaño:', imagen.size, 'bytes');
     }
 
     console.log('🌐 URL del endpoint:', `${this.apiUrl}/admin`);
     console.log('📦 FormData contenido:', {
       miembro: formData.get('miembro'),
       hasImagen: formData.has('imagen'),
-      miembroJSON: JSON.stringify(miembroConDefaults)
+      imagenName: imagen?.name || 'sin imagen'
     });
 
-    // No establecer Content-Type manualmente, Angular lo hará automáticamente para FormData
+    // No establecer Content-Type, Angular lo maneja automáticamente para FormData
     return this.http.post<any>(`${this.apiUrl}/admin`, formData)
       .pipe(
         map(response => {
@@ -441,8 +442,8 @@ export class EquipoService {
               console.error('📝 Mensaje del backend:', error.error.message);
             }
 
-            // 🆕 Mostrar los datos que se están enviando
-            console.error('📤 Datos enviados que causaron error:', miembroConDefaults);
+            // 🆕 Mostrar información del error disponible
+            console.error('📤 URL que causó error:', error.url);
           }
 
           // Si es error de Content-Type, el problema está en el formato de datos
@@ -461,28 +462,35 @@ export class EquipoService {
   }
 
   /**
-   * Actualiza un miembro existente
-   */
+ * Actualiza un miembro existente
+ * 
+ * ⚠️ FORMATO BACKEND: FormData con archivo directo
+ * - Content-Type: multipart/form-data (automático)
+ * - JSON en campo 'miembro' + archivo en campo 'imagen' (opcional)
+ */
   actualizarMiembro(id: number, miembroData: Partial<CrearMiembroDTO>, imagen?: File): Observable<MiembroEquipo> {
     console.log(`📤 Actualizando miembro id=${id}...`, miembroData);
 
-    // 🆕 CORREGIR: El backend espera FormData con el objeto como JSON string
+    // Crear FormData
     const formData = new FormData();
 
-    // Agregar el objeto completo como JSON string en el campo 'miembro'
+    // Agregar datos del miembro como JSON string (solo campos a actualizar)
     formData.append('miembro', JSON.stringify(miembroData));
 
+    // Agregar imagen como archivo directo (si se quiere cambiar)
     if (imagen) {
       formData.append('imagen', imagen, imagen.name);
-      console.log('📷 Nueva imagen adjunta:', imagen.name);
+      console.log('📷 Nueva imagen adjunta:', imagen.name, 'Tamaño:', imagen.size, 'bytes');
     }
 
-    console.log('📋 FormData para actualizar:', {
+    console.log('🌐 URL del endpoint PUT:', `${this.apiUrl}/admin/${id}`);
+    console.log('📦 FormData para actualizar:', {
       miembro: formData.get('miembro'),
       hasImagen: formData.has('imagen'),
-      miembroJSON: JSON.stringify(miembroData)
+      imagenName: imagen?.name || 'sin cambio de imagen'
     });
 
+    // No establecer Content-Type, Angular lo maneja automáticamente para FormData
     return this.http.put<any>(`${this.apiUrl}/admin/${id}`, formData)
       .pipe(
         map(response => {
@@ -524,8 +532,8 @@ export class EquipoService {
               console.error('📝 Mensaje del backend:', error.error.message);
             }
 
-            // 🆕 Mostrar los datos que se están enviando
-            console.error('📤 Datos enviados que causaron error:', miembroData);
+            // 🆕 Mostrar información del error disponible
+            console.error('📤 URL que causó error:', error.url);
           }
 
           // Si es error de autenticación

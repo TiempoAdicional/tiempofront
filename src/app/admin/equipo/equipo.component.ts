@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -57,7 +57,7 @@ interface PaginatedMiembros {
   templateUrl: './equipo.component.html',
   styleUrls: ['./equipo.component.scss']
 })
-export class AdminEquipoComponent implements OnInit, OnDestroy {
+export class AdminEquipoComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly equipoService = inject(EquipoService);
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
@@ -80,6 +80,13 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
   // Filtros y búsqueda
   searchTerm = signal('');
   selectedRol = signal('');
+
+  // Variables para el template (evitar errores de signals)
+  currentSearchTerm = '';
+  currentSelectedRol = '';
+
+  // ViewChild para el input de archivo
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   selectedEstado = signal('activo');
   sortBy = signal('nombre');
   sortDirection = signal<'asc' | 'desc'>('asc');
@@ -225,12 +232,21 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
     });
 
     // Conectar con el input de búsqueda en el template
-    this.onSearchChange = (term: string) => searchSubject.next(term);
+    this.onSearchChange = (term: string) => {
+      this.currentSearchTerm = term;
+      searchSubject.next(term);
+    };
   }
 
   onSearchChange = (term: string) => {
     // Se define en setupSearch()
   };
+
+  onRolChange(value: string): void {
+    this.selectedRol.set(value);
+    this.currentSelectedRol = value;
+    this.onFilterChange();
+  }
 
   loadMiembros(): void {
     this.isLoading.set(true);
@@ -330,6 +346,36 @@ export class AdminEquipoComponent implements OnInit, OnDestroy {
         this.imagePreview = e.target?.result as string;
       };
       reader.readAsDataURL(file);
+    }
+  }
+
+  handleImageChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (file) {
+      this.selectedImage = file;
+
+      // Crear preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imagePreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  triggerFileInput(): void {
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.click();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // Configurar el listener para el cambio de archivo después de que la vista se inicialice
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.addEventListener('change', (event) => {
+        this.handleImageChange(event);
+      });
     }
   }
 

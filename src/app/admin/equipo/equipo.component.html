@@ -98,15 +98,15 @@
         <!-- Búsqueda -->
         <mat-form-field appearance="outline" class="search-field">
           <mat-label>Buscar miembros...</mat-label>
-          <input matInput placeholder="Nombre, apellido, correo, cargo..." #searchInput
-            (input)="onSearchChange(searchInput.value)" [value]="searchTerm()">
+          <input matInput placeholder="Nombre, apellido, correo, cargo..." [(ngModel)]="currentSearchTerm"
+            (ngModelChange)="onSearchChange($event)" autocomplete="off">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
 
         <!-- Filtro por rol -->
         <mat-form-field appearance="outline">
           <mat-label>Rol</mat-label>
-          <mat-select [value]="selectedRol()" (selectionChange)="selectedRol.set($event.value); onFilterChange()">
+          <mat-select [(ngModel)]="currentSelectedRol" (ngModelChange)="onRolChange($event)">
             <mat-option value="">Todos los roles</mat-option>
             <mat-option *ngFor="let rol of roles" [value]="rol">
               {{ rol }}
@@ -285,8 +285,8 @@
             onerror="this.src='/assets/user.png'">
         </div>
         <div class="photo-upload modern-photo-upload">
-          <input type="file" #fileInput accept="image/*" (change)="onImageSelected($event)" style="display: none;">
-          <button type="button" mat-raised-button color="accent" (click)="fileInput.click()">
+          <input type="file" #fileInput accept="image/*" style="display: none;">
+          <button type="button" mat-raised-button color="accent" (click)="triggerFileInput()">
             <mat-icon>photo_camera</mat-icon>
             Seleccionar Foto
           </button>
