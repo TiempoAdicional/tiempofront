@@ -53,16 +53,30 @@ export class AuthService {
 
   // === GUARDADO DE TOKEN Y USUARIO ===
   guardarToken(token: string): void {
+    // 🆕 VALIDACIÓN: Verificar que el token no esté vacío o malformado
+    if (!token || token.trim() === '' || token === 'null' || token === 'undefined') {
+      console.error('❌ Token inválido recibido:', token);
+      return;
+    }
+    
+    console.log('🔐 Guardando token:', {
+      tokenLength: token.length,
+      tokenPreview: token.substring(0, 20) + '...',
+      timestamp: new Date().toISOString()
+    });
+    
     localStorage.setItem('jwt', token);
     this.autenticadoSubject.next(this.estaAutenticado());
   }
 
   guardarUsuario(nombre: string, rol: string, id: number): void {
-  localStorage.setItem('nombre', nombre);
-  localStorage.setItem('rol', rol);
-  localStorage.setItem('id', id.toString());
-  this.nombreSubject.next(nombre);
-}
+    console.log('👤 Guardando datos de usuario:', { nombre, rol, id });
+    
+    localStorage.setItem('nombre', nombre);
+    localStorage.setItem('rol', rol);
+    localStorage.setItem('id', id.toString());
+    this.nombreSubject.next(nombre);
+  }
 
   obtenerCorreoUsuario(): string | null {
     const token = this.obtenerToken();
@@ -100,13 +114,26 @@ export class AuthService {
   // === AUTENTICACIÓN Y ROLES ===
   estaAutenticado(): boolean {
     const token = this.obtenerToken();
-    if (!token) return false;
+    if (!token) {
+      console.log('🔍 No hay token almacenado');
+      return false;
+    }
 
     try {
       const decoded: DecodedToken = jwtDecode(token);
       const ahora = Math.floor(Date.now() / 1000);
-      return decoded.exp > ahora;
+      const esValido = decoded.exp > ahora;
+      
+      console.log('🔍 Verificando token:', {
+        exp: decoded.exp,
+        ahora,
+        esValido,
+        tiempoRestante: decoded.exp - ahora
+      });
+      
+      return esValido;
     } catch (error) {
+      console.error('❌ Error decodificando token:', error);
       return false;
     }
   }

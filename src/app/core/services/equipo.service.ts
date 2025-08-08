@@ -378,11 +378,18 @@ export class EquipoService {
       console.log('📷 Imagen adjunta para subir a Cloudinary:', imagen.name);
     }
 
-    // 🆕 CORREGIR: Headers apropiados para multipart/form-data con JSON
-    const headers = {
-      // Angular establecerá Content-Type automáticamente con boundary
-      // No establecer 'Content-Type': 'application/json' ya que es multipart
+    // 🆕 MEJORAR: Headers más específicos para debugging
+    const headers: any = {
+      // No establecer Content-Type aquí, Angular lo hará automáticamente para FormData
     };
+
+    console.log('🌐 URL del endpoint:', `${this.apiUrl}/admin`);
+    console.log('🔐 Headers de la petición:', headers);
+    console.log('📦 FormData contenido:', {
+      hasMiembro: formData.has('miembro'),
+      hasImagen: formData.has('imagen'),
+      miembroSize: miembroJSON.length
+    });
 
     return this.http.post<any>(`${this.apiUrl}/admin`, formData, { headers })
       .pipe(
@@ -420,14 +427,36 @@ export class EquipoService {
         catchError(error => {
           console.error('❌ Error al crear miembro:', error);
           
-          // 🆕 Mostrar detalles específicos del error para debugging
-          if (error.error && error.error.message) {
-            console.error('� Detalle del error:', error.error.message);
+          // 🆕 MEJORAR: Logging más detallado para debugging en producción
+          console.error('🔍 Detalles del error:', {
+            status: error.status,
+            statusText: error.statusText,
+            url: error.url,
+            message: error.message,
+            error: error.error
+          });
+          
+          // Si es error 400, mostrar información específica
+          if (error.status === 400) {
+            console.error('🚨 Error 400 - Posibles causas:');
+            console.error('   - Token inválido o expirado');
+            console.error('   - Datos malformados');
+            console.error('   - Validación del backend falló');
+            console.error('   - Headers incorrectos');
+            
+            if (error.error && error.error.message) {
+              console.error('📝 Mensaje del backend:', error.error.message);
+            }
           }
           
           // Si es error de Content-Type, el problema está en el formato de datos
           if (error.error && error.error.message && error.error.message.includes('Content-Type')) {
             console.error('🔴 Error de Content-Type - Revisar formato de FormData');
+          }
+          
+          // Si es error de autenticación
+          if (error.status === 401 || error.status === 403) {
+            console.error('🔐 Error de autenticación - Verificar token');
           }
           
           return throwError(() => error);
