@@ -35,16 +35,26 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
       return next(req);
     }
 
+    // Preparar headers para la petición autenticada
+    const headers: { [key: string]: string } = {
+      Authorization: `Bearer ${token}`
+    };
+
+    // Solo agregar Content-Type si no es FormData
+    // FormData establece automáticamente multipart/form-data con boundary
+    if (!(req.body instanceof FormData)) {
+      headers['Content-Type'] = req.headers.get('Content-Type') || 'application/json';
+    }
+
     const authReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': req.headers.get('Content-Type') || 'application/json'
-      },
+      setHeaders: headers
     });
 
     console.log('✅ Token agregado a la petición:', {
       url: req.url,
-      tokenPreview: token.substring(0, 20) + '...'
+      tokenPreview: token.substring(0, 20) + '...',
+      isFormData: req.body instanceof FormData,
+      contentType: authReq.headers.get('Content-Type')
     });
 
     return next(authReq);

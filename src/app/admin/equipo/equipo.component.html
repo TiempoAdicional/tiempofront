@@ -280,16 +280,33 @@
     <form [formGroup]="miembroForm" (ngSubmit)="saveMiembro()" class="member-form modern-form">
       <!-- Foto del miembro -->
       <div class="photo-section modern-photo-section">
+        <label class="field-label" [class.required-field]="!editingMiembro()">
+          <mat-icon>photo_camera</mat-icon>
+          Foto del Miembro {{ !editingMiembro() ? '*' : '' }}
+        </label>
         <div class="photo-preview modern-photo-preview">
           <img [src]="imagePreview || '/assets/user.png'" alt="Vista previa" class="profile-img"
             onerror="this.src='/assets/user.png'">
         </div>
         <div class="photo-upload modern-photo-upload">
           <input type="file" #fileInput accept="image/*" style="display: none;">
-          <button type="button" mat-raised-button color="accent" (click)="triggerFileInput()">
+          <button type="button" mat-raised-button color="accent" (click)="triggerFileInput()"
+            [class.required-button]="!editingMiembro() && !selectedImage">
             <mat-icon>photo_camera</mat-icon>
-            Seleccionar Foto
+            {{ selectedImage ? 'Cambiar Foto' : (editingMiembro() ? 'Seleccionar Nueva Foto' : 'Seleccionar Foto *') }}
           </button>
+          <small class="field-hint required-hint" *ngIf="!editingMiembro() && !selectedImage">
+            <mat-icon class="hint-icon">info</mat-icon>
+            La foto es obligatoria para crear el miembro del equipo
+          </small>
+          <small class="field-hint required-hint" *ngIf="editingMiembro() && !selectedImage">
+            <mat-icon class="hint-icon">info</mat-icon>
+            Si no selecciona una nueva foto, se mantendrá la actual
+          </small>
+          <small class="field-hint success-hint" *ngIf="selectedImage">
+            <mat-icon class="hint-icon">check_circle</mat-icon>
+            Foto seleccionada: {{ selectedImage.name }}
+          </small>
         </div>
       </div>
 

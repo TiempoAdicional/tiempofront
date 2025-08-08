@@ -366,22 +366,58 @@ export class AdminEquipoComponent implements OnInit, OnDestroy, AfterViewInit {
 
   triggerFileInput(): void {
     if (this.fileInput?.nativeElement) {
+      // Configurar el listener antes de hacer click
+      this.fileInput.nativeElement.onchange = (event) => {
+        this.onFileSelected(event);
+      };
       this.fileInput.nativeElement.click();
     }
   }
 
   ngAfterViewInit(): void {
-    // Configurar el listener para el cambio de archivo después de que la vista se inicialice
-    if (this.fileInput?.nativeElement) {
-      this.fileInput.nativeElement.addEventListener('change', (event) => {
-        this.handleImageChange(event);
-      });
+    // ViewChild ya está configurado, no necesitamos listener adicional
+  }
+
+  onFileSelected(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    console.log('📷 Archivo seleccionado:', file);
+
+    if (file) {
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        this.showError('Por favor selecciona un archivo de imagen válido');
+        return;
+      }
+
+      // Validar tamaño (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.showError('La imagen debe ser menor a 5MB');
+        return;
+      }
+
+      this.selectedImage = file;
+
+      // Crear vista previa inmediatamente
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imagePreview = e.target?.result as string;
+        console.log('✅ Vista previa creada para:', file.name);
+      };
+      reader.readAsDataURL(file);
     }
   }
 
   async saveMiembro(): Promise<void> {
     if (!this.miembroForm.valid) {
       this.markFormGroupTouched();
+      return;
+    }
+
+    // Validar que se haya seleccionado una imagen (obligatorio solo para crear nuevo miembro)
+    if (!this.editingMiembro() && !this.selectedImage) {
+      this.showError('⚠️ La foto del miembro es obligatoria. Por favor selecciona una imagen.');
       return;
     }
 
