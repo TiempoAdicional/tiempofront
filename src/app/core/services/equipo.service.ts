@@ -365,17 +365,26 @@ export class EquipoService {
 
     console.log('📋 Datos procesados para envío:', miembroConDefaults);
 
-    // 🆕 CORREGIR: Enviar como JSON simple en lugar de FormData
-    // El backend no puede parsear multipart request correctamente
-    const headers = {
-      'Content-Type': 'application/json'
-    };
+    // 🆕 CORREGIR: El backend espera FormData con el objeto como JSON string
+    const formData = new FormData();
+
+    // Agregar el objeto completo como JSON string en el campo 'miembro'
+    formData.append('miembro', JSON.stringify(miembroConDefaults));
+
+    if (imagen) {
+      formData.append('imagen', imagen, imagen.name);
+      console.log('📷 Imagen adjunta:', imagen.name);
+    }
 
     console.log('🌐 URL del endpoint:', `${this.apiUrl}/admin`);
-    console.log('🔐 Headers de la petición:', headers);
-    console.log('📦 Datos JSON a enviar:', miembroConDefaults);
+    console.log('📦 FormData contenido:', {
+      miembro: formData.get('miembro'),
+      hasImagen: formData.has('imagen'),
+      miembroJSON: JSON.stringify(miembroConDefaults)
+    });
 
-    return this.http.post<any>(`${this.apiUrl}/admin`, miembroConDefaults, { headers })
+    // No establecer Content-Type manualmente, Angular lo hará automáticamente para FormData
+    return this.http.post<any>(`${this.apiUrl}/admin`, formData)
       .pipe(
         map(response => {
           console.log('📥 Respuesta del backend al crear miembro:', response);
@@ -457,15 +466,24 @@ export class EquipoService {
   actualizarMiembro(id: number, miembroData: Partial<CrearMiembroDTO>, imagen?: File): Observable<MiembroEquipo> {
     console.log(`📤 Actualizando miembro id=${id}...`, miembroData);
 
-    // 🆕 CORREGIR: Enviar como JSON simple en lugar de FormData
-    // El backend no puede parsear multipart request correctamente
-    const headers = {
-      'Content-Type': 'application/json'
-    };
+    // 🆕 CORREGIR: El backend espera FormData con el objeto como JSON string
+    const formData = new FormData();
 
-    console.log('📋 Datos JSON del miembro para actualizar:', miembroData);
+    // Agregar el objeto completo como JSON string en el campo 'miembro'
+    formData.append('miembro', JSON.stringify(miembroData));
 
-    return this.http.put<any>(`${this.apiUrl}/admin/${id}`, miembroData, { headers })
+    if (imagen) {
+      formData.append('imagen', imagen, imagen.name);
+      console.log('📷 Nueva imagen adjunta:', imagen.name);
+    }
+
+    console.log('📋 FormData para actualizar:', {
+      miembro: formData.get('miembro'),
+      hasImagen: formData.has('imagen'),
+      miembroJSON: JSON.stringify(miembroData)
+    });
+
+    return this.http.put<any>(`${this.apiUrl}/admin/${id}`, formData)
       .pipe(
         map(response => {
           console.log(`📥 Respuesta del backend al actualizar miembro id=${id}:`, response);

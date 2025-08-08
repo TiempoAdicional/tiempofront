@@ -30,6 +30,48 @@
 
 ## ✅ **SOLUCIONES IMPLEMENTADAS**
 
+### **🔍 CAUSA IDENTIFICADA:**
+El error **"Failed to parse multipart servlet request"** indica que:
+1. El backend espera **FormData** (multipart/form-data)
+2. Estábamos enviando **JSON Blob** dentro de FormData
+3. El backend no puede parsear este formato específico
+
+### **🛠️ SOLUCIÓN FINAL:**
+Enviar **FormData** con el objeto como **JSON string** en el campo 'miembro':
+
+```typescript
+// ❌ INCORRECTO (causaba error 400):
+const miembroJSON = JSON.stringify(miembroData);
+const miembroBlob = new Blob([miembroJSON], { type: 'application/json' });
+formData.append('miembro', miembroBlob);
+
+// ✅ CORRECTO (funciona):
+const formData = new FormData();
+formData.append('miembro', JSON.stringify(miembroData));
+if (imagen) {
+  formData.append('imagen', imagen, imagen.name);
+}
+```
+
+### **📤 FORMATO EXACTO QUE ESPERA EL BACKEND:**
+
+```
+POST https://tiempobackend.onrender.com/api/equipo/admin
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary...
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+
+------WebKitFormBoundary...
+Content-Disposition: form-data; name="miembro"
+
+{"nombre":"Diego","apellido":"Daza","correo":"gerencia@tiempoadicional.com","rol":"DIRECTOR","cargo":"editor","biografia":"uno de los mejores editores y directores","telefono":"3158966668","ordenVisualizacion":1,"activo":true}
+------WebKitFormBoundary...
+Content-Disposition: form-data; name="imagen"; filename="foto.jpg"
+Content-Type: image/jpeg
+
+[binary image data]
+------WebKitFormBoundary...
+```
+
 ### **1. Mejora del Interceptor de Autenticación**
 
 ```typescript
