@@ -365,33 +365,17 @@ export class EquipoService {
 
     console.log('📋 Datos procesados para envío:', miembroConDefaults);
 
-    const formData = new FormData();
-
-    // 🆕 CORREGIR: Enviar los datos del miembro como Blob JSON para que tenga el Content-Type correcto
-    const miembroJSON = JSON.stringify(miembroConDefaults);
-    const miembroBlob = new Blob([miembroJSON], { type: 'application/json' });
-    formData.append('miembro', miembroBlob);
-    console.log('📋 Datos JSON del miembro:', miembroJSON);
-
-    if (imagen) {
-      formData.append('imagen', imagen, imagen.name);
-      console.log('📷 Imagen adjunta para subir a Cloudinary:', imagen.name);
-    }
-
-    // 🆕 MEJORAR: Headers más específicos para debugging
-    const headers: any = {
-      // No establecer Content-Type aquí, Angular lo hará automáticamente para FormData
+    // 🆕 CORREGIR: Enviar como JSON simple en lugar de FormData
+    // El backend no puede parsear multipart request correctamente
+    const headers = {
+      'Content-Type': 'application/json'
     };
 
     console.log('🌐 URL del endpoint:', `${this.apiUrl}/admin`);
     console.log('🔐 Headers de la petición:', headers);
-    console.log('📦 FormData contenido:', {
-      hasMiembro: formData.has('miembro'),
-      hasImagen: formData.has('imagen'),
-      miembroSize: miembroJSON.length
-    });
+    console.log('📦 Datos JSON a enviar:', miembroConDefaults);
 
-    return this.http.post<any>(`${this.apiUrl}/admin`, formData, { headers })
+    return this.http.post<any>(`${this.apiUrl}/admin`, miembroConDefaults, { headers })
       .pipe(
         map(response => {
           console.log('📥 Respuesta del backend al crear miembro:', response);
@@ -447,11 +431,14 @@ export class EquipoService {
             if (error.error && error.error.message) {
               console.error('📝 Mensaje del backend:', error.error.message);
             }
+
+            // 🆕 Mostrar los datos que se están enviando
+            console.error('📤 Datos enviados que causaron error:', miembroConDefaults);
           }
 
           // Si es error de Content-Type, el problema está en el formato de datos
           if (error.error && error.error.message && error.error.message.includes('Content-Type')) {
-            console.error('🔴 Error de Content-Type - Revisar formato de FormData');
+            console.error('🔴 Error de Content-Type - Revisar formato de datos');
           }
 
           // Si es error de autenticación
@@ -470,29 +457,15 @@ export class EquipoService {
   actualizarMiembro(id: number, miembroData: Partial<CrearMiembroDTO>, imagen?: File): Observable<MiembroEquipo> {
     console.log(`📤 Actualizando miembro id=${id}...`, miembroData);
 
-    const formData = new FormData();
+    // 🆕 CORREGIR: Enviar como JSON simple en lugar de FormData
+    // El backend no puede parsear multipart request correctamente
+    const headers = {
+      'Content-Type': 'application/json'
+    };
 
-    // 🆕 CORREGIR: Enviar los datos del miembro como Blob JSON para que tenga el Content-Type correcto
-    const miembroJSON = JSON.stringify(miembroData);
-    const miembroBlob = new Blob([miembroJSON], { type: 'application/json' });
-    formData.append('miembro', miembroBlob);
-    console.log('📋 Datos JSON del miembro para actualizar:', miembroJSON);
+    console.log('📋 Datos JSON del miembro para actualizar:', miembroData);
 
-    if (imagen) {
-      formData.append('imagen', imagen, imagen.name);
-      console.log('📷 Nueva imagen adjunta para actualizar:', imagen.name);
-    }
-
-    // 🆕 MEJORAR: Logging más detallado para debugging
-    console.log('🌐 URL del endpoint PUT:', `${this.apiUrl}/admin/${id}`);
-    console.log('📦 FormData contenido para actualizar:', {
-      hasMiembro: formData.has('miembro'),
-      hasImagen: formData.has('imagen'),
-      miembroSize: miembroJSON.length,
-      id: id
-    });
-
-    return this.http.put<any>(`${this.apiUrl}/admin/${id}`, formData)
+    return this.http.put<any>(`${this.apiUrl}/admin/${id}`, miembroData, { headers })
       .pipe(
         map(response => {
           console.log(`📥 Respuesta del backend al actualizar miembro id=${id}:`, response);
@@ -514,7 +487,6 @@ export class EquipoService {
             status: error.status,
             statusText: error.statusText,
             url: error.url,
-            method: 'PUT',
             message: error.message,
             error: error.error,
             id: id
@@ -523,9 +495,10 @@ export class EquipoService {
           // Si es error 400, mostrar información específica
           if (error.status === 400) {
             console.error('🚨 Error 400 en PUT - Posibles causas:');
-            console.error('   - Datos malformados o incompletos');
+            console.error('   - Token inválido o expirado');
+            console.error('   - Datos malformados');
             console.error('   - Validación del backend falló');
-            console.error('   - ID del miembro no existe');
+            console.error('   - Headers incorrectos');
             console.error('   - Campos requeridos faltantes');
             console.error('   - Formato de datos incorrecto');
 
