@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, of, throwError, from } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { environment } from '../../../environment/environment';
+import { AuthService } from '../../auth/services/auth.service';
 
 // Interfaces - Actualizada para coincidir exactamente con MiembroEquipoDTO del backend
 export interface MiembroEquipo {
@@ -84,7 +85,10 @@ export class EquipoService {
   readonly miembros$ = this.miembrosSubject.asObservable();
   readonly estadisticas$ = this.estadisticasSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) { }
 
 
 
@@ -395,8 +399,29 @@ export class EquipoService {
       console.error('❌ Error al parsear JSON del miembro:', error);
     }
 
-    // No establecer Content-Type, Angular lo maneja automáticamente para FormData
+    // OPCIÓN A: Angular HttpClient (con interceptor)
+    console.log('🔄 Enviando con Angular HttpClient...');
     return this.http.post<any>(`${this.apiUrl}/admin`, formData)
+
+      // OPCIÓN B: Fetch directo (sin interceptor) - descomenta para probar
+      /*
+      console.log('🔄 Enviando con fetch directo (sin interceptor)...');
+      const token = this.authService.obtenerToken();
+      
+      return from(fetch(`${this.apiUrl}/admin`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+          // NO incluir Content-Type - se establece automáticamente
+        },
+        body: formData
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+      }))
+      */
       .pipe(
         map(response => {
           console.log('📥 Respuesta del backend al crear miembro:', response);
@@ -440,6 +465,21 @@ export class EquipoService {
             message: error.message,
             error: error.error
           });
+
+          // Logging específico para error 500
+          if (error.status === 500) {
+            console.error('🚨 ERROR 500 - Detalles del servidor:');
+            console.error('- Error object:', error.error);
+            console.error('- Error message:', error.error?.message);
+            console.error('- Error details:', error.error?.details);
+            console.error('- Stack trace:', error.error?.stack);
+
+            // Si hay información específica sobre Content-Type
+            if (error.error?.message?.includes('Content-Type')) {
+              console.error('🔴 PROBLEMA DE CONTENT-TYPE CONFIRMADO');
+              console.error('- Mensaje del backend:', error.error.message);
+            }
+          }
 
           // Si es error 400, mostrar información específica
           if (error.status === 400) {

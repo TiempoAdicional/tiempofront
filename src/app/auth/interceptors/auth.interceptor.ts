@@ -35,27 +35,44 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
       return next(req);
     }
 
-    // Preparar headers para la petición autenticada
-    const headers: { [key: string]: string } = {
-      Authorization: `Bearer ${token}`
-    };
+    let authReq;
 
-    // Solo agregar Content-Type si no es FormData
-    // FormData establece automáticamente multipart/form-data con boundary
-    if (!(req.body instanceof FormData)) {
-      headers['Content-Type'] = req.headers.get('Content-Type') || 'application/json';
+    // Manejar FormData de forma especial
+    if (req.body instanceof FormData) {
+      console.log('📦 FormData detectado - solo agregando Authorization header');
+
+      // Para FormData, SOLO agregar Authorization, NO tocar Content-Type
+      authReq = req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      console.log('✅ FormData - Token agregado sin Content-Type:', {
+        url: req.url,
+        tokenPreview: token.substring(0, 20) + '...',
+        isFormData: true,
+        hasContentType: authReq.headers.has('Content-Type'),
+        allHeaders: authReq.headers.keys()
+      });
+    } else {
+      console.log('📄 JSON detectado - agregando Authorization y Content-Type');
+
+      // Para JSON, agregar tanto Authorization como Content-Type
+      authReq = req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': req.headers.get('Content-Type') || 'application/json'
+        }
+      });
+
+      console.log('✅ JSON - Token y Content-Type agregados:', {
+        url: req.url,
+        tokenPreview: token.substring(0, 20) + '...',
+        isFormData: false,
+        contentType: authReq.headers.get('Content-Type')
+      });
     }
-
-    const authReq = req.clone({
-      setHeaders: headers
-    });
-
-    console.log('✅ Token agregado a la petición:', {
-      url: req.url,
-      tokenPreview: token.substring(0, 20) + '...',
-      isFormData: req.body instanceof FormData,
-      contentType: authReq.headers.get('Content-Type')
-    });
 
     return next(authReq);
   }
